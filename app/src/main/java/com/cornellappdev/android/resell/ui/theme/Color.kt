@@ -14,7 +14,7 @@ val Pink40 = Color(0xFF7D5260)
 
 val ResellPurple = Color(0xFF9E70F6)
 
-val Primary = Color(0xFFFFFFFF)
+val Primary = Color(0xFF000000)
 val Secondary = Color(0xFF4D4D4D)
 val IconInactive = Color(0xFF4D4D4D)
 val Stroke = Color(0xFFD6D6D6)
@@ -34,12 +34,12 @@ private val gradientList = listOf(
 // TODO: offset probably wrong.
 val ResellGradientVertical = Brush.linearGradient(
     colors = gradientList,
-    start = Offset.Zero,
-    end = Offset(0f, 300f)
+    start = Offset(0f, 100f),
+    end = Offset.Zero
 )
 
 val ResellGradientDiagonal = Brush.linearGradient(
     colors = gradientList,
-    start = Offset(300f, 300f),
+    start = Offset(100f, 100f),
     end = Offset.Zero
 )

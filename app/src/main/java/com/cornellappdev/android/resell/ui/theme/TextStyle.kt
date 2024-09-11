@@ -23,7 +23,7 @@ object Style {
      */
     val resellBrand = TextStyle(
         fontSize = 32.sp,
-        fontFamily = rubikFamily, // TODO: Wrong font.
+        fontFamily = reemKufiFamily,
         fontWeight = FontWeight(400),
         brush = ResellGradientVertical,
     )
