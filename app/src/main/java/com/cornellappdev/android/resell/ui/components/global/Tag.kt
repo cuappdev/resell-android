@@ -1,6 +1,7 @@
 package com.cornellappdev.android.resell.ui.components.global
 
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -14,6 +15,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -33,7 +35,12 @@ fun Tag(
     )
     val border = BorderStroke(
         width = borderWidth.value.dp,
-        brush = animateResellBrush(active)
+        brush = animateResellBrush(
+            targetGradient = active,
+            start = Offset(100f, 100f),
+            end = Offset(0f, 0f),
+            animationSpec = tween(300),
+        )
     )
 
     Surface(
