@@ -9,14 +9,10 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
@@ -99,7 +95,11 @@ private fun HomeHeader() {
 private fun HomeListingsScroll() {
     LazyVerticalStaggeredGrid(
         columns = StaggeredGridCells.Fixed(2),
-        contentPadding = PaddingValues(horizontal = Padding.medium),
+        contentPadding = PaddingValues(
+            start = Padding.medium,
+            end = Padding.medium,
+            bottom = 100.dp
+        ),
         horizontalArrangement = Arrangement.spacedBy(Padding.medium),
         verticalItemSpacing = Padding.medium,
     ) {

@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.cornellappdev.android.resell.ui.screens.HomeScreen
+import com.cornellappdev.android.resell.ui.screens.TabScaffold
 import com.cornellappdev.android.resell.ui.theme.ResellTheme
 
 class MainActivity : ComponentActivity() {
@@ -20,7 +21,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             ResellTheme {
-                HomeScreen()
+                TabScaffold()
             }
         }
     }
