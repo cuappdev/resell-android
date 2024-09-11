@@ -28,8 +28,3 @@ For AppDev members, you can find the files from the `#resell-frontend` Slack cha
 3. Also, drag `GoogleService-Info.plist` into `ios/Resell` folder. DO NOT do this through Xcode.
 
 3. A GitHub Actions workflow should automatically run. Note that EAS Build and EAS Submit can be quite buggy sometimes so manual deployment may need to be done. If that's the case, make sure that you update the versions properly through the native files (such as Xcode).
-
-## Troubleshooting
-
-- The Classic Fix — Delete `node_modules` and run `yarn install`.
-- If iOS dependencies are not working, try `cd ios` and then `pod install`. You may also need to delete `Podfile.lock`.
