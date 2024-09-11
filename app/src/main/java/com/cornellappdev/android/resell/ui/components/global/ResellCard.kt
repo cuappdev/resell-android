@@ -36,7 +36,7 @@ import com.cornellappdev.android.resell.ui.theme.Style
  * @param price The price of the listing, as $###.##.
  */
 @Composable
-fun ListingCard(
+fun ResellCard(
     imageUrl: String,
     title: String,
     price: String,
@@ -90,7 +90,7 @@ fun ListingCard(
 @Composable
 private fun PreviewListingCard() {
     Column(modifier = Modifier.fillMaxSize()) {
-        ListingCard(
+        ResellCard(
             imageUrl = "",
             title = "Title",
             price = "$10.00",
@@ -99,7 +99,7 @@ private fun PreviewListingCard() {
 
         Spacer(modifier = Modifier.padding(Padding.large))
 
-        ListingCard(
+        ResellCard(
             imageUrl = "",
             title = "Richie man",
             price = "$999.99",

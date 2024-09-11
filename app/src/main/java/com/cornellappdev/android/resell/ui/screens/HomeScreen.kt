@@ -27,8 +27,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.times
 import com.cornellappdev.android.resell.R
-import com.cornellappdev.android.resell.ui.components.global.ListingCard
-import com.cornellappdev.android.resell.ui.components.global.Tag
+import com.cornellappdev.android.resell.ui.components.global.ResellCard
+import com.cornellappdev.android.resell.ui.components.global.ResellTag
 import com.cornellappdev.android.resell.ui.theme.Padding
 import com.cornellappdev.android.resell.ui.theme.Primary
 import com.cornellappdev.android.resell.ui.theme.Style
@@ -78,7 +78,7 @@ private fun HomeHeader() {
             }
 
             items(items = List(10) { it }) { item ->
-                Tag(
+                ResellTag(
                     text = "filter $item",
                     active = item % 5 == 0,
                     onClick = {}
@@ -104,7 +104,7 @@ private fun HomeListingsScroll() {
         verticalItemSpacing = Padding.medium,
     ) {
         items(items = List(20) { it }) { item ->
-            ListingCard(
+            ResellCard(
                 imageUrl = "https://media.licdn.com/dms/image/D4E03AQGOCNNbxGtcjw/profile-displayphoto-shrink_200_200/0/1704329714345?e=2147483647&v=beta&t=Kq7ex1pKyiifjOpuNIojeZ8f4dXjEAsNSpkJDXBwjxc",
                 title = "richie",
                 price = "$10.00",

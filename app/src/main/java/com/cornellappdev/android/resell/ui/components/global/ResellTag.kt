@@ -23,7 +23,7 @@ import com.cornellappdev.android.resell.ui.theme.Style
 import com.cornellappdev.android.resell.ui.theme.animateResellBrush
 
 @Composable
-fun Tag(
+fun ResellTag(
     text: String,
     modifier: Modifier = Modifier,
     active: Boolean = false,
@@ -63,7 +63,7 @@ fun Tag(
 private fun TagPreview() {
     var toggle by remember { mutableStateOf(true) }
     Column(modifier = Modifier.padding(8.dp)) {
-        Tag(
+        ResellTag(
             text = "active",
             active = true,
             onClick = {}
@@ -71,7 +71,7 @@ private fun TagPreview() {
 
         Spacer(modifier = Modifier.padding(8.dp))
 
-        Tag(
+        ResellTag(
             text = "inactive",
             active = false,
             onClick = {}
@@ -79,7 +79,7 @@ private fun TagPreview() {
 
         Spacer(modifier = Modifier.padding(8.dp))
 
-        Tag(
+        ResellTag(
             text = "toggleable",
             active = toggle,
             onClick = { toggle = !toggle }
