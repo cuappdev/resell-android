@@ -1,4 +1,4 @@
-package com.cornellappdev.android.resell.ui.util
+package com.cornellappdev.android.resell.util
 
 import android.view.WindowInsets
 import androidx.compose.foundation.layout.padding

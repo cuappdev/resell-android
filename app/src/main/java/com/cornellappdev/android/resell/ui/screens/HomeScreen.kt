@@ -26,23 +26,43 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.times
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.android.resell.R
+import com.cornellappdev.android.resell.model.Listing
 import com.cornellappdev.android.resell.ui.components.global.ResellCard
 import com.cornellappdev.android.resell.ui.components.global.ResellTag
 import com.cornellappdev.android.resell.ui.theme.Padding
 import com.cornellappdev.android.resell.ui.theme.Primary
 import com.cornellappdev.android.resell.ui.theme.Style
-import com.cornellappdev.android.resell.ui.util.defaultHorizontalPadding
+import com.cornellappdev.android.resell.util.defaultHorizontalPadding
+import com.cornellappdev.android.resell.viewmodel.HomeViewModel
 
 @Composable
-fun HomeScreen() {
+fun HomeScreen(
+    homeViewModel: HomeViewModel = hiltViewModel(),
+) {
+    val homeUiState = homeViewModel.collectUiStateValue()
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .windowInsetsPadding(WindowInsets.systemBars)
     ) {
         HomeHeader()
-        HomeListingsScroll()
+
+        when (homeUiState) {
+            is HomeViewModel.HomeUiState.Loading -> {}
+            is HomeViewModel.HomeUiState.Success -> {
+                HomeListingsScroll(
+                    listings = homeUiState.listings,
+                    onListingPressed = {
+                        homeViewModel.onListingPressed(it)
+                    }
+                )
+            }
+
+            is HomeViewModel.HomeUiState.Error -> {}
+        }
     }
 }
 
@@ -92,7 +112,10 @@ private fun HomeHeader() {
 }
 
 @Composable
-private fun HomeListingsScroll() {
+private fun HomeListingsScroll(
+    listings: List<Listing>,
+    onListingPressed: (Listing) -> Unit,
+) {
     LazyVerticalStaggeredGrid(
         columns = StaggeredGridCells.Fixed(2),
         contentPadding = PaddingValues(
@@ -103,14 +126,14 @@ private fun HomeListingsScroll() {
         horizontalArrangement = Arrangement.spacedBy(Padding.medium),
         verticalItemSpacing = Padding.medium,
     ) {
-        items(items = List(20) { it }) { item ->
+        items(items = listings) { item ->
             ResellCard(
                 imageUrl = "https://media.licdn.com/dms/image/D4E03AQGOCNNbxGtcjw/profile-displayphoto-shrink_200_200/0/1704329714345?e=2147483647&v=beta&t=Kq7ex1pKyiifjOpuNIojeZ8f4dXjEAsNSpkJDXBwjxc",
                 title = "richie",
                 price = "$10.00",
-                photoHeight = 150.dp + item * 8.dp,
+                photoHeight = 150.dp + (item.hashCode() % 10) * 8.dp,
             ) {
-
+                onListingPressed(item)
             }
         }
     }

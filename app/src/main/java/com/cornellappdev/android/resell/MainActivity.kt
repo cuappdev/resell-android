@@ -14,7 +14,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.cornellappdev.android.resell.ui.screens.HomeScreen
 import com.cornellappdev.android.resell.ui.screens.TabScaffold
 import com.cornellappdev.android.resell.ui.theme.ResellTheme
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
