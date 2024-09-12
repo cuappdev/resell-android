@@ -1,5 +1,8 @@
 package com.cornellappdev.android.resell.ui.screens
 
+import android.util.Log
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -10,16 +13,21 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.items
+import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -36,21 +44,28 @@ import com.cornellappdev.android.resell.ui.theme.Primary
 import com.cornellappdev.android.resell.ui.theme.Style
 import com.cornellappdev.android.resell.util.defaultHorizontalPadding
 import com.cornellappdev.android.resell.viewmodel.HomeViewModel
+import kotlinx.coroutines.launch
 
 @Composable
 fun HomeScreen(
     homeViewModel: HomeViewModel = hiltViewModel(),
 ) {
     val homeUiState = homeViewModel.collectUiStateValue()
+    val listState = rememberLazyStaggeredGridState()
+    val coroutineScope = rememberCoroutineScope()
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .windowInsetsPadding(WindowInsets.systemBars)
     ) {
         HomeHeader(
             activeFilter = homeUiState.activeFilter,
-            onFilterPressed = homeViewModel::onToggleFilter
+            onFilterPressed = homeViewModel::onToggleFilter,
+            onTopPressed = {
+                coroutineScope.launch {
+                    listState.animateScrollToItem(0)
+                }
+            }
         )
 
         when (homeUiState.loadedState) {
@@ -59,7 +74,8 @@ fun HomeScreen(
                     listings = homeUiState.listings,
                     onListingPressed = {
                         homeViewModel.onListingPressed(it)
-                    }
+                    },
+                    listState = listState,
                 )
             }
 
@@ -74,12 +90,20 @@ fun HomeScreen(
 private fun HomeHeader(
     activeFilter: HomeViewModel.HomeFilter,
     onFilterPressed: (HomeViewModel.HomeFilter) -> Unit = {},
+    onTopPressed: () -> Unit,
 ) {
     Column {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .defaultHorizontalPadding(),
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null,
+                ) {
+                    onTopPressed()
+                }
+                .defaultHorizontalPadding()
+                .windowInsetsPadding(WindowInsets.statusBars),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {
@@ -126,8 +150,10 @@ private fun HomeHeader(
 private fun HomeListingsScroll(
     listings: List<Listing>,
     onListingPressed: (Listing) -> Unit,
+    listState: LazyStaggeredGridState,
 ) {
     LazyVerticalStaggeredGrid(
+        state = listState,
         columns = StaggeredGridCells.Fixed(2),
         contentPadding = PaddingValues(
             start = Padding.medium,
