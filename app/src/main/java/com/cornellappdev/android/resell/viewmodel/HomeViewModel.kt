@@ -11,7 +11,7 @@ class HomeViewModel @Inject constructor() :
     ResellViewModel<HomeViewModel.HomeUiState>(
         initialUiState = HomeUiState(
             listings = richieListings(40),
-            filters = listOf(),
+            activeFilter = HomeFilter.RECENT,
             loadedState = ResellApiState.Success
         )
     ) {
@@ -19,7 +19,7 @@ class HomeViewModel @Inject constructor() :
     data class HomeUiState(
         val loadedState: ResellApiState,
         val listings: List<Listing>,
-        val filters: List<HomeFilter>,
+        val activeFilter: HomeFilter,
     )
 
     enum class HomeFilter {
@@ -32,11 +32,7 @@ class HomeViewModel @Inject constructor() :
 
     fun onToggleFilter(filter: HomeFilter) {
         applyMutation {
-            if (filters.contains(filter)) {
-                copy(filters = filters - filter)
-            } else {
-                copy(filters = filters + filter)
-            }
+            copy(activeFilter = filter)
         }
     }
 }

@@ -3,6 +3,8 @@ package com.cornellappdev.android.resell.ui.components.global
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
@@ -44,10 +46,14 @@ fun ResellTag(
     )
 
     Surface(
-        onClick = onClick,
         shape = RoundedCornerShape(999.dp),
         border = border,
-        modifier = modifier,
+        modifier = modifier.clickable(
+            interactionSource = remember { MutableInteractionSource() },
+            indication = null
+        ) {
+            onClick()
+        },
         color = Color.White
     ) {
         Text(

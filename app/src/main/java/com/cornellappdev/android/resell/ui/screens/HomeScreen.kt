@@ -23,7 +23,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.capitalize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.times
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -50,7 +49,7 @@ fun HomeScreen(
             .windowInsetsPadding(WindowInsets.systemBars)
     ) {
         HomeHeader(
-            filters = homeUiState.filters,
+            activeFilter = homeUiState.activeFilter,
             onFilterPressed = homeViewModel::onToggleFilter
         )
 
@@ -73,7 +72,7 @@ fun HomeScreen(
 
 @Composable
 private fun HomeHeader(
-    filters: List<HomeViewModel.HomeFilter>,
+    activeFilter: HomeViewModel.HomeFilter,
     onFilterPressed: (HomeViewModel.HomeFilter) -> Unit = {},
 ) {
     Column {
@@ -109,7 +108,7 @@ private fun HomeHeader(
                     text = filter.name.lowercase().replaceFirstChar {
                         it.uppercase()
                     },
-                    active = filter in filters,
+                    active = filter == activeFilter,
                     onClick = { onFilterPressed(filter) }
                 )
             }
