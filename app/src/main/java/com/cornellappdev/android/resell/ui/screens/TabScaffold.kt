@@ -26,21 +26,22 @@ fun TabScaffold() {
             label = "screen switch",
             transitionSpec = {
                 fadeIn(
-                    animationSpec = tween(220, delayMillis = 90)
+                    animationSpec = tween(300, delayMillis = 0)
                 ).togetherWith(
                     fadeOut(
-                        animationSpec = tween(90)
+                        animationSpec = tween(300)
                     )
                 )
             }
         ) { state ->
             when (state) {
                 ResellScreen.Home -> HomeScreen()
-                else -> {
-                    Text(
-                        text = "Not implemented yet",
-                        modifier = Modifier.fillMaxSize()
-                    )
+                ResellScreen.Bookmarks -> SavedScreen()
+                ResellScreen.Messages -> {
+
+                }
+                ResellScreen.User -> {
+
                 }
             }
         }

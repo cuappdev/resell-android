@@ -4,7 +4,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
@@ -14,12 +13,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.windowInsetsPadding
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState
-import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
-import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
-import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -30,65 +23,45 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.times
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.android.resell.R
-import com.cornellappdev.android.resell.model.Listing
-import com.cornellappdev.android.resell.model.ResellApiState
-import com.cornellappdev.android.resell.ui.components.global.ResellCard
 import com.cornellappdev.android.resell.ui.components.global.ResellListingsScroll
-import com.cornellappdev.android.resell.ui.components.global.ResellTag
 import com.cornellappdev.android.resell.ui.theme.Padding
 import com.cornellappdev.android.resell.ui.theme.Primary
 import com.cornellappdev.android.resell.ui.theme.Style
 import com.cornellappdev.android.resell.util.defaultHorizontalPadding
-import com.cornellappdev.android.resell.viewmodel.HomeViewModel
+import com.cornellappdev.android.resell.viewmodel.SavedViewModel
 import kotlinx.coroutines.launch
 
 @Composable
-fun HomeScreen(
-    homeViewModel: HomeViewModel = hiltViewModel(),
+fun SavedScreen(
+    savedViewModel: SavedViewModel = hiltViewModel(),
 ) {
-    val homeUiState = homeViewModel.collectUiStateValue()
-    val listState = rememberLazyStaggeredGridState()
+    val savedUiState = savedViewModel.collectUiStateValue()
     val coroutineScope = rememberCoroutineScope()
+    val listState = rememberLazyStaggeredGridState()
 
     Column(
         modifier = Modifier
             .fillMaxSize()
     ) {
-        HomeHeader(
-            activeFilter = homeUiState.activeFilter,
-            onFilterPressed = homeViewModel::onToggleFilter,
+        SavedHeader(
             onTopPressed = {
                 coroutineScope.launch {
                     listState.animateScrollToItem(0)
                 }
             }
         )
-
-        when (homeUiState.loadedState) {
-            is ResellApiState.Success -> {
-                ResellListingsScroll(
-                    listings = homeUiState.listings,
-                    onListingPressed = {
-                        homeViewModel.onListingPressed(it)
-                    },
-                    listState = listState,
-                )
-            }
-
-            is ResellApiState.Loading -> {}
-
-            is ResellApiState.Error -> {}
-        }
+        ResellListingsScroll(
+            listings = savedUiState.listings,
+            listState = listState,
+            onListingPressed = savedViewModel::onListingPressed
+        )
     }
 }
 
 @Composable
-private fun HomeHeader(
-    activeFilter: HomeViewModel.HomeFilter,
-    onFilterPressed: (HomeViewModel.HomeFilter) -> Unit = {},
+private fun SavedHeader(
     onTopPressed: () -> Unit,
 ) {
     Column {
@@ -107,8 +80,8 @@ private fun HomeHeader(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
-                text = "resell",
-                style = Style.resellBrand
+                text = "Saved",
+                style = Style.heading1
             )
             Icon(
                 painter = painterResource(id = R.drawable.ic_search),
@@ -116,29 +89,6 @@ private fun HomeHeader(
                 tint = Primary,
                 modifier = Modifier.size(25.dp)
             )
-        }
-
-        // filters
-        LazyRow(
-            horizontalArrangement = Arrangement.spacedBy(Padding.medium, Alignment.Start),
-        ) {
-            item {
-                Spacer(modifier = Modifier.size(Padding.medium))
-            }
-
-            items(items = HomeViewModel.HomeFilter.entries) { filter ->
-                ResellTag(
-                    text = filter.name.lowercase().replaceFirstChar {
-                        it.uppercase()
-                    },
-                    active = filter == activeFilter,
-                    onClick = { onFilterPressed(filter) }
-                )
-            }
-
-            item {
-                Spacer(modifier = Modifier.size(Padding.medium))
-            }
         }
 
         Spacer(modifier = Modifier.height(Padding.medium))
