@@ -23,12 +23,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.text.capitalize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.times
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.android.resell.R
 import com.cornellappdev.android.resell.model.Listing
+import com.cornellappdev.android.resell.model.ResellApiState
 import com.cornellappdev.android.resell.ui.components.global.ResellCard
 import com.cornellappdev.android.resell.ui.components.global.ResellTag
 import com.cornellappdev.android.resell.ui.theme.Padding
@@ -48,11 +49,13 @@ fun HomeScreen(
             .fillMaxSize()
             .windowInsetsPadding(WindowInsets.systemBars)
     ) {
-        HomeHeader()
+        HomeHeader(
+            filters = homeUiState.filters,
+            onFilterPressed = homeViewModel::onToggleFilter
+        )
 
-        when (homeUiState) {
-            is HomeViewModel.HomeUiState.Loading -> {}
-            is HomeViewModel.HomeUiState.Success -> {
+        when (homeUiState.loadedState) {
+            is ResellApiState.Success -> {
                 HomeListingsScroll(
                     listings = homeUiState.listings,
                     onListingPressed = {
@@ -61,14 +64,18 @@ fun HomeScreen(
                 )
             }
 
-            is HomeViewModel.HomeUiState.Error -> {}
+            is ResellApiState.Loading -> {}
+
+            is ResellApiState.Error -> {}
         }
     }
 }
 
-@Preview
 @Composable
-private fun HomeHeader() {
+private fun HomeHeader(
+    filters: List<HomeViewModel.HomeFilter>,
+    onFilterPressed: (HomeViewModel.HomeFilter) -> Unit = {},
+) {
     Column {
         Row(
             modifier = Modifier
@@ -97,13 +104,18 @@ private fun HomeHeader() {
                 Spacer(modifier = Modifier.size(Padding.medium))
             }
 
-            items(items = List(10) { it }) { item ->
+            items(items = HomeViewModel.HomeFilter.entries) { filter ->
                 ResellTag(
-                    text = "filter $item",
-                    active = item % 5 == 0,
-                    onClick = {}
+                    text = filter.name.lowercase().replaceFirstChar {
+                        it.uppercase()
+                    },
+                    active = filter in filters,
+                    onClick = { onFilterPressed(filter) }
                 )
+            }
 
+            item {
+                Spacer(modifier = Modifier.size(Padding.medium))
             }
         }
 
