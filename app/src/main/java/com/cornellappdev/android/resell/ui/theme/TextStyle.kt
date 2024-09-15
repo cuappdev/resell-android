@@ -28,6 +28,16 @@ object Style {
         brush = ResellGradientVertical,
     )
 
+    /**
+     * The Resell title/brand text style.
+     */
+    val resellLogo = TextStyle(
+        fontSize = 48.sp,
+        fontFamily = reemKufiFamily,
+        fontWeight = FontWeight(400),
+        brush = ResellGradientLogo,
+    )
+
     val body1 = TextStyle(
         fontSize = 18.sp,
         fontFamily = rubikFamily,
@@ -96,5 +106,12 @@ object Style {
         fontFamily = rubikFamily,
         fontWeight = FontWeight(400),
         color = Color.Black,
+    )
+
+    val appDev = TextStyle(
+        fontSize = 17.sp,
+        fontFamily = helveticaFamily,
+        fontWeight = FontWeight(400),
+        color = AppDev,
     )
 }

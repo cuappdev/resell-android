@@ -29,3 +29,7 @@ val reemKufiFamily = FontFamily(
     Font(R.font.reem_kufi_bold, weight = FontWeight.Bold),
     Font(R.font.reem_kufi_semibold, weight = FontWeight.SemiBold)
 )
+
+val helveticaFamily = FontFamily(
+    Font(R.font.helvetica, weight = FontWeight.Normal)
+)

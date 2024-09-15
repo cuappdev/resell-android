@@ -24,6 +24,8 @@ val IconInactive = Color(0xFFBEBEBE)
 val Stroke = Color(0xFFD6D6D6)
 val Wash = Color(0xFFF4F4F4)
 val Tint = Color(0x33000000)
+val AppDev = Color(0xFF707070)
+val Warning = Color(0xFFF20000)
 
 private val gradientTop = Color(0xFFDF9856)
 private val gradientMiddle = Color(0xFFAD68E3)
@@ -40,6 +42,12 @@ val ResellGradientVertical = Brush.linearGradient(
     colors = gradientList,
     start = Offset(0f, 100f),
     end = Offset.Zero
+)
+
+val ResellGradientLogo = Brush.linearGradient(
+    colors = gradientList,
+    start = Offset(200f,  0f),
+    end = Offset(0f, 200f)
 )
 
 val ResellGradientDiagonal = Brush.linearGradient(
