@@ -3,7 +3,6 @@ package com.cornellappdev.resell.android.model
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.util.Log
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContract
@@ -72,14 +71,21 @@ class LoginRepository @Inject constructor(
     /**
      * Constructs and returns a GoogleSignInClient.
      */
-    private fun getGoogleSignInClient(): GoogleSignInClient {
-        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+    private val googleSignInClient: GoogleSignInClient =
+        GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestIdToken(BuildConfig.GOOGLE_AUTH_CLIENT_ID)
             .requestEmail()
-            .build()
+            .build().let { gso ->
+                GoogleSignIn.getClient(context, gso)
+            }
 
-        return GoogleSignIn.getClient(context, gso)
+    /**
+     * If an email is invalid, such as it not being a Cornell email, sign out.
+     */
+    fun invalidateEmail() {
+        googleSignInClient.signOut()
     }
+
 
     /**
      * A contract for google login.
@@ -112,7 +118,7 @@ class LoginRepository @Inject constructor(
     ): ManagedActivityResultLauncher<Int, Task<GoogleSignInAccount>?> {
         val coroutineScope = CoroutineScope(Dispatchers.Main)
         return rememberLauncherForActivityResult(
-            contract = AuthResultContract(getGoogleSignInClient())
+            contract = AuthResultContract(googleSignInClient)
         ) {
             try {
                 val account = it?.getResult(ApiException::class.java)

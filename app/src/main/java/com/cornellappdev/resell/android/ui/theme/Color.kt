@@ -64,7 +64,7 @@ val ResellGradientVertical = Brush.linearGradient(
 
 val ResellGradientLogo = Brush.linearGradient(
     colors = gradientList,
-    start = Offset(200f,  0f),
+    start = Offset(200f, 0f),
     end = Offset(0f, 200f)
 )
 

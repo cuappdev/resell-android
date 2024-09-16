@@ -4,6 +4,7 @@ animation = "1.7.1"
 coilCompose = "2.7.0"
 datastorePreferences = "1.1.1"
 firebaseBom = "33.3.0"
+fragmentKtx = "1.8.3"
 hiltAndroidCompiler = "2.51.1"
 hiltNavigationCompose = "1.2.0"
 kotlin = "1.9.0"
@@ -15,6 +16,11 @@ kotlinxSerializationJsonVersion = "1.6.0"
 lifecycleRuntimeKtx = "2.8.5"
 activityCompose = "1.9.2"
 composeBom = "2024.04.01"
+lifecycleRuntimeKtxVersion = "<version>"
+lifecycleViewmodelKtx = "<version>"
+material = "1.12.0"
+materialVersion = "1.7.1"
+materialZ = "1.7.0-alpha04"
 navigationCompose = "2.8.0"
 playServicesAuthVersion = "21.2.0"
 datastoreCoreAndroid = "1.1.1"
@@ -23,7 +29,13 @@ datastoreCoreAndroid = "1.1.1"
 androidx-animation = { module = "androidx.compose.animation:animation", version.ref = "animation" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferences" }
+androidx-fragment-ktx = { module = "androidx.fragment:fragment-ktx", version.ref = "fragmentKtx" }
 androidx-hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "hiltNavigationCompose" }
+androidx-lifecycle-runtime-ktx-vversion = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtxVersion" }
+androidx-lifecycle-viewmodel-ktx = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "lifecycleViewmodelKtx" }
+androidx-material = { module = "androidx.compose.material:material", version.ref = "materialVersion" }
+androidx-material-navigation = { module = "androidx.compose.material:material-navigation" }
+androidx-material-z = { module = "androidx.compose.material:material-*", version.ref = "materialZ" }
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
 coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose" }
 firebase-auth-ktx = { module = "com.google.firebase:firebase-auth-ktx" }
@@ -46,6 +58,7 @@ androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-man
 androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
 androidx-datastore-core-android = { group = "androidx.datastore", name = "datastore-core-android", version.ref = "datastoreCoreAndroid" }
+material = { module = "com.google.android.material:material", version.ref = "material" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

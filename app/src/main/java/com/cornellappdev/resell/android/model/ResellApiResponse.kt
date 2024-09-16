@@ -12,7 +12,7 @@ sealed class ResellApiResponse<out T : Any> {
 }
 
 sealed class ResellApiState {
-    data object Success: ResellApiState()
-    data object Error: ResellApiState()
-    data object Loading: ResellApiState()
+    data object Success : ResellApiState()
+    data object Error : ResellApiState()
+    data object Loading : ResellApiState()
 }

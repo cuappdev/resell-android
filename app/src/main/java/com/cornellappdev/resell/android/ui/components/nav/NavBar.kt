@@ -103,7 +103,8 @@ fun NavBar(
 @Preview
 @Composable
 private fun NavBarPreview() {
-    val selectedTab: MutableState<ResellMainScreen> = remember { mutableStateOf(ResellMainScreen.Home) }
+    val selectedTab: MutableState<ResellMainScreen> =
+        remember { mutableStateOf(ResellMainScreen.Home) }
 
     NavBar(
         onHomeClick = { selectedTab.value = ResellMainScreen.Home },

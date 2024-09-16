@@ -17,7 +17,8 @@ import com.cornellappdev.resell.android.ui.components.nav.NavBar
 
 @Composable
 fun MainTabScaffold() {
-    val selectedScreen: MutableState<ResellMainScreen> = remember { mutableStateOf(ResellMainScreen.Home) }
+    val selectedScreen: MutableState<ResellMainScreen> =
+        remember { mutableStateOf(ResellMainScreen.Home) }
 
     Box(modifier = Modifier.fillMaxSize()) {
         AnimatedContent(
@@ -39,6 +40,7 @@ fun MainTabScaffold() {
                 ResellMainScreen.Messages -> {
 
                 }
+
                 ResellMainScreen.User -> {
 
                 }
