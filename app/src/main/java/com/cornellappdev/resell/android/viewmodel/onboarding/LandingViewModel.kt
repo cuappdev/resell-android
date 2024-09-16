@@ -63,7 +63,8 @@ class LandingViewModel @Inject constructor(
                     copy(buttonState = ResellTextButtonState.DISABLED)
                 }
 
-                navController.navigate(ResellRootRoute.MAIN)
+                // TODO Should have some logic to check if setup already or not
+                navController.navigate(ResellRootRoute.ONBOARDING)
             }
         }
         // Not a Cornell email.
