@@ -7,11 +7,12 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.cornellappdev.android.resell.ui.theme.LoginBlurBrush
+import com.cornellappdev.android.resell.ui.theme.LoginBlurBrushStart
 
 
 enum class Corner {
@@ -21,6 +22,7 @@ enum class Corner {
 @Composable
 fun BlurBlob(
     modifier: Modifier = Modifier,
+    brush: Brush = LoginBlurBrushStart,
     corner: Corner,
 ) {
     val scaleX = when (corner) {
@@ -40,7 +42,7 @@ fun BlurBlob(
     Box(
         modifier
             .graphicsLayer(scaleX = scaleX, scaleY = scaleY)
-            .background(brush = LoginBlurBrush)
+            .background(brush = brush)
             .size(500.dp)
     ) {}
 }

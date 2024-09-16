@@ -27,13 +27,22 @@ val Tint = Color(0x33000000)
 val AppDev = Color(0xFF707070)
 val Warning = Color(0xFFF20000)
 
-val LoginBlurBrush = Brush.radialGradient(
+val LoginBlurBrushStart = Brush.radialGradient(
     colors = listOf(
         Color(0x338F00FF),
         Color(0x008F00FF),
     ),
     center = Offset(0f, 0f),
-    radius = 1500f
+    radius = 1400f
+)
+
+val LoginBlurBrushEnd = Brush.radialGradient(
+    colors = listOf(
+        Color(0x33FF7A00),
+        Color(0x00FF13E7),
+    ),
+    center = Offset(0f, 0f),
+    radius = 1400f
 )
 
 private val gradientTop = Color(0xFFDF9856)

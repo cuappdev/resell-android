@@ -17,7 +17,7 @@ import com.cornellappdev.android.resell.ui.components.nav.NavBar
 
 @Composable
 fun MainTabScaffold() {
-    val selectedScreen: MutableState<ResellScreen> = remember { mutableStateOf(ResellScreen.Home) }
+    val selectedScreen: MutableState<ResellMainScreen> = remember { mutableStateOf(ResellMainScreen.Home) }
 
     Box(modifier = Modifier.fillMaxSize()) {
         AnimatedContent(
@@ -34,32 +34,32 @@ fun MainTabScaffold() {
             }
         ) { state ->
             when (state) {
-                ResellScreen.Home -> HomeScreen()
-                ResellScreen.Bookmarks -> SavedScreen()
-                ResellScreen.Messages -> {
+                ResellMainScreen.Home -> HomeScreen()
+                ResellMainScreen.Bookmarks -> SavedScreen()
+                ResellMainScreen.Messages -> {
 
                 }
-                ResellScreen.User -> {
+                ResellMainScreen.User -> {
 
                 }
             }
         }
 
         NavBar(
-            onHomeClick = { selectedScreen.value = ResellScreen.Home },
-            onBookmarksClick = { selectedScreen.value = ResellScreen.Bookmarks },
-            onMessagesClick = { selectedScreen.value = ResellScreen.Messages },
-            onUserClick = { selectedScreen.value = ResellScreen.User },
+            onHomeClick = { selectedScreen.value = ResellMainScreen.Home },
+            onBookmarksClick = { selectedScreen.value = ResellMainScreen.Bookmarks },
+            onMessagesClick = { selectedScreen.value = ResellMainScreen.Messages },
+            onUserClick = { selectedScreen.value = ResellMainScreen.User },
             selectedTab = selectedScreen.value,
             modifier = Modifier.align(Alignment.BottomCenter)
         )
     }
 }
 
-sealed class ResellScreen {
+sealed class ResellMainScreen {
 
-    data object Home : ResellScreen()
-    data object Bookmarks : ResellScreen()
-    data object Messages : ResellScreen()
-    data object User : ResellScreen()
+    data object Home : ResellMainScreen()
+    data object Bookmarks : ResellMainScreen()
+    data object Messages : ResellMainScreen()
+    data object User : ResellMainScreen()
 }

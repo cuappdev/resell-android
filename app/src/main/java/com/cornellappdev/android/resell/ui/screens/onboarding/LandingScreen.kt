@@ -8,16 +8,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -26,24 +23,39 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.android.resell.R
 import com.cornellappdev.android.resell.ui.components.global.ResellTextButton
 import com.cornellappdev.android.resell.ui.components.global.ResellTextButtonState
 import com.cornellappdev.android.resell.ui.components.onboarding.BlurBlob
 import com.cornellappdev.android.resell.ui.components.onboarding.Corner
 import com.cornellappdev.android.resell.ui.theme.AppDev
+import com.cornellappdev.android.resell.ui.theme.LoginBlurBrushEnd
 import com.cornellappdev.android.resell.ui.theme.Style
+import com.cornellappdev.android.resell.viewmodel.onboarding.LandingViewModel
 import kotlinx.coroutines.delay
 
 @Composable
-fun LandingScreen() {
-    var showButton by remember { mutableStateOf(false) }
+fun LandingScreen(
+    landingViewModel: LandingViewModel = hiltViewModel(),
+) {
+    val state = landingViewModel.collectUiStateValue()
+
+    val resultLauncher = landingViewModel.makeSignInLauncher()
+
     LaunchedEffect(Unit) {
         delay(1000)
-        showButton = true
+        landingViewModel.showButton()
     }
 
-    BlobbedContent(showButton)
+    BlobbedContent(
+        showButton = state.showButton,
+        buttonState = state.buttonState,
+        onSignInPressed = {
+            resultLauncher.launch(1)
+            landingViewModel.onSignInClick()
+        },
+    )
 }
 
 @Preview(apiLevel = 34)
@@ -51,12 +63,9 @@ fun LandingScreen() {
 fun BlobbedContent(
     showButton: Boolean = false,
     buttonState: ResellTextButtonState = ResellTextButtonState.ENABLED,
+    onSignInPressed: () -> Unit = {},
 ) {
-    Box {
-        LandingContent(
-            showButton = showButton,
-            buttonState = buttonState,
-        )
+    Box(modifier = Modifier.background(Color.White)) {
         BlurBlob(
             modifier = Modifier
                 .align(Alignment.BottomStart),
@@ -65,7 +74,13 @@ fun BlobbedContent(
         BlurBlob(
             modifier = Modifier
                 .align(Alignment.BottomEnd),
-            corner = Corner.BOTTOM_RIGHT
+            corner = Corner.BOTTOM_RIGHT,
+            brush = LoginBlurBrushEnd,
+        )
+        LandingContent(
+            showButton = showButton,
+            buttonState = buttonState,
+            onSignInPressed = onSignInPressed,
         )
     }
 }
@@ -74,6 +89,7 @@ fun BlobbedContent(
 private fun LandingContent(
     showButton: Boolean = false,
     buttonState: ResellTextButtonState = ResellTextButtonState.ENABLED,
+    onSignInPressed: () -> Unit,
 ) {
     val buttonAlpha = animateFloatAsState(
         targetValue = if (showButton) 1f else 0f,
@@ -82,11 +98,10 @@ private fun LandingContent(
 
     Column(
         modifier = Modifier
-            .fillMaxSize()
-            .background(color = Color.White),
+            .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Spacer(modifier = Modifier.weight(1f))
+        Spacer(modifier = Modifier.weight(2f))
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier,
@@ -105,10 +120,16 @@ private fun LandingContent(
         }
         Spacer(modifier = Modifier.weight(3f))
 
-        Box {
+        Box(
+            modifier = Modifier
+                .padding(bottom = 46.dp)
+                .heightIn(min = 48.dp)
+        ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.align(Alignment.Center)
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .alpha(1 - buttonAlpha.value)
             ) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_appdev),
@@ -122,19 +143,19 @@ private fun LandingContent(
                 Text(
                     text = "CornellAppDev",
                     style = Style.appDev,
-                    modifier = Modifier.alpha(1 - buttonAlpha.value),
                 )
             }
 
-            ResellTextButton(
-                text = "Login with NetID",
-                onClick = { /*TODO*/ },
-                modifier = Modifier.alpha(buttonAlpha.value),
-                state = buttonState,
-            )
-
+            if (showButton) {
+                ResellTextButton(
+                    text = "Login with NetID",
+                    onClick = { onSignInPressed() },
+                    modifier = Modifier
+                        .alpha(buttonAlpha.value)
+                        .align(Alignment.Center),
+                    state = buttonState,
+                )
+            }
         }
-
-        Spacer(modifier = Modifier.weight(.5f))
     }
 }

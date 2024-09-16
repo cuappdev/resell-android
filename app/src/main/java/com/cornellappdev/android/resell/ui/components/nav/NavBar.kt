@@ -21,13 +21,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.cornellappdev.android.resell.R
 import com.cornellappdev.android.resell.ui.components.global.BrushIcon
-import com.cornellappdev.android.resell.ui.screens.main.ResellScreen
+import com.cornellappdev.android.resell.ui.screens.main.ResellMainScreen
 import com.cornellappdev.android.resell.ui.theme.Padding
 import com.cornellappdev.android.resell.ui.theme.animateResellBrush
 
 @Composable
 fun NavBar(
-    selectedTab: ResellScreen,
+    selectedTab: ResellMainScreen,
     onHomeClick: () -> Unit,
     onBookmarksClick: () -> Unit,
     onMessagesClick: () -> Unit,
@@ -61,7 +61,7 @@ fun NavBar(
                         interactionSource = interactionSource
                     ) { onHomeClick() }
                     .size(27.dp),
-                brush = animateResellBrush(targetGradient = selectedTab == ResellScreen.Home)
+                brush = animateResellBrush(targetGradient = selectedTab == ResellMainScreen.Home)
             )
             BrushIcon(
                 painter = painterResource(id = R.drawable.ic_bookmark),
@@ -72,7 +72,7 @@ fun NavBar(
                         interactionSource = interactionSource
                     ) { onBookmarksClick() }
                     .size(27.dp),
-                brush = animateResellBrush(targetGradient = selectedTab == ResellScreen.Bookmarks)
+                brush = animateResellBrush(targetGradient = selectedTab == ResellMainScreen.Bookmarks)
             )
             BrushIcon(
                 painter = painterResource(id = R.drawable.ic_messages),
@@ -83,7 +83,7 @@ fun NavBar(
                         interactionSource = interactionSource
                     ) { onMessagesClick() }
                     .size(27.dp),
-                brush = animateResellBrush(targetGradient = selectedTab == ResellScreen.Messages)
+                brush = animateResellBrush(targetGradient = selectedTab == ResellMainScreen.Messages)
             )
             BrushIcon(
                 painter = painterResource(id = R.drawable.ic_user),
@@ -94,7 +94,7 @@ fun NavBar(
                         interactionSource = interactionSource
                     ) { onUserClick() }
                     .size(27.dp),
-                brush = animateResellBrush(targetGradient = selectedTab == ResellScreen.User)
+                brush = animateResellBrush(targetGradient = selectedTab == ResellMainScreen.User)
             )
         }
     }
@@ -103,13 +103,13 @@ fun NavBar(
 @Preview
 @Composable
 private fun NavBarPreview() {
-    val selectedTab: MutableState<ResellScreen> = remember { mutableStateOf(ResellScreen.Home) }
+    val selectedTab: MutableState<ResellMainScreen> = remember { mutableStateOf(ResellMainScreen.Home) }
 
     NavBar(
-        onHomeClick = { selectedTab.value = ResellScreen.Home },
-        onBookmarksClick = { selectedTab.value = ResellScreen.Bookmarks },
-        onMessagesClick = { selectedTab.value = ResellScreen.Messages },
-        onUserClick = { selectedTab.value = ResellScreen.User },
+        onHomeClick = { selectedTab.value = ResellMainScreen.Home },
+        onBookmarksClick = { selectedTab.value = ResellMainScreen.Bookmarks },
+        onMessagesClick = { selectedTab.value = ResellMainScreen.Messages },
+        onUserClick = { selectedTab.value = ResellMainScreen.User },
         selectedTab = selectedTab.value
     )
 }
