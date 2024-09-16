@@ -14,6 +14,7 @@ plugins {
     id("kotlin-kapt")
     id("com.google.dagger.hilt.android")
     id("org.jetbrains.kotlin.plugin.serialization")
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -74,6 +75,8 @@ android {
 }
 
 dependencies {
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.auth.ktx)
     implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.hilt.android)
     implementation(libs.androidx.datastore.core.android)

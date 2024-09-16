@@ -73,7 +73,6 @@ class LoginRepository @Inject constructor(
      * Constructs and returns a GoogleSignInClient.
      */
     private fun getGoogleSignInClient(): GoogleSignInClient {
-        Log.d("helpme", BuildConfig.GOOGLE_AUTH_CLIENT_ID)
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestIdToken(BuildConfig.GOOGLE_AUTH_CLIENT_ID)
             .requestEmail()
@@ -89,7 +88,6 @@ class LoginRepository @Inject constructor(
     class AuthResultContract(private val googleSignInClient: GoogleSignInClient) :
         ActivityResultContract<Int, Task<GoogleSignInAccount>?>() {
         override fun parseResult(resultCode: Int, intent: Intent?): Task<GoogleSignInAccount>? {
-            Log.d("helpme", "parseResult: $resultCode with intent: $intent")
             return when (resultCode) {
                 Activity.RESULT_OK -> GoogleSignIn.getSignedInAccountFromIntent(intent)
                 else -> null
@@ -119,7 +117,6 @@ class LoginRepository @Inject constructor(
             try {
                 val account = it?.getResult(ApiException::class.java)
                 if (account == null || account.idToken == null || account.email == null) {
-                    Log.d("helpme", "nulled. $account ${account?.idToken} ${account?.email}")
                     onError()
                 } else {
                     coroutineScope.launch {
@@ -130,7 +127,6 @@ class LoginRepository @Inject constructor(
                     }
                 }
             } catch (e: ApiException) {
-                Log.d("helpme", "exception: ${e.message}")
                 onError()
             }
         }

@@ -3,6 +3,7 @@ agp = "8.5.1"
 animation = "1.7.1"
 coilCompose = "2.7.0"
 datastorePreferences = "1.1.1"
+firebaseBom = "33.3.0"
 hiltAndroidCompiler = "2.51.1"
 hiltNavigationCompose = "1.2.0"
 kotlin = "1.9.0"
@@ -25,6 +26,8 @@ androidx-datastore-preferences = { module = "androidx.datastore:datastore-prefer
 androidx-hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "hiltNavigationCompose" }
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
 coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose" }
+firebase-auth-ktx = { module = "com.google.firebase:firebase-auth-ktx" }
+firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
 gms-play-services-auth = { module = "com.google.android.gms:play-services-auth", version.ref = "playServicesAuthVersion" }
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltAndroidCompiler" }
 hilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hiltAndroidCompiler" }
