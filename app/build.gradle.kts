@@ -17,11 +17,11 @@ plugins {
 }
 
 android {
-    namespace = "com.cornellappdev.android.resell"
+    namespace = "com.cornellappdev.resell.android"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.cornellappdev.android.resell"
+        applicationId = "com.cornellappdev.resell.android"
         minSdk = 28
         targetSdk = 35
         versionCode = 1
