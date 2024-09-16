@@ -1,4 +1,4 @@
-package com.cornellappdev.android.resell.ui.screens
+package com.cornellappdev.android.resell.ui.screens.main
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.tween
@@ -7,7 +7,6 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
@@ -17,7 +16,7 @@ import androidx.compose.ui.Modifier
 import com.cornellappdev.android.resell.ui.components.nav.NavBar
 
 @Composable
-fun TabScaffold() {
+fun MainTabScaffold() {
     val selectedScreen: MutableState<ResellScreen> = remember { mutableStateOf(ResellScreen.Home) }
 
     Box(modifier = Modifier.fillMaxSize()) {

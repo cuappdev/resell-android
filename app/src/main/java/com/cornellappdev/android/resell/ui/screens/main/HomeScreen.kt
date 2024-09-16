@@ -1,10 +1,9 @@
-package com.cornellappdev.android.resell.ui.screens
+package com.cornellappdev.android.resell.ui.screens.main
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
@@ -16,10 +15,6 @@ import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState
-import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
-import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
-import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -30,12 +25,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.times
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.android.resell.R
-import com.cornellappdev.android.resell.model.Listing
 import com.cornellappdev.android.resell.model.ResellApiState
-import com.cornellappdev.android.resell.ui.components.global.ResellCard
 import com.cornellappdev.android.resell.ui.components.global.ResellListingsScroll
 import com.cornellappdev.android.resell.ui.components.global.ResellTag
 import com.cornellappdev.android.resell.ui.theme.Padding

@@ -21,7 +21,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.cornellappdev.android.resell.R
 import com.cornellappdev.android.resell.ui.components.global.BrushIcon
-import com.cornellappdev.android.resell.ui.screens.ResellScreen
+import com.cornellappdev.android.resell.ui.screens.main.ResellScreen
 import com.cornellappdev.android.resell.ui.theme.Padding
 import com.cornellappdev.android.resell.ui.theme.animateResellBrush
 

@@ -4,15 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.cornellappdev.android.resell.ui.screens.HomeScreen
-import com.cornellappdev.android.resell.ui.screens.TabScaffold
+import com.cornellappdev.android.resell.ui.screens.main.MainTabScaffold
 import com.cornellappdev.android.resell.ui.theme.ResellTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -23,7 +15,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             ResellTheme {
-                TabScaffold()
+                MainTabScaffold()
             }
         }
     }

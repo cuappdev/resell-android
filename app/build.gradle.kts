@@ -70,6 +70,8 @@ android {
 dependencies {
     implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.hilt.android)
+    implementation(libs.androidx.datastore.core.android)
+    implementation(libs.androidx.datastore.preferences)
     kapt(libs.hilt.android.compiler)
     implementation(libs.coil.compose)
     implementation(libs.gms.play.services.auth)

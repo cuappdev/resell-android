@@ -1,4 +1,4 @@
-package com.cornellappdev.android.resell.ui.screens
+package com.cornellappdev.android.resell.ui.screens.main
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
