@@ -1,0 +1,26 @@
+package com.cornellappdev.resell.android.viewmodel
+
+import com.cornellappdev.resell.android.model.Listing
+import com.cornellappdev.resell.android.model.ResellApiState
+import com.cornellappdev.resell.android.util.richieListings
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
+
+@HiltViewModel
+class SavedViewModel @Inject constructor() :
+    ResellViewModel<SavedViewModel.SavedUiState>(
+        initialUiState = SavedUiState(
+            listings = richieListings(40),
+            loadedState = ResellApiState.Success
+        )
+    ) {
+
+    data class SavedUiState(
+        val loadedState: ResellApiState,
+        val listings: List<Listing>,
+    )
+
+    fun onListingPressed(listing: Listing) {
+        // TODO: Implement
+    }
+}
