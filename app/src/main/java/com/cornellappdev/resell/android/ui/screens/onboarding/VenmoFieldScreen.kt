@@ -41,7 +41,6 @@ import com.cornellappdev.resell.android.viewmodel.onboarding.VenmoFieldViewModel
 @Composable
 fun VenmoFieldScreen(
     venmoFieldViewModel: VenmoFieldViewModel = hiltViewModel(),
-    onBack: () -> Unit,
     onNavigateProceed: () -> Unit,
 ) {
     val uiState = venmoFieldViewModel.collectUiStateValue()
@@ -61,9 +60,7 @@ fun VenmoFieldScreen(
             .background(Color.White),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        ScreenHeader(
-            onBack = onBack
-        )
+        ScreenHeader()
 
         ResellTextEntry(
             label = "Venmo Handle",
@@ -95,9 +92,7 @@ fun VenmoFieldScreen(
 
 @Preview
 @Composable
-private fun ScreenHeader(
-    onBack: () -> Unit = {},
-) {
+private fun ScreenHeader() {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -107,18 +102,6 @@ private fun ScreenHeader(
         Spacer(Modifier.height(16.dp))
 
         Box(modifier = Modifier.fillMaxWidth()) {
-            Icon(
-                painter = painterResource(id = R.drawable.ic_chevron_left),
-                contentDescription = null,
-                modifier = Modifier
-                    .clickable(
-                        interactionSource = remember { MutableInteractionSource() },
-                        indication = null,
-                    ) {
-                        onBack()
-                    }
-            )
-
             Row(
                 verticalAlignment = Alignment.Bottom,
                 modifier = Modifier.align(Alignment.Center)

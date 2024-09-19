@@ -23,13 +23,11 @@ fun OnboardingScaffold() {
     val navigator = LocalNavigator.current
 
     BackHandler {
-        Log.d("helpme", "back")
         if (selectedScreen.value == ResellOnboardingScreen.Setup) {
             navigator.navigate(ResellRootRoute.LOGIN)
         } else {
             selectedScreen.value = ResellOnboardingScreen.Setup
         }
-        Log.d("helpme", selectedScreen.value.toString())
     }
 
     AnimatedContent(
@@ -52,9 +50,6 @@ fun OnboardingScaffold() {
             }
 
             ResellOnboardingScreen.Venmo -> VenmoFieldScreen(
-                onBack = {
-                    selectedScreen.value = ResellOnboardingScreen.Setup
-                },
                 onNavigateProceed = {
                     navigator.navigate(ResellRootRoute.MAIN)
                 }
