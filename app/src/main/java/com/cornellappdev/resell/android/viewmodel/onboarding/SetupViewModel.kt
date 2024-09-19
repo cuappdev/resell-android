@@ -1,6 +1,5 @@
 package com.cornellappdev.resell.android.viewmodel.onboarding
 
-import android.app.Application
 import android.content.Context
 import android.graphics.Bitmap
 import android.net.Uri
@@ -32,7 +31,7 @@ class SetupViewModel @Inject constructor(
         val buttonState: ResellTextButtonState
             get() = if (loading) {
                 ResellTextButtonState.SPINNING
-            } else if (errors.isEmpty() && checkedEULA && username.isNotEmpty()) {
+            } else if (checkedEULA && username.isNotEmpty()) {
                 ResellTextButtonState.ENABLED
             } else {
                 ResellTextButtonState.DISABLED
@@ -47,7 +46,7 @@ class SetupViewModel @Inject constructor(
 
     fun onUsernameChanged(username: String) {
         applyMutation {
-            copy(username = username, errors = emptyList())
+            copy(username = username)
         }
     }
 
@@ -60,7 +59,10 @@ class SetupViewModel @Inject constructor(
     fun onNextClick() {
         // TODO
         applyMutation {
-            copy(loading = true)
+            copy(
+                errors = listOf(),
+                loading = true
+            )
         }
 
         // TODO testing
