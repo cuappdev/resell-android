@@ -41,7 +41,6 @@ import com.cornellappdev.resell.android.viewmodel.onboarding.VenmoFieldViewModel
 @Composable
 fun VenmoFieldScreen(
     venmoFieldViewModel: VenmoFieldViewModel = hiltViewModel(),
-    onBack: () -> Unit,
     onNavigateProceed: () -> Unit,
 ) {
     val uiState = venmoFieldViewModel.collectUiStateValue()
