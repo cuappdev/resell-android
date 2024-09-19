@@ -30,7 +30,6 @@ import androidx.compose.ui.unit.dp
 import com.cornellappdev.resell.android.ui.theme.Stroke
 import com.cornellappdev.resell.android.ui.theme.Style
 import com.cornellappdev.resell.android.ui.theme.Wash
-import com.cornellappdev.resell.android.util.defaultHorizontalPadding
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

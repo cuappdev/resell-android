@@ -12,6 +12,7 @@ import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -28,8 +29,9 @@ import androidx.navigation.compose.composable
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButton
 import com.cornellappdev.resell.android.ui.screens.main.MainTabScaffold
 import com.cornellappdev.resell.android.ui.screens.onboarding.LandingScreen
-import com.cornellappdev.resell.android.ui.screens.onboarding.SetupScreen
+import com.cornellappdev.resell.android.ui.screens.onboarding.OnboardingScaffold
 import com.cornellappdev.resell.android.ui.theme.Style
+import com.cornellappdev.resell.android.util.LocalNavigator
 import com.cornellappdev.resell.android.viewmodel.RootNavigationViewModel
 import com.cornellappdev.resell.android.viewmodel.RootSheet
 import kotlinx.coroutines.launch
@@ -49,7 +51,7 @@ fun RootNavigation(
     var showBottomSheet by remember { mutableStateOf(false) }
 
     LaunchedEffect(uiState.sheetEvent) {
-        if (uiState.sheetEvent != null) {
+        uiState.sheetEvent?.consumeSuspend {
             // Show bottom sheet.
             lastSheetValue = uiState.sheetEvent.payload
             showBottomSheet = true
@@ -57,35 +59,38 @@ fun RootNavigation(
         }
     }
 
-    NavHost(
-        navController = rootNavigationViewModel.navController,
-        startDestination = ResellRootRoute.LOGIN,
+    CompositionLocalProvider(
+        LocalNavigator provides rootNavigationViewModel.navController
     ) {
-        composable<ResellRootRoute.LOGIN> {
-            LandingScreen()
-        }
-
-        composable<ResellRootRoute.MAIN> {
-            MainTabScaffold()
-        }
-
-        composable<ResellRootRoute.ONBOARDING> {
-            // TODO Change to an onboarding scaffold
-            SetupScreen()
-        }
-    }
-
-    SheetOverlay(
-        sheetState = sheetState,
-        onDismissRequest = {
-            coroutineScope.launch {
-                sheetState.hide()
-                showBottomSheet = false
+        NavHost(
+            navController = LocalNavigator.current,
+            startDestination = ResellRootRoute.LOGIN,
+        ) {
+            composable<ResellRootRoute.LOGIN> {
+                LandingScreen()
             }
-        },
-        sheetType = lastSheetValue,
-        showBottomSheet = showBottomSheet,
-    )
+
+            composable<ResellRootRoute.MAIN> {
+                MainTabScaffold()
+            }
+
+            composable<ResellRootRoute.ONBOARDING> {
+                OnboardingScaffold()
+            }
+        }
+
+        SheetOverlay(
+            sheetState = sheetState,
+            onDismissRequest = {
+                coroutineScope.launch {
+                    sheetState.hide()
+                    showBottomSheet = false
+                }
+            },
+            sheetType = lastSheetValue,
+            showBottomSheet = showBottomSheet,
+        )
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

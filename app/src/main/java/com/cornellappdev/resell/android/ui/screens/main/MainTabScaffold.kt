@@ -1,5 +1,6 @@
 package com.cornellappdev.resell.android.ui.screens.main
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -13,12 +14,20 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import com.cornellappdev.resell.android.ui.components.nav.NavBar
+import com.cornellappdev.resell.android.util.closeApp
 
 @Composable
 fun MainTabScaffold() {
     val selectedScreen: MutableState<ResellMainScreen> =
         remember { mutableStateOf(ResellMainScreen.Home) }
+    val context = LocalContext.current
+
+    // If on main tab, close the app.
+    BackHandler {
+        closeApp(context)
+    }
 
     Box(modifier = Modifier.fillMaxSize()) {
         AnimatedContent(
@@ -41,9 +50,7 @@ fun MainTabScaffold() {
 
                 }
 
-                ResellMainScreen.User -> {
-
-                }
+                ResellMainScreen.User -> ProfileScreen()
             }
         }
 

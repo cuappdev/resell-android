@@ -30,6 +30,17 @@ class LandingViewModel @Inject constructor(
         val buttonState: ResellTextButtonState = ResellTextButtonState.ENABLED,
     )
 
+    /**
+     * If user is logged in with a valid, finished Resell account, navigate to main.
+     * Otherwise does nothing.
+     */
+    fun navigateIfLoggedIn() {
+        if (loginRepository.accountOrNull() != null) {
+            // TODO: If account actually still exists on backend...
+            navController.navigate(ResellRootRoute.MAIN)
+        }
+    }
+
     fun showButton() {
         applyMutation {
             copy(showButton = true)
