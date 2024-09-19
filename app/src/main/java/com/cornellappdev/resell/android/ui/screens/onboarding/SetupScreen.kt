@@ -30,6 +30,7 @@ import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -58,10 +59,10 @@ import com.cornellappdev.resell.android.util.defaultHorizontalPadding
 import com.cornellappdev.resell.android.util.singlePhotoPicker
 import com.cornellappdev.resell.android.viewmodel.onboarding.SetupViewModel
 
-@Preview
 @Composable
 fun SetupScreen(
     setupViewModel: SetupViewModel = hiltViewModel(),
+    onNavigateProceed: () -> Unit,
 ) {
     val uiState = setupViewModel.collectUiStateValue()
     val singlePhotoPicker = singlePhotoPicker {
@@ -69,6 +70,12 @@ fun SetupScreen(
             setupViewModel.onImageSelected(it)
         } else {
             setupViewModel.onImageLoadFail()
+        }
+    }
+
+    LaunchedEffect(uiState.proceedEvent) {
+        if (uiState.proceedEvent != null) {
+            onNavigateProceed()
         }
     }
 

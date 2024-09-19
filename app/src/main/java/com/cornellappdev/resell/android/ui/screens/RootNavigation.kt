@@ -28,7 +28,7 @@ import androidx.navigation.compose.composable
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButton
 import com.cornellappdev.resell.android.ui.screens.main.MainTabScaffold
 import com.cornellappdev.resell.android.ui.screens.onboarding.LandingScreen
-import com.cornellappdev.resell.android.ui.screens.onboarding.SetupScreen
+import com.cornellappdev.resell.android.ui.screens.onboarding.OnboardingScaffold
 import com.cornellappdev.resell.android.ui.theme.Style
 import com.cornellappdev.resell.android.viewmodel.RootNavigationViewModel
 import com.cornellappdev.resell.android.viewmodel.RootSheet
@@ -70,8 +70,11 @@ fun RootNavigation(
         }
 
         composable<ResellRootRoute.ONBOARDING> {
-            // TODO Change to an onboarding scaffold
-            SetupScreen()
+            OnboardingScaffold(
+                onExitOnboarding = {
+                    rootNavigationViewModel.navController.navigate(ResellRootRoute.LOGIN)
+                }
+            )
         }
     }
 

@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 import android.net.Uri
 import androidx.lifecycle.viewModelScope
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonState
+import com.cornellappdev.resell.android.util.UIEvent
 import com.cornellappdev.resell.android.util.loadBitmapFromUri
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -27,6 +28,7 @@ class SetupViewModel @Inject constructor(
         val errors: List<String> = emptyList(),
         private val loading: Boolean = false,
         val imageBitmap: Bitmap? = null,
+        val proceedEvent: UIEvent<Unit>? = null,
     ) {
         val buttonState: ResellTextButtonState
             get() = if (loading) {
@@ -68,8 +70,12 @@ class SetupViewModel @Inject constructor(
         // TODO testing
         viewModelScope.launch {
             delay(2000)
+
             applyMutation {
-                copy(errors = listOf("This username sucks", "it's really bad"), loading = false)
+                copy(
+                    loading = false,
+                    proceedEvent = UIEvent(Unit)
+                )
             }
         }
     }
