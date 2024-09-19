@@ -1,5 +1,6 @@
 package com.cornellappdev.resell.android.ui.screens.onboarding
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -19,6 +20,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -32,6 +34,7 @@ import com.cornellappdev.resell.android.ui.components.onboarding.Corner
 import com.cornellappdev.resell.android.ui.theme.AppDev
 import com.cornellappdev.resell.android.ui.theme.LoginBlurBrushEnd
 import com.cornellappdev.resell.android.ui.theme.Style
+import com.cornellappdev.resell.android.util.closeApp
 import com.cornellappdev.resell.android.viewmodel.onboarding.LandingViewModel
 import kotlinx.coroutines.delay
 
@@ -40,8 +43,12 @@ fun LandingScreen(
     landingViewModel: LandingViewModel = hiltViewModel(),
 ) {
     val state = landingViewModel.collectUiStateValue()
-
     val resultLauncher = landingViewModel.makeSignInLauncher()
+    val context = LocalContext.current
+
+    BackHandler {
+        closeApp(context)
+    }
 
     LaunchedEffect(Unit) {
         landingViewModel.navigateIfLoggedIn()
