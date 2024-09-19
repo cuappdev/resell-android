@@ -1,5 +1,6 @@
 package com.cornellappdev.resell.android.ui.screens.onboarding
 
+import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.tween
@@ -12,21 +13,24 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import com.cornellappdev.resell.android.ui.screens.ResellRootRoute
+import com.cornellappdev.resell.android.util.LocalNavigator
 
 @Composable
-fun OnboardingScaffold(
-    onExitOnboarding: () -> Unit
-) {
+fun OnboardingScaffold() {
     val selectedScreen: MutableState<ResellOnboardingScreen> =
         remember { mutableStateOf(ResellOnboardingScreen.Setup) }
+    val navigator = LocalNavigator.current
 
     BackHandler {
+        Log.d("helpme", "back")
         if (selectedScreen.value == ResellOnboardingScreen.Setup) {
-            onExitOnboarding()
+            navigator.navigate(ResellRootRoute.LOGIN)
         }
         else {
             selectedScreen.value = ResellOnboardingScreen.Setup
         }
+        Log.d("helpme", selectedScreen.value.toString())
     }
 
     AnimatedContent(
@@ -50,6 +54,9 @@ fun OnboardingScaffold(
             ResellOnboardingScreen.Venmo -> VenmoFieldScreen(
                 onBack = {
                     selectedScreen.value = ResellOnboardingScreen.Setup
+                },
+                onNavigateProceed = {
+                    navigator.navigate(ResellRootRoute.MAIN)
                 }
             )
         }

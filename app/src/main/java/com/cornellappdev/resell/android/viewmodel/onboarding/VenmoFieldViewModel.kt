@@ -1,11 +1,14 @@
 package com.cornellappdev.resell.android.viewmodel.onboarding
 
 import android.content.Context
+import androidx.lifecycle.viewModelScope
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonState
+import com.cornellappdev.resell.android.util.UIEvent
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
-import com.cornellappdev.resell.android.viewmodel.onboarding.SetupViewModel.SetupUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -17,10 +20,14 @@ class VenmoFieldViewModel @Inject constructor(
 
     data class VenmoFieldUiState(
         val handle: String = "",
+        val loading: Boolean = false,
+        val proceedMain: UIEvent<Unit>? = null,
     ) {
         // Continue button. Skip is always active.
         val buttonState: ResellTextButtonState
-            get() = if (handle.isNotEmpty()) {
+            get() = if (loading) {
+                ResellTextButtonState.SPINNING
+            } else if (handle.isNotEmpty()) {
                 ResellTextButtonState.ENABLED
             } else {
                 ResellTextButtonState.DISABLED
@@ -29,10 +36,25 @@ class VenmoFieldViewModel @Inject constructor(
 
     fun onContinueClick() {
         // TODO
+
+        // Test
+        viewModelScope.launch {
+            applyMutation {
+                copy(loading = true)
+            }
+            delay(2000)
+            navigateOut()
+        }
     }
 
     fun onSkipClick() {
-        // TODO
+        navigateOut()
+    }
+
+    private fun navigateOut() {
+        applyMutation {
+            copy(proceedMain = UIEvent(Unit), loading = false)
+        }
     }
 
     fun onHandleChanged(handle: String) {

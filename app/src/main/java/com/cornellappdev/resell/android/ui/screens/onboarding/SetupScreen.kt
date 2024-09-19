@@ -74,7 +74,7 @@ fun SetupScreen(
     }
 
     LaunchedEffect(uiState.proceedEvent) {
-        if (uiState.proceedEvent != null) {
+        uiState.proceedEvent?.consume {
             onNavigateProceed()
         }
     }
