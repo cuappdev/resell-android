@@ -75,9 +75,17 @@ class LoginRepository @Inject constructor(
         GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestIdToken(BuildConfig.GOOGLE_AUTH_CLIENT_ID)
             .requestEmail()
-            .build().let { gso ->
+            .build()
+            .let { gso ->
                 GoogleSignIn.getClient(context, gso)
             }
+
+    /**
+     * Returns the current [GoogleSignInAccount] if logged in, null otherwise.
+     */
+    fun accountOrNull(): GoogleSignInAccount? {
+        return GoogleSignIn.getLastSignedInAccount(context)
+    }
 
     /**
      * If an email is invalid, such as it not being a Cornell email, sign out.
@@ -85,7 +93,6 @@ class LoginRepository @Inject constructor(
     fun invalidateEmail() {
         googleSignInClient.signOut()
     }
-
 
     /**
      * A contract for google login.

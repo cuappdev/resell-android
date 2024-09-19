@@ -44,6 +44,7 @@ fun LandingScreen(
     val resultLauncher = landingViewModel.makeSignInLauncher()
 
     LaunchedEffect(Unit) {
+        landingViewModel.navigateIfLoggedIn()
         delay(1000)
         landingViewModel.showButton()
     }
