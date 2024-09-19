@@ -26,8 +26,7 @@ fun OnboardingScaffold() {
         Log.d("helpme", "back")
         if (selectedScreen.value == ResellOnboardingScreen.Setup) {
             navigator.navigate(ResellRootRoute.LOGIN)
-        }
-        else {
+        } else {
             selectedScreen.value = ResellOnboardingScreen.Setup
         }
         Log.d("helpme", selectedScreen.value.toString())
@@ -51,6 +50,7 @@ fun OnboardingScaffold() {
             ResellOnboardingScreen.Setup -> SetupScreen {
                 selectedScreen.value = ResellOnboardingScreen.Venmo
             }
+
             ResellOnboardingScreen.Venmo -> VenmoFieldScreen(
                 onBack = {
                     selectedScreen.value = ResellOnboardingScreen.Setup

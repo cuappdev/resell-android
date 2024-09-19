@@ -1,6 +1,5 @@
 package com.cornellappdev.resell.android.ui.screens.main
 
-import android.app.Activity
 import android.content.Intent
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
