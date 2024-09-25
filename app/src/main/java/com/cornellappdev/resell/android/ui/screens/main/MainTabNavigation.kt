@@ -14,15 +14,20 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.resell.android.ui.components.nav.NavBar
 import com.cornellappdev.resell.android.ui.theme.simpleFadeInOut
 import com.cornellappdev.resell.android.util.closeApp
+import com.cornellappdev.resell.android.viewmodel.navigation.NavigationViewModel
 
 @Composable
-fun MainTabScaffold() {
+fun MainTabNavigation(
+    navigationViewModel: NavigationViewModel = hiltViewModel()
+) {
     val selectedScreen: MutableState<ResellMainScreen> =
         remember { mutableStateOf(ResellMainScreen.Home) }
     val context = LocalContext.current
+    val mainNav = navigationViewModel.mainNavController
 
     // If on main tab, close the app.
     BackHandler {

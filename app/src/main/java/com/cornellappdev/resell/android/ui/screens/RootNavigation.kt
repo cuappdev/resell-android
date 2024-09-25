@@ -27,9 +27,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButton
-import com.cornellappdev.resell.android.ui.screens.main.MainTabScaffold
+import com.cornellappdev.resell.android.ui.screens.main.MainTabNavigation
 import com.cornellappdev.resell.android.ui.screens.onboarding.LandingScreen
-import com.cornellappdev.resell.android.ui.screens.onboarding.OnboardingScaffold
+import com.cornellappdev.resell.android.ui.screens.onboarding.OnboardingNavigation
 import com.cornellappdev.resell.android.ui.theme.Style
 import com.cornellappdev.resell.android.util.LocalNavigator
 import com.cornellappdev.resell.android.viewmodel.RootNavigationViewModel
@@ -71,11 +71,11 @@ fun RootNavigation(
             }
 
             composable<ResellRootRoute.MAIN> {
-                MainTabScaffold()
+                MainTabNavigation()
             }
 
             composable<ResellRootRoute.ONBOARDING> {
-                OnboardingScaffold()
+                OnboardingNavigation()
             }
 
             composable<ResellRootRoute.SETTINGS> {

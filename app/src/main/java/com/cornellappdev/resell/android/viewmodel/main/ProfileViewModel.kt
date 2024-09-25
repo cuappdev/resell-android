@@ -5,6 +5,7 @@ import androidx.navigation.NavHostController
 import com.cornellappdev.resell.android.model.Listing
 import com.cornellappdev.resell.android.model.LoginRepository
 import com.cornellappdev.resell.android.model.ResellApiState
+import com.cornellappdev.resell.android.model.RootNav
 import com.cornellappdev.resell.android.ui.screens.ResellRootRoute
 import com.cornellappdev.resell.android.util.richieListings
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
@@ -16,7 +17,7 @@ import javax.inject.Inject
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
     private val loginRepository: LoginRepository,
-    private val navController: NavHostController,
+    @RootNav private val navController: NavHostController,
 ) : ResellViewModel<ProfileViewModel.ProfileUiState>(
     initialUiState = ProfileUiState(
         profileTab = ProfileTab.SHOP,

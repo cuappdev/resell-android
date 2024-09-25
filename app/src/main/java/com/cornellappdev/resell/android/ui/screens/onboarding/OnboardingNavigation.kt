@@ -11,15 +11,20 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.resell.android.ui.screens.ResellRootRoute
 import com.cornellappdev.resell.android.ui.theme.simpleFadeInOut
 import com.cornellappdev.resell.android.util.LocalNavigator
+import com.cornellappdev.resell.android.viewmodel.navigation.NavigationViewModel
 
 @Composable
-fun OnboardingScaffold() {
+fun OnboardingNavigation(
+    navigationViewModel: NavigationViewModel = hiltViewModel()
+) {
     val selectedScreen: MutableState<ResellOnboardingScreen> =
         remember { mutableStateOf(ResellOnboardingScreen.Setup) }
     val navigator = LocalNavigator.current
+    val onboardingNav = navigationViewModel.onboardingNavController
 
     BackHandler {
         if (selectedScreen.value == ResellOnboardingScreen.Setup) {
