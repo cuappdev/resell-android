@@ -19,6 +19,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import com.cornellappdev.resell.android.ui.components.nav.NavBar
+import com.cornellappdev.resell.android.ui.theme.simpleFadeInOut
 import com.cornellappdev.resell.android.util.closeApp
 
 @Composable
@@ -38,15 +39,7 @@ fun MainTabScaffold() {
         AnimatedContent(
             targetState = selectedScreen.value,
             label = "screen switch",
-            transitionSpec = {
-                fadeIn(
-                    animationSpec = tween(300, delayMillis = 0)
-                ).togetherWith(
-                    fadeOut(
-                        animationSpec = tween(300)
-                    )
-                )
-            }
+            transitionSpec = simpleFadeInOut,
         ) { state ->
             when (state) {
                 ResellMainScreen.Home -> HomeScreen()

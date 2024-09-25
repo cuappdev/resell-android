@@ -16,6 +16,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import com.cornellappdev.resell.android.ui.screens.ResellRootRoute
+import com.cornellappdev.resell.android.ui.theme.simpleFadeInOut
 import com.cornellappdev.resell.android.util.LocalNavigator
 
 @Composable
@@ -35,15 +36,7 @@ fun OnboardingScaffold() {
     AnimatedContent(
         targetState = selectedScreen.value,
         label = "screen switch",
-        transitionSpec = {
-            fadeIn(
-                animationSpec = tween(300, delayMillis = 0)
-            ).togetherWith(
-                fadeOut(
-                    animationSpec = tween(300)
-                )
-            )
-        },
+        transitionSpec = simpleFadeInOut,
         modifier = Modifier
             .fillMaxSize()
             .windowInsetsPadding(

@@ -48,7 +48,8 @@ class ProfileViewModel @Inject constructor(
         applyMutation {
             copy(
                 profileTab = profileTab,
-                loadedState = ResellApiState.Loading
+                loadedState = ResellApiState.Loading,
+                listings = listOf(),
             )
         }
         viewModelScope.launch {
@@ -61,6 +62,10 @@ class ProfileViewModel @Inject constructor(
                 )
             }
         }
+    }
+
+    fun onListingPressed(listing: Listing) {
+        // TODO: Implement
     }
 
     fun onSignOutClick() {

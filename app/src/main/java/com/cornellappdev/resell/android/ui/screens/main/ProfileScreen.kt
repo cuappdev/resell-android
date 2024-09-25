@@ -1,5 +1,8 @@
 package com.cornellappdev.resell.android.ui.screens.main
 
+import android.util.Log
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -9,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -16,14 +20,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.cornellappdev.resell.android.R
+import com.cornellappdev.resell.android.ui.components.global.ResellListingsScroll
 import com.cornellappdev.resell.android.ui.components.global.ResellTabBar
 import com.cornellappdev.resell.android.ui.theme.Secondary
 import com.cornellappdev.resell.android.ui.theme.Style
+import com.cornellappdev.resell.android.ui.theme.simpleFadeInOut
 import com.cornellappdev.resell.android.util.defaultHorizontalPadding
 import com.cornellappdev.resell.android.viewmodel.main.ProfileViewModel
 
@@ -32,6 +39,8 @@ fun ProfileScreen(
     profileViewModel: ProfileViewModel = hiltViewModel()
 ) {
     val uiState = profileViewModel.collectUiStateValue()
+
+    val staggeredState = rememberLazyStaggeredGridState()
 
     // TODO: bare bones right now
     Column(
@@ -47,6 +56,26 @@ fun ProfileScreen(
             selectedTab = uiState.profileTab,
             onTabSelected = { profileViewModel.onTabSelected(it) },
         )
+
+        AnimatedContent(
+            targetState = uiState.profileTab,
+            label = "profile content",
+            transitionSpec = simpleFadeInOut,
+            modifier = Modifier.fillMaxSize()
+        ) { tab ->
+            if (tab == ProfileViewModel.ProfileTab.SHOP
+                || tab == ProfileViewModel.ProfileTab.ARCHIVE
+            ) {
+                ResellListingsScroll(
+                    listings = uiState.listings,
+                    onListingPressed = { profileViewModel.onListingPressed(it) },
+                    listState = staggeredState,
+                    paddedTop = 24.dp,
+                )
+            } else {
+                // TODO: Wishlist
+            }
+        }
     }
 }
 
@@ -59,7 +88,12 @@ private fun ProfileHeader(
     selectedTab: ProfileViewModel.ProfileTab,
     onTabSelected: (ProfileViewModel.ProfileTab) -> Unit,
 ) {
-    Column(modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
         Box(modifier = Modifier.fillMaxWidth()) {
             AsyncImage(
                 model = imageUrl,
