@@ -3,7 +3,10 @@ package com.cornellappdev.resell.android.ui.components.nav
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.areNavigationBarsVisible
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -25,6 +28,7 @@ import com.cornellappdev.resell.android.ui.screens.main.ResellMainScreen
 import com.cornellappdev.resell.android.ui.theme.Padding
 import com.cornellappdev.resell.android.ui.theme.animateResellBrush
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun NavBar(
     selectedTab: ResellMainScreen,
@@ -40,7 +44,7 @@ fun NavBar(
         modifier = modifier
             .fillMaxWidth()
             .clickable(enabled = false) {}
-            .height(85.dp),
+            .height(if (WindowInsets.areNavigationBarsVisible) 65.dp else 85.dp),
         color = Color.White,
         shadowElevation = 10.dp,
         shape = RoundedCornerShape(topStart = Padding.xLarge, topEnd = Padding.xLarge),
