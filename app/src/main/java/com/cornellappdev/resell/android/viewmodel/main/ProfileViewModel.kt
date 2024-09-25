@@ -21,7 +21,8 @@ class ProfileViewModel @Inject constructor(
     initialUiState = ProfileUiState(
         profileTab = ProfileTab.SHOP,
         loadedState = ResellApiState.Success,
-        listings = emptyList(),
+        shopListings = emptyList(),
+        archiveListings = emptyList(),
         shopName = "Sunshine Shop",
         vendorName = "Richie Sun",
         bio = "I cook food and you eat it. Simple.\nAlsotest\n\n\nthis\n\n\ngogogo",
@@ -32,7 +33,8 @@ class ProfileViewModel @Inject constructor(
     data class ProfileUiState(
         val profileTab: ProfileTab,
         val loadedState: ResellApiState,
-        val listings: List<Listing>,
+        val shopListings: List<Listing>,
+        val archiveListings: List<Listing>,
         val shopName: String,
         val vendorName: String,
         val bio: String,
@@ -49,17 +51,32 @@ class ProfileViewModel @Inject constructor(
             copy(
                 profileTab = profileTab,
                 loadedState = ResellApiState.Loading,
-                listings = listOf(),
+                shopListings = listOf(),
             )
         }
         viewModelScope.launch {
             // TODO: Mock request
             delay(2000)
             applyMutation {
-                copy(
-                    listings = richieListings(20),
-                    loadedState = ResellApiState.Success
-                )
+                when (profileTab) {
+                    ProfileTab.SHOP -> {
+                        copy(
+                            shopListings = richieListings(20),
+                            loadedState = ResellApiState.Success
+                        )
+                    }
+
+                    ProfileTab.ARCHIVE -> {
+                        copy(
+                            archiveListings = richieListings(20),
+                            loadedState = ResellApiState.Success
+                        )
+                    }
+
+                    else -> {
+                        copy()
+                    }
+                }
             }
         }
     }

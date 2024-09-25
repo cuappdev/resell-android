@@ -64,17 +64,24 @@ fun ProfileScreen(
             transitionSpec = simpleFadeInOut,
             modifier = Modifier.fillMaxSize()
         ) { tab ->
-            if (tab == ProfileViewModel.ProfileTab.SHOP
-                || tab == ProfileViewModel.ProfileTab.ARCHIVE
-            ) {
-                ResellListingsScroll(
-                    listings = uiState.listings,
-                    onListingPressed = { profileViewModel.onListingPressed(it) },
-                    listState = staggeredState,
-                    paddedTop = 12.dp,
-                )
-            } else {
-                // TODO: Wishlist
+            when (tab) {
+                ProfileViewModel.ProfileTab.SHOP -> {
+                    ResellListingsScroll(
+                        listings = uiState.shopListings,
+                        onListingPressed = { profileViewModel.onListingPressed(it) },
+                        listState = staggeredState,
+                        paddedTop = 12.dp,
+                    )
+                }
+
+                ProfileViewModel.ProfileTab.ARCHIVE -> {
+                    ResellListingsScroll(
+                        listings = uiState.archiveListings,
+                        onListingPressed = { profileViewModel.onListingPressed(it) },
+                        listState = staggeredState,
+                        paddedTop = 12.dp,
+                    )
+                }
             }
         }
     }
