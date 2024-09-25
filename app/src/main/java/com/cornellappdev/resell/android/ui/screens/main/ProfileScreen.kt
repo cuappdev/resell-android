@@ -1,8 +1,6 @@
 package com.cornellappdev.resell.android.ui.screens.main
 
-import android.util.Log
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -20,8 +18,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
@@ -31,6 +29,7 @@ import com.cornellappdev.resell.android.ui.components.global.ResellTabBar
 import com.cornellappdev.resell.android.ui.theme.Secondary
 import com.cornellappdev.resell.android.ui.theme.Style
 import com.cornellappdev.resell.android.ui.theme.simpleFadeInOut
+import com.cornellappdev.resell.android.util.clickableNoIndication
 import com.cornellappdev.resell.android.util.defaultHorizontalPadding
 import com.cornellappdev.resell.android.viewmodel.main.ProfileViewModel
 
@@ -55,6 +54,8 @@ fun ProfileScreen(
             bio = uiState.bio,
             selectedTab = uiState.profileTab,
             onTabSelected = { profileViewModel.onTabSelected(it) },
+            onSettingsPressed = { profileViewModel.onSettingsPressed() },
+            onSearchPressed = { profileViewModel.onSearchPressed() },
         )
 
         AnimatedContent(
@@ -70,7 +71,7 @@ fun ProfileScreen(
                     listings = uiState.listings,
                     onListingPressed = { profileViewModel.onListingPressed(it) },
                     listState = staggeredState,
-                    paddedTop = 24.dp,
+                    paddedTop = 12.dp,
                 )
             } else {
                 // TODO: Wishlist
@@ -87,6 +88,8 @@ private fun ProfileHeader(
     bio: String,
     selectedTab: ProfileViewModel.ProfileTab,
     onTabSelected: (ProfileViewModel.ProfileTab) -> Unit,
+    onSettingsPressed: () -> Unit,
+    onSearchPressed: () -> Unit,
 ) {
     Column(
         modifier = Modifier
@@ -108,10 +111,11 @@ private fun ProfileHeader(
                 painter = painterResource(id = R.drawable.ic_settings),
                 contentDescription = "settings",
                 modifier = Modifier
+                    .defaultHorizontalPadding()
+                    .padding(top = 8.dp)
                     .size(25.dp)
                     .align(Alignment.TopStart)
-                    .padding(top = 8.dp)
-                    .defaultHorizontalPadding()
+                    .clickableNoIndication { onSettingsPressed() }
             )
 
             // TODO: Eventually should be `...` option.
@@ -124,7 +128,9 @@ private fun ProfileHeader(
                 Icon(
                     painter = painterResource(id = R.drawable.ic_search),
                     contentDescription = "search",
-                    modifier = Modifier.size(25.dp)
+                    modifier = Modifier
+                        .size(25.dp)
+                        .clickableNoIndication { onSearchPressed() }
                 )
             }
         }
@@ -145,7 +151,9 @@ private fun ProfileHeader(
         Text(
             text = bio,
             modifier = Modifier.padding(top = 12.dp),
-            style = Style.body2
+            maxLines = 3,
+            style = Style.body2,
+            textAlign = TextAlign.Center,
         )
 
         Spacer(Modifier.height(20.dp))

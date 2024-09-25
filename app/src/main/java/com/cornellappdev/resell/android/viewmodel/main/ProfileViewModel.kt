@@ -24,7 +24,7 @@ class ProfileViewModel @Inject constructor(
         listings = emptyList(),
         shopName = "Sunshine Shop",
         vendorName = "Richie Sun",
-        bio = "I cook food and you eat it. Simple.",
+        bio = "I cook food and you eat it. Simple.\nAlsotest\n\n\nthis\n\n\ngogogo",
         imageUrl = "https://media.licdn.com/dms/image/v2/D4E03AQGOCNNbxGtcjw/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1704329714345?e=1732752000&v=beta&t=XQ8dS9-QbteQY060_x6J5XVNpUy7YUJ1SRLE2oaYcaM",
     )
 ) {
@@ -72,5 +72,14 @@ class ProfileViewModel @Inject constructor(
         // TODO: Implement
         loginRepository.invalidateEmail()
         navController.navigate(ResellRootRoute.LOGIN)
+    }
+
+    fun onSettingsPressed() {
+        // TODO: Implement
+        navController.navigate(ResellRootRoute.SETTINGS)
+    }
+
+    fun onSearchPressed() {
+        // TODO: Implement
     }
 }

@@ -77,6 +77,11 @@ fun RootNavigation(
             composable<ResellRootRoute.ONBOARDING> {
                 OnboardingScaffold()
             }
+
+            composable<ResellRootRoute.SETTINGS> {
+                // TODO: Settings
+                Text(text = "SETTINGS")
+            }
         }
 
         SheetOverlay(
@@ -177,4 +182,7 @@ sealed class ResellRootRoute {
 
     @Serializable
     data object ONBOARDING : ResellRootRoute()
+
+    @Serializable
+    data object SETTINGS : ResellRootRoute()
 }

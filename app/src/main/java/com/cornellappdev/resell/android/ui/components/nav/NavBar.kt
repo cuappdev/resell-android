@@ -3,11 +3,15 @@ package com.cornellappdev.resell.android.ui.components.nav
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.areNavigationBarsVisible
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
@@ -19,12 +23,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.view.WindowInsetsCompat
 import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.ui.components.global.BrushIcon
 import com.cornellappdev.resell.android.ui.screens.main.ResellMainScreen
 import com.cornellappdev.resell.android.ui.theme.Padding
 import com.cornellappdev.resell.android.ui.theme.animateResellBrush
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun NavBar(
     selectedTab: ResellMainScreen,
@@ -40,7 +46,7 @@ fun NavBar(
         modifier = modifier
             .fillMaxWidth()
             .clickable(enabled = false) {}
-            .height(85.dp),
+            .height(if (WindowInsets.areNavigationBarsVisible) 65.dp else 85.dp),
         color = Color.White,
         shadowElevation = 10.dp,
         shape = RoundedCornerShape(topStart = Padding.xLarge, topEnd = Padding.xLarge),
