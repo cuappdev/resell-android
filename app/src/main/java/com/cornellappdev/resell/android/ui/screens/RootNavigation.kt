@@ -68,7 +68,9 @@ fun RootNavigation(
         NavHost(
             navController = LocalRootNavigator.current,
             startDestination = ResellRootRoute.LOGIN,
-            modifier = Modifier.fillMaxSize().background(Color.White)
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.White)
         ) {
             composable<ResellRootRoute.LOGIN> {
                 LandingScreen()
