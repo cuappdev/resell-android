@@ -59,7 +59,6 @@ import com.cornellappdev.resell.android.viewmodel.onboarding.SetupViewModel
 @Composable
 fun SetupScreen(
     setupViewModel: SetupViewModel = hiltViewModel(),
-    onNavigateProceed: () -> Unit,
 ) {
     val uiState = setupViewModel.collectUiStateValue()
     val singlePhotoPicker = singlePhotoPicker {
@@ -67,12 +66,6 @@ fun SetupScreen(
             setupViewModel.onImageSelected(it)
         } else {
             setupViewModel.onImageLoadFail()
-        }
-    }
-
-    LaunchedEffect(uiState.proceedEvent) {
-        uiState.proceedEvent?.consume {
-            onNavigateProceed()
         }
     }
 

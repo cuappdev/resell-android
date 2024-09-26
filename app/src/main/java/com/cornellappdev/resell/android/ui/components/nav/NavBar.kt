@@ -44,7 +44,7 @@ fun NavBar(
         modifier = modifier
             .fillMaxWidth()
             .clickable(enabled = false) {}
-            .height(if (WindowInsets.areNavigationBarsVisible) 65.dp else 85.dp),
+            .height(65.dp),
         color = Color.White,
         shadowElevation = 10.dp,
         shape = RoundedCornerShape(topStart = Padding.xLarge, topEnd = Padding.xLarge),
