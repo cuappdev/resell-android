@@ -1,8 +1,10 @@
 package com.cornellappdev.resell.android.ui.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.BottomSheetDefaults
@@ -20,6 +22,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -27,11 +30,11 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButton
-import com.cornellappdev.resell.android.ui.screens.main.MainTabScaffold
+import com.cornellappdev.resell.android.ui.screens.main.MainTabNavigation
 import com.cornellappdev.resell.android.ui.screens.onboarding.LandingScreen
-import com.cornellappdev.resell.android.ui.screens.onboarding.OnboardingScaffold
+import com.cornellappdev.resell.android.ui.screens.onboarding.OnboardingNavigation
 import com.cornellappdev.resell.android.ui.theme.Style
-import com.cornellappdev.resell.android.util.LocalNavigator
+import com.cornellappdev.resell.android.util.LocalRootNavigator
 import com.cornellappdev.resell.android.viewmodel.RootNavigationViewModel
 import com.cornellappdev.resell.android.viewmodel.RootSheet
 import kotlinx.coroutines.launch
@@ -60,22 +63,25 @@ fun RootNavigation(
     }
 
     CompositionLocalProvider(
-        LocalNavigator provides rootNavigationViewModel.navController
+        LocalRootNavigator provides rootNavigationViewModel.navController
     ) {
         NavHost(
-            navController = LocalNavigator.current,
+            navController = LocalRootNavigator.current,
             startDestination = ResellRootRoute.LOGIN,
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.White)
         ) {
             composable<ResellRootRoute.LOGIN> {
                 LandingScreen()
             }
 
             composable<ResellRootRoute.MAIN> {
-                MainTabScaffold()
+                MainTabNavigation()
             }
 
             composable<ResellRootRoute.ONBOARDING> {
-                OnboardingScaffold()
+                OnboardingNavigation()
             }
 
             composable<ResellRootRoute.SETTINGS> {

@@ -1,14 +1,17 @@
 package com.cornellappdev.resell.android.ui.components.nav
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.areNavigationBarsVisible
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -17,6 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
@@ -28,7 +32,6 @@ import com.cornellappdev.resell.android.ui.screens.main.ResellMainScreen
 import com.cornellappdev.resell.android.ui.theme.Padding
 import com.cornellappdev.resell.android.ui.theme.animateResellBrush
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun NavBar(
     selectedTab: ResellMainScreen,
@@ -38,13 +41,43 @@ fun NavBar(
     onUserClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val navigationBarsPadding =
+        WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+    Box(modifier = modifier) {
+        NavBarContent(
+            onHomeClick,
+            selectedTab,
+            onBookmarksClick,
+            onMessagesClick,
+            onUserClick
+        )
+
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(navigationBarsPadding)
+                .align(Alignment.BottomCenter)
+                .background(Color.White)
+        )
+    }
+}
+
+@Composable
+private fun NavBarContent(
+    onHomeClick: () -> Unit,
+    selectedTab: ResellMainScreen,
+    onBookmarksClick: () -> Unit,
+    onMessagesClick: () -> Unit,
+    onUserClick: () -> Unit
+) {
     val interactionSource = remember { MutableInteractionSource() }
 
     Surface(
-        modifier = modifier
+        modifier = Modifier
             .fillMaxWidth()
             .clickable(enabled = false) {}
-            .height(if (WindowInsets.areNavigationBarsVisible) 65.dp else 85.dp),
+            .navigationBarsPadding()
+            .height(55.dp),
         color = Color.White,
         shadowElevation = 10.dp,
         shape = RoundedCornerShape(topStart = Padding.xLarge, topEnd = Padding.xLarge),

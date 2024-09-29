@@ -17,8 +17,10 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -27,7 +29,6 @@ import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -59,7 +60,6 @@ import com.cornellappdev.resell.android.viewmodel.onboarding.SetupViewModel
 @Composable
 fun SetupScreen(
     setupViewModel: SetupViewModel = hiltViewModel(),
-    onNavigateProceed: () -> Unit,
 ) {
     val uiState = setupViewModel.collectUiStateValue()
     val singlePhotoPicker = singlePhotoPicker {
@@ -67,12 +67,6 @@ fun SetupScreen(
             setupViewModel.onImageSelected(it)
         } else {
             setupViewModel.onImageLoadFail()
-        }
-    }
-
-    LaunchedEffect(uiState.proceedEvent) {
-        uiState.proceedEvent?.consume {
-            onNavigateProceed()
         }
     }
 
@@ -114,7 +108,8 @@ fun SetupScreen(
             text = "Next", onClick = setupViewModel::onNextClick,
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .padding(46.dp),
+                .padding(46.dp)
+                .navigationBarsPadding(),
             state = uiState.buttonState,
         )
     }
@@ -127,7 +122,9 @@ private fun PhotoHeader(
     onImageTapped: () -> Unit = {},
 ) {
     Column(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .statusBarsPadding(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(

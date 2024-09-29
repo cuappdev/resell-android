@@ -5,6 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavHostController
 import com.cornellappdev.resell.android.model.LoginRepository
+import com.cornellappdev.resell.android.model.RootNav
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonState
 import com.cornellappdev.resell.android.ui.screens.ResellRootRoute
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
@@ -19,7 +20,7 @@ import javax.inject.Inject
 @HiltViewModel
 class LandingViewModel @Inject constructor(
     private val loginRepository: LoginRepository,
-    private val navController: NavHostController,
+    @RootNav private val navController: NavHostController,
     private val rootNavigationSheetRepository: RootNavigationSheetRepository,
 ) : ResellViewModel<LandingViewModel.LandingUiState>(
     initialUiState = LandingUiState()

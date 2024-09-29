@@ -4,7 +4,10 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.net.Uri
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.NavHostController
+import com.cornellappdev.resell.android.model.OnboardingNav
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonState
+import com.cornellappdev.resell.android.ui.screens.onboarding.ResellOnboardingScreen
 import com.cornellappdev.resell.android.util.UIEvent
 import com.cornellappdev.resell.android.util.loadBitmapFromUri
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
@@ -16,7 +19,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SetupViewModel @Inject constructor(
-    @ApplicationContext private val appContext: Context
+    @ApplicationContext private val appContext: Context,
+    @OnboardingNav private val navController: NavHostController,
 ) : ResellViewModel<SetupViewModel.SetupUiState>(
     initialUiState = SetupUiState()
 ) {
@@ -71,10 +75,12 @@ class SetupViewModel @Inject constructor(
         viewModelScope.launch {
             delay(2000)
 
+            // Navigate away.
+            navController.navigate(ResellOnboardingScreen.Venmo)
+
             applyMutation {
                 copy(
                     loading = false,
-                    proceedEvent = UIEvent(Unit)
                 )
             }
         }

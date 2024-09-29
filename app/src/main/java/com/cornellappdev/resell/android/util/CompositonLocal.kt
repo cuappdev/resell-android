@@ -5,7 +5,10 @@ import android.content.Intent
 import androidx.compose.runtime.compositionLocalOf
 import androidx.navigation.NavHostController
 
-val LocalNavigator = compositionLocalOf<NavHostController> { error("No navigator provided") }
+val LocalRootNavigator = compositionLocalOf<NavHostController> { error("No navigator provided") }
+val LocalMainNavigator = compositionLocalOf<NavHostController> { error("No navigator provided") }
+val LocalOnboardingNavigator =
+    compositionLocalOf<NavHostController> { error("No navigator provided") }
 
 fun closeApp(context: Context) {
     val intent = Intent(Intent.ACTION_MAIN)
