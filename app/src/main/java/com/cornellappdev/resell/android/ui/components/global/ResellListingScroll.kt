@@ -10,7 +10,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.times
 import com.cornellappdev.resell.android.model.Listing
 import com.cornellappdev.resell.android.ui.theme.Padding
 
@@ -38,10 +37,9 @@ fun ResellListingsScroll(
     ) {
         items(items = listings) { item ->
             ResellCard(
-                imageUrl = "https://media.licdn.com/dms/image/D4E03AQGOCNNbxGtcjw/profile-displayphoto-shrink_200_200/0/1704329714345?e=2147483647&v=beta&t=Kq7ex1pKyiifjOpuNIojeZ8f4dXjEAsNSpkJDXBwjxc",
+                imageUrl = item.imageUrl,
                 title = "richie",
                 price = "$10.00",
-                photoHeight = 150.dp + (item.hashCode() % 10) * 8.dp,
             ) {
                 onListingPressed(item)
             }

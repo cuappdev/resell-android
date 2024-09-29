@@ -6,7 +6,7 @@ package com.cornellappdev.resell.android.model
 data class Listing(
     val id: Int,
     val title: String,
-    val image: String,
+    val imageUrl: String,
     val price: String,
     val category: String
 )

@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
@@ -23,7 +22,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.times
 import coil.compose.AsyncImage
@@ -41,7 +39,6 @@ fun ResellCard(
     title: String,
     price: String,
     modifier: Modifier = Modifier,
-    photoHeight: Dp = 220.dp,
     onClick: () -> Unit,
 ) {
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
@@ -61,10 +58,9 @@ fun ResellCard(
             contentDescription = null,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(photoHeight)
-                .heightIn(max = 220.dp),
+                .heightIn(min = 130.dp, max = 220.dp),
             placeholder = painterResource(id = R.drawable.ic_launcher_background),
-            contentScale = ContentScale.Crop
+            contentScale = ContentScale.FillWidth
         )
 
         Row(
