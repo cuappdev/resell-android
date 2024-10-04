@@ -3,6 +3,7 @@ package com.cornellappdev.resell.android.ui.screens.main
 import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -16,6 +17,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -112,7 +114,11 @@ fun MainTabNavigation(
                 },
                 onExpandClick = {
                     mainNavigationViewModel.onNewPostExpandClick()
-                }
+                },
+                visible = listOf(
+                    ResellMainScreen.Home,
+                    ResellMainScreen.User,
+                ).contains(navDestination?.destination?.route?.toResellMainScreen())
             )
         }
     }
@@ -120,21 +126,30 @@ fun MainTabNavigation(
 
 @Composable
 private fun BoxScope.FloatingActionContent(
+    visible: Boolean,
     expanded: Boolean,
     onRequestClick: () -> Unit,
     onPostClick: () -> Unit,
     onExpandClick: () -> Unit,
 ) {
+    val entireOpacity = animateFloatAsState(
+        targetValue = if (visible) 1f else 0f, label = "opacity",
+        animationSpec = tween(300)
+    )
     val navigationBarsPadding =
         WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
     val expansionHeight = animateFloatAsState(
         targetValue = if (expanded) 1f else 0f, label = "expansion"
     )
+
+    if (entireOpacity.value == 0f) return
+
     Box(
         modifier = Modifier
             .align(Alignment.BottomEnd)
             .padding(end = 26.dp, bottom = 70.dp)
-            .padding(bottom = navigationBarsPadding),
+            .padding(bottom = navigationBarsPadding)
+            .alpha(entireOpacity.value),
         contentAlignment = Alignment.BottomEnd
     ) {
         FloatingActionExpandingCTA(
