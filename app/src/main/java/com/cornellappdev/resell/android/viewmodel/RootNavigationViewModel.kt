@@ -1,11 +1,9 @@
 package com.cornellappdev.resell.android.viewmodel
 
-import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavHostController
 import com.cornellappdev.resell.android.model.RootNav
 import com.cornellappdev.resell.android.util.UIEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel

@@ -14,9 +14,11 @@ fun ResellPreview(
     padding: Dp = 0.dp,
     content: @Composable () -> Unit
 ) {
-    Column(modifier = Modifier
-        .background(Color.White)
-        .padding(padding)) {
+    Column(
+        modifier = Modifier
+            .background(Color.White)
+            .padding(padding)
+    ) {
         content()
     }
 }

@@ -4,10 +4,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -32,8 +30,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButton
-import com.cornellappdev.resell.android.ui.components.main.ShadeOverlay
 import com.cornellappdev.resell.android.ui.screens.main.MainTabNavigation
+import com.cornellappdev.resell.android.ui.screens.newpost.NewPostNavigation
 import com.cornellappdev.resell.android.ui.screens.onboarding.LandingScreen
 import com.cornellappdev.resell.android.ui.screens.onboarding.OnboardingNavigation
 import com.cornellappdev.resell.android.ui.theme.Style
@@ -90,6 +88,10 @@ fun RootNavigation(
             composable<ResellRootRoute.SETTINGS> {
                 // TODO: Settings
                 Text(text = "SETTINGS")
+            }
+
+            composable<ResellRootRoute.NEW_POST> {
+                NewPostNavigation()
             }
         }
 
@@ -194,4 +196,7 @@ sealed class ResellRootRoute {
 
     @Serializable
     data object SETTINGS : ResellRootRoute()
+
+    @Serializable
+    data object NEW_POST : ResellRootRoute()
 }
