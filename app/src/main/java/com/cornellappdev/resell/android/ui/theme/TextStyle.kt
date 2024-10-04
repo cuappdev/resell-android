@@ -87,6 +87,13 @@ object Style {
         color = Color.Black,
     )
 
+    val title2Gradient = TextStyle(
+        fontSize = 16.sp,
+        fontFamily = rubikFamily,
+        fontWeight = FontWeight(500),
+        brush = ResellGradientLogo,
+    )
+
     val title3 = TextStyle(
         fontSize = 14.sp,
         fontFamily = rubikFamily,

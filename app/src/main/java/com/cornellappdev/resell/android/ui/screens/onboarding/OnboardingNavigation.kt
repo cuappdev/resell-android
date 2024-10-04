@@ -14,17 +14,17 @@ import androidx.navigation.compose.composable
 import com.cornellappdev.resell.android.ui.screens.ResellRootRoute
 import com.cornellappdev.resell.android.util.LocalOnboardingNavigator
 import com.cornellappdev.resell.android.util.LocalRootNavigator
-import com.cornellappdev.resell.android.viewmodel.navigation.NavigationViewModel
+import com.cornellappdev.resell.android.viewmodel.navigation.OnboardingNavigationViewModel
 import kotlinx.serialization.Serializable
 
 @Composable
 fun OnboardingNavigation(
-    navigationViewModel: NavigationViewModel = hiltViewModel()
+    onboardingNavigationViewModel: OnboardingNavigationViewModel = hiltViewModel()
 ) {
     val selectedScreen: MutableState<ResellOnboardingScreen> =
         remember { mutableStateOf(ResellOnboardingScreen.Setup) }
     val navigator = LocalRootNavigator.current
-    val onboardingNav = navigationViewModel.onboardingNavController
+    val onboardingNav = onboardingNavigationViewModel.onboardingNavController
 
     BackHandler {
         if (selectedScreen.value == ResellOnboardingScreen.Setup) {

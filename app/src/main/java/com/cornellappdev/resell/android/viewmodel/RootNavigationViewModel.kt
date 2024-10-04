@@ -11,7 +11,7 @@ import javax.inject.Inject
 @HiltViewModel
 class RootNavigationViewModel @Inject constructor(
     @RootNav val navController: NavHostController,
-    val rootNavigationSheetRepository: RootNavigationSheetRepository,
+    private val rootNavigationSheetRepository: RootNavigationSheetRepository,
 ) : ResellViewModel<RootNavigationViewModel.RootNavigationUiState>(
     initialUiState = RootNavigationUiState()
 ) {
@@ -26,11 +26,9 @@ class RootNavigationViewModel @Inject constructor(
     )
 
     init {
-        viewModelScope.launch {
-            rootNavigationSheetRepository.rootSheetFlow.collect { sheetEvent ->
-                applyMutation {
-                    copy(sheetEvent = sheetEvent)
-                }
+        asyncCollect(rootNavigationSheetRepository.rootSheetFlow) { sheet ->
+            applyMutation {
+                copy(sheetEvent = sheet)
             }
         }
     }

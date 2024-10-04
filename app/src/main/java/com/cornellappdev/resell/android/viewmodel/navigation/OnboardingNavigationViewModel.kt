@@ -9,7 +9,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
 @HiltViewModel
-class NavigationViewModel @Inject constructor(
+class OnboardingNavigationViewModel @Inject constructor(
     @RootNav val rootNavController: NavHostController,
     @MainNav val mainNavController: NavHostController,
     @OnboardingNav val onboardingNavController: NavHostController,
