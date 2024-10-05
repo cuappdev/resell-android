@@ -13,7 +13,13 @@
         </DropdownSelection>
         <DialogSelection />
       </SelectionState>
-      <SelectionState runConfigName="TagPreview">
+      <SelectionState runConfigName="InteractionSurfacePreview">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
+      <SelectionState runConfigName="AvailabilityTablePreview">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
+      <SelectionState runConfigName="InteractionSurface_RUN_ME_Preview">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>
