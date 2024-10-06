@@ -21,9 +21,9 @@ import androidx.compose.ui.unit.toSize
 import com.cornellappdev.resell.android.ui.theme.ResellPreview
 import kotlin.math.floor
 
-// TODO convert this to grid so I can make multiple selections
+// TODO convert this to grid so I can make multiple selections and erase portions of selections
 @Composable
-internal fun SelectableGrid(
+fun SelectableGrid(
     width: Int,
     height: Int,
     selectionStart: Pair<Int, Int>?,
