@@ -21,7 +21,7 @@ import androidx.compose.ui.unit.toSize
 import com.cornellappdev.resell.android.ui.theme.ResellPreview
 import kotlin.math.floor
 
-
+// TODO convert this to grid so I can make multiple selections
 @Composable
 internal fun SelectableGrid(
     width: Int,
@@ -35,7 +35,7 @@ internal fun SelectableGrid(
 
     fun getGridCell(offset: Offset, size: Size): Pair<Int, Int> {
         val gridCol = floor(offset.x / (size.width / width)).toInt()
-        val gridRow = floor(offset.y / (size.height / width)).toInt()
+        val gridRow = floor(offset.y / (size.height / height)).toInt()
         return gridCol to gridRow
     }
 
@@ -67,7 +67,14 @@ internal fun SelectableGrid(
 
         while (position.y < size.height) {
             while (position.x < size.width) {
-                val gridCell = getGridCell(Offset(position.x, position.y), size)
+                val gridCell = getGridCell(
+                    /*
+                     * Displace the grid cell to the center of the rectangle instead of the top left
+                     * It ensures we get the right grid cell that corresponds to that rectangle
+                     */
+                    Offset(position.x + rectWidth / 2, position.y + rectHeight / 2),
+                    size
+                )
                 val style = selectionStart?.let { start ->
                     selectionEnd?.let { end ->
                         val leftCol = minOf(start.first, end.first)
@@ -76,7 +83,9 @@ internal fun SelectableGrid(
                         val topRow = minOf(start.second, end.second)
                         val bottomRow = maxOf(start.second, end.second)
 
-                        if (gridCell.first in leftCol..rightCol && gridCell.second in topRow..bottomRow) {
+                        if (gridCell.first in leftCol..rightCol &&
+                            gridCell.second in topRow..bottomRow
+                        ) {
                             Fill
                         } else {
                             Stroke(width = 4F)
