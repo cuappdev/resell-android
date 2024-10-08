@@ -21,18 +21,7 @@ import kotlinx.serialization.Serializable
 fun OnboardingNavigation(
     onboardingNavigationViewModel: OnboardingNavigationViewModel = hiltViewModel()
 ) {
-    val selectedScreen: MutableState<ResellOnboardingScreen> =
-        remember { mutableStateOf(ResellOnboardingScreen.Setup) }
-    val navigator = LocalRootNavigator.current
     val onboardingNav = onboardingNavigationViewModel.onboardingNavController
-
-    BackHandler {
-        if (selectedScreen.value == ResellOnboardingScreen.Setup) {
-            navigator.navigate(ResellRootRoute.LOGIN)
-        } else {
-            selectedScreen.value = ResellOnboardingScreen.Setup
-        }
-    }
 
     CompositionLocalProvider(LocalOnboardingNavigator provides onboardingNav) {
         NavHost(
