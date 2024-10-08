@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -37,6 +38,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.ui.components.global.ResellHeader
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButton
+import com.cornellappdev.resell.android.ui.components.main.PostFloatingActionButton
 import com.cornellappdev.resell.android.ui.components.newpost.WhichPage
 import com.cornellappdev.resell.android.ui.theme.Secondary
 import com.cornellappdev.resell.android.ui.theme.Style
@@ -86,9 +88,10 @@ fun ImageUploadScreen(
         Spacer(modifier = Modifier.weight(if (bitmaps.isNotEmpty()) 0.3f else 1f))
 
         SelectionBody(
-            pagerState = rememberPagerState { bitmaps.size },
+            pagerState = rememberPagerState { bitmaps.size + 1 },
             bitmaps = bitmaps,
-            onDelete = { imageUploadViewModel.onDelete(it) }
+            onDelete = { imageUploadViewModel.onDelete(it) },
+            onAdd = { imageUploadViewModel.onAddPressed() }
         )
 
         Spacer(modifier = Modifier.weight(1f))
@@ -106,6 +109,7 @@ private fun SelectionBody(
     pagerState: PagerState,
     bitmaps: List<ImageBitmap>,
     onDelete: (Int) -> Unit,
+    onAdd: () -> Unit,
 ) {
     // Screen width in dp
 
@@ -123,9 +127,15 @@ private fun SelectionBody(
                 state = pagerState,
                 snapPosition = SnapPosition.Center
             ) { page ->
-                ImageDisplay(bitmap = bitmaps[page],
-                    onDelete = { onDelete(page) }
-                )
+                if (page < bitmaps.size) {
+                    ImageDisplay(bitmap = bitmaps[page],
+                        onDelete = { onDelete(page) }
+                    )
+                } else {
+                    AddPage(
+                        onAddPressed = onAdd
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -191,6 +201,25 @@ private fun ImageDisplay(
             contentDescription = "trash",
             // This... kinda works... sometimes.
             tint = if (isBottomLeftMoreBlack(bitmap)) Color.White else Color.Black
+        )
+    }
+}
+
+@Composable
+private fun AddPage(
+    onAddPressed: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxHeight(0.5f)
+            .fillMaxWidth(),
+        contentAlignment = Alignment.Center
+    ) {
+        PostFloatingActionButton(
+            onClick = {
+                onAddPressed()
+            },
+            expanded = false,
         )
     }
 }
