@@ -8,6 +8,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import com.cornellappdev.resell.android.ui.theme.Padding
 
+/**
+ * 24.dp padding.
+ */
 fun Modifier.defaultHorizontalPadding() = this.padding(horizontal = Padding.leftRight)
 
 @Composable

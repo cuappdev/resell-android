@@ -24,6 +24,10 @@ annotation class MainNav
 @Retention(AnnotationRetention.BINARY)
 annotation class OnboardingNav
 
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class NewPostNav
+
 @Module
 @InstallIn(SingletonComponent::class)
 object NavHostModule {
@@ -50,6 +54,15 @@ object NavHostModule {
     @OnboardingNav
     @Singleton
     fun provideOnboardingNavController(@ApplicationContext context: Context) =
+        NavHostController(context).apply {
+            navigatorProvider.addNavigator(ComposeNavigator())
+            navigatorProvider.addNavigator(DialogNavigator())
+        }
+
+    @Provides
+    @NewPostNav
+    @Singleton
+    fun provideNewPostNavController(@ApplicationContext context: Context) =
         NavHostController(context).apply {
             navigatorProvider.addNavigator(ComposeNavigator())
             navigatorProvider.addNavigator(DialogNavigator())

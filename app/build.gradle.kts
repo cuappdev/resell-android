@@ -80,6 +80,7 @@ dependencies {
     implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.hilt.android)
     implementation(libs.androidx.datastore.core.android)
+    implementation(libs.androidx.foundation)
     implementation(libs.jetbrains.kotlinx.serialization.json)
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.androidx.navigation.compose)

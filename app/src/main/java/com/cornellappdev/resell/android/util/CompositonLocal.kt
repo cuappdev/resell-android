@@ -7,6 +7,7 @@ import androidx.navigation.NavHostController
 
 val LocalRootNavigator = compositionLocalOf<NavHostController> { error("No navigator provided") }
 val LocalMainNavigator = compositionLocalOf<NavHostController> { error("No navigator provided") }
+val LocalNewPostNavigator = compositionLocalOf<NavHostController> { error("No navigator provided") }
 val LocalOnboardingNavigator =
     compositionLocalOf<NavHostController> { error("No navigator provided") }
 
