@@ -21,12 +21,19 @@ class RootNavigationViewModel @Inject constructor(
      */
     data class RootNavigationUiState(
         val sheetEvent: UIEvent<RootSheet>? = null,
+        val hideEvent: UIEvent<Unit>? = null,
     )
 
     init {
         asyncCollect(rootNavigationSheetRepository.rootSheetFlow) { sheet ->
             applyMutation {
                 copy(sheetEvent = sheet)
+            }
+        }
+
+        asyncCollect(rootNavigationSheetRepository.hideFlow) { hide ->
+            applyMutation {
+                copy(hideEvent = hide)
             }
         }
     }

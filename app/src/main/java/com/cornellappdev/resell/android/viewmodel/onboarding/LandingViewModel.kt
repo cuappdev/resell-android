@@ -60,7 +60,7 @@ class LandingViewModel @Inject constructor(
         }
 
         rootNavigationSheetRepository.showBottomSheet(
-            RootSheet.LOGIN_FAILED
+            RootSheet.LoginFailed
         )
 
         loginRepository.invalidateEmail()
@@ -88,7 +88,7 @@ class LandingViewModel @Inject constructor(
             // No longer logged in.
             loginRepository.invalidateEmail()
             rootNavigationSheetRepository.showBottomSheet(
-                RootSheet.LOGIN_CORNELL_EMAIL
+                RootSheet.LoginCornellEmail
             )
         }
 

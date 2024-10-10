@@ -2,6 +2,7 @@ package com.cornellappdev.resell.android.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -120,5 +121,11 @@ object Style {
         fontFamily = helveticaFamily,
         fontWeight = FontWeight(400),
         color = AppDev,
+    )
+
+    val noHeight = TextStyle(
+        platformStyle = PlatformTextStyle(
+            includeFontPadding = false
+        )
     )
 }

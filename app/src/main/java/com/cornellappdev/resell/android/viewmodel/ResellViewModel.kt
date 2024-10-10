@@ -38,4 +38,11 @@ abstract class ResellViewModel<UiState>(initialUiState: UiState) : ViewModel() {
             flow.collect { collector(it) }
         }
     }
+
+    /**
+     * Returns the current [UiState].
+     */
+    protected fun stateValue(): UiState {
+        return _uiStateFlow.value
+    }
 }

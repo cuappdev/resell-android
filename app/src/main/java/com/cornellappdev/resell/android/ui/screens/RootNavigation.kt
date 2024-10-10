@@ -1,5 +1,6 @@
 package com.cornellappdev.resell.android.ui.screens
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -30,6 +31,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButton
+import com.cornellappdev.resell.android.ui.components.global.sheet.PriceProposalSheet
 import com.cornellappdev.resell.android.ui.screens.main.MainTabNavigation
 import com.cornellappdev.resell.android.ui.screens.newpost.NewPostNavigation
 import com.cornellappdev.resell.android.ui.screens.onboarding.LandingScreen
@@ -47,9 +49,11 @@ fun RootNavigation(
     rootNavigationViewModel: RootNavigationViewModel = hiltViewModel(),
 ) {
     val uiState = rootNavigationViewModel.collectUiStateValue()
-    val sheetState = rememberModalBottomSheetState()
-    var lastSheetValue by remember {
-        mutableStateOf(RootSheet.LOGIN_CORNELL_EMAIL)
+    val sheetState = rememberModalBottomSheetState(
+        skipPartiallyExpanded = true
+    )
+    var lastSheetValue: RootSheet by remember {
+        mutableStateOf(RootSheet.LoginCornellEmail)
     }
     val coroutineScope = rememberCoroutineScope()
     var showBottomSheet by remember { mutableStateOf(false) }
@@ -60,6 +64,16 @@ fun RootNavigation(
             lastSheetValue = uiState.sheetEvent.payload
             showBottomSheet = true
             sheetState.show()
+        }
+    }
+
+    LaunchedEffect(uiState.hideEvent) {
+        uiState.hideEvent?.consumeSuspend {
+            // Hide bottom sheet.
+            coroutineScope.launch {
+                sheetState.hide()
+                showBottomSheet = false
+            }
         }
     }
 
@@ -125,25 +139,28 @@ private fun SheetOverlay(
             onDismissRequest = onDismissRequest,
             sheetState = sheetState,
             windowInsets = WindowInsets(0.dp),
+            containerColor = Color.White,
         ) {
 
             when (sheetType) {
-                RootSheet.LOGIN_CORNELL_EMAIL -> {
+                RootSheet.LoginCornellEmail -> {
                     LoginErrorSheet(
                         onTryAgainClicked = onDismissRequest
                     )
                 }
 
-                RootSheet.LOGIN_FAILED -> {
+                RootSheet.LoginFailed -> {
                     LoginErrorSheet(
                         onTryAgainClicked = onDismissRequest,
                         text = "Login failed.\nPlease try again."
                     )
                 }
 
-                else -> {
-                    TODO("Not implemented yet")
+                is RootSheet.ProposalSheet -> {
+                    PriceProposalSheet()
                 }
+
+                else -> {}
             }
 
             // Bottom padding to account for bottom bars.

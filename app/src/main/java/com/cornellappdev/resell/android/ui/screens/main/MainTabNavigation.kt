@@ -194,7 +194,6 @@ sealed class ResellMainScreen {
     data object User : ResellMainScreen()
 
     fun String.toResellMainScreen(): ResellMainScreen {
-        Log.d("helpme", this.substringAfterLast('.'))
         return when (this.substringAfterLast('.')) {
             "Home" -> Home
             "Bookmarks" -> Bookmarks

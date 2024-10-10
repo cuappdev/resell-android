@@ -38,7 +38,7 @@ fun NewPostNavigation(
             }
 
             composable<ResellNewPostScreen.PostDetails> {
-
+                PostDetailsEntryScreen()
             }
 
             composable<ResellNewPostScreen.RequestDetails> {
