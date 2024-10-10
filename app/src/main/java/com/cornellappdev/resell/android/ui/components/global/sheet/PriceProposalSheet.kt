@@ -2,10 +2,13 @@ package com.cornellappdev.resell.android.ui.components.global.sheet
 
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -21,8 +24,10 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
@@ -33,12 +38,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButton
+import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonState
 import com.cornellappdev.resell.android.ui.theme.AppDev
 import com.cornellappdev.resell.android.ui.theme.ResellPreview
 import com.cornellappdev.resell.android.ui.theme.ResellPurple
 import com.cornellappdev.resell.android.ui.theme.Style
 import com.cornellappdev.resell.android.ui.theme.Wash
 import com.cornellappdev.resell.android.ui.theme.rubikFamily
+import com.cornellappdev.resell.android.util.clickableNoIndication
 import com.cornellappdev.resell.android.util.defaultHorizontalPadding
 
 @Composable
@@ -76,7 +83,8 @@ private fun PriceProposalSheetContent(
         Text(
             text = uiState.title,
             style = Style.heading3,
-            modifier = Modifier.defaultHorizontalPadding()
+            modifier = Modifier.defaultHorizontalPadding(),
+            textAlign = TextAlign.Center,
         )
 
         Spacer(Modifier.height(32.dp))
@@ -95,15 +103,15 @@ private fun PriceProposalSheetContent(
                 .fillMaxWidth()
                 .padding(horizontal = hPadding)
         ) {
-            EntryButton("1") {
+            EntryButton("1", enabled = uiState.canPressNumber) {
                 onNumberPressed("1")
             }
 
-            EntryButton("2") {
+            EntryButton("2", enabled = uiState.canPressNumber) {
                 onNumberPressed("2")
             }
 
-            EntryButton("3") {
+            EntryButton("3", enabled = uiState.canPressNumber) {
                 onNumberPressed("3")
             }
         }
@@ -113,15 +121,15 @@ private fun PriceProposalSheetContent(
                 .fillMaxWidth()
                 .padding(horizontal = hPadding)
         ) {
-            EntryButton("4") {
+            EntryButton("4", enabled = uiState.canPressNumber) {
                 onNumberPressed("4")
             }
 
-            EntryButton("5") {
+            EntryButton("5", enabled = uiState.canPressNumber) {
                 onNumberPressed("5")
             }
 
-            EntryButton("6") {
+            EntryButton("6", enabled = uiState.canPressNumber) {
                 onNumberPressed("6")
             }
         }
@@ -131,15 +139,15 @@ private fun PriceProposalSheetContent(
                 .fillMaxWidth()
                 .padding(horizontal = hPadding)
         ) {
-            EntryButton("7") {
+            EntryButton("7", enabled = uiState.canPressNumber) {
                 onNumberPressed("7")
             }
 
-            EntryButton("8") {
+            EntryButton("8", enabled = uiState.canPressNumber) {
                 onNumberPressed("8")
             }
 
-            EntryButton("9") {
+            EntryButton("9", enabled = uiState.canPressNumber) {
                 onNumberPressed("9")
             }
         }
@@ -149,15 +157,17 @@ private fun PriceProposalSheetContent(
                 .fillMaxWidth()
                 .padding(horizontal = hPadding)
         ) {
-            EntryButton(".") {
+            EntryButton(".", enabled = uiState.canPressDot) {
                 onDotPressed()
             }
 
-            EntryButton("0") {
+            EntryButton("0", enabled = uiState.canPressNumber && uiState.price.isNotEmpty()) {
                 onNumberPressed("0")
             }
 
-            EntryButton("<") {
+            EntryButton(
+                text = "<", enabled = uiState.canPressDelete
+            ) {
                 onDeletePressed()
             }
         }
@@ -166,7 +176,12 @@ private fun PriceProposalSheetContent(
 
         ResellTextButton(
             text = uiState.confirmText,
-            onClick = onConfirmPressed
+            onClick = onConfirmPressed,
+            state = if (uiState.canConfirm) {
+                ResellTextButtonState.ENABLED
+            } else {
+                ResellTextButtonState.DISABLED
+            }
         )
 
         Spacer(Modifier.height(46.dp))
@@ -176,14 +191,30 @@ private fun PriceProposalSheetContent(
 @Composable
 private fun RowScope.EntryButton(
     text: String,
-    onClick: () -> Unit = {}
+    enabled: Boolean,
+    onClick: () -> Unit = {},
 ) {
+    val alpha by animateFloatAsState(
+        targetValue = if (enabled) 1f else 0.4f,
+        label = "alpha"
+    )
     Surface(
         shape = RoundedCornerShape(10.dp),
         color = Color.White,
         modifier = Modifier
-            .weight(1f),
-        onClick = onClick,
+            .weight(1f)
+            .then(
+                if (enabled) {
+                    Modifier.clickable(
+                        indication = null,
+                        interactionSource = remember { MutableInteractionSource() }) {
+                        onClick()
+                    }
+                } else {
+                    Modifier
+                        .clickableNoIndication { }
+                }
+            ),
     ) {
         Text(
             text = text,
@@ -194,7 +225,9 @@ private fun RowScope.EntryButton(
                 color = Color.Black,
                 textAlign = TextAlign.Center,
             ),
-            modifier = Modifier.padding(vertical = 16.dp)
+            modifier = Modifier
+                .padding(vertical = 16.dp)
+                .alpha(alpha)
         )
     }
 }

@@ -38,3 +38,30 @@ fun isBottomLeftMoreBlack(imageBitmap: ImageBitmap): Boolean {
     // Return true if there are more black-ish pixels than white-ish pixels
     return blackCount > whiteCount
 }
+
+/**
+ * If the string representing money has anything besides 2 decimal places, it will be formatted
+ * to be 2 decimal places.
+ *
+ * If there are no decimal places, nothing is changed.
+ */
+fun String.formatMoney(): String {
+    if (!this.contains(".")) {
+        return this
+    }
+
+    val split = this.split(".")
+    val dollars = split[0]
+    var cents = split[1]
+
+    if (cents.length == 0) {
+        cents = "00"
+    } else if (cents.length == 1) {
+        cents += "0"
+    }
+    else if (cents.length > 2) {
+        cents = cents.substring(0, 2)
+    }
+
+    return "$dollars.$cents"
+}

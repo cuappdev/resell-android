@@ -36,11 +36,17 @@ import com.cornellappdev.resell.android.viewmodel.newpost.PostDetailsEntryViewMo
 fun PostDetailsEntryScreen(
     postDetailsEntryViewModel: PostDetailsEntryViewModel = hiltViewModel()
 ) {
+    val uiState = postDetailsEntryViewModel.collectUiStateValue()
+
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
         PostDetailsContent(
-            onPricePressed = postDetailsEntryViewModel::onPricePressed
+            uiState = uiState,
+            onPricePressed = postDetailsEntryViewModel::onPricePressed,
+            onDescriptionChanged = postDetailsEntryViewModel::onDescriptionChanged,
+            onTitleChanged = postDetailsEntryViewModel::onTitleChanged,
+            onHomeFilterPressed = postDetailsEntryViewModel::onFilterPressed
         )
 
         ResellTextButton(
@@ -56,7 +62,12 @@ fun PostDetailsEntryScreen(
 @Preview
 @Composable
 private fun PostDetailsContent(
+    uiState: PostDetailsEntryViewModel.PostEntryUiState =
+        PostDetailsEntryViewModel.PostEntryUiState(),
     onPricePressed: () -> Unit = {},
+    onHomeFilterPressed: (HomeViewModel.HomeFilter) -> Unit = {},
+    onTitleChanged: (String) -> Unit = {},
+    onDescriptionChanged: (String) -> Unit = {},
 ) {
     Column(
         modifier = Modifier
@@ -73,8 +84,8 @@ private fun PostDetailsContent(
 
         ResellTextEntry(
             label = "Title",
-            text = "",
-            onTextChange = {},
+            text = uiState.title,
+            onTextChange = onTitleChanged,
             inlineLabel = false,
             modifier = Modifier.defaultHorizontalPadding()
         )
@@ -82,7 +93,7 @@ private fun PostDetailsContent(
         Spacer(Modifier.height(32.dp))
 
         MoneyEntry(
-            text = "",
+            text = uiState.price,
             label = "Price",
             onPressed = onPricePressed,
             modifier = Modifier
@@ -94,13 +105,13 @@ private fun PostDetailsContent(
 
         ResellTextEntry(
             label = "Item Description",
-            text = "",
-            onTextChange = {},
+            text = uiState.description,
+            onTextChange = onDescriptionChanged,
             inlineLabel = false,
             multiLineHeight = 255.dp,
             singleLine = false,
             // TODO: probably wrong max lines
-            maxLines = 3,
+            maxLines = 20,
             modifier = Modifier.defaultHorizontalPadding(),
             placeholder = "enter item details..."
         )
@@ -122,14 +133,17 @@ private fun PostDetailsContent(
                 Spacer(modifier = Modifier.size(Padding.medium))
             }
 
-            // TODO Not correct filters
-            items(items = HomeViewModel.HomeFilter.entries) { filter ->
+            items(
+                items = HomeViewModel.HomeFilter.entries.minus(HomeViewModel.HomeFilter.RECENT)
+            ) { filter ->
                 ResellTag(
                     text = filter.name.lowercase().replaceFirstChar {
                         it.uppercase()
                     },
-                    active = false,
-                    onClick = { /* TODO */ }
+                    active = uiState.activeFilter == filter,
+                    onClick = {
+                        onHomeFilterPressed(filter)
+                    }
                 )
             }
 

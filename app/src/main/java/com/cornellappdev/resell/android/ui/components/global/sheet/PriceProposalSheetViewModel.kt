@@ -1,5 +1,6 @@
 package com.cornellappdev.resell.android.ui.components.global.sheet
 
+import com.cornellappdev.resell.android.util.formatMoney
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
 import com.cornellappdev.resell.android.viewmodel.RootNavigationSheetRepository
 import com.cornellappdev.resell.android.viewmodel.RootSheet
@@ -24,7 +25,8 @@ class PriceProposalSheetViewModel @Inject constructor(
                     enabled = true,
                     callback = uiEvent.payload.callback,
                     title = uiEvent.payload.title,
-                    confirmText = uiEvent.payload.confirmString
+                    confirmText = uiEvent.payload.confirmString,
+                    price = uiEvent.payload.defaultPrice,
                 )
             }
         }
@@ -41,7 +43,11 @@ class PriceProposalSheetViewModel @Inject constructor(
             get() = price.contains(".")
 
         val canPressNumber
-            get() = enabled && !hasDot && price.length <= 5 || hasDot && price.length <= 7
+            get() = enabled &&
+                    (!hasDot && price.length <= 2 || hasDot && price
+                        .substringAfter(
+                            delimiter = ".", missingDelimiterValue = ""
+                        ).length < 2)
 
         val canPressDot
             get() = enabled && !hasDot
@@ -56,6 +62,10 @@ class PriceProposalSheetViewModel @Inject constructor(
 
 
     fun onNumberPressed(number: String) {
+        if (stateValue().price.isEmpty() && number == "0") {
+            return
+        }
+
         applyMutation {
             copy(
                 price = price + number
@@ -78,7 +88,7 @@ class PriceProposalSheetViewModel @Inject constructor(
     fun onConfirmPressed() {
         // Hide the sheet and fire the callback.
         rootNavigationSheetRepository.hideSheet()
-        stateValue().callback(stateValue().price)
+        stateValue().callback(stateValue().price.formatMoney())
 
         applyMutation {
             copy(
@@ -89,6 +99,16 @@ class PriceProposalSheetViewModel @Inject constructor(
 
     fun onDeletePressed() {
         if (stateValue().price.isNotEmpty()) {
+            if (stateValue().price.dropLast(1) == "0") {
+                applyMutation {
+                    copy(
+                        price = ""
+                    )
+                }
+
+                return
+            }
+
             applyMutation {
                 copy(
                     price = stateValue().price.dropLast(1)
