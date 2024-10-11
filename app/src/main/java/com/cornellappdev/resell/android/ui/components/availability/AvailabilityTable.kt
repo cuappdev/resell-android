@@ -1,6 +1,5 @@
 package com.cornellappdev.resell.android.ui.components.availability
 
-import android.util.Log
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.calculateCentroid
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.PointerEventType
@@ -53,7 +53,7 @@ fun SelectableGrid(
     } ?: false
 
     fun List<BooleanArray>.changeBySelection(selection: Boolean): List<BooleanArray> {
-        return mapIndexed { row, boolRow ->
+        return this.mapIndexed { row, boolRow ->
             boolRow
                 .mapIndexed { col, value ->
                     if (inSelection(row, col)) {
@@ -77,17 +77,16 @@ fun SelectableGrid(
                         if (isFirstMove) {
                             val (row, col) = getGridCell(position, size.toSize())
                             selectionStart = row to col
+                            // TODO this is tragic but grid is being captured in the closure (we are so close)
                             isRemoving = grid[row][col]
                             isFirstMove = false
                         }
                         selectionEnd = getGridCell(position, size.toSize())
                     } else if (event.type == PointerEventType.Release) {
-                        if (isRemoving) {
-                            updateGrid { it.changeBySelection(false) }
-                        } else {
-                            Log.d("TAG", "SelectableGrid: selection start = $selectionStart")
-                            updateGrid { it.changeBySelection(true) }
+                        updateGrid {
+                            it.changeBySelection(!isRemoving)
                         }
+                        isRemoving = false
                         selectionStart = null
                         selectionEnd = null
                         isFirstMove = true
@@ -113,9 +112,44 @@ fun SelectableGrid(
                         126F,
                         200F / 255F,
                         100F / 255F,
-                        position.x / size.width + position.y / size.height
                     ),
                     style = style
+                )
+            }
+        }
+        selectionStart?.let { selectionStart ->
+            selectionEnd?.let { selectionEnd ->
+                val (minRow, maxRow) = (selectionStart.first to selectionEnd.first).toSortedPair()
+                val (minCol, maxCol) = (selectionStart.second to selectionEnd.second).toSortedPair()
+                val position = Offset(rectWidth * minCol, rectHeight * minRow)
+                drawRect(
+                    size = Size(
+                        (maxCol - minCol + 1) * rectWidth,
+                        (maxRow - minRow + 1) * rectHeight,
+                    ), topLeft = position,
+                    color = Color.hsv(
+                        126F,
+                        200F / 255F,
+                        1F,
+                    ),
+                    style = Stroke(
+                        width = 8F, pathEffect = PathEffect.dashPathEffect(
+                            floatArrayOf(25F, 25F)
+                        )
+                    )
+                )
+                drawRect(
+                    size = Size(
+                        (maxCol - minCol + 1) * rectWidth,
+                        (maxRow - minRow + 1) * rectHeight,
+                    ), topLeft = position,
+                    color = Color.hsl(
+                        126F,
+                        200F / 255F,
+                        .5F,
+                        .5F,
+                    ),
+                    style = Fill
                 )
             }
         }
