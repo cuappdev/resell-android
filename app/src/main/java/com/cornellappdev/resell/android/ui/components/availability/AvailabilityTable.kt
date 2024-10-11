@@ -1,5 +1,6 @@
 package com.cornellappdev.resell.android.ui.components.availability
 
+import android.util.Log
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.calculateCentroid
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,24 +20,50 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.toSize
 import com.cornellappdev.resell.android.ui.theme.ResellPreview
+import com.cornellappdev.resell.android.util.toSortedPair
 import kotlin.math.floor
 
 // TODO convert this to grid so I can make multiple selections and erase portions of selections
+/**
+ * Requires: grid is non-empty
+ */
 @Composable
 fun SelectableGrid(
-    width: Int,
-    height: Int,
-    selectionStart: Pair<Int, Int>?,
-    selectionEnd: Pair<Int, Int>?,
-    setSelectionStart: (Pair<Int, Int>?) -> Unit,
-    setSelectionEnd: (Pair<Int, Int>?) -> Unit,
+    grid: List<BooleanArray>,
+    updateGrid: ((List<BooleanArray>) -> List<BooleanArray>) -> Unit,
 ) {
-    var isFirstMove by remember { mutableStateOf(false) }
+    var isFirstMove by remember { mutableStateOf(true) }
+    var isRemoving by remember { mutableStateOf(false) }
+    val (width, height) = grid.first().size to grid.size
+    var selectionStart by remember { mutableStateOf<Pair<Int, Int>?>(null) }
+    var selectionEnd by remember { mutableStateOf<Pair<Int, Int>?>(null) }
 
-    fun getGridCell(offset: Offset, size: Size): Pair<Int, Int> {
-        val gridCol = floor(offset.x / (size.width / width)).toInt()
-        val gridRow = floor(offset.y / (size.height / height)).toInt()
-        return gridCol to gridRow
+    fun getGridCell(offset: Offset, canvasSize: Size): Pair<Int, Int> {
+        val gridCol = floor(offset.x / (canvasSize.width / width)).toInt()
+        val gridRow = floor(offset.y / (canvasSize.height / height)).toInt()
+        return gridRow to gridCol
+    }
+
+    fun inSelection(row: Int, col: Int): Boolean = selectionStart?.let { selectionStart ->
+        selectionEnd?.let { selectionEnd ->
+            val (minRow, maxRow) = (selectionStart.first to selectionEnd.first).toSortedPair()
+            val (minCol, maxCol) = (selectionStart.second to selectionEnd.second).toSortedPair()
+            row in minRow..maxRow && col in minCol..maxCol
+        } ?: false
+    } ?: false
+
+    fun List<BooleanArray>.changeBySelection(selection: Boolean): List<BooleanArray> {
+        return mapIndexed { row, boolRow ->
+            boolRow
+                .mapIndexed { col, value ->
+                    if (inSelection(row, col)) {
+                        selection
+                    } else {
+                        value
+                    }
+                }
+                .toBooleanArray()
+        }
     }
 
     Canvas(modifier = Modifier
@@ -46,53 +73,39 @@ fun SelectableGrid(
                 while (true) {
                     val event = awaitPointerEvent()
                     val position = event.calculateCentroid()
-                    if (event.type == PointerEventType.Press) {
-                        isFirstMove = true
-                        setSelectionStart(null)
-                        setSelectionEnd(null)
-                    }
                     if (event.type == PointerEventType.Move) {
                         if (isFirstMove) {
-                            setSelectionStart(getGridCell(position, size.toSize()))
+                            val (row, col) = getGridCell(position, size.toSize())
+                            selectionStart = row to col
+                            isRemoving = grid[row][col]
                             isFirstMove = false
                         }
-                        setSelectionEnd(getGridCell(position, size.toSize()))
+                        selectionEnd = getGridCell(position, size.toSize())
+                    } else if (event.type == PointerEventType.Release) {
+                        if (isRemoving) {
+                            updateGrid { it.changeBySelection(false) }
+                        } else {
+                            Log.d("TAG", "SelectableGrid: selection start = $selectionStart")
+                            updateGrid { it.changeBySelection(true) }
+                        }
+                        selectionStart = null
+                        selectionEnd = null
+                        isFirstMove = true
                     }
                 }
             }
         }) {
         val rectWidth = size.width / width
         val rectHeight = size.height / height
-        var position = Offset(0F, 0F)
 
-        while (position.y < size.height) {
-            while (position.x < size.width) {
-                val gridCell = getGridCell(
-                    /*
-                     * Displace the grid cell to the center of the rectangle instead of the top left
-                     * It ensures we get the right grid cell that corresponds to that rectangle
-                     */
-                    Offset(position.x + rectWidth / 2, position.y + rectHeight / 2),
-                    size
-                )
-                val style = selectionStart?.let { start ->
-                    selectionEnd?.let { end ->
-                        val leftCol = minOf(start.first, end.first)
-                        val rightCol = maxOf(start.first, end.first)
-
-                        val topRow = minOf(start.second, end.second)
-                        val bottomRow = maxOf(start.second, end.second)
-
-                        if (gridCell.first in leftCol..rightCol &&
-                            gridCell.second in topRow..bottomRow
-                        ) {
-                            Fill
-                        } else {
-                            Stroke(width = 4F)
-                        }
-                    }
-                } ?: Stroke(width = 4F)
-
+        for (row in grid.indices) {
+            for (col in grid[row].indices) {
+                val style = if (grid[row][col]) {
+                    Fill
+                } else {
+                    Stroke(width = 4f)
+                }
+                val position = Offset(rectWidth * col, rectHeight * row)
                 drawRect(
                     size = Size(rectWidth, rectHeight),
                     topLeft = position,
@@ -104,9 +117,7 @@ fun SelectableGrid(
                     ),
                     style = style
                 )
-                position = position.copy(x = position.x + rectWidth)
             }
-            position = position.copy(x = 0F, y = position.y + rectHeight)
         }
     }
 }
@@ -114,9 +125,26 @@ fun SelectableGrid(
 @Preview
 @Composable
 private fun AvailabilityTablePreview() = ResellPreview {
-    var startGridCell by remember { mutableStateOf<Pair<Int, Int>?>(null) }
-    var endGridCell by remember { mutableStateOf<Pair<Int, Int>?>(null) }
-    SelectableGrid(5, 20, startGridCell, endGridCell, setSelectionStart = {
-        startGridCell = it
-    }, setSelectionEnd = { endGridCell = it })
+    var grid by remember {
+        mutableStateOf(
+            listOf(
+                BooleanArray(5),
+                BooleanArray(5),
+                BooleanArray(5),
+                BooleanArray(5),
+                BooleanArray(5),
+                BooleanArray(5),
+                BooleanArray(5),
+                BooleanArray(5),
+                BooleanArray(5),
+                BooleanArray(5),
+                BooleanArray(5),
+                BooleanArray(5),
+                BooleanArray(5),
+            )
+        )
+    }
+    SelectableGrid(grid, updateGrid = {
+        grid = it(grid)
+    })
 }
