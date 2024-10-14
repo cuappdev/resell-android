@@ -79,7 +79,7 @@ fun ImageUploadScreen(
     ) {
         ResellHeader(
             title = "New Listing",
-            rightPainter = R.drawable.ic_plus,
+            rightPainter = if (uiState.canAddImages) R.drawable.ic_plus else null,
             onRightClick = {
                 imageUploadViewModel.onAddPressed()
             }
@@ -88,7 +88,9 @@ fun ImageUploadScreen(
         Spacer(modifier = Modifier.weight(if (bitmaps.isNotEmpty()) 0.3f else 1f))
 
         SelectionBody(
-            pagerState = rememberPagerState { bitmaps.size + 1 },
+            pagerState = rememberPagerState {
+                (bitmaps.size + 1).coerceAtMost(maximumValue = 9)
+            },
             bitmaps = bitmaps,
             onDelete = { imageUploadViewModel.onDelete(it) },
             onAdd = { imageUploadViewModel.onAddPressed() }

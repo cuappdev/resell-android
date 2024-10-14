@@ -29,6 +29,9 @@ class ImageUploadViewModel @Inject constructor(
     ) {
         val buttonText
             get() = if (images.isNotEmpty()) "Next" else "Add Image"
+
+        val canAddImages
+            get() = images.size < 9
     }
 
     fun onImageSelected(uri: Uri) {
