@@ -1,5 +1,6 @@
 package com.cornellappdev.resell.android.ui.screens
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -29,8 +30,12 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButton
+import com.cornellappdev.resell.android.ui.components.global.sheet.PriceProposalSheet
 import com.cornellappdev.resell.android.ui.screens.main.MainTabNavigation
+import com.cornellappdev.resell.android.ui.screens.newpost.NewPostNavigation
+import com.cornellappdev.resell.android.ui.screens.newpost.RequestDetailsEntryScreen
 import com.cornellappdev.resell.android.ui.screens.onboarding.LandingScreen
 import com.cornellappdev.resell.android.ui.screens.onboarding.OnboardingNavigation
 import com.cornellappdev.resell.android.ui.theme.Style
@@ -46,9 +51,12 @@ fun RootNavigation(
     rootNavigationViewModel: RootNavigationViewModel = hiltViewModel(),
 ) {
     val uiState = rootNavigationViewModel.collectUiStateValue()
-    val sheetState = rememberModalBottomSheetState()
-    var lastSheetValue by remember {
-        mutableStateOf(RootSheet.LOGIN_CORNELL_EMAIL)
+    val navController = rememberNavController()
+    val sheetState = rememberModalBottomSheetState(
+        skipPartiallyExpanded = true
+    )
+    var lastSheetValue: RootSheet by remember {
+        mutableStateOf(RootSheet.LoginCornellEmail)
     }
     val coroutineScope = rememberCoroutineScope()
     var showBottomSheet by remember { mutableStateOf(false) }
@@ -62,8 +70,25 @@ fun RootNavigation(
         }
     }
 
+    LaunchedEffect(uiState.hideEvent) {
+        uiState.hideEvent?.consumeSuspend {
+            // Hide bottom sheet.
+            coroutineScope.launch {
+                sheetState.hide()
+                showBottomSheet = false
+            }
+        }
+    }
+
+    LaunchedEffect(uiState.navEvent) {
+        uiState.navEvent?.consumeSuspend {
+            // Navigate.
+            navController.navigate(it)
+        }
+    }
+
     CompositionLocalProvider(
-        LocalRootNavigator provides rootNavigationViewModel.navController
+        LocalRootNavigator provides navController
     ) {
         NavHost(
             navController = LocalRootNavigator.current,
@@ -87,6 +112,15 @@ fun RootNavigation(
             composable<ResellRootRoute.SETTINGS> {
                 // TODO: Settings
                 Text(text = "SETTINGS")
+            }
+
+            composable<ResellRootRoute.NEW_POST> {
+                NewPostNavigation()
+            }
+
+            composable<ResellRootRoute.NEW_REQUEST> {
+                // TODO: Proposal
+                RequestDetailsEntryScreen()
             }
         }
 
@@ -120,25 +154,28 @@ private fun SheetOverlay(
             onDismissRequest = onDismissRequest,
             sheetState = sheetState,
             windowInsets = WindowInsets(0.dp),
+            containerColor = Color.White,
         ) {
 
             when (sheetType) {
-                RootSheet.LOGIN_CORNELL_EMAIL -> {
+                RootSheet.LoginCornellEmail -> {
                     LoginErrorSheet(
                         onTryAgainClicked = onDismissRequest
                     )
                 }
 
-                RootSheet.LOGIN_FAILED -> {
+                RootSheet.LoginFailed -> {
                     LoginErrorSheet(
                         onTryAgainClicked = onDismissRequest,
                         text = "Login failed.\nPlease try again."
                     )
                 }
 
-                else -> {
-                    TODO("Not implemented yet")
+                is RootSheet.ProposalSheet -> {
+                    PriceProposalSheet()
                 }
+
+                else -> {}
             }
 
             // Bottom padding to account for bottom bars.
@@ -191,4 +228,10 @@ sealed class ResellRootRoute {
 
     @Serializable
     data object SETTINGS : ResellRootRoute()
+
+    @Serializable
+    data object NEW_POST : ResellRootRoute()
+
+    @Serializable
+    data object NEW_REQUEST : ResellRootRoute()
 }

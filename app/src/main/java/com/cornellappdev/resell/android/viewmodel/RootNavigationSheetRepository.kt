@@ -22,15 +22,35 @@ class RootNavigationSheetRepository @Inject constructor() {
      */
     val rootSheetFlow: StateFlow<UIEvent<RootSheet>?> = _rootSheetFlow.asStateFlow()
 
+    private val _hideFlow = MutableStateFlow<UIEvent<Unit>?>(null)
+
+    /**
+     * A flow emitting an event saying that the sheet should hide.
+     */
+    val hideFlow = _hideFlow.asStateFlow()
+
     fun showBottomSheet(sheet: RootSheet) {
         _rootSheetFlow.value = UIEvent(sheet)
     }
+
+    /**
+     * Hides the price proposal sheet.
+     */
+    fun hideSheet() {
+        _hideFlow.value = UIEvent(Unit)
+    }
 }
 
-enum class RootSheet {
-    LOGIN_FAILED,
-    LOGIN_CORNELL_EMAIL,
-    WELCOME
+sealed class RootSheet {
+    data object LoginFailed : RootSheet()
+    data object LoginCornellEmail : RootSheet()
+    data class ProposalSheet(
+        val confirmString: String,
+        val defaultPrice: String,
+        val callback: (String) -> Unit,
+        val title: String,
+    ) : RootSheet()
+    data object Welcome : RootSheet()
 }
 
 @Module

@@ -3,9 +3,12 @@ package com.cornellappdev.resell.android.viewmodel
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 
 abstract class ResellViewModel<UiState>(initialUiState: UiState) : ViewModel() {
 
@@ -25,5 +28,21 @@ abstract class ResellViewModel<UiState>(initialUiState: UiState) : ViewModel() {
      */
     fun applyMutation(mutation: UiState.() -> UiState) {
         _uiStateFlow.value = _uiStateFlow.value.mutation()
+    }
+
+    /**
+     * Asynchronously starts collecting the given flow.
+     */
+    fun <T> asyncCollect(flow: StateFlow<T>, collector: (T) -> Unit): Job {
+        return viewModelScope.launch {
+            flow.collect { collector(it) }
+        }
+    }
+
+    /**
+     * Returns the current [UiState].
+     */
+    protected fun stateValue(): UiState {
+        return _uiStateFlow.value
     }
 }

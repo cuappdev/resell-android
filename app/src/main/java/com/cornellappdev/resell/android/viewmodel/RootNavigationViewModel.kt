@@ -1,17 +1,15 @@
 package com.cornellappdev.resell.android.viewmodel
 
-import androidx.lifecycle.viewModelScope
-import androidx.navigation.NavHostController
-import com.cornellappdev.resell.android.model.RootNav
+import com.cornellappdev.resell.android.ui.screens.ResellRootRoute
 import com.cornellappdev.resell.android.util.UIEvent
+import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class RootNavigationViewModel @Inject constructor(
-    @RootNav val navController: NavHostController,
-    val rootNavigationSheetRepository: RootNavigationSheetRepository,
+    rootNavigationSheetRepository: RootNavigationSheetRepository,
+    rootNavigationRepository: RootNavigationRepository,
 ) : ResellViewModel<RootNavigationViewModel.RootNavigationUiState>(
     initialUiState = RootNavigationUiState()
 ) {
@@ -23,14 +21,26 @@ class RootNavigationViewModel @Inject constructor(
      */
     data class RootNavigationUiState(
         val sheetEvent: UIEvent<RootSheet>? = null,
+        val hideEvent: UIEvent<Unit>? = null,
+        val navEvent: UIEvent<ResellRootRoute>? = null,
     )
 
     init {
-        viewModelScope.launch {
-            rootNavigationSheetRepository.rootSheetFlow.collect { sheetEvent ->
-                applyMutation {
-                    copy(sheetEvent = sheetEvent)
-                }
+        asyncCollect(rootNavigationSheetRepository.rootSheetFlow) { sheet ->
+            applyMutation {
+                copy(sheetEvent = sheet)
+            }
+        }
+
+        asyncCollect(rootNavigationSheetRepository.hideFlow) { hide ->
+            applyMutation {
+                copy(hideEvent = hide)
+            }
+        }
+
+        asyncCollect(rootNavigationRepository.routeFlow) { route ->
+            applyMutation {
+                copy(navEvent = route)
             }
         }
     }

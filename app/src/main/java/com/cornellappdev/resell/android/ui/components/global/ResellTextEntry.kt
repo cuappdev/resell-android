@@ -27,6 +27,8 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.cornellappdev.resell.android.ui.theme.AppDev
+import com.cornellappdev.resell.android.ui.theme.Secondary
 import com.cornellappdev.resell.android.ui.theme.Stroke
 import com.cornellappdev.resell.android.ui.theme.Style
 import com.cornellappdev.resell.android.ui.theme.Wash
@@ -101,7 +103,7 @@ fun ResellTextEntry(
                     Text(
                         text = placeholder,
                         style = Style.body1,
-                        color = Stroke,
+                        color = AppDev,
                     )
                 },
             )

@@ -1,14 +1,13 @@
 package com.cornellappdev.resell.android.viewmodel.main
 
 import androidx.lifecycle.viewModelScope
-import androidx.navigation.NavHostController
 import com.cornellappdev.resell.android.model.Listing
 import com.cornellappdev.resell.android.model.LoginRepository
 import com.cornellappdev.resell.android.model.ResellApiState
-import com.cornellappdev.resell.android.model.RootNav
 import com.cornellappdev.resell.android.ui.screens.ResellRootRoute
 import com.cornellappdev.resell.android.util.richieListings
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
+import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -17,7 +16,7 @@ import javax.inject.Inject
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
     private val loginRepository: LoginRepository,
-    @RootNav private val navController: NavHostController,
+    private val rootNavigationRepository: RootNavigationRepository,
 ) : ResellViewModel<ProfileViewModel.ProfileUiState>(
     initialUiState = ProfileUiState(
         profileTab = ProfileTab.SHOP,
@@ -89,12 +88,12 @@ class ProfileViewModel @Inject constructor(
     fun onSignOutClick() {
         // TODO: Implement
         loginRepository.invalidateEmail()
-        navController.navigate(ResellRootRoute.LOGIN)
+        rootNavigationRepository.navigate(ResellRootRoute.LOGIN)
     }
 
     fun onSettingsPressed() {
         // TODO: Implement
-        navController.navigate(ResellRootRoute.SETTINGS)
+        rootNavigationRepository.navigate(ResellRootRoute.SETTINGS)
     }
 
     fun onSearchPressed() {
