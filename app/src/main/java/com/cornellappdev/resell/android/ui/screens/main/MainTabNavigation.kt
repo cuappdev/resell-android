@@ -1,6 +1,5 @@
 package com.cornellappdev.resell.android.ui.screens.main
 
-import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -14,6 +13,7 @@ import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -26,6 +26,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
 import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.ui.components.main.FloatingActionExpandingCTA
 import com.cornellappdev.resell.android.ui.components.main.PostFloatingActionButton
@@ -42,9 +43,15 @@ fun MainTabNavigation(
     mainNavigationViewModel: MainNavigationViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
-    val mainNav = mainNavigationViewModel.mainNavController
+    val mainNav = rememberNavController()
     val navDestination by mainNav.currentBackStackEntryAsState()
     val uiState = mainNavigationViewModel.collectUiStateValue()
+
+    LaunchedEffect(uiState.navEvent) {
+        uiState.navEvent?.consumeSuspend {
+            mainNav.navigate(it)
+        }
+    }
 
     // If on main tab, close the app.
     BackHandler {

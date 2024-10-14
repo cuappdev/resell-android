@@ -3,14 +3,13 @@ package com.cornellappdev.resell.android.viewmodel.onboarding
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.viewModelScope
-import androidx.navigation.NavHostController
 import com.cornellappdev.resell.android.model.LoginRepository
-import com.cornellappdev.resell.android.model.RootNav
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonState
 import com.cornellappdev.resell.android.ui.screens.ResellRootRoute
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
 import com.cornellappdev.resell.android.viewmodel.RootNavigationSheetRepository
 import com.cornellappdev.resell.android.viewmodel.RootSheet
+import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepository
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.tasks.Task
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -20,7 +19,7 @@ import javax.inject.Inject
 @HiltViewModel
 class LandingViewModel @Inject constructor(
     private val loginRepository: LoginRepository,
-    @RootNav private val navController: NavHostController,
+    private val rootNavigationRepository: RootNavigationRepository,
     private val rootNavigationSheetRepository: RootNavigationSheetRepository,
 ) : ResellViewModel<LandingViewModel.LandingUiState>(
     initialUiState = LandingUiState()
@@ -38,7 +37,7 @@ class LandingViewModel @Inject constructor(
     fun navigateIfLoggedIn() {
         if (loginRepository.accountOrNull() != null) {
             // TODO: If account actually still exists on backend...
-            navController.navigate(ResellRootRoute.MAIN)
+            rootNavigationRepository.navigate(ResellRootRoute.MAIN)
         }
     }
 
@@ -76,7 +75,7 @@ class LandingViewModel @Inject constructor(
                 }
 
                 // TODO Should have some logic to check if setup already or not
-                navController.navigate(ResellRootRoute.ONBOARDING)
+                rootNavigationRepository.navigate(ResellRootRoute.ONBOARDING)
             }
         }
         // Not a Cornell email.

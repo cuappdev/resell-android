@@ -51,10 +51,11 @@ fun PostDetailsEntryScreen(
 
         ResellTextButton(
             text = "Next",
-            onClick = {},
+            onClick = postDetailsEntryViewModel::onConfirmPost,
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .padding(bottom = 46.dp)
+                .padding(bottom = 46.dp),
+            state = uiState.buttonState,
         )
     }
 }

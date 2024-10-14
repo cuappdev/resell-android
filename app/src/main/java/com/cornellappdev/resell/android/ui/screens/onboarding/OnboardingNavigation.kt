@@ -4,6 +4,7 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -11,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.cornellappdev.resell.android.ui.screens.ResellRootRoute
 import com.cornellappdev.resell.android.util.LocalOnboardingNavigator
 import com.cornellappdev.resell.android.util.LocalRootNavigator
@@ -21,7 +23,14 @@ import kotlinx.serialization.Serializable
 fun OnboardingNavigation(
     onboardingNavigationViewModel: OnboardingNavigationViewModel = hiltViewModel()
 ) {
-    val onboardingNav = onboardingNavigationViewModel.onboardingNavController
+    val uiState = onboardingNavigationViewModel.collectUiStateValue()
+    val onboardingNav = rememberNavController()
+
+    LaunchedEffect(uiState.route) {
+        uiState.route?.consumeSuspend {
+            onboardingNav.navigate(it)
+        }
+    }
 
     CompositionLocalProvider(LocalOnboardingNavigator provides onboardingNav) {
         NavHost(

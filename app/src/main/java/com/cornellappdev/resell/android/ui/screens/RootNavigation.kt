@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButton
 import com.cornellappdev.resell.android.ui.components.global.sheet.PriceProposalSheet
 import com.cornellappdev.resell.android.ui.screens.main.MainTabNavigation
@@ -49,6 +50,7 @@ fun RootNavigation(
     rootNavigationViewModel: RootNavigationViewModel = hiltViewModel(),
 ) {
     val uiState = rootNavigationViewModel.collectUiStateValue()
+    val navController = rememberNavController()
     val sheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true
     )
@@ -77,8 +79,15 @@ fun RootNavigation(
         }
     }
 
+    LaunchedEffect(uiState.navEvent) {
+        uiState.navEvent?.consumeSuspend {
+            // Navigate.
+            navController.navigate(it)
+        }
+    }
+
     CompositionLocalProvider(
-        LocalRootNavigator provides rootNavigationViewModel.navController
+        LocalRootNavigator provides navController
     ) {
         NavHost(
             navController = LocalRootNavigator.current,

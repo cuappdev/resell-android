@@ -1,15 +1,15 @@
 package com.cornellappdev.resell.android.viewmodel
 
-import androidx.navigation.NavHostController
-import com.cornellappdev.resell.android.model.RootNav
+import com.cornellappdev.resell.android.ui.screens.ResellRootRoute
 import com.cornellappdev.resell.android.util.UIEvent
+import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
 @HiltViewModel
 class RootNavigationViewModel @Inject constructor(
-    @RootNav val navController: NavHostController,
-    private val rootNavigationSheetRepository: RootNavigationSheetRepository,
+    rootNavigationSheetRepository: RootNavigationSheetRepository,
+    rootNavigationRepository: RootNavigationRepository,
 ) : ResellViewModel<RootNavigationViewModel.RootNavigationUiState>(
     initialUiState = RootNavigationUiState()
 ) {
@@ -22,6 +22,7 @@ class RootNavigationViewModel @Inject constructor(
     data class RootNavigationUiState(
         val sheetEvent: UIEvent<RootSheet>? = null,
         val hideEvent: UIEvent<Unit>? = null,
+        val navEvent: UIEvent<ResellRootRoute>? = null,
     )
 
     init {
@@ -34,6 +35,12 @@ class RootNavigationViewModel @Inject constructor(
         asyncCollect(rootNavigationSheetRepository.hideFlow) { hide ->
             applyMutation {
                 copy(hideEvent = hide)
+            }
+        }
+
+        asyncCollect(rootNavigationRepository.routeFlow) { route ->
+            applyMutation {
+                copy(navEvent = route)
             }
         }
     }
