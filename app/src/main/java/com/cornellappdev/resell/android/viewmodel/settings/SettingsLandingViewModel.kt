@@ -1,11 +1,15 @@
 package com.cornellappdev.resell.android.viewmodel.settings
 
+import com.cornellappdev.resell.android.ui.screens.settings.SettingsRoute
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
+import com.cornellappdev.resell.android.viewmodel.navigation.SettingsNavigationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
 @HiltViewModel
-class SettingsLandingViewModel @Inject constructor() : ResellViewModel<Unit>(
+class SettingsLandingViewModel @Inject constructor(
+    private val settingsNavigationRepository: SettingsNavigationRepository
+) : ResellViewModel<Unit>(
     initialUiState = Unit
 ) {
 
@@ -14,7 +18,7 @@ class SettingsLandingViewModel @Inject constructor() : ResellViewModel<Unit>(
     }
 
     fun onNotificationsClick() {
-
+        settingsNavigationRepository.navigate(SettingsRoute.Notifications)
     }
 
     fun onPrivacyClick() {

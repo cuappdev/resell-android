@@ -35,6 +35,7 @@ fun SettingsNavigation(
             composable<SettingsRoute.EditProfile> {
             }
             composable<SettingsRoute.Notifications> {
+                NotificationSettings()
             }
             composable<SettingsRoute.Feedback> {
             }
