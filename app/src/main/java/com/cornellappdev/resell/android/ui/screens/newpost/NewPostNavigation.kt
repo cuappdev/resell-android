@@ -40,10 +40,6 @@ fun NewPostNavigation(
             composable<ResellNewPostScreen.PostDetails> {
                 PostDetailsEntryScreen()
             }
-
-            composable<ResellNewPostScreen.RequestDetails> {
-
-            }
         }
     }
 }
@@ -56,7 +52,4 @@ sealed class ResellNewPostScreen {
 
     @Serializable
     data object PostDetails : ResellNewPostScreen()
-
-    @Serializable
-    data object RequestDetails : ResellNewPostScreen()
 }

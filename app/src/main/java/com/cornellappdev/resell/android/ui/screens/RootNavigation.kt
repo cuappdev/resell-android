@@ -35,6 +35,7 @@ import com.cornellappdev.resell.android.ui.components.global.ResellTextButton
 import com.cornellappdev.resell.android.ui.components.global.sheet.PriceProposalSheet
 import com.cornellappdev.resell.android.ui.screens.main.MainTabNavigation
 import com.cornellappdev.resell.android.ui.screens.newpost.NewPostNavigation
+import com.cornellappdev.resell.android.ui.screens.newpost.RequestDetailsEntryScreen
 import com.cornellappdev.resell.android.ui.screens.onboarding.LandingScreen
 import com.cornellappdev.resell.android.ui.screens.onboarding.OnboardingNavigation
 import com.cornellappdev.resell.android.ui.theme.Style
@@ -115,6 +116,11 @@ fun RootNavigation(
 
             composable<ResellRootRoute.NEW_POST> {
                 NewPostNavigation()
+            }
+
+            composable<ResellRootRoute.NEW_REQUEST> {
+                // TODO: Proposal
+                RequestDetailsEntryScreen()
             }
         }
 
@@ -225,4 +231,7 @@ sealed class ResellRootRoute {
 
     @Serializable
     data object NEW_POST : ResellRootRoute()
+
+    @Serializable
+    data object NEW_REQUEST : ResellRootRoute()
 }

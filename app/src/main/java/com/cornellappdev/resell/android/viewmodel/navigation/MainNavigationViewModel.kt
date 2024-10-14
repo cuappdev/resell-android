@@ -2,6 +2,7 @@ package com.cornellappdev.resell.android.viewmodel.navigation
 
 import com.cornellappdev.resell.android.ui.screens.ResellRootRoute
 import com.cornellappdev.resell.android.ui.screens.main.ResellMainScreen
+import com.cornellappdev.resell.android.ui.screens.newpost.ResellNewPostScreen
 import com.cornellappdev.resell.android.util.UIEvent
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -49,7 +50,13 @@ class MainNavigationViewModel @Inject constructor(
     }
 
     fun onNewRequestClick() {
-        // TODO
+        rootNavigationRepository.navigate(ResellRootRoute.NEW_REQUEST)
+
+        applyMutation {
+            copy(
+                newPostExpanded = false
+            )
+        }
     }
 
     fun onNewPostClick() {

@@ -8,7 +8,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class NewPostNavigationViewModel @Inject constructor(
-    val newPostNavigationRepository: NewPostNavigationRepository,
+    newPostNavigationRepository: NewPostNavigationRepository,
 ) : ResellViewModel<NewPostNavigationViewModel.NewPostNavigationUiState>(
     initialUiState = NewPostNavigationUiState()
 ) {
