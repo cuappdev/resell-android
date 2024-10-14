@@ -16,3 +16,13 @@ val simpleFadeInOut: AnimatedContentTransitionScope<Any>.() -> ContentTransform 
         )
     )
 }
+
+val instantFadeInOut: AnimatedContentTransitionScope<Any>.() -> ContentTransform = {
+    fadeIn(
+        animationSpec = tween(0)
+    ).togetherWith(
+        fadeOut(
+            animationSpec = tween(0)
+        )
+    )
+}
