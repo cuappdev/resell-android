@@ -1,6 +1,5 @@
 package com.cornellappdev.resell.android.ui.screens
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -38,6 +37,7 @@ import com.cornellappdev.resell.android.ui.screens.newpost.NewPostNavigation
 import com.cornellappdev.resell.android.ui.screens.newpost.RequestDetailsEntryScreen
 import com.cornellappdev.resell.android.ui.screens.onboarding.LandingScreen
 import com.cornellappdev.resell.android.ui.screens.onboarding.OnboardingNavigation
+import com.cornellappdev.resell.android.ui.screens.settings.SettingsNavigation
 import com.cornellappdev.resell.android.ui.theme.Style
 import com.cornellappdev.resell.android.util.LocalRootNavigator
 import com.cornellappdev.resell.android.viewmodel.RootNavigationViewModel
@@ -110,8 +110,7 @@ fun RootNavigation(
             }
 
             composable<ResellRootRoute.SETTINGS> {
-                // TODO: Settings
-                Text(text = "SETTINGS")
+                SettingsNavigation()
             }
 
             composable<ResellRootRoute.NEW_POST> {
