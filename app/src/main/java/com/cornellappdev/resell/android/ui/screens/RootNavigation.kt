@@ -32,6 +32,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButton
 import com.cornellappdev.resell.android.ui.components.global.sheet.PriceProposalSheet
+import com.cornellappdev.resell.android.ui.components.main.WelcomeSheetContent
 import com.cornellappdev.resell.android.ui.components.settings.LogOutSheetContent
 import com.cornellappdev.resell.android.ui.components.settings.ResellWebView
 import com.cornellappdev.resell.android.ui.screens.main.MainTabNavigation
@@ -182,6 +183,12 @@ private fun SheetOverlay(
 
                 RootSheet.LogOut -> {
                     LogOutSheetContent {
+                        onDismissRequest()
+                    }
+                }
+
+                RootSheet.Welcome -> {
+                    WelcomeSheetContent {
                         onDismissRequest()
                     }
                 }
