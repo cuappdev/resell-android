@@ -32,6 +32,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButton
 import com.cornellappdev.resell.android.ui.components.global.sheet.PriceProposalSheet
+import com.cornellappdev.resell.android.ui.components.settings.webview.ResellWebView
 import com.cornellappdev.resell.android.ui.screens.main.MainTabNavigation
 import com.cornellappdev.resell.android.ui.screens.newpost.NewPostNavigation
 import com.cornellappdev.resell.android.ui.screens.newpost.RequestDetailsEntryScreen
@@ -172,6 +173,10 @@ private fun SheetOverlay(
 
                 is RootSheet.ProposalSheet -> {
                     PriceProposalSheet()
+                }
+
+                is RootSheet.WebViewSheet -> {
+                    ResellWebView(url = sheetType.url)
                 }
 
                 else -> {}
