@@ -3,6 +3,7 @@ package com.cornellappdev.resell.android.viewmodel.newpost
 import androidx.lifecycle.viewModelScope
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonState
 import com.cornellappdev.resell.android.ui.screens.ResellRootRoute
+import com.cornellappdev.resell.android.util.isLeqMoney
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
 import com.cornellappdev.resell.android.viewmodel.RootNavigationSheetRepository
 import com.cornellappdev.resell.android.viewmodel.RootSheet
@@ -29,6 +30,7 @@ class RequestDetailsEntryViewModel @Inject constructor(
     ) {
         private val canConfirm
             get() = title.isNotBlank() && minPrice.isNotBlank() && maxPrice.isNotBlank()
+                    && minPrice.isLeqMoney(maxPrice)
 
         val buttonState: ResellTextButtonState
             get() = if (loadingPost) {
@@ -49,7 +51,7 @@ class RequestDetailsEntryViewModel @Inject constructor(
                     }
                 },
                 confirmString = "Set Min Price",
-                title = "What price do you want to propose?",
+                title = "What minimum price do you want to propose?",
                 defaultPrice = stateValue().minPrice
             )
         )
@@ -64,7 +66,7 @@ class RequestDetailsEntryViewModel @Inject constructor(
                     }
                 },
                 confirmString = "Set Max Price",
-                title = "What price do you want to propose?",
+                title = "What maximum price do you want to propose?",
                 defaultPrice = stateValue().maxPrice
             )
         )
