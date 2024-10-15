@@ -99,7 +99,7 @@ private fun SwitchRow(
 ) {
     Row(
         horizontalArrangement = Arrangement.SpaceBetween,
-        modifier = Modifier.padding(vertical = 24.dp).fillMaxWidth().defaultHorizontalPadding(),
+        modifier = Modifier.padding(vertical = 20.dp).fillMaxWidth().defaultHorizontalPadding(),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(

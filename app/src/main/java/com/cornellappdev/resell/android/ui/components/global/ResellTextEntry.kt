@@ -28,15 +28,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.cornellappdev.resell.android.ui.theme.AppDev
-import com.cornellappdev.resell.android.ui.theme.Secondary
-import com.cornellappdev.resell.android.ui.theme.Stroke
 import com.cornellappdev.resell.android.ui.theme.Style
 import com.cornellappdev.resell.android.ui.theme.Wash
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ResellTextEntry(
-    label: String,
+    label: String? = null,
     text: String,
     onTextChange: (String) -> Unit,
     modifier: Modifier = Modifier,
@@ -116,15 +114,17 @@ fun ResellTextEntry(
                 .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = label,
-                style = Style.title1,
-                modifier = Modifier
-            )
+            if (label != null) {
+                Text(
+                    text = label,
+                    style = Style.title1,
+                    modifier = Modifier
+                )
 
-            Spacer(
-                modifier = Modifier.weight(1f)
-            )
+                Spacer(
+                    modifier = Modifier.weight(1f)
+                )
+            }
 
             textField()
         }
@@ -133,11 +133,13 @@ fun ResellTextEntry(
             modifier = modifier
                 .fillMaxWidth()
         ) {
-            Text(
-                text = label,
-                style = Style.title1,
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
+            if (label != null) {
+                Text(
+                    text = label,
+                    style = Style.title1,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+            }
             textField()
         }
     }

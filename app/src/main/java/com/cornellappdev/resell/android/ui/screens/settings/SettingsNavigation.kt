@@ -38,6 +38,7 @@ fun SettingsNavigation(
                 NotificationSettings()
             }
             composable<SettingsRoute.Feedback> {
+                SendFeedbackScreen()
             }
             composable<SettingsRoute.BlockedUsers> {
 

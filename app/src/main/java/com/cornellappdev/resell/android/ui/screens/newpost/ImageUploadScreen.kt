@@ -63,6 +63,7 @@ fun ImageUploadScreen(
         }
     }
 
+    // TODO Should be camera or photo picker
     LaunchedEffect(uiState.launchPhotoPicker) {
         uiState.launchPhotoPicker?.consumeSuspend {
             singlePhotoPicker.launch(

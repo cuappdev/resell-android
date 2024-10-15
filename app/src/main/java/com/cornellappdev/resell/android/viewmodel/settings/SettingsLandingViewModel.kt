@@ -26,7 +26,7 @@ class SettingsLandingViewModel @Inject constructor(
     }
 
     fun onFeedbackClick() {
-
+        settingsNavigationRepository.navigate(SettingsRoute.Feedback)
     }
 
     fun onTermsClick() {

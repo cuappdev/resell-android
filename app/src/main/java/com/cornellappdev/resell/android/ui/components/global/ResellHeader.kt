@@ -22,14 +22,12 @@ import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.ui.theme.AppDev
 import com.cornellappdev.resell.android.ui.theme.Primary
 import com.cornellappdev.resell.android.ui.theme.ResellPreview
+import com.cornellappdev.resell.android.ui.theme.ResellPurple
 import com.cornellappdev.resell.android.ui.theme.Stroke
 import com.cornellappdev.resell.android.ui.theme.Style
 import com.cornellappdev.resell.android.util.clickableNoIndication
 import com.cornellappdev.resell.android.util.defaultHorizontalPadding
 
-/**
- * A default header framework used on many screens.
- */
 @Composable
 fun ResellHeader(
     title: String,
@@ -41,34 +39,68 @@ fun ResellHeader(
     onRightClick: (() -> Unit)? = null,
     bottomBar: Boolean = false,
 ) {
+    val left = @Composable {
+        if (leftPainter != null) {
+            Icon(
+                painter = painterResource(id = leftPainter),
+                contentDescription = null,
+                modifier = modifier
+                    .size(24.dp),
+                tint = Primary,
+            )
+        } else {
+            Box(modifier = Modifier.size(24.dp)) {}
+        }
+    }
+    val right = @Composable {
+        if (rightPainter != null) {
+            Icon(
+                painter = painterResource(id = rightPainter),
+                contentDescription = null,
+                modifier = Modifier
+                    .size(24.dp),
+                tint = Primary
+            )
+        } else {
+            Box(modifier = Modifier.size(24.dp)) {}
+        }
+    }
+
+    ResellHeaderCore(
+        title = title,
+        modifier = modifier,
+        subtitle = subtitle,
+        leftContent = left,
+        rightContent = right,
+        onLeftClick = onLeftClick,
+        onRightClick = onRightClick,
+        bottomBar = bottomBar
+    )
+}
+/**
+ * A default header framework used on many screens.
+ */
+@Composable
+fun ResellHeaderCore(
+    title: String,
+    modifier: Modifier = Modifier,
+    subtitle: String? = null,
+    leftContent: @Composable () -> Unit = {},
+    rightContent: @Composable () -> Unit = {},
+    onLeftClick: (() -> Unit)? = null,
+    onRightClick: (() -> Unit)? = null,
+    bottomBar: Boolean = false,
+) {
     Column(
         modifier = modifier.statusBarsPadding(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Spacer(Modifier.height(16.dp))
 
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .fillMaxWidth()
-                .defaultHorizontalPadding(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            if (leftPainter != null) {
-                Icon(
-                    painter = painterResource(id = leftPainter),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(24.dp)
-                        .clickableNoIndication(onClick = onLeftClick ?: {}),
-                    tint = Primary,
-                )
-            } else {
-                Box(modifier = Modifier.size(24.dp)) {}
-            }
-
+        Box {
             Column(
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.align(Alignment.Center)
             ) {
                 Text(
                     text = title,
@@ -84,19 +116,31 @@ fun ResellHeader(
                 }
             }
 
-            if (rightPainter != null) {
-                Icon(
-                    painter = painterResource(id = rightPainter),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(24.dp)
-                        .clickableNoIndication(onClick = onRightClick ?: {}),
-                    tint = Primary,
-                )
-            } else {
-                Box(modifier = Modifier.size(24.dp)) {}
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .defaultHorizontalPadding(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Box(
+                    modifier = Modifier.clickableNoIndication {
+                        onLeftClick?.invoke()
+                    }
+                ) {
+                    leftContent()
+                }
+
+                Box(
+                    modifier = Modifier.clickableNoIndication {
+                        onRightClick?.invoke()
+                    }
+                ) {
+                    rightContent()
+                }
             }
         }
+
 
         Spacer(Modifier.height(12.dp))
 
@@ -137,5 +181,16 @@ private fun ResellHeaderPreview() = ResellPreview {
     ResellHeader(
         title = "Title",
         rightPainter = R.drawable.ic_settings,
+    )
+
+    ResellHeaderCore(
+        title = "Title",
+        rightContent = {
+            Text(
+                text = "Submit",
+                color = ResellPurple,
+                style = Style.title1
+            )
+        }
     )
 }
