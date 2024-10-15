@@ -32,7 +32,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButton
 import com.cornellappdev.resell.android.ui.components.global.sheet.PriceProposalSheet
-import com.cornellappdev.resell.android.ui.components.settings.webview.ResellWebView
+import com.cornellappdev.resell.android.ui.components.settings.LogOutSheetContent
+import com.cornellappdev.resell.android.ui.components.settings.ResellWebView
 import com.cornellappdev.resell.android.ui.screens.main.MainTabNavigation
 import com.cornellappdev.resell.android.ui.screens.newpost.NewPostNavigation
 import com.cornellappdev.resell.android.ui.screens.newpost.RequestDetailsEntryScreen
@@ -93,12 +94,12 @@ fun RootNavigation(
     ) {
         NavHost(
             navController = LocalRootNavigator.current,
-            startDestination = ResellRootRoute.LOGIN,
+            startDestination = ResellRootRoute.LANDING,
             modifier = Modifier
                 .fillMaxSize()
                 .background(Color.White)
         ) {
-            composable<ResellRootRoute.LOGIN> {
+            composable<ResellRootRoute.LANDING> {
                 LandingScreen()
             }
 
@@ -179,6 +180,12 @@ private fun SheetOverlay(
                     ResellWebView(url = sheetType.url)
                 }
 
+                RootSheet.LogOut -> {
+                    LogOutSheetContent {
+                        onDismissRequest()
+                    }
+                }
+
                 else -> {}
             }
 
@@ -222,7 +229,7 @@ private fun LoginErrorSheet(
 @Serializable
 sealed class ResellRootRoute {
     @Serializable
-    data object LOGIN : ResellRootRoute()
+    data object LANDING : ResellRootRoute()
 
     @Serializable
     data object MAIN : ResellRootRoute()

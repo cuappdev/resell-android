@@ -1,4 +1,4 @@
-package com.cornellappdev.resell.android.ui.components.settings.webview
+package com.cornellappdev.resell.android.ui.components.settings
 
 import android.content.Intent
 import android.net.Uri

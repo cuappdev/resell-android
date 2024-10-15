@@ -50,9 +50,12 @@ sealed class RootSheet {
         val callback: (String) -> Unit,
         val title: String,
     ) : RootSheet()
+
     data class WebViewSheet(
         val url: String
     ) : RootSheet()
+
+    data object LogOut : RootSheet()
     data object Welcome : RootSheet()
 }
 

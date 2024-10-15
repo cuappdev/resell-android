@@ -49,7 +49,9 @@ class SettingsLandingViewModel @Inject constructor(
     }
 
     fun onLogoutClick() {
-
+        rootNavigationSheetRepository.showBottomSheet(
+            RootSheet.LogOut
+        )
     }
 
     fun onDeleteAccountClick() {
