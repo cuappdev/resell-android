@@ -30,6 +30,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.cornellappdev.resell.android.ui.theme.AppDev
 import com.cornellappdev.resell.android.ui.theme.Primary
 import com.cornellappdev.resell.android.ui.theme.ResellPurple
 import com.cornellappdev.resell.android.ui.theme.Style
@@ -75,6 +76,10 @@ enum class ResellTextButtonContainer(
     NAKED_PRIMARY(
         color = Color.White,
         textColor = Primary,
+    ),
+    NAKED_APPDEV(
+        color = Color.White,
+        textColor = AppDev,
     )
 }
 

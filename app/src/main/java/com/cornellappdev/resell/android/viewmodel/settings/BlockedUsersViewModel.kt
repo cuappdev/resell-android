@@ -1,17 +1,19 @@
 package com.cornellappdev.resell.android.viewmodel.settings
 
-import android.content.Context
-import androidx.compose.ui.graphics.ImageBitmap
+import androidx.lifecycle.viewModelScope
+import com.cornellappdev.resell.android.model.settings.BlockedUsersRepository
+import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonState
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
-import com.cornellappdev.resell.android.viewmodel.navigation.SettingsNavigationRepository
+import com.cornellappdev.resell.android.viewmodel.root.RootDialogContent
+import com.cornellappdev.resell.android.viewmodel.root.RootDialogRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class BlockedUsersViewModel @Inject constructor(
-    @ApplicationContext private val appContext: Context,
-    private val settingsNavigationRepository: SettingsNavigationRepository,
+    private val blockedUsersRepository: BlockedUsersRepository,
+    private val dialogRepository: RootDialogRepository,
 ) : ResellViewModel<BlockedUsersViewModel.BlockedUsersUiState>(
     initialUiState = BlockedUsersUiState(),
 ) {
@@ -27,6 +29,40 @@ class BlockedUsersViewModel @Inject constructor(
     )
 
     fun onUnblock(id: String) {
-        // TODO: Implement with dialog
+        val name = stateValue().blockedUsers.firstOrNull { it.id == id }?.name
+        dialogRepository.showDialog(
+            RootDialogContent.TwoButtonDialog(
+                title = "Unblock ${name ?: "User"}?",
+                description = "They will be able to message you and view your posts.",
+                primaryButtonText = "Unblock",
+                secondaryButtonText = "Cancel",
+                onPrimaryButtonClick = {
+                    viewModelScope.launch {
+                        dialogRepository.setPrimaryButtonState(ResellTextButtonState.SPINNING)
+                        blockedUsersRepository.onUnblockUser(
+                            userId = id,
+                            onError = {
+                                // TODO
+                                dialogRepository.dismissDialog()
+                            },
+                            onSuccess = {
+                                // TODO
+                                dialogRepository.dismissDialog()
+                            }
+                        )
+                    }
+                },
+                onSecondaryButtonClick = {
+                    dialogRepository.dismissDialog()
+                },
+                exitButton = true,
+            )
+        )
+    }
+
+    init {
+        blockedUsersRepository.fetchBlockedUsers { blockedUsers ->
+            applyMutation { copy(blockedUsers = blockedUsers) }
+        }
     }
 }

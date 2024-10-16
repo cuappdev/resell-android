@@ -2,8 +2,8 @@ package com.cornellappdev.resell.android.ui.components.global.sheet
 
 import com.cornellappdev.resell.android.util.formatMoney
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
-import com.cornellappdev.resell.android.viewmodel.RootNavigationSheetRepository
-import com.cornellappdev.resell.android.viewmodel.RootSheet
+import com.cornellappdev.resell.android.viewmodel.root.RootNavigationSheetRepository
+import com.cornellappdev.resell.android.viewmodel.root.RootSheet
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 

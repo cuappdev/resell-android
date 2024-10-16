@@ -74,7 +74,7 @@ private fun Content(
                     imageUrl = blockedUsers[index].imageUrl,
                     username = blockedUsers[index].name,
                     onUnblock = {
-                        blockedUsers[index].id
+                        onUnblockUser(blockedUsers[index].id)
                     }
                 )
             }

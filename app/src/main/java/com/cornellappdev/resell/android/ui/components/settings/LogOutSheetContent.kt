@@ -14,11 +14,11 @@ import androidx.lifecycle.viewModelScope
 import com.cornellappdev.resell.android.model.LoginRepository
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButton
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonContainer
-import com.cornellappdev.resell.android.ui.screens.ResellRootRoute
+import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
 import com.cornellappdev.resell.android.ui.theme.Style
 import com.cornellappdev.resell.android.util.defaultHorizontalPadding
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
-import com.cornellappdev.resell.android.viewmodel.RootNavigationSheetRepository
+import com.cornellappdev.resell.android.viewmodel.root.RootNavigationSheetRepository
 import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch

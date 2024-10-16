@@ -2,8 +2,8 @@ package com.cornellappdev.resell.android.viewmodel.settings
 
 import com.cornellappdev.resell.android.ui.screens.settings.SettingsRoute
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
-import com.cornellappdev.resell.android.viewmodel.RootNavigationSheetRepository
-import com.cornellappdev.resell.android.viewmodel.RootSheet
+import com.cornellappdev.resell.android.viewmodel.root.RootNavigationSheetRepository
+import com.cornellappdev.resell.android.viewmodel.root.RootSheet
 import com.cornellappdev.resell.android.viewmodel.navigation.SettingsNavigationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject

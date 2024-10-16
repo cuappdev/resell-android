@@ -1,7 +1,8 @@
-package com.cornellappdev.resell.android.viewmodel
+package com.cornellappdev.resell.android.viewmodel.root
 
-import com.cornellappdev.resell.android.ui.screens.ResellRootRoute
+import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
 import com.cornellappdev.resell.android.util.UIEvent
+import com.cornellappdev.resell.android.viewmodel.ResellViewModel
 import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
