@@ -97,6 +97,11 @@ fun TwoButtonDialog(
                 state = secondaryButtonState
             )
         }
+        else {
+            Spacer(
+                modifier = Modifier.height(10.dp)
+            )
+        }
     }
 }
 

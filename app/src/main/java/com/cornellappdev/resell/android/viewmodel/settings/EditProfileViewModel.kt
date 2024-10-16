@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.cornellappdev.resell.android.util.loadBitmapFromUri
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
 import com.cornellappdev.resell.android.viewmodel.navigation.SettingsNavigationRepository
+import com.cornellappdev.resell.android.viewmodel.root.RootConfirmationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.delay
@@ -17,6 +18,7 @@ import javax.inject.Inject
 class EditProfileViewModel @Inject constructor(
     @ApplicationContext private val appContext: Context,
     private val settingsNavigationRepository: SettingsNavigationRepository,
+    private val confirmationRepository: RootConfirmationRepository,
 ) :
     ResellViewModel<EditProfileViewModel.EditProfileUiState>
         (
@@ -82,6 +84,7 @@ class EditProfileViewModel @Inject constructor(
             applyMutation {
                 copy(loading = false)
             }
+            confirmationRepository.showSuccess("Profile updated successfully!")
         }
     }
 

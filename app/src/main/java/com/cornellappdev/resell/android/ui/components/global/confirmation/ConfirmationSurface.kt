@@ -25,6 +25,7 @@ import com.cornellappdev.resell.android.ui.theme.ResellPreview
 import com.cornellappdev.resell.android.ui.theme.ResellPurple
 import com.cornellappdev.resell.android.ui.theme.Secondary
 import com.cornellappdev.resell.android.ui.theme.Style.title2
+import com.cornellappdev.resell.android.util.clickableNoIndication
 
 @Composable
 fun ConfirmationSurface(
@@ -38,7 +39,10 @@ fun ConfirmationSurface(
         color = color,
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 24.dp),
+            .padding(horizontal = 24.dp)
+            .clickableNoIndication {
+                onDismiss()
+            },
         shape = RoundedCornerShape(8.dp),
         shadowElevation = 12.dp,
     ) {

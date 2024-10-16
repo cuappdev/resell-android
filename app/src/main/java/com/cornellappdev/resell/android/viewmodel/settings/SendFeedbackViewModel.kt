@@ -9,6 +9,7 @@ import com.cornellappdev.resell.android.ui.screens.settings.SettingsRoute
 import com.cornellappdev.resell.android.util.loadBitmapFromUri
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
 import com.cornellappdev.resell.android.viewmodel.navigation.SettingsNavigationRepository
+import com.cornellappdev.resell.android.viewmodel.root.RootConfirmationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.delay
@@ -18,7 +19,8 @@ import javax.inject.Inject
 @HiltViewModel
 class SendFeedbackViewModel @Inject constructor(
     @ApplicationContext private val appContext: Context,
-    private val settingsNavigationRepository: SettingsNavigationRepository
+    private val settingsNavigationRepository: SettingsNavigationRepository,
+    private val confirmationRepository: RootConfirmationRepository,
 ) : ResellViewModel<SendFeedbackViewModel.SendFeedbackUiState>(
     initialUiState = SendFeedbackUiState()
 ) {
@@ -72,6 +74,9 @@ class SendFeedbackViewModel @Inject constructor(
                 applyMutation {
                     copy(loading = false)
                 }
+                confirmationRepository.showSuccess(
+                    message = "Your message has been submitted. Thank you for your feedback!",
+                )
                 settingsNavigationRepository.popBackStack()
             }
         }
