@@ -28,15 +28,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.cornellappdev.resell.android.ui.theme.AppDev
-import com.cornellappdev.resell.android.ui.theme.Secondary
-import com.cornellappdev.resell.android.ui.theme.Stroke
 import com.cornellappdev.resell.android.ui.theme.Style
 import com.cornellappdev.resell.android.ui.theme.Wash
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ResellTextEntry(
-    label: String,
+    label: String? = null,
     text: String,
     onTextChange: (String) -> Unit,
     modifier: Modifier = Modifier,
@@ -45,14 +43,8 @@ fun ResellTextEntry(
     maxLines: Int = 1,
     placeholder: String = "",
     multiLineHeight: Dp = 85.dp,
+    leadingIcon: @Composable (() -> Unit)? = null,
 ) {
-
-    val inlineModifier = if (inlineLabel) {
-        Modifier
-            .widthIn(max = 200.dp)
-    } else {
-        Modifier
-    }
 
     val singleLineModifier = if (singleLine) {
         Modifier
@@ -62,13 +54,13 @@ fun ResellTextEntry(
             .height(multiLineHeight)
     }
 
-    val textField = @Composable {
+    val textField = @Composable { modifier: Modifier ->
 
         val interactionSource = remember { MutableInteractionSource() }
         BasicTextField(
             value = text,
             onValueChange = onTextChange,
-            modifier = inlineModifier
+            modifier = modifier
                 .then(singleLineModifier)
                 .fillMaxWidth(),
             interactionSource = interactionSource,
@@ -106,6 +98,7 @@ fun ResellTextEntry(
                         color = AppDev,
                     )
                 },
+                leadingIcon = leadingIcon,
             )
         }
     }
@@ -116,29 +109,44 @@ fun ResellTextEntry(
                 .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = label,
-                style = Style.title1,
-                modifier = Modifier
-            )
+            if (label != null) {
+                Text(
+                    text = label,
+                    style = Style.title1,
+                    modifier = Modifier.then(
+                        if (!singleLine) {
+                            Modifier
+                                .align(Alignment.Top)
+                                .padding(top = 6.dp)
+                        } else {
+                            Modifier
+                        }
+                    )
+                )
 
-            Spacer(
-                modifier = Modifier.weight(1f)
-            )
+                Spacer(modifier = Modifier.weight(
+                    if (singleLine) 0.5f else 0.1f))
+            }
 
-            textField()
+            textField(
+                Modifier.weight(1f)
+            )
         }
     } else {
         Column(
             modifier = modifier
                 .fillMaxWidth()
         ) {
-            Text(
-                text = label,
-                style = Style.title1,
-                modifier = Modifier.padding(bottom = 8.dp)
+            if (label != null) {
+                Text(
+                    text = label,
+                    style = Style.title1,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+            }
+            textField(
+                Modifier
             )
-            textField()
         }
     }
 }
@@ -188,6 +196,17 @@ private fun TextEntryPreview() {
             text = "",
             onTextChange = {},
             inlineLabel = false,
+            singleLine = false,
+            placeholder = "Bio goes here",
+        )
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        ResellTextEntry(
+            label = "Bio inline",
+            text = "",
+            onTextChange = {},
+            inlineLabel = true,
             singleLine = false,
             placeholder = "Bio goes here",
         )

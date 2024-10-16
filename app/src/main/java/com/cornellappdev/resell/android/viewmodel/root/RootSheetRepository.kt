@@ -1,4 +1,4 @@
-package com.cornellappdev.resell.android.viewmodel
+package com.cornellappdev.resell.android.viewmodel.root
 
 import com.cornellappdev.resell.android.util.UIEvent
 import dagger.Module
@@ -50,6 +50,12 @@ sealed class RootSheet {
         val callback: (String) -> Unit,
         val title: String,
     ) : RootSheet()
+
+    data class WebViewSheet(
+        val url: String
+    ) : RootSheet()
+
+    data object LogOut : RootSheet()
     data object Welcome : RootSheet()
 }
 

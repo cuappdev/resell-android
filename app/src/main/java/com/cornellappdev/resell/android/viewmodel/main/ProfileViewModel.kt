@@ -4,7 +4,7 @@ import androidx.lifecycle.viewModelScope
 import com.cornellappdev.resell.android.model.Listing
 import com.cornellappdev.resell.android.model.LoginRepository
 import com.cornellappdev.resell.android.model.ResellApiState
-import com.cornellappdev.resell.android.ui.screens.ResellRootRoute
+import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
 import com.cornellappdev.resell.android.util.richieListings
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
 import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepository
@@ -88,7 +88,7 @@ class ProfileViewModel @Inject constructor(
     fun onSignOutClick() {
         // TODO: Implement
         loginRepository.invalidateEmail()
-        rootNavigationRepository.navigate(ResellRootRoute.LOGIN)
+        rootNavigationRepository.navigate(ResellRootRoute.LANDING)
     }
 
     fun onSettingsPressed() {

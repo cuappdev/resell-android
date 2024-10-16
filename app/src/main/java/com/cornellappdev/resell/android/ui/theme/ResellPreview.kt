@@ -12,11 +12,12 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun ResellPreview(
     padding: Dp = 0.dp,
+    backgroundColor: Color = Color.White,
     content: @Composable () -> Unit
 ) {
     Column(
         modifier = Modifier
-            .background(Color.White)
+            .background(backgroundColor)
             .padding(padding)
     ) {
         content()

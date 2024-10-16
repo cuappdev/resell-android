@@ -65,3 +65,17 @@ fun String.formatMoney(): String {
 
     return "$dollars.$cents"
 }
+
+/**
+ * Returns if this string as a money value is less than the other string.
+ */
+fun String.isLeqMoney(other: String): Boolean {
+    try {
+        val thisMoney = this.formatMoney().toDouble()
+        val otherMoney = other.formatMoney().toDouble()
+        return thisMoney <= otherMoney
+    }
+    catch (e: Exception) {
+        return false
+    }
+}
