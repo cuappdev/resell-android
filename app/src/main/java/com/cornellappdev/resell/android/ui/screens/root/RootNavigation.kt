@@ -122,6 +122,8 @@ fun RootNavigation(
             showBottomSheet = showBottomSheet,
         )
 
+        RootOptionsMenuOverlay()
+
         RootDialogOverlay()
     }
 }

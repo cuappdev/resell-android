@@ -7,6 +7,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import com.cornellappdev.resell.android.R
 
 val Typography = Typography(
     bodyLarge = TextStyle(
@@ -121,6 +122,14 @@ object Style {
         fontFamily = helveticaFamily,
         fontWeight = FontWeight(400),
         color = AppDev,
+    )
+
+    val overlay = TextStyle(
+        fontSize = 17.sp,
+        lineHeight = 22.sp,
+        fontFamily = rubikFamily,
+        fontWeight = FontWeight(400),
+        color = Color(0xFF000000),
     )
 
     val noHeight = TextStyle(
