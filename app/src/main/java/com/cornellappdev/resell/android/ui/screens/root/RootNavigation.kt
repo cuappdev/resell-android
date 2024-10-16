@@ -108,6 +108,8 @@ fun RootNavigation(
             }
         }
 
+        RootConfirmationOverlay()
+
         RootSheetOverlay(
             sheetState = sheetState,
             onDismissRequest = {

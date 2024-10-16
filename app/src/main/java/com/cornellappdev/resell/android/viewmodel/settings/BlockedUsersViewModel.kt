@@ -5,6 +5,7 @@ import com.cornellappdev.resell.android.model.settings.BlockedUsersRepository
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonContainer
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonState
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
+import com.cornellappdev.resell.android.viewmodel.root.RootConfirmationRepository
 import com.cornellappdev.resell.android.viewmodel.root.RootDialogContent
 import com.cornellappdev.resell.android.viewmodel.root.RootDialogRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -15,6 +16,7 @@ import javax.inject.Inject
 class BlockedUsersViewModel @Inject constructor(
     private val blockedUsersRepository: BlockedUsersRepository,
     private val dialogRepository: RootDialogRepository,
+    private val confirmationRepository: RootConfirmationRepository,
 ) : ResellViewModel<BlockedUsersViewModel.BlockedUsersUiState>(
     initialUiState = BlockedUsersUiState(),
 ) {
@@ -30,10 +32,10 @@ class BlockedUsersViewModel @Inject constructor(
     )
 
     fun onUnblock(id: String) {
-        val name = stateValue().blockedUsers.firstOrNull { it.id == id }?.name
+        val name = stateValue().blockedUsers.firstOrNull { it.id == id }?.name ?: "User"
         dialogRepository.showDialog(
             RootDialogContent.TwoButtonDialog(
-                title = "Unblock ${name ?: "User"}?",
+                title = "Unblock $name?",
                 description = "They will be able to message you and view your posts.",
                 primaryButtonText = "Unblock",
                 secondaryButtonText = "Cancel",
@@ -45,10 +47,14 @@ class BlockedUsersViewModel @Inject constructor(
                             onError = {
                                 // TODO
                                 dialogRepository.dismissDialog()
+                                confirmationRepository.showError()
                             },
                             onSuccess = {
                                 // TODO
                                 dialogRepository.dismissDialog()
+                                confirmationRepository.showSuccess(
+                                    message = "$name has been unblocked.",
+                                )
                             }
                         )
                     }
