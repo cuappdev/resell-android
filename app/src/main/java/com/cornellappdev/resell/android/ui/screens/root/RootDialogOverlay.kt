@@ -12,6 +12,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.cornellappdev.resell.android.ui.components.global.dialog.CorrectAnswerDialog
 import com.cornellappdev.resell.android.ui.components.global.dialog.DialogWrapper
 import com.cornellappdev.resell.android.ui.components.global.dialog.TwoButtonDialog
 import com.cornellappdev.resell.android.util.clickableNoIndication
@@ -71,6 +72,25 @@ fun RootDialogOverlay(
                         secondaryButtonContainer = uiState.content.secondaryButtonContainer,
                         primaryButtonState = uiState.content.primaryButtonState,
                         secondaryButtonState = uiState.content.secondaryButtonState,
+                    )
+                }
+
+                is RootDialogContent.CorrectAnswerDialog -> {
+                    CorrectAnswerDialog(
+                        title = uiState.content.title,
+                        description = uiState.content.description,
+                        onDismiss = {
+                            rootDialogViewModel.onDismiss()
+                        },
+                        correctAnswer = uiState.content.correctAnswer,
+                        primaryButtonText = uiState.content.primaryButtonText,
+                        secondaryButtonText = uiState.content.secondaryButtonText,
+                        onPrimaryButtonClick = uiState.content.onPrimaryButtonClick,
+                        onSecondaryButtonClick = uiState.content.onSecondaryButtonClick,
+                        primaryButtonContainer = uiState.content.primaryButtonContainer,
+                        secondaryButtonContainer = uiState.content.secondaryButtonContainer,
+                        primaryButtonState = uiState.content.primaryButtonState,
+                        secondaryButtonState = uiState.content.secondaryButtonState
                     )
                 }
             }

@@ -56,6 +56,12 @@ class RootDialogViewModel @Inject constructor(
                             )
                         )
 
+                        is RootDialogContent.CorrectAnswerDialog -> copy(
+                            content = this.content.copy(
+                                primaryButtonState = state
+                            )
+                        )
+
                         else -> copy()
                     }
                 }
@@ -67,6 +73,12 @@ class RootDialogViewModel @Inject constructor(
                 applyMutation {
                     when (this.content) {
                         is RootDialogContent.TwoButtonDialog -> copy(
+                            content = this.content.copy(
+                                secondaryButtonState = state
+                            )
+                        )
+
+                        is RootDialogContent.CorrectAnswerDialog -> copy(
                             content = this.content.copy(
                                 secondaryButtonState = state
                             )
@@ -84,6 +96,21 @@ sealed class RootDialogContent {
     data class TwoButtonDialog(
         val title: String,
         val description: String,
+        val primaryButtonText: String,
+        val secondaryButtonText: String?,
+        val onPrimaryButtonClick: () -> Unit,
+        val onSecondaryButtonClick: () -> Unit,
+        val exitButton: Boolean,
+        val primaryButtonContainer: ResellTextButtonContainer = ResellTextButtonContainer.PRIMARY,
+        val secondaryButtonContainer: ResellTextButtonContainer = ResellTextButtonContainer.NAKED_APPDEV,
+        val primaryButtonState: ResellTextButtonState = ResellTextButtonState.ENABLED,
+        val secondaryButtonState: ResellTextButtonState = ResellTextButtonState.ENABLED
+    ) : RootDialogContent()
+
+    data class CorrectAnswerDialog(
+        val title: String,
+        val description: String,
+        val correctAnswer: String,
         val primaryButtonText: String,
         val secondaryButtonText: String?,
         val onPrimaryButtonClick: () -> Unit,

@@ -10,6 +10,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -20,25 +24,29 @@ import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButton
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonContainer
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonState
+import com.cornellappdev.resell.android.ui.components.global.ResellTextEntry
 import com.cornellappdev.resell.android.ui.theme.AppDev
 import com.cornellappdev.resell.android.ui.theme.ResellPreview
 import com.cornellappdev.resell.android.ui.theme.Style
 import com.cornellappdev.resell.android.util.clickableNoIndication
 
 @Composable
-fun TwoButtonDialog(
+fun CorrectAnswerDialog(
     title: String,
     description: String,
+    correctAnswer: String,
     primaryButtonText: String,
     secondaryButtonText: String?,
     onPrimaryButtonClick: () -> Unit,
     onSecondaryButtonClick: () -> Unit,
     onDismiss: (() -> Unit)? = null,
-    primaryButtonContainer: ResellTextButtonContainer = ResellTextButtonContainer.PRIMARY,
+    primaryButtonContainer: ResellTextButtonContainer = ResellTextButtonContainer.PRIMARY_RED,
     secondaryButtonContainer: ResellTextButtonContainer = ResellTextButtonContainer.NAKED_APPDEV,
     primaryButtonState: ResellTextButtonState = ResellTextButtonState.ENABLED,
     secondaryButtonState: ResellTextButtonState = ResellTextButtonState.ENABLED
 ) {
+    var textEntry by remember { mutableStateOf("") }
+
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Box(modifier = Modifier.fillMaxWidth()) {
             Text(
@@ -75,6 +83,16 @@ fun TwoButtonDialog(
         )
 
         Spacer(
+            modifier = Modifier.height(16.dp)
+        )
+
+        ResellTextEntry(
+            text = textEntry,
+            onTextChange = { textEntry = it },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(
             modifier = Modifier.height(24.dp)
         )
 
@@ -82,7 +100,13 @@ fun TwoButtonDialog(
             text = primaryButtonText,
             onClick = onPrimaryButtonClick,
             containerType = primaryButtonContainer,
-            state = primaryButtonState,
+            state = if (primaryButtonState == ResellTextButtonState.ENABLED
+                && textEntry != correctAnswer
+            ) {
+                ResellTextButtonState.DISABLED
+            } else {
+                primaryButtonState
+            },
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -102,25 +126,14 @@ fun TwoButtonDialog(
 
 @Preview
 @Composable
-private fun TwoButtonDialogPreview() = ResellPreview {
-    TwoButtonDialog(
+private fun CorrectAnswerDialogPreview() = ResellPreview {
+    CorrectAnswerDialog(
         title = "Title",
         description = "Description",
+        correctAnswer = "answer",
         primaryButtonText = "Primary",
         secondaryButtonText = "Secondary",
         onPrimaryButtonClick = {},
-        onSecondaryButtonClick = {},
-        onDismiss = {},
-    )
-
-    Spacer(modifier = Modifier.height(16.dp))
-
-    TwoButtonDialog(
-        title = "Title",
-        description = "Description",
-        primaryButtonText = "Primary",
-        secondaryButtonText = null,
-        onPrimaryButtonClick = {},
-        onSecondaryButtonClick = {},
+        onSecondaryButtonClick = {}
     )
 }

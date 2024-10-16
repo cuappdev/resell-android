@@ -2,6 +2,7 @@ package com.cornellappdev.resell.android.viewmodel.settings
 
 import androidx.lifecycle.viewModelScope
 import com.cornellappdev.resell.android.model.settings.BlockedUsersRepository
+import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonContainer
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonState
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
 import com.cornellappdev.resell.android.viewmodel.root.RootDialogContent
@@ -56,6 +57,7 @@ class BlockedUsersViewModel @Inject constructor(
                     dialogRepository.dismissDialog()
                 },
                 exitButton = true,
+                primaryButtonContainer = ResellTextButtonContainer.SECONDARY_RED
             )
         )
     }
