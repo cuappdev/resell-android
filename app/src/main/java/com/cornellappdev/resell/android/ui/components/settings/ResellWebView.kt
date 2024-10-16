@@ -34,6 +34,8 @@ fun ResellWebView(
     modifier: Modifier = Modifier,
     url: String,
 ) {
+    // TODO: Privacy policy doesn't render correctly, unsure why
+
     var mUrl by remember { mutableStateOf(url) }
     val context = LocalContext.current
 

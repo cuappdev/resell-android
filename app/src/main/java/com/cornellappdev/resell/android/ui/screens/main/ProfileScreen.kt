@@ -27,6 +27,7 @@ import coil.compose.AsyncImage
 import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.ui.components.global.ResellListingsScroll
 import com.cornellappdev.resell.android.ui.components.global.ResellTabBar
+import com.cornellappdev.resell.android.ui.components.main.ProfilePictureView
 import com.cornellappdev.resell.android.ui.theme.Secondary
 import com.cornellappdev.resell.android.ui.theme.Style
 import com.cornellappdev.resell.android.ui.theme.instantFadeInOut
@@ -119,13 +120,9 @@ private fun ProfileHeader(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Box(modifier = Modifier.fillMaxWidth()) {
-            AsyncImage(
-                model = imageUrl,
-                contentDescription = "pfp",
-                modifier = Modifier
-                    .size(90.dp)
-                    .clip(CircleShape)
-                    .align(Alignment.TopCenter)
+            ProfilePictureView(
+                modifier = Modifier.size(90.dp).align(Alignment.TopCenter),
+                imageUrl = imageUrl,
             )
 
             Icon(

@@ -24,6 +24,12 @@ fun SettingsNavigation(
         }
     }
 
+    LaunchedEffect(uiState.popBackStack) {
+        uiState.popBackStack?.consumeSuspend {
+            navController.popBackStack()
+        }
+    }
+
     CompositionLocalProvider(LocalSettingsNavigator provides navController) {
         NavHost(
             navController = LocalSettingsNavigator.current,
@@ -33,6 +39,7 @@ fun SettingsNavigation(
                 SettingsLandingScreen()
             }
             composable<SettingsRoute.EditProfile> {
+                EditProfileScreen()
             }
             composable<SettingsRoute.Notifications> {
                 NotificationSettings()
@@ -41,7 +48,7 @@ fun SettingsNavigation(
                 SendFeedbackScreen()
             }
             composable<SettingsRoute.BlockedUsers> {
-
+                BlockedUsersScreen()
             }
         }
     }

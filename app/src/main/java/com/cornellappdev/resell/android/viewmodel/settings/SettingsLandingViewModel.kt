@@ -17,7 +17,7 @@ class SettingsLandingViewModel @Inject constructor(
 ) {
 
     fun onEditProfileClick() {
-
+        settingsNavigationRepository.navigate(SettingsRoute.EditProfile)
     }
 
     fun onNotificationsClick() {
@@ -45,7 +45,7 @@ class SettingsLandingViewModel @Inject constructor(
     }
 
     fun onBlockedUsersClick() {
-
+        settingsNavigationRepository.navigate(SettingsRoute.BlockedUsers)
     }
 
     fun onLogoutClick() {

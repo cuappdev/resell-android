@@ -72,7 +72,7 @@ class SendFeedbackViewModel @Inject constructor(
                 applyMutation {
                     copy(loading = false)
                 }
-                settingsNavigationRepository.navigate(SettingsRoute.SettingsLanding)
+                settingsNavigationRepository.popBackStack()
             }
         }
     }

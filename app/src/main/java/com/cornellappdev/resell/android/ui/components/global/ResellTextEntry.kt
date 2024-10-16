@@ -43,14 +43,8 @@ fun ResellTextEntry(
     maxLines: Int = 1,
     placeholder: String = "",
     multiLineHeight: Dp = 85.dp,
+    leadingIcon: @Composable (() -> Unit)? = null,
 ) {
-
-    val inlineModifier = if (inlineLabel) {
-        Modifier
-            .widthIn(max = 200.dp)
-    } else {
-        Modifier
-    }
 
     val singleLineModifier = if (singleLine) {
         Modifier
@@ -60,13 +54,13 @@ fun ResellTextEntry(
             .height(multiLineHeight)
     }
 
-    val textField = @Composable {
+    val textField = @Composable { modifier: Modifier ->
 
         val interactionSource = remember { MutableInteractionSource() }
         BasicTextField(
             value = text,
             onValueChange = onTextChange,
-            modifier = inlineModifier
+            modifier = modifier
                 .then(singleLineModifier)
                 .fillMaxWidth(),
             interactionSource = interactionSource,
@@ -104,6 +98,7 @@ fun ResellTextEntry(
                         color = AppDev,
                     )
                 },
+                leadingIcon = leadingIcon,
             )
         }
     }
@@ -118,15 +113,24 @@ fun ResellTextEntry(
                 Text(
                     text = label,
                     style = Style.title1,
-                    modifier = Modifier
+                    modifier = Modifier.then(
+                        if (!singleLine) {
+                            Modifier
+                                .align(Alignment.Top)
+                                .padding(top = 6.dp)
+                        } else {
+                            Modifier
+                        }
+                    )
                 )
 
-                Spacer(
-                    modifier = Modifier.weight(1f)
-                )
+                Spacer(modifier = Modifier.weight(
+                    if (singleLine) 0.5f else 0.1f))
             }
 
-            textField()
+            textField(
+                Modifier.weight(1f)
+            )
         }
     } else {
         Column(
@@ -140,7 +144,9 @@ fun ResellTextEntry(
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
             }
-            textField()
+            textField(
+                Modifier
+            )
         }
     }
 }
@@ -190,6 +196,17 @@ private fun TextEntryPreview() {
             text = "",
             onTextChange = {},
             inlineLabel = false,
+            singleLine = false,
+            placeholder = "Bio goes here",
+        )
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        ResellTextEntry(
+            label = "Bio inline",
+            text = "",
+            onTextChange = {},
+            inlineLabel = true,
             singleLine = false,
             placeholder = "Bio goes here",
         )

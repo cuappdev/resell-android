@@ -15,12 +15,17 @@ class SettingsNavigationViewModel @Inject constructor(
     ) {
 
     data class SettingsNavigationUiState(
-        val route: UIEvent<SettingsRoute>? = null
+        val route: UIEvent<SettingsRoute>? = null,
+        val popBackStack: UIEvent<Unit>? = null
     )
 
     init {
         asyncCollect(settingsNavigationRepository.routeFlow) {
             applyMutation { copy(route = it) }
+        }
+
+        asyncCollect(settingsNavigationRepository.popBackStackFlow) {
+            applyMutation { copy(popBackStack = it) }
         }
     }
 }
