@@ -32,6 +32,7 @@ class PostDetailViewModel @Inject constructor(
         val imageLoading: Boolean = false,
         val images: List<ImageBitmap> = listOf(),
         val postId: String = "",
+        val bookmarked: Boolean = false,
         private val similarItemIds: List<Int> = emptyList()
     ) {
         val minAspectRatio

@@ -2,7 +2,6 @@ package com.cornellappdev.resell.android.ui.screens.pdp
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -26,6 +25,10 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.BlurredEdgeTreatment.Companion.Rectangle
@@ -35,7 +38,10 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -46,6 +52,8 @@ import coil.compose.AsyncImage
 import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButton
 import com.cornellappdev.resell.android.ui.components.main.ProfilePictureView
+import com.cornellappdev.resell.android.ui.components.newpost.WhichPage
+import com.cornellappdev.resell.android.ui.components.pdp.BookmarkFAB
 import com.cornellappdev.resell.android.ui.theme.IconInactive
 import com.cornellappdev.resell.android.ui.theme.Secondary
 import com.cornellappdev.resell.android.ui.theme.Style
@@ -84,7 +92,9 @@ fun PostDetailPage(
         username = uiState.username,
         title = uiState.title,
         price = uiState.price,
-        description = uiState.description
+        description = uiState.description,
+        onBookmarkClick = postDetailViewModel::onBookmarkClick,
+        bookmarked = uiState.bookmarked,
     )
 }
 
@@ -101,7 +111,10 @@ private fun Content(
     title: String = "",
     price: String = "",
     description: String = "",
+    bookmarked: Boolean = false,
+    onBookmarkClick: () -> Unit = {}
 ) {
+    var sheetHeightFromBottom by remember { mutableStateOf(0.dp) }
     val pagerState = rememberPagerState(pageCount = { images.size })
 
     // Derive peekHeight as screen height minus image height:
@@ -120,7 +133,10 @@ private fun Content(
                     username = username,
                     title = title,
                     price = price,
-                    description = description
+                    description = description,
+                    onHeightChanged = {
+                        sheetHeightFromBottom = it
+                    }
                 )
             },
             sheetPeekHeight = peekHeight,
@@ -167,6 +183,22 @@ private fun Content(
                 .align(Alignment.BottomCenter)
                 .padding(bottom = 46.dp)
                 .navigationBarsPadding()
+        )
+
+        WhichPage(
+            pagerState = pagerState,
+            modifier = Modifier
+                .padding(bottom = sheetHeightFromBottom)
+                .align(Alignment.BottomCenter)
+        )
+
+        BookmarkFAB(
+            selected = bookmarked,
+            onClick = onBookmarkClick,
+            modifier = Modifier
+                .align(Alignment.BottomStart)
+                .defaultHorizontalPadding()
+                .padding(bottom = sheetHeightFromBottom)
         )
     }
 }
@@ -240,11 +272,13 @@ private fun BottomSheetContent(
     description: String,
     profilePictureUrl: String,
     username: String,
-    paddingTop: Dp = 98.dp
+    paddingTop: Dp = 116.dp,
+    onHeightChanged: (Dp) -> Unit = {},
 ) {
 
     // Get screen height
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
+    val density = LocalDensity.current
 
     // Calculate maximum height for the sheet content based on padding from top
     val maxSheetHeight = screenHeight - paddingTop
@@ -258,7 +292,20 @@ private fun BottomSheetContent(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .defaultHorizontalPadding(),
+                .defaultHorizontalPadding()
+                .onGloballyPositioned { layoutCoordinates ->
+                    val textPosition = layoutCoordinates.positionInRoot().y
+                    val textHeight = layoutCoordinates.size.height
+
+                    val screenHeightPx = with(density) { screenHeight.toPx() }
+
+                    // Calculate distance from bottom in px and convert to dp
+                    val distanceFromBottomPx = screenHeightPx - (textPosition + textHeight)
+                    val textDistanceFromBottom = with(density) { distanceFromBottomPx.toDp() }
+
+                    // Tell the parent that the height has changed.
+                    onHeightChanged(textDistanceFromBottom + 170.dp)
+                },
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
