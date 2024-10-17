@@ -18,7 +18,7 @@ fun ProfilePictureView(
         model = imageUrl,
         contentDescription = "pfp",
         modifier = modifier
-            .sizeIn(minWidth = 52.dp, minHeight = 52.dp)
+            .sizeIn(minWidth = 31.dp, minHeight = 31.dp)
             .clip(CircleShape)
     )
 }
