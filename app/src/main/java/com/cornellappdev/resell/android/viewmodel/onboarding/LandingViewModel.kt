@@ -36,10 +36,10 @@ class LandingViewModel @Inject constructor(
      * Otherwise does nothing.
      */
     fun navigateIfLoggedIn() {
-        if (loginRepository.accountOrNull() != null) {
+        //if (loginRepository.accountOrNull() != null) {
             // TODO: If account actually still exists on backend...
             navController.navigate(ResellRootRoute.MAIN)
-        }
+        //}
     }
 
     fun showButton() {

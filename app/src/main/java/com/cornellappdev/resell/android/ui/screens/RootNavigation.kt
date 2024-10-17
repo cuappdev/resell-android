@@ -30,6 +30,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButton
+import com.cornellappdev.resell.android.ui.screens.main.ChatScreen
 import com.cornellappdev.resell.android.ui.screens.main.MainTabNavigation
 import com.cornellappdev.resell.android.ui.screens.onboarding.LandingScreen
 import com.cornellappdev.resell.android.ui.screens.onboarding.OnboardingNavigation
@@ -87,6 +88,10 @@ fun RootNavigation(
             composable<ResellRootRoute.SETTINGS> {
                 // TODO: Settings
                 Text(text = "SETTINGS")
+            }
+
+            composable<ResellRootRoute.CHAT> {
+                ChatScreen()
             }
         }
 
@@ -191,4 +196,7 @@ sealed class ResellRootRoute {
 
     @Serializable
     data object SETTINGS : ResellRootRoute()
+
+    @Serializable
+    data object CHAT : ResellRootRoute()
 }

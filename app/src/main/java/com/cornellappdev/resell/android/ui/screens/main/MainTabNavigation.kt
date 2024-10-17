@@ -56,7 +56,7 @@ fun MainTabNavigation(
                 }
 
                 composable<ResellMainScreen.Messages> {
-
+                    MessagesScreen()
                 }
 
                 composable<ResellMainScreen.User> {

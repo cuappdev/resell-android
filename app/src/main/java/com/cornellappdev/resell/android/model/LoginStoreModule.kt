@@ -3,6 +3,8 @@ package com.cornellappdev.resell.android.model
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.os.Debug
+import android.util.Log
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContract
@@ -84,6 +86,7 @@ class LoginRepository @Inject constructor(
      * Returns the current [GoogleSignInAccount] if logged in, null otherwise.
      */
     fun accountOrNull(): GoogleSignInAccount? {
+        Log.e("HELPPPP", GoogleSignIn.getLastSignedInAccount(context).toString())
         return GoogleSignIn.getLastSignedInAccount(context)
     }
 
