@@ -1,5 +1,6 @@
 package com.cornellappdev.resell.android.viewmodel.pdp
 
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.lifecycle.viewModelScope
 import com.cornellappdev.resell.android.model.pdp.ImageBitmapLoader
@@ -27,6 +28,7 @@ class PostDetailViewModel @Inject constructor(
         val profileImageUrl: String = richieUrl,
         val username: String = "",
         val price: String = "",
+        val detailsLoading: Boolean = false,
         val imageLoading: Boolean = false,
         val images: List<ImageBitmap> = listOf(),
         val postId: String = "",
@@ -65,7 +67,8 @@ class PostDetailViewModel @Inject constructor(
             options = listOf(
                 OptionType.SHARE,
                 OptionType.REPORT
-            )
+            ),
+            alignment = Alignment.TopEnd,
         ) {
             when (it) {
                 OptionType.SHARE -> {
@@ -94,6 +97,9 @@ class PostDetailViewModel @Inject constructor(
         applyMutation {
             copy(
                 postId = "1",
+                title = "my soul",
+                price = "-$10.00",
+                description = "I need to get rid of this."
             )
         }
         onNeedLoadImages(

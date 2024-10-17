@@ -80,6 +80,11 @@ fun PostDetailPage(
         onEllipseClick = postDetailViewModel::onEllipseClick,
         images = uiState.images,
         imageHeight = imageHeight,
+        userPfp = uiState.profileImageUrl,
+        username = uiState.username,
+        title = uiState.title,
+        price = uiState.price,
+        description = uiState.description
     )
 }
 
@@ -91,6 +96,11 @@ private fun Content(
     images: List<ImageBitmap> = emptyList(),
     onContactClick: () -> Unit = {},
     onEllipseClick: () -> Unit = {},
+    userPfp: String = "",
+    username: String = "",
+    title: String = "",
+    price: String = "",
+    description: String = "",
 ) {
     val pagerState = rememberPagerState(pageCount = { images.size })
 
@@ -105,7 +115,13 @@ private fun Content(
     ) {
         BottomSheetScaffold(
             sheetContent = {
-                BottomSheetContent()
+                BottomSheetContent(
+                    profilePictureUrl = userPfp,
+                    username = username,
+                    title = title,
+                    price = price,
+                    description = description
+                )
             },
             sheetPeekHeight = peekHeight,
             sheetContainerColor = Color.White,
@@ -199,26 +215,31 @@ private fun Header(
     ) {
         Box {}
 
-        Icon(
-            painter = painterResource(id = R.drawable.ic_ellipse),
-            contentDescription = "Ellipsis",
+        Box(
             modifier = Modifier
+                .size(24.dp)
                 .clickableNoIndication {
                     onEllipseClick()
                 },
-            tint = Color.White
-        )
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_ellipse),
+                contentDescription = "Ellipsis",
+                modifier = Modifier.align(Alignment.Center),
+                tint = Color.White
+            )
+        }
+
     }
 }
 
-@Preview
 @Composable
 private fun BottomSheetContent(
-    title: String = "Title",
-    price: String = "$0.00",
-    description: String = "description\ndescription\ndescription",
-    profilePictureUrl: String = "",
-    username: String = "username",
+    title: String,
+    price: String,
+    description: String,
+    profilePictureUrl: String,
+    username: String,
     paddingTop: Dp = 98.dp
 ) {
 
@@ -321,7 +342,7 @@ private fun SimilarItemsRow(
                 contentDescription = null,
                 modifier = Modifier
                     .aspectRatio(1f)
-                    .clickable { onListingClick(index) }
+                    .clickableNoIndication { onListingClick(index) }
                     .clip(RoundedCornerShape(15.dp))
                     .weight(1f)
                     .background(IconInactive),
