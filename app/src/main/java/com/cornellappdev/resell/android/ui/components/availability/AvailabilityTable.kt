@@ -20,10 +20,12 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.toSize
 import com.cornellappdev.resell.android.ui.theme.ResellPreview
+import com.cornellappdev.resell.android.ui.theme.ResellPurple
+import com.cornellappdev.resell.android.ui.theme.Stroke
+import com.cornellappdev.resell.android.ui.theme.changeBrightness
 import com.cornellappdev.resell.android.util.toSortedPair
 import kotlin.math.floor
 
-// TODO convert this to grid so I can make multiple selections and erase portions of selections
 /**
  * Requires: grid is non-empty
  */
@@ -31,6 +33,8 @@ import kotlin.math.floor
 fun SelectableGrid(
     grid: List<BooleanArray>,
     updateGrid: ((List<BooleanArray>) -> List<BooleanArray>) -> Unit,
+    gridStroke: Color = Stroke,
+    fillColor: Color = ResellPurple,
 ) {
     var isFirstMove by remember { mutableStateOf(true) }
     var isRemoving by remember { mutableStateOf(false) }
@@ -68,7 +72,7 @@ fun SelectableGrid(
 
     Canvas(modifier = Modifier
         .fillMaxSize()
-        .pointerInput(null) {
+        .pointerInput(grid) {
             awaitPointerEventScope {
                 while (true) {
                     val event = awaitPointerEvent()
@@ -77,7 +81,6 @@ fun SelectableGrid(
                         if (isFirstMove) {
                             val (row, col) = getGridCell(position, size.toSize())
                             selectionStart = row to col
-                            // TODO this is tragic but grid is being captured in the closure (we are so close)
                             isRemoving = grid[row][col]
                             isFirstMove = false
                         }
@@ -108,11 +111,7 @@ fun SelectableGrid(
                 drawRect(
                     size = Size(rectWidth, rectHeight),
                     topLeft = position,
-                    color = Color.hsv(
-                        126F,
-                        200F / 255F,
-                        100F / 255F,
-                    ),
+                    color = if (grid[row][col]) fillColor else gridStroke,
                     style = style
                 )
             }
@@ -127,11 +126,7 @@ fun SelectableGrid(
                         (maxCol - minCol + 1) * rectWidth,
                         (maxRow - minRow + 1) * rectHeight,
                     ), topLeft = position,
-                    color = Color.hsv(
-                        126F,
-                        200F / 255F,
-                        1F,
-                    ),
+                    color = gridStroke.changeBrightness(0.8F),
                     style = Stroke(
                         width = 8F, pathEffect = PathEffect.dashPathEffect(
                             floatArrayOf(25F, 25F)
@@ -143,18 +138,14 @@ fun SelectableGrid(
                         (maxCol - minCol + 1) * rectWidth,
                         (maxRow - minRow + 1) * rectHeight,
                     ), topLeft = position,
-                    color = Color.hsl(
-                        126F,
-                        200F / 255F,
-                        .5F,
-                        .5F,
-                    ),
+                    color = fillColor.copy(alpha = .5F).changeBrightness(1.3F),
                     style = Fill
                 )
             }
         }
     }
 }
+
 
 @Preview
 @Composable
