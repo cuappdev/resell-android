@@ -51,6 +51,7 @@ import coil.compose.AsyncImage
 import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButton
 import com.cornellappdev.resell.android.ui.components.global.ResellTextEntry
+import com.cornellappdev.resell.android.ui.components.settings.ProfilePictureEdit
 import com.cornellappdev.resell.android.ui.theme.ResellPurple
 import com.cornellappdev.resell.android.ui.theme.Style
 import com.cornellappdev.resell.android.util.defaultHorizontalPadding
@@ -133,52 +134,11 @@ private fun PhotoHeader(
             modifier = Modifier.padding(bottom = 40.dp)
         )
 
-        Box(modifier = Modifier.padding(top = 16.dp, bottom = 40.dp)) {
-            AnimatedContent(
-                targetState = imageBitmap,
-                label = "pfp"
-            ) { bitmap ->
-                if (bitmap != null) {
-                    AsyncImage(
-                        model = bitmap,
-                        contentDescription = "profile picture",
-                        modifier = Modifier
-                            .size(132.dp)
-                            .clip(CircleShape),
-                        contentScale = ContentScale.Crop,
-                    )
-                } else {
-                    Image(
-                        painter = painterResource(id = R.drawable.ic_empty_pfp),
-                        contentDescription = "profile picture",
-                        modifier = Modifier
-                            .size(132.dp)
-                            .clip(CircleShape)
-                            .clickable(
-                                interactionSource = remember { MutableInteractionSource() },
-                                indication = rememberRipple()
-                            ) {
-                                onImageTapped()
-                            },
-                        contentScale = ContentScale.Crop,
-                    )
-                }
-            }
-
-            Image(
-                painter = painterResource(id = R.drawable.ic_edit_pfp),
-                contentDescription = "camera",
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .clickable(
-                        interactionSource = remember { MutableInteractionSource() },
-                        indication = null,
-                    ) {
-                        onImageTapped()
-                    }
-                    .shadow(1.dp, CircleShape)
-            )
-        }
+        ProfilePictureEdit(
+            imageBitmap = imageBitmap,
+            onImageTapped = onImageTapped,
+            modifier = Modifier.padding(top = 16.dp, bottom = 40.dp)
+        )
     }
 }
 

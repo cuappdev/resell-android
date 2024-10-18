@@ -27,6 +27,7 @@ val Tint = Color(0x33000000)
 val AppDev = Color(0xFF707070)
 val Warning = Color(0xFFF20000)
 val Venmo = Color(0xFF3D95CE)
+val Overlay = Color(0xEEEDEDED)
 
 val LoginBlurBrushStart = Brush.radialGradient(
     colors = listOf(

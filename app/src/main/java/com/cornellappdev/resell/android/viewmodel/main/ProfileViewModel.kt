@@ -1,14 +1,19 @@
 package com.cornellappdev.resell.android.viewmodel.main
 
+import androidx.compose.ui.Alignment
 import androidx.lifecycle.viewModelScope
-import androidx.navigation.NavHostController
 import com.cornellappdev.resell.android.model.Listing
 import com.cornellappdev.resell.android.model.LoginRepository
 import com.cornellappdev.resell.android.model.ResellApiState
-import com.cornellappdev.resell.android.model.RootNav
-import com.cornellappdev.resell.android.ui.screens.ResellRootRoute
+import com.cornellappdev.resell.android.model.settings.BlockedUsersRepository
+import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
 import com.cornellappdev.resell.android.util.richieListings
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
+import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepository
+import com.cornellappdev.resell.android.viewmodel.root.OptionType
+import com.cornellappdev.resell.android.viewmodel.root.RootConfirmationRepository
+import com.cornellappdev.resell.android.viewmodel.root.RootDialogRepository
+import com.cornellappdev.resell.android.viewmodel.root.RootOptionsMenuRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -17,7 +22,11 @@ import javax.inject.Inject
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
     private val loginRepository: LoginRepository,
-    @RootNav private val navController: NavHostController,
+    private val rootNavigationRepository: RootNavigationRepository,
+    private val rootOptionsMenuRepository: RootOptionsMenuRepository,
+    private val rootDialogRepository: RootDialogRepository,
+    private val blockedUsersRepository: BlockedUsersRepository,
+    private val rootConfirmationRepository: RootConfirmationRepository
 ) : ResellViewModel<ProfileViewModel.ProfileUiState>(
     initialUiState = ProfileUiState(
         profileTab = ProfileTab.SHOP,
@@ -89,15 +98,43 @@ class ProfileViewModel @Inject constructor(
     fun onSignOutClick() {
         // TODO: Implement
         loginRepository.invalidateEmail()
-        navController.navigate(ResellRootRoute.LOGIN)
+        rootNavigationRepository.navigate(ResellRootRoute.LANDING)
     }
 
     fun onSettingsPressed() {
         // TODO: Implement
-        navController.navigate(ResellRootRoute.SETTINGS)
+        rootNavigationRepository.navigate(ResellRootRoute.SETTINGS)
     }
 
     fun onSearchPressed() {
         // TODO: Implement
+
+        // TODO: showing this for testing
+        rootOptionsMenuRepository.showOptionsMenu(
+            options = listOf(
+                OptionType.SHARE,
+                OptionType.REPORT,
+                OptionType.BLOCK,
+            ),
+            alignment = Alignment.TopEnd,
+        ) {
+            when (it) {
+                OptionType.SHARE -> {
+                    // TODO: Implement
+                }
+
+                OptionType.REPORT -> {
+                    // TODO: Implement
+                }
+
+                OptionType.BLOCK -> {
+                    showBlockDialog(
+                        rootDialogRepository = rootDialogRepository,
+                        blockedUsersRepository = blockedUsersRepository,
+                        rootConfirmationRepository = rootConfirmationRepository
+                    )
+                }
+            }
+        }
     }
 }

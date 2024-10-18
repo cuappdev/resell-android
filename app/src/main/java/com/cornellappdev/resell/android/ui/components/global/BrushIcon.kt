@@ -11,10 +11,10 @@ import androidx.compose.ui.graphics.painter.Painter
 
 @Composable
 fun BrushIcon(
-    painter: Painter,
-    contentDescription: String,
     brush: Brush,
+    painter: Painter,
     modifier: Modifier = Modifier,
+    contentDescription: String? = null,
 ) {
     Icon(
         painter = painter,

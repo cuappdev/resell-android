@@ -2,12 +2,13 @@ package com.cornellappdev.resell.android.viewmodel.onboarding
 
 import android.content.Context
 import androidx.lifecycle.viewModelScope
-import androidx.navigation.NavHostController
-import com.cornellappdev.resell.android.model.RootNav
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonState
-import com.cornellappdev.resell.android.ui.screens.ResellRootRoute
+import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
 import com.cornellappdev.resell.android.util.UIEvent
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
+import com.cornellappdev.resell.android.viewmodel.root.RootNavigationSheetRepository
+import com.cornellappdev.resell.android.viewmodel.root.RootSheet
+import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.delay
@@ -17,7 +18,8 @@ import javax.inject.Inject
 @HiltViewModel
 class VenmoFieldViewModel @Inject constructor(
     @ApplicationContext private val appContext: Context,
-    @RootNav private val navController: NavHostController,
+    private val rootNavigationRepository: RootNavigationRepository,
+    private val rootNavigationSheetRepository: RootNavigationSheetRepository,
 ) : ResellViewModel<VenmoFieldViewModel.VenmoFieldUiState>(
     initialUiState = VenmoFieldUiState()
 ) {
@@ -56,7 +58,8 @@ class VenmoFieldViewModel @Inject constructor(
     }
 
     private fun navigateOut() {
-        navController.navigate(ResellRootRoute.MAIN)
+        rootNavigationRepository.navigate(ResellRootRoute.MAIN)
+        rootNavigationSheetRepository.showBottomSheet(RootSheet.Welcome)
 
         applyMutation {
             copy(loading = false)
