@@ -26,7 +26,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.resell.android.ui.components.global.messages.MessageTag
-import com.cornellappdev.resell.android.ui.components.global.messages.ResellMessageScroll
+import com.cornellappdev.resell.android.ui.components.global.messages.ResellMessagesScroll
 import com.cornellappdev.resell.android.ui.theme.Padding
 import com.cornellappdev.resell.android.ui.theme.Style
 import com.cornellappdev.resell.android.util.defaultHorizontalPadding
@@ -77,7 +77,7 @@ fun MessagesScreen(
                     style = Style.body1
                 )
             } else {
-                ResellMessageScroll(
+                ResellMessagesScroll(
                     chats = chatUiState.filteredChats,
                     onChatPressed = {
                         messagesViewModel.onMessagePressed(it)

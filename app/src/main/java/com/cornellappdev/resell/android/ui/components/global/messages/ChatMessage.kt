@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -92,18 +93,20 @@ fun OtherMessage(imageUrl: String?, content: @Composable () -> Unit, pos: Int = 
 
 @Composable
 fun MessageChat(text: String, color: Color?) {
-    BasicTextField(
-        value = text,
-        onValueChange = {},
-        textStyle = Style.body2.copy(color = color ?: Style.body2.color),
-        enabled = false,
+    Row(
         modifier = Modifier
-            .heightIn(min = 48.dp)
-            .widthIn(max = 248.dp)
             .clip(RoundedCornerShape(10.dp))
             .background(if(color != null) ResellPurple else Wash)
             .padding(12.dp)
-    )
+    ){
+        Text(
+            text = text,
+            style = Style.body2.copy(color = color ?: Style.body2.color),
+            modifier = Modifier
+                .heightIn(min = 19.dp)
+                .widthIn(max = 224.dp)
+        )
+    }
 }
 
 @Composable

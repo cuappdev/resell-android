@@ -1,5 +1,6 @@
 package com.cornellappdev.resell.android.viewmodel.main
 
+import android.util.Log
 import androidx.navigation.NavHostController
 import com.cornellappdev.resell.android.model.Chat
 import com.cornellappdev.resell.android.model.ResellApiState

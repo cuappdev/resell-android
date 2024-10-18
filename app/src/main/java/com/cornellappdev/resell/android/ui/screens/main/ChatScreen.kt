@@ -1,5 +1,8 @@
 package com.cornellappdev.resell.android.ui.screens.main
 
+import android.annotation.SuppressLint
+import android.util.Log
+import android.view.RoundedCorner
 import com.cornellappdev.resell.android.ui.components.global.messages.ChatMessage
 import com.cornellappdev.resell.android.ui.components.global.messages.OtherMessage
 import com.cornellappdev.resell.android.ui.components.global.messages.UserMessage
@@ -22,19 +25,24 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.material.icons.Icons
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -43,22 +51,39 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.model.Chat
 import com.cornellappdev.resell.android.ui.components.global.messages.ChatTag
+import com.cornellappdev.resell.android.ui.components.global.messages.ResellChatScroll
+import com.cornellappdev.resell.android.ui.theme.ResellPurple
 import com.cornellappdev.resell.android.ui.theme.Secondary
 import com.cornellappdev.resell.android.ui.theme.Style
 import com.cornellappdev.resell.android.ui.theme.Wash
 import com.cornellappdev.resell.android.util.clickableNoIndication
+import com.cornellappdev.resell.android.util.justinMessages
+import com.cornellappdev.resell.android.util.richieListings
 import com.cornellappdev.resell.android.util.richieMessages
 import com.cornellappdev.resell.android.viewmodel.main.ChatViewModel
+import kotlinx.coroutines.launch
 
+@SuppressLint("CoroutineCreationDuringComposition")
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun ChatScreen(
     messagesViewModel: ChatViewModel = hiltViewModel()
 ) {
     val chatUiState = messagesViewModel.collectUiStateValue()
+    val listState = rememberLazyListState()
+    val coroutineScope = rememberCoroutineScope()
     var text by remember { mutableStateOf("") }
     val insets = WindowInsets.isImeVisible
-    Box(
+
+    LaunchedEffect(Chat(chatId = -1).chatHistory) {
+        coroutineScope.launch {
+            if (Chat(chatId = -1).chatHistory.isNotEmpty()) {
+                listState.animateScrollToItem(Chat(chatId = -1).chatHistory.size - 1)
+            }
+        }
+    }
+
+    Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(bottom = if (insets) 24.dp else 0.dp, top=if (insets) 304.dp else 0.dp),
@@ -67,42 +92,15 @@ fun ChatScreen(
             chat = chatUiState.currentChat ?: Chat(chatId = -1) ,
             onBackPressed = { messagesViewModel.onBackPressed() },
             modifier = Modifier
-                .align(Alignment.TopCenter)
                 .background(Color.White)
-                .zIndex(1f)
         )
-        LazyColumn (
-            modifier = Modifier
-                .fillMaxWidth()
-                .fillMaxHeight()
-                .padding(12.dp)
-                .padding(end = 8.dp)
-        ) {
-            item { Spacer(modifier = Modifier.height(128.dp)) }
-            item {
-                ChatMessage(
-                    imageUrl = "https://media.licdn.com/dms/image/D4E03AQGOCNNbxGtcjw/profile-displayphoto-shrink_200_200/0/1704329714345?e=2147483647&v=beta&t=Kq7ex1pKyiifjOpuNIojeZ8f4dXjEAsNSpkJDXBwjxc",
-                    messages = richieMessages(5),
-                    messageSender = { str, funct, i ->
-                        OtherMessage(str, funct, i ?: 0)
-                    }
-                )
-            }
-            item {Spacer(modifier = Modifier.height(12.dp))}
-            item {
-                ChatMessage(
-                    imageUrl = null,
-                    messageSender = { str, funct, i ->
-                        UserMessage(funct)
-                    },
-                    messages = richieMessages(5)
-                )
-            }
-            item {
-                Spacer(modifier = Modifier.height(128.dp))
-            }
-        }
-        Column(modifier = Modifier.align(Alignment.BottomCenter)){
+        Log.d("CHAT HISTORY", chatUiState.currentChat.toString())
+        ResellChatScroll(
+            chatHistory = chatUiState.currentChat?.chatHistory ?: Chat(chatId = -1).chatHistory,
+            listState = listState,
+            modifier = Modifier.weight(1f)
+        )
+        Column{
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -114,19 +112,21 @@ fun ChatScreen(
                     active = true,
                     onClick = {}
                 )
-                Spacer(modifier = Modifier.width(12.dp))
-                ChatTag (
-                    text = "Send Availability",
-                    active = true,
-                    onClick = {}
-                )
-                Spacer(modifier = Modifier.width(12.dp))
-                ChatTag (
-                    text = "Pay with",
-                    active = false,
-                    onClick = {},
-                    venmo = true
-                )
+                if(chatUiState.chatType == ChatViewModel.ChatType.Purchases) {
+                    Spacer(modifier = Modifier.width(12.dp))
+                    ChatTag(
+                        text = "Send Availability",
+                        active = true,
+                        onClick = {}
+                    )
+                    Spacer(modifier = Modifier.width(12.dp))
+                    ChatTag(
+                        text = "Pay with",
+                        active = false,
+                        onClick = {},
+                        venmo = true
+                    )
+                }
             }
             Row(
                 modifier = Modifier
@@ -143,19 +143,47 @@ fun ChatScreen(
                         .size(32.dp)
                         .clickableNoIndication{}
                 )
+
                 Spacer(modifier = Modifier.width(12.dp))
-                BasicTextField(
-                    value = text,
-                    onValueChange = { text = it },
-                    textStyle = Style.body2,
+
+                Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .defaultMinSize(48.dp)
-                        .heightIn(min = 48.dp, max = 200.dp)
-                        .clip(RoundedCornerShape(10.dp))
+                        .clip(RoundedCornerShape(16.dp))
                         .background(Wash)
                         .padding(12.dp)
-                )
+                        .heightIn(min=24.dp),
+                    verticalAlignment = Alignment.Bottom
+                ){
+                    BasicTextField(
+                        value = text,
+                        onValueChange = { text = it },
+                        textStyle = Style.body2,
+                        modifier = Modifier
+                            .weight(1f)
+                            .defaultMinSize(20.dp)
+                            .heightIn(min = 20.dp, max = 172.dp)
+                    )
+                    Spacer(modifier = Modifier.width(12.dp))
+                    if(text.isNotEmpty()){
+                        Box(
+                            modifier = Modifier
+                                .size(24.dp)
+                                .clip(RoundedCornerShape(24.dp))
+                                .background(ResellPurple)
+                                .clickableNoIndication {  }
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_arrow_up),
+                                contentDescription = "send",
+                                tint = Color.White,
+                                modifier = Modifier
+                                    .size(20.dp)
+                                    .align(Alignment.Center)
+                            )
+                        }
+                    }
+                }
                 Spacer(modifier = Modifier
                     .width(12.dp)
                 )
@@ -181,8 +209,8 @@ private fun ChatHeader(
                 val y = size.height - borderWidth / 2
                 drawLine(
                     color = Color.LightGray,
-                    start = androidx.compose.ui.geometry.Offset(0f, y),
-                    end = androidx.compose.ui.geometry.Offset(size.width, y),
+                    start = Offset(0f, y),
+                    end = Offset(size.width, y),
                     strokeWidth = borderWidth
                 )
             },

@@ -12,7 +12,7 @@ import com.cornellappdev.resell.android.model.Chat
 
 
 @Composable
-fun ResellMessageScroll(
+fun ResellMessagesScroll(
     chats: List<Chat>,
     onChatPressed: (Chat) -> Unit,
     listState: LazyListState,
