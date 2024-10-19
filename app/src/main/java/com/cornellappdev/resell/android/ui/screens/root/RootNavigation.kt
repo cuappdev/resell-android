@@ -23,6 +23,7 @@ import com.cornellappdev.resell.android.ui.screens.newpost.NewPostNavigation
 import com.cornellappdev.resell.android.ui.screens.newpost.RequestDetailsEntryScreen
 import com.cornellappdev.resell.android.ui.screens.onboarding.LandingScreen
 import com.cornellappdev.resell.android.ui.screens.onboarding.OnboardingNavigation
+import com.cornellappdev.resell.android.ui.screens.pdp.PostDetailPage
 import com.cornellappdev.resell.android.ui.screens.settings.SettingsNavigation
 import com.cornellappdev.resell.android.util.LocalRootNavigator
 import com.cornellappdev.resell.android.viewmodel.root.RootNavigationViewModel
@@ -106,6 +107,10 @@ fun RootNavigation(
                 // TODO: Proposal
                 RequestDetailsEntryScreen()
             }
+
+            composable<ResellRootRoute.PDP> {
+                PostDetailPage()
+            }
         }
 
         RootConfirmationOverlay()
@@ -148,4 +153,7 @@ sealed class ResellRootRoute {
 
     @Serializable
     data object NEW_REQUEST : ResellRootRoute()
+
+    @Serializable
+    data object PDP: ResellRootRoute()
 }
