@@ -30,6 +30,8 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.cornellappdev.resell.android.ui.theme.AppDev
+import com.cornellappdev.resell.android.ui.theme.Primary
 import com.cornellappdev.resell.android.ui.theme.ResellPurple
 import com.cornellappdev.resell.android.ui.theme.Style
 import com.cornellappdev.resell.android.ui.theme.Warning
@@ -71,6 +73,14 @@ enum class ResellTextButtonContainer(
         color = Color.White,
         textColor = Warning,
     ),
+    NAKED_PRIMARY(
+        color = Color.White,
+        textColor = Primary,
+    ),
+    NAKED_APPDEV(
+        color = Color.White,
+        textColor = AppDev,
+    )
 }
 
 @Composable
@@ -233,4 +243,10 @@ private fun ResellSecondaryNakedButtonPreview() {
 @Composable
 private fun ResellSecondaryNakedRedTextButtonPreview() {
     ResellTextButtonPreview(containerType = ResellTextButtonContainer.NAKED_RED)
+}
+
+@Preview
+@Composable
+private fun ResellPrimaryNakedButtonPreview() {
+    ResellTextButtonPreview(containerType = ResellTextButtonContainer.NAKED_PRIMARY)
 }

@@ -2,10 +2,12 @@ package com.cornellappdev.resell.android.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import com.cornellappdev.resell.android.R
 
 val Typography = Typography(
     bodyLarge = TextStyle(
@@ -87,6 +89,13 @@ object Style {
         color = Color.Black,
     )
 
+    val title2Gradient = TextStyle(
+        fontSize = 16.sp,
+        fontFamily = rubikFamily,
+        fontWeight = FontWeight(500),
+        brush = ResellGradientLogo,
+    )
+
     val title3 = TextStyle(
         fontSize = 14.sp,
         fontFamily = rubikFamily,
@@ -113,5 +122,19 @@ object Style {
         fontFamily = helveticaFamily,
         fontWeight = FontWeight(400),
         color = AppDev,
+    )
+
+    val overlay = TextStyle(
+        fontSize = 17.sp,
+        lineHeight = 22.sp,
+        fontFamily = rubikFamily,
+        fontWeight = FontWeight(400),
+        color = Color(0xFF000000),
+    )
+
+    val noHeight = TextStyle(
+        platformStyle = PlatformTextStyle(
+            includeFontPadding = false
+        )
     )
 }
