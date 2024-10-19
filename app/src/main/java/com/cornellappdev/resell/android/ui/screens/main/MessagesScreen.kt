@@ -57,21 +57,21 @@ fun MessagesScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(bottom = if(chatUiState.filteredChats.isEmpty()) 128.dp else 0.dp),
+                .padding(bottom = if (chatUiState.filteredChats.isEmpty()) 128.dp else 0.dp),
             verticalArrangement = Arrangement.Center
         ) {
             if (chatUiState.filteredChats.isEmpty()) {
                 val isOffers = chatUiState.chatType == ChatViewModel.ChatType.Offers
                 Text(
                     modifier = Modifier.align(alignment = Alignment.CenterHorizontally),
-                    text = "No messages with ${if(isOffers) "buyers" else "sellers"} yet",
+                    text = "No messages with ${if (isOffers) "buyers" else "sellers"} yet",
                     style = Style.heading2
                 )
                 Spacer(modifier = Modifier.height(19.dp))
                 Text(
                     modifier = Modifier.align(alignment = Alignment.CenterHorizontally),
-                    text = if(isOffers) "When a buyer contacts you, you'll see their messages here"
-                            else "When you contact a seller, you'll see your messages here",
+                    text = if (isOffers) "When a buyer contacts you, you'll see their messages here"
+                    else "When you contact a seller, you'll see your messages here",
                     color = Color.Gray,
                     textAlign = TextAlign.Center,
                     style = Style.body1

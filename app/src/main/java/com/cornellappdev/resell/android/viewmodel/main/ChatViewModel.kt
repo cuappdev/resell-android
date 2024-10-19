@@ -1,6 +1,5 @@
 package com.cornellappdev.resell.android.viewmodel.main
 
-import android.util.Log
 import androidx.navigation.NavHostController
 import com.cornellappdev.resell.android.model.Chat
 import com.cornellappdev.resell.android.model.ResellApiState
@@ -33,27 +32,26 @@ class ChatViewModel @Inject constructor(
     }
 
 
-
     enum class ChatType {
         Purchases, Offers
     }
 
     fun onMessagePressed(chat: Chat) {
-        applyMutation{
-            copy (currentChat = chat)
+        applyMutation {
+            copy(currentChat = chat)
         }
         navController.navigate(ResellRootRoute.CHAT)
     }
 
     fun onChangeChatType(chatType: ChatType) {
         applyMutation {
-            copy (chatType = chatType)
+            copy(chatType = chatType)
         }
     }
 
     fun onBackPressed() {
         applyMutation {
-            copy (currentChat = null)
+            copy(currentChat = null)
         }
         navController.popBackStack()
     }

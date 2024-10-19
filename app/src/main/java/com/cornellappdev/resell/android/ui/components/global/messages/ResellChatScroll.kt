@@ -18,7 +18,7 @@ fun ResellChatScroll(
     listState: LazyListState,
     modifier: Modifier = Modifier,
 ) {
-    LazyColumn (
+    LazyColumn(
         state = listState,
         modifier = modifier
             .fillMaxWidth()
@@ -30,12 +30,12 @@ fun ResellChatScroll(
                 ChatMessage(
                     imageUrl = if (message.fromUser) null else message.senderImage,
                     messages = message.messages,
-                    messageSender = {str, func, i ->
+                    messageSender = { str, func, i ->
                         if (message.fromUser) UserMessage(func) else OtherMessage(str, func, i ?: 0)
                     }
                 )
             }
-            if(i != chatHistory.size - 1){
+            if (i != chatHistory.size - 1) {
                 item { Spacer(modifier = Modifier.height(12.dp)) }
             }
         }

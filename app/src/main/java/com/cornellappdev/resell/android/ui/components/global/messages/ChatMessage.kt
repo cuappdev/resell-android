@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -37,21 +36,32 @@ fun ChatMessage(
     messageSender: @Composable (String?, @Composable () -> Unit, Int?) -> Unit,
     messages: List<ChatMessageData>,
 
-) {
+    ) {
     Row(
         modifier = Modifier.fillMaxWidth()
     ) {
         Column {
-            messages.forEachIndexed{i, it ->
-                when (it.messageType){
+            messages.forEachIndexed { i, it ->
+                when (it.messageType) {
                     MessageType.Image -> {
                         messageSender(imageUrl, { MessageImage(it.content) }, messages.size - i - 1)
                     }
+
                     MessageType.Card -> {
                         messageSender(imageUrl, { MessageCard(it.content) }, messages.size - i - 1)
                     }
+
                     MessageType.Message ->
-                        messageSender(imageUrl, { MessageChat(it.content, if(imageUrl == null) Color.White else null) }, messages.size - i - 1)
+                        messageSender(
+                            imageUrl,
+                            {
+                                MessageChat(
+                                    it.content,
+                                    if (imageUrl == null) Color.White else null
+                                )
+                            },
+                            messages.size - i - 1
+                        )
                 }
                 if (i != messages.size - 1) Spacer(modifier = Modifier.height(10.dp))
             }
@@ -96,9 +106,9 @@ fun MessageChat(text: String, color: Color?) {
     Row(
         modifier = Modifier
             .clip(RoundedCornerShape(10.dp))
-            .background(if(color != null) ResellPurple else Wash)
+            .background(if (color != null) ResellPurple else Wash)
             .padding(12.dp)
-    ){
+    ) {
         Text(
             text = text,
             style = Style.body2.copy(color = color ?: Style.body2.color),

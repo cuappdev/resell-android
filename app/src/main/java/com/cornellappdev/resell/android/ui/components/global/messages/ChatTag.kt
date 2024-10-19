@@ -51,15 +51,24 @@ fun ChatTag(
     ) {
         Text(
             modifier = Modifier
-                .padding(start = 8.dp, top = 10.dp, bottom = 10.dp, end = if(venmo) 0.dp else 8.dp),
+                .padding(
+                    start = 8.dp,
+                    top = 10.dp,
+                    bottom = 10.dp,
+                    end = if (venmo) 0.dp else 8.dp
+                ),
             style = Style.title4,
             text = text
         )
-        if(venmo){
+        if (venmo) {
             Text(
                 modifier = Modifier
                     .padding(top = 10.dp, bottom = 10.dp, end = 8.dp),
-                style = Style.title4.copy(color = Color(0xFF3D8AF7), fontWeight = FontWeight.ExtraBold, fontStyle = FontStyle.Italic),
+                style = Style.title4.copy(
+                    color = Color(0xFF3D8AF7),
+                    fontWeight = FontWeight.ExtraBold,
+                    fontStyle = FontStyle.Italic
+                ),
                 text = " venmo"
             )
         }

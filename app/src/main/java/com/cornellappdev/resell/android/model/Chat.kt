@@ -2,17 +2,13 @@ package com.cornellappdev.resell.android.model
 
 import com.cornellappdev.resell.android.util.justinMessages
 import com.cornellappdev.resell.android.util.richieMessages
-import com.cornellappdev.resell.android.viewmodel.main.ChatViewModel
-
-/**
- * A product listing.
- */
+import com.cornellappdev.resell.android.viewmodel.main.ChatViewModel.ChatType
 
 data class Chat(
         val seller: String = "Unknown",
         val title: String = "Unknown",
         val chatId: Int,
-        val chatType: ChatViewModel.ChatType = ChatViewModel.ChatType.Purchases,
+        val chatType: ChatType = ChatType.Purchases,
         val chatHistory: List<ChatMessageCluster> = listOf(richieMessages(5), justinMessages(3)),
         val draftMessage: String = "",
         val draftImages: List<String> = listOf()

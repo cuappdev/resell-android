@@ -86,7 +86,6 @@ class LoginRepository @Inject constructor(
      * Returns the current [GoogleSignInAccount] if logged in, null otherwise.
      */
     fun accountOrNull(): GoogleSignInAccount? {
-        Log.e("HELPPPP", GoogleSignIn.getLastSignedInAccount(context).toString())
         return GoogleSignIn.getLastSignedInAccount(context)
     }
 
