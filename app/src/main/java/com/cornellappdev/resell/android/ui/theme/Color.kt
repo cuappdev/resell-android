@@ -77,11 +77,11 @@ val ResellGradientDiagonal = Brush.linearGradient(
     end = Offset.Zero
 )
 
-fun Color.changeBrightness(factor: Float) = this.copy(
-    alpha = this.alpha,
-    red = this.red * factor,
-    blue = this.blue * factor,
-    green = this.green * factor,
+fun Color.changeBrightness(factor: Float) = Color(
+    alpha = alpha,
+    red = red * factor,
+    blue = blue * factor,
+    green = green * factor,
 )
 
 /**

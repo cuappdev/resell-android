@@ -3,7 +3,6 @@ package com.cornellappdev.resell.android.ui.components.availability
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.calculateCentroid
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -108,27 +107,25 @@ fun AvailabilityGrid(
     }
 
     Column(modifier = modifier) {
-        Box(modifier = Modifier.weight(1F)) {
-            Row {
-                Spacer(modifier = Modifier.weight(1F))
-                Row(
-                    modifier = Modifier
-                        .weight(3F)
-                        .fillMaxHeight(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceAround,
-                ) {
-                    dates.forEach {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text(
-                                it.format(DateTimeFormatter.ofPattern("E")),
-                                style = Style.title1
-                            )
-                            Text(
-                                it.format(DateTimeFormatter.ofPattern("MMM d")),
-                                style = Style.body1
-                            )
-                        }
+        Row(modifier = Modifier.weight(1F)) {
+            Spacer(modifier = Modifier.weight(1F))
+            Row(
+                modifier = Modifier
+                    .weight(3F)
+                    .fillMaxHeight(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceAround,
+            ) {
+                dates.forEach {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(
+                            it.format(DateTimeFormatter.ofPattern("E")),
+                            style = Style.title1
+                        )
+                        Text(
+                            it.format(DateTimeFormatter.ofPattern("MMM d")),
+                            style = Style.body1
+                        )
                     }
                 }
             }
@@ -148,13 +145,15 @@ fun AvailabilityGrid(
                     )
                 }
             }
-            Box(modifier = Modifier.weight(width.toFloat())) {
-                SelectableGrid(grid = grid, updateGrid = {
+            SelectableGrid(
+                grid = grid,
+                updateGrid = {
                     val newGrid = it(grid)
                     grid = newGrid
                     setSelectedAvailabilities(newGrid.toAvailabilities())
-                })
-            }
+                },
+                modifier = Modifier.weight(width.toFloat())
+            )
         }
     }
 }
@@ -166,6 +165,7 @@ fun AvailabilityGrid(
 private fun SelectableGrid(
     grid: List<BooleanArray>,
     updateGrid: ((List<BooleanArray>) -> List<BooleanArray>) -> Unit,
+    modifier: Modifier = Modifier,
     gridStroke: Color = Stroke,
     fillColor: Color = ResellPurple,
 ) {
@@ -203,7 +203,7 @@ private fun SelectableGrid(
         }
     }
 
-    Canvas(modifier = Modifier
+    Canvas(modifier = modifier
         .fillMaxSize()
         .pointerInput(grid) {
             awaitPointerEventScope {
@@ -232,11 +232,14 @@ private fun SelectableGrid(
         }) {
         val rectWidth = size.width / width
         val rectHeight = size.height / height
+
         /**
          * We don't want to subdivide the grid too much vertically or it will be overwhelming
          * for the user. So we only show half of the vertical grid cells, unless they are filled
          * in.
          */
+
+        // Draw border
         for (row in grid.indices.filter { it % 2 == 0 }) {
             for (col in grid[row].indices) {
                 val position = Offset(rectWidth * col, rectHeight * row)
@@ -249,6 +252,8 @@ private fun SelectableGrid(
                 )
             }
         }
+
+        // Draw selected grid cells
         for (row in grid.indices) {
             for (col in grid[row].indices) {
                 if (grid[row][col]) {
@@ -263,6 +268,8 @@ private fun SelectableGrid(
                 }
             }
         }
+
+        // Draw selection preview
         selectionStart?.let { selectionStart ->
             selectionEnd?.let { selectionEnd ->
                 val (minRow, maxRow) = (selectionStart.first to selectionEnd.first).toSortedPair()
