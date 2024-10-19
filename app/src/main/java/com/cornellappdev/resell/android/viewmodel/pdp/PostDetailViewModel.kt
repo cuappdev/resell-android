@@ -80,7 +80,13 @@ class PostDetailViewModel @Inject constructor(
                 }
 
                 OptionType.REPORT -> {
-                    rootNavigationRepository.navigate(ResellRootRoute.REPORT)
+                    rootNavigationRepository.navigate(
+                        ResellRootRoute.REPORT(
+                            reportPost = true,
+                            postId = stateValue().postId,
+                            userId = ""
+                        )
+                    )
                 }
 
                 else -> {}

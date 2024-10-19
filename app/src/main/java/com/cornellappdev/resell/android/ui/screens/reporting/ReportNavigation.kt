@@ -29,7 +29,7 @@ fun ReportNavigation(
     CompositionLocalProvider(LocalReportNavigator provides onboardingNav) {
         NavHost(
             navController = LocalReportNavigator.current,
-            startDestination = ReportScreen.Reason(
+            startDestination = uiState.initialPage ?: ReportScreen.Reason(
                 reportPost = true,
                 postId = "",
                 userId = ""

@@ -25,6 +25,7 @@ import com.cornellappdev.resell.android.ui.screens.onboarding.LandingScreen
 import com.cornellappdev.resell.android.ui.screens.onboarding.OnboardingNavigation
 import com.cornellappdev.resell.android.ui.screens.pdp.PostDetailPage
 import com.cornellappdev.resell.android.ui.screens.reporting.ReportNavigation
+import com.cornellappdev.resell.android.ui.screens.reporting.ReportScreen
 import com.cornellappdev.resell.android.ui.screens.settings.SettingsNavigation
 import com.cornellappdev.resell.android.util.LocalRootNavigator
 import com.cornellappdev.resell.android.viewmodel.root.RootNavigationViewModel
@@ -162,5 +163,9 @@ sealed class ResellRootRoute {
     data object PDP: ResellRootRoute()
 
     @Serializable
-    data object REPORT: ResellRootRoute()
+    data class REPORT(
+        val reportPost: Boolean,
+        val postId: String,
+        val userId: String
+    ): ResellRootRoute()
 }
