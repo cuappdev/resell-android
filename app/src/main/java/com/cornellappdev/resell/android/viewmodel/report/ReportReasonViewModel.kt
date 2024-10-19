@@ -1,5 +1,7 @@
 package com.cornellappdev.resell.android.viewmodel.report
 
+import androidx.lifecycle.SavedStateHandle
+import androidx.navigation.toRoute
 import com.cornellappdev.resell.android.ui.screens.reporting.ReportScreen
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
 import com.cornellappdev.resell.android.viewmodel.navigation.ReportNavigationRepository
@@ -8,7 +10,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ReportReasonViewModel @Inject constructor(
-    private val reportNavigationRepository: ReportNavigationRepository
+    private val reportNavigationRepository: ReportNavigationRepository,
+    private val savedStateHandle: SavedStateHandle
 ) :
     ResellViewModel<ReportReasonViewModel.ReportReasonUiState>(
         initialUiState = ReportReasonUiState(
@@ -47,17 +50,27 @@ class ReportReasonViewModel @Inject constructor(
     }
 
     init {
-        // TODO: Extract report type and other data from nav args.
-        applyMutation {
-            copy(
-                reportPost = false
-            )
+        // TODO: User Id stuff
+        savedStateHandle.toRoute<ReportScreen.Reason>().let { navArgs ->
+            applyMutation {
+                copy(
+                    reportPost = navArgs.reportPost
+                )
+            }
         }
     }
 
     fun onReasonPressed(reason: String) {
         // TODO add reason to nav args
-        reportNavigationRepository.navigate(ReportScreen.Details)
+        val navArgs = savedStateHandle.toRoute<ReportScreen.Reason>()
+        reportNavigationRepository.navigate(
+            ReportScreen.Details(
+                reportPost = navArgs.reportPost,
+                postId = navArgs.postId,
+                userId = navArgs.userId,
+                reason = reason
+            )
+        )
     }
 }
 

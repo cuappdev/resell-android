@@ -29,7 +29,11 @@ fun ReportNavigation(
     CompositionLocalProvider(LocalReportNavigator provides onboardingNav) {
         NavHost(
             navController = LocalReportNavigator.current,
-            startDestination = ReportScreen.Reason,
+            startDestination = ReportScreen.Reason(
+                reportPost = true,
+                postId = "",
+                userId = ""
+            ),
             modifier = Modifier.fillMaxSize()
         ) {
             composable<ReportScreen.Reason> {
@@ -50,11 +54,23 @@ fun ReportNavigation(
 @Serializable
 sealed class ReportScreen {
     @Serializable
-    data object Reason : ReportScreen()
+    data class Reason(
+        val reportPost: Boolean,
+        val postId: String,
+        val userId: String
+    ) : ReportScreen()
 
     @Serializable
-    data object Details : ReportScreen()
+    data class Details(
+        val reportPost: Boolean,
+        val postId: String,
+        val userId: String,
+        val reason: String,
+    ) : ReportScreen()
 
     @Serializable
-    data object Confirmation : ReportScreen()
+    data class Confirmation(
+        val reportPost: Boolean,
+        val userId: String,
+    ) : ReportScreen()
 }

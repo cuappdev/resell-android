@@ -1,6 +1,8 @@
 package com.cornellappdev.resell.android.viewmodel.report
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.toRoute
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonState
 import com.cornellappdev.resell.android.ui.screens.reporting.ReportScreen
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
@@ -13,6 +15,7 @@ import javax.inject.Inject
 @HiltViewModel
 class ReportDetailsViewModel @Inject constructor(
     private val reportNavigationRepository: ReportNavigationRepository,
+    private val savedStateHandle: SavedStateHandle
 ) :
     ResellViewModel<ReportDetailsViewModel.ReportDetailsUiState>(
         initialUiState = ReportDetailsUiState(
@@ -55,10 +58,12 @@ class ReportDetailsViewModel @Inject constructor(
 
     init {
         // TODO: Extract report type and other data from nav args.
+        val navArgs = savedStateHandle.toRoute<ReportScreen.Details>()
+
         applyMutation {
             copy(
-                reportPost = false,
-                reason = ""
+                reportPost = navArgs.reportPost,
+                reason = navArgs.reason
             )
         }
     }
@@ -82,7 +87,11 @@ class ReportDetailsViewModel @Inject constructor(
 
             delay(1000)
 
-            reportNavigationRepository.navigate(ReportScreen.Confirmation)
+            val navArgs = savedStateHandle.toRoute<ReportScreen.Details>()
+            reportNavigationRepository.navigate(ReportScreen.Confirmation(
+                reportPost = navArgs.reportPost,
+                userId = navArgs.userId
+            ))
         }
     }
 }
