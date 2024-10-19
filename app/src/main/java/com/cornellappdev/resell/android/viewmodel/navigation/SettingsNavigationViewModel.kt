@@ -5,6 +5,7 @@ import com.cornellappdev.resell.android.util.UIEvent
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
+import javax.inject.Singleton
 
 @HiltViewModel
 class SettingsNavigationViewModel @Inject constructor(
@@ -29,3 +30,6 @@ class SettingsNavigationViewModel @Inject constructor(
         }
     }
 }
+
+@Singleton
+class SettingsNavigationRepository @Inject constructor() : BaseNavigationRepository<SettingsRoute>()

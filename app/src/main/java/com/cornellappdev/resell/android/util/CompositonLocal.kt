@@ -11,6 +11,7 @@ val LocalNewPostNavigator = compositionLocalOf<NavHostController> { error("No na
 val LocalOnboardingNavigator =
     compositionLocalOf<NavHostController> { error("No navigator provided") }
 val LocalSettingsNavigator = compositionLocalOf<NavHostController> { error("No navigator provided") }
+val LocalReportNavigator = compositionLocalOf<NavHostController> { error("No navigator provided") }
 
 fun closeApp(context: Context) {
     val intent = Intent(Intent.ACTION_MAIN)

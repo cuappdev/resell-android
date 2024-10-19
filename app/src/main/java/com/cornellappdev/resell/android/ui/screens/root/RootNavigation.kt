@@ -156,4 +156,7 @@ sealed class ResellRootRoute {
 
     @Serializable
     data object PDP: ResellRootRoute()
+
+    @Serializable
+    data object REPORT: ResellRootRoute()
 }
