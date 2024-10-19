@@ -28,6 +28,13 @@ class ReportConfirmationViewModel @Inject constructor(
         private val reportPost: Boolean,
         private val userId: String,
     ) {
+        val headerTitle: String
+            get() = if (reportPost) {
+                "Report Post"
+            } else {
+                "Report Account"
+            }
+
         val title: String
             get() = if (reportPost) {
                 "Thank you for reporting this post"
@@ -49,7 +56,10 @@ class ReportConfirmationViewModel @Inject constructor(
         showBlockDialog(
             rootDialogRepository = rootDialogRepository,
             rootConfirmationRepository = rootConfirmRepository,
-            blockedUsersRepository = blockedUsersRepository
+            blockedUsersRepository = blockedUsersRepository,
+            onBlockSuccess = {
+                rootNavigationRepository.navigate(ResellRootRoute.MAIN)
+            }
         )
     }
 

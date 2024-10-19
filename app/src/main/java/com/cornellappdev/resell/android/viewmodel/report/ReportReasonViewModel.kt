@@ -1,11 +1,15 @@
 package com.cornellappdev.resell.android.viewmodel.report
 
+import com.cornellappdev.resell.android.ui.screens.reporting.ReportScreen
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
+import com.cornellappdev.resell.android.viewmodel.navigation.ReportNavigationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
 @HiltViewModel
-class ReportReasonViewModel @Inject constructor() :
+class ReportReasonViewModel @Inject constructor(
+    private val reportNavigationRepository: ReportNavigationRepository
+) :
     ResellViewModel<ReportReasonViewModel.ReportReasonUiState>(
         initialUiState = ReportReasonUiState(
             reportPost = true
@@ -52,7 +56,8 @@ class ReportReasonViewModel @Inject constructor() :
     }
 
     fun onReasonPressed(reason: String) {
-        // TODO
+        // TODO add reason to nav args
+        reportNavigationRepository.navigate(ReportScreen.Details)
     }
 }
 

@@ -2,14 +2,18 @@ package com.cornellappdev.resell.android.viewmodel.report
 
 import androidx.lifecycle.viewModelScope
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonState
+import com.cornellappdev.resell.android.ui.screens.reporting.ReportScreen
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
+import com.cornellappdev.resell.android.viewmodel.navigation.ReportNavigationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class ReportDetailsViewModel @Inject constructor() :
+class ReportDetailsViewModel @Inject constructor(
+    private val reportNavigationRepository: ReportNavigationRepository,
+) :
     ResellViewModel<ReportDetailsViewModel.ReportDetailsUiState>(
         initialUiState = ReportDetailsUiState(
             reportPost = true,
@@ -77,6 +81,8 @@ class ReportDetailsViewModel @Inject constructor() :
             }
 
             delay(1000)
+
+            reportNavigationRepository.navigate(ReportScreen.Confirmation)
         }
     }
 }

@@ -33,13 +33,15 @@ fun ReportNavigation(
             modifier = Modifier.fillMaxSize()
         ) {
             composable<ReportScreen.Reason> {
+                ReportReasonScreen()
             }
 
             composable<ReportScreen.Details> {
+                ReportDetailsScreen()
             }
 
             composable<ReportScreen.Confirmation> {
-
+                ReportConfirmationScreen()
             }
         }
     }

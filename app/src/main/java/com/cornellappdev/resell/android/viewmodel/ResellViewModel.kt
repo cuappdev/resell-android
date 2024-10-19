@@ -56,6 +56,8 @@ abstract class ResellViewModel<UiState>(initialUiState: UiState) : ViewModel() {
         rootDialogRepository: RootDialogRepository,
         rootConfirmationRepository: RootConfirmationRepository,
         blockedUsersRepository: BlockedUsersRepository,
+        onBlockSuccess: () -> Unit = {},
+        onBlockError: () -> Unit = {}
     ) {
         rootDialogRepository.showDialog(
             RootDialogContent.TwoButtonDialog(
@@ -69,12 +71,14 @@ abstract class ResellViewModel<UiState>(initialUiState: UiState) : ViewModel() {
                         onError = {
                             rootDialogRepository.dismissDialog()
                             rootConfirmationRepository.showError()
+                            onBlockError()
                         },
                         onSuccess = {
                             rootDialogRepository.dismissDialog()
                             rootConfirmationRepository.showSuccess(
                                 message = "User has been blocked!"
                             )
+                            onBlockSuccess()
                         }
                     )
                 },

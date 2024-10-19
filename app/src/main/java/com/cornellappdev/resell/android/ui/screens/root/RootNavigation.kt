@@ -24,6 +24,7 @@ import com.cornellappdev.resell.android.ui.screens.newpost.RequestDetailsEntrySc
 import com.cornellappdev.resell.android.ui.screens.onboarding.LandingScreen
 import com.cornellappdev.resell.android.ui.screens.onboarding.OnboardingNavigation
 import com.cornellappdev.resell.android.ui.screens.pdp.PostDetailPage
+import com.cornellappdev.resell.android.ui.screens.reporting.ReportNavigation
 import com.cornellappdev.resell.android.ui.screens.settings.SettingsNavigation
 import com.cornellappdev.resell.android.util.LocalRootNavigator
 import com.cornellappdev.resell.android.viewmodel.root.RootNavigationViewModel
@@ -104,12 +105,15 @@ fun RootNavigation(
             }
 
             composable<ResellRootRoute.NEW_REQUEST> {
-                // TODO: Proposal
                 RequestDetailsEntryScreen()
             }
 
             composable<ResellRootRoute.PDP> {
                 PostDetailPage()
+            }
+
+            composable<ResellRootRoute.REPORT> {
+                ReportNavigation()
             }
         }
 
