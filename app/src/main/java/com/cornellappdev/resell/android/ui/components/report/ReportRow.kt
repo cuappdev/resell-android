@@ -42,7 +42,7 @@ fun ReportRow(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Row(
-            modifier = Modifier.padding(vertical = 20.dp),
+            modifier = Modifier.padding(vertical = 20.dp).weight(5f),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Spacer(Modifier.width(24.dp))
@@ -52,12 +52,19 @@ fun ReportRow(
             )
         }
 
-        Icon(
-            painter = painterResource(id = R.drawable.ic_chevron_right),
-            contentDescription = null,
-            modifier = Modifier.padding(end = 24.dp),
-            tint = Color.Black
-        )
+        Spacer(modifier = Modifier.width(24.dp))
+
+        Row(
+            modifier = Modifier.padding(end = 24.dp).weight(1f),
+            horizontalArrangement = Arrangement.End
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_chevron_right),
+                contentDescription = null,
+                modifier = Modifier,
+                tint = Color.Black
+            )
+        }
     }
 }
 
@@ -66,4 +73,5 @@ fun ReportRow(
 private fun ReportRowPreview() = ResellPreview {
     ReportRow(text = "Report", onClick = {})
     ReportRow(text = "Nudity", onClick = {})
+    ReportRow(text = "really long goddamn report reason lololololololol report blah", onClick = {})
 }
