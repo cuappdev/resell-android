@@ -1,6 +1,9 @@
 package com.cornellappdev.resell.android.viewmodel.report
 
+import androidx.lifecycle.SavedStateHandle
+import androidx.navigation.toRoute
 import com.cornellappdev.resell.android.model.settings.BlockedUsersRepository
+import com.cornellappdev.resell.android.ui.screens.reporting.ReportScreen
 import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
 import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepository
@@ -14,7 +17,8 @@ class ReportConfirmationViewModel @Inject constructor(
     private val rootDialogRepository: RootDialogRepository,
     private val rootConfirmRepository: RootConfirmationRepository,
     private val blockedUsersRepository: BlockedUsersRepository,
-    private val rootNavigationRepository: RootNavigationRepository
+    private val rootNavigationRepository: RootNavigationRepository,
+    savedStateHandle: SavedStateHandle
 ) :
     ResellViewModel<ReportConfirmationViewModel.ConfirmationUiState>(
         initialUiState = ConfirmationUiState(
@@ -65,5 +69,15 @@ class ReportConfirmationViewModel @Inject constructor(
 
     fun onDonePressed() {
         rootNavigationRepository.navigate(ResellRootRoute.MAIN)
+    }
+
+    init {
+        val navArgs = savedStateHandle.toRoute<ReportScreen.Confirmation>()
+
+        applyMutation {
+            copy(
+                reportPost = navArgs.reportPost,
+            )
+        }
     }
 }
