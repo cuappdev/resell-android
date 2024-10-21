@@ -4,10 +4,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.lifecycle.viewModelScope
 import com.cornellappdev.resell.android.model.pdp.ImageBitmapLoader
+import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
 import com.cornellappdev.resell.android.util.longUrl
 import com.cornellappdev.resell.android.util.richieUrl
 import com.cornellappdev.resell.android.util.tallUrl
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
+import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepository
 import com.cornellappdev.resell.android.viewmodel.root.OptionType
 import com.cornellappdev.resell.android.viewmodel.root.RootOptionsMenuRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -18,6 +20,7 @@ import javax.inject.Inject
 class PostDetailViewModel @Inject constructor(
     private val rootOptionsMenuRepository: RootOptionsMenuRepository,
     private val imageBitmapLoader: ImageBitmapLoader,
+    private val rootNavigationRepository: RootNavigationRepository
 ) : ResellViewModel<PostDetailViewModel.UiState>(
     initialUiState = UiState()
 ) {
@@ -77,7 +80,13 @@ class PostDetailViewModel @Inject constructor(
                 }
 
                 OptionType.REPORT -> {
-
+                    rootNavigationRepository.navigate(
+                        ResellRootRoute.REPORT(
+                            reportPost = true,
+                            postId = stateValue().postId,
+                            userId = ""
+                        )
+                    )
                 }
 
                 else -> {}

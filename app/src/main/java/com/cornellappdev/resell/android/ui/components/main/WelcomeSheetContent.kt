@@ -26,7 +26,9 @@ fun WelcomeSheetContent(
     onDismiss: () -> Unit
 ) {
     Column(
-        modifier = Modifier.defaultHorizontalPadding().fillMaxWidth(),
+        modifier = Modifier
+            .defaultHorizontalPadding()
+            .fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(

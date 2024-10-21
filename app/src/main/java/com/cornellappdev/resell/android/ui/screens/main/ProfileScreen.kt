@@ -12,18 +12,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import coil.compose.AsyncImage
 import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.ui.components.global.ResellListingsScroll
 import com.cornellappdev.resell.android.ui.components.global.ResellTabBar
@@ -90,9 +87,11 @@ fun ProfileScreen(
 
                 ProfileViewModel.ProfileTab.WISHLIST -> {
                     // TODO: Implement Wishlist view
-                    Column(modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 12.dp)) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 12.dp)
+                    ) {
                         header()
                     }
                 }
@@ -121,7 +120,9 @@ private fun ProfileHeader(
     ) {
         Box(modifier = Modifier.fillMaxWidth()) {
             ProfilePictureView(
-                modifier = Modifier.size(90.dp).align(Alignment.TopCenter),
+                modifier = Modifier
+                    .size(90.dp)
+                    .align(Alignment.TopCenter),
                 imageUrl = imageUrl,
             )
 

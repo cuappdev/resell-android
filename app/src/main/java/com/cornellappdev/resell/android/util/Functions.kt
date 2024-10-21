@@ -24,7 +24,8 @@ fun isBottomLeftMoreBlack(imageBitmap: ImageBitmap): Boolean {
             val pixelColor = pixelMap[x, y]
 
             // Convert pixel color to grayscale
-            val grayscale = 0.299 * pixelColor.red + 0.587 * pixelColor.green + 0.114 * pixelColor.blue
+            val grayscale =
+                0.299 * pixelColor.red + 0.587 * pixelColor.green + 0.114 * pixelColor.blue
 
             // Decide if the pixel is more black or white (0 = black, 1 = white)
             if (grayscale < 0.5) {
@@ -58,8 +59,7 @@ fun String.formatMoney(): String {
         cents = "00"
     } else if (cents.length == 1) {
         cents += "0"
-    }
-    else if (cents.length > 2) {
+    } else if (cents.length > 2) {
         cents = cents.substring(0, 2)
     }
 
@@ -74,8 +74,7 @@ fun String.isLeqMoney(other: String): Boolean {
         val thisMoney = this.formatMoney().toDouble()
         val otherMoney = other.formatMoney().toDouble()
         return thisMoney <= otherMoney
-    }
-    catch (e: Exception) {
+    } catch (e: Exception) {
         return false
     }
 }

@@ -44,7 +44,7 @@ fun WhichPage(
                 color = colorState.value,
                 size = sizeState.value.dp
             )
-            
+
             if (i != pagerState.pageCount - 1) {
                 Spacer(modifier = Modifier.width(8.dp))
             }
