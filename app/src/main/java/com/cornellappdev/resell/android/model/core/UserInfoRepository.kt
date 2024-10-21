@@ -1,6 +1,6 @@
-package com.cornellappdev.resell.android.model.root
+package com.cornellappdev.resell.android.model.core
 
-import com.cornellappdev.resell.android.model.UserInfo
+import com.cornellappdev.resell.android.model.classes.UserInfo
 import com.cornellappdev.resell.android.util.richieUserInfo
 import javax.inject.Inject
 import javax.inject.Singleton

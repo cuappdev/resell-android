@@ -1,4 +1,4 @@
-package com.cornellappdev.resell.android.model
+package com.cornellappdev.resell.android.model.classes
 
 /**
  * Represents the state of an api response fetching data of type [T].

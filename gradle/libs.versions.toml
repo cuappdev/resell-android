@@ -2,6 +2,7 @@
 agp = "8.5.1"
 animation = "1.7.1"
 coilCompose = "2.7.0"
+converterGson = "2.9.0"
 datastorePreferences = "1.1.1"
 firebaseBom = "33.3.0"
 foundation = "1.7.3"
@@ -13,6 +14,7 @@ coreKtx = "1.13.1"
 junit = "4.13.2"
 junitVersion = "1.2.1"
 espressoCore = "3.6.1"
+kotlinxCoroutinesAndroid = "1.8.1"
 kotlinxSerializationJsonVersion = "1.6.0"
 lifecycleRuntimeKtx = "2.8.5"
 activityCompose = "1.9.2"
@@ -25,6 +27,7 @@ materialZ = "1.7.0-alpha04"
 navigationCompose = "2.8.0"
 playServicesAuthVersion = "21.2.0"
 datastoreCoreAndroid = "1.1.1"
+retrofit = "2.9.0"
 
 [libraries]
 androidx-animation = { module = "androidx.compose.animation:animation", version.ref = "animation" }
@@ -40,6 +43,7 @@ androidx-material-navigation = { module = "androidx.compose.material:material-na
 androidx-material-z = { module = "androidx.compose.material:material-*", version.ref = "materialZ" }
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
 coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose" }
+converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "converterGson" }
 firebase-auth-ktx = { module = "com.google.firebase:firebase-auth-ktx" }
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
 gms-play-services-auth = { module = "com.google.android.gms:play-services-auth", version.ref = "playServicesAuthVersion" }
@@ -60,7 +64,9 @@ androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-man
 androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
 androidx-datastore-core-android = { group = "androidx.datastore", name = "datastore-core-android", version.ref = "datastoreCoreAndroid" }
+kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinxCoroutinesAndroid" }
 material = { module = "com.google.android.material:material", version.ref = "material" }
+retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

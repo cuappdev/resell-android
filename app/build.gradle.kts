@@ -45,11 +45,19 @@ android {
                 "String",
                 "GOOGLE_AUTH_CLIENT_ID", "\"${secrets.getProperty("GOOGLE_AUTH_CLIENT_ID")}\""
             )
+            buildConfigField(
+                "String",
+                "BASE_API_URL", "\"${secrets.getProperty("API_URL_PROD")}\""
+            )
         }
         debug {
             buildConfigField(
                 "String",
                 "GOOGLE_AUTH_CLIENT_ID", "\"${secrets.getProperty("GOOGLE_AUTH_CLIENT_ID_LOCAL")}\""
+            )
+            buildConfigField(
+                "String",
+                "BASE_API_URL", "\"${secrets.getProperty("API_URL_DEV")}\""
             )
         }
     }
@@ -102,6 +110,9 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+    implementation(libs.retrofit)
+    implementation(libs.converter.gson)
+    implementation(libs.kotlinx.coroutines.android)
 }
 
 // Allow references to generated code

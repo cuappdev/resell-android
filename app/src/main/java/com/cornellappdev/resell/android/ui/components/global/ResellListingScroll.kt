@@ -13,7 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.times
-import com.cornellappdev.resell.android.model.Listing
+import com.cornellappdev.resell.android.model.classes.Listing
 import com.cornellappdev.resell.android.ui.theme.Padding
 
 

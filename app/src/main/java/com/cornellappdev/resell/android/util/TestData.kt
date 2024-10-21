@@ -1,7 +1,7 @@
 package com.cornellappdev.resell.android.util
 
-import com.cornellappdev.resell.android.model.Listing
-import com.cornellappdev.resell.android.model.UserInfo
+import com.cornellappdev.resell.android.model.classes.Listing
+import com.cornellappdev.resell.android.model.classes.UserInfo
 
 val richieListings = { count: Int ->
     List(count) {

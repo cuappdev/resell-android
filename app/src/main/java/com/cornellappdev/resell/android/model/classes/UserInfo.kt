@@ -1,4 +1,4 @@
-package com.cornellappdev.resell.android.model
+package com.cornellappdev.resell.android.model.classes
 
 data class UserInfo(
     val username: String,
