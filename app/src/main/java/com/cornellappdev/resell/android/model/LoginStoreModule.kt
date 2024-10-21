@@ -3,6 +3,8 @@ package com.cornellappdev.resell.android.model
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.os.Debug
+import android.util.Log
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContract

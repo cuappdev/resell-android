@@ -18,6 +18,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.cornellappdev.resell.android.ui.screens.main.ChatScreen
 import com.cornellappdev.resell.android.ui.screens.main.MainTabNavigation
 import com.cornellappdev.resell.android.ui.screens.newpost.NewPostNavigation
 import com.cornellappdev.resell.android.ui.screens.newpost.RequestDetailsEntryScreen
@@ -111,6 +112,10 @@ fun RootNavigation(
             composable<ResellRootRoute.PDP> {
                 PostDetailPage()
             }
+
+            composable<ResellRootRoute.CHAT> {
+                ChatScreen()
+            }
         }
 
         RootConfirmationOverlay()
@@ -156,4 +161,7 @@ sealed class ResellRootRoute {
 
     @Serializable
     data object PDP: ResellRootRoute()
+
+    @Serializable
+    data object CHAT : ResellRootRoute()
 }
