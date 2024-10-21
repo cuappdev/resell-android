@@ -22,7 +22,7 @@ fun DialogWrapper(
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 44.dp)
-            .clickableNoIndication {  },
+            .clickableNoIndication { },
         shape = RoundedCornerShape(20.dp),
         color = Color.White,
         shadowElevation = 12.dp

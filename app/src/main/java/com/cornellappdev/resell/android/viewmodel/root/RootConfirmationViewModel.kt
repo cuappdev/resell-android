@@ -2,7 +2,6 @@ package com.cornellappdev.resell.android.viewmodel.root
 
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.cornellappdev.resell.android.ui.theme.ResellPurple
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel

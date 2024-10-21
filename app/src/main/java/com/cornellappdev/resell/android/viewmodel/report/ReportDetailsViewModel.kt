@@ -88,10 +88,12 @@ class ReportDetailsViewModel @Inject constructor(
             delay(1000)
 
             val navArgs = savedStateHandle.toRoute<ReportScreen.Details>()
-            reportNavigationRepository.navigate(ReportScreen.Confirmation(
-                reportPost = navArgs.reportPost,
-                userId = navArgs.userId
-            ))
+            reportNavigationRepository.navigate(
+                ReportScreen.Confirmation(
+                    reportPost = navArgs.reportPost,
+                    userId = navArgs.userId
+                )
+            )
         }
     }
 }

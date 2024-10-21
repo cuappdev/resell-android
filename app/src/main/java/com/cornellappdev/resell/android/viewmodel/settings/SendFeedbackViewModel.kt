@@ -5,7 +5,6 @@ import android.net.Uri
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.lifecycle.viewModelScope
-import com.cornellappdev.resell.android.ui.screens.settings.SettingsRoute
 import com.cornellappdev.resell.android.util.loadBitmapFromUri
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
 import com.cornellappdev.resell.android.viewmodel.navigation.SettingsNavigationRepository

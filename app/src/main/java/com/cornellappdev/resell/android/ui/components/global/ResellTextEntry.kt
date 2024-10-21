@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -124,8 +123,11 @@ fun ResellTextEntry(
                     )
                 )
 
-                Spacer(modifier = Modifier.weight(
-                    if (singleLine) 0.5f else 0.1f))
+                Spacer(
+                    modifier = Modifier.weight(
+                        if (singleLine) 0.5f else 0.1f
+                    )
+                )
             }
 
             textField(

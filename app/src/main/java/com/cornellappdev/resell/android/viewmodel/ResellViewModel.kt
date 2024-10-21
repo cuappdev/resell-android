@@ -7,7 +7,6 @@ import androidx.lifecycle.viewModelScope
 import com.cornellappdev.resell.android.model.settings.BlockedUsersRepository
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonState
 import com.cornellappdev.resell.android.viewmodel.root.RootConfirmationRepository
-import com.cornellappdev.resell.android.viewmodel.root.RootConfirmationViewModel
 import com.cornellappdev.resell.android.viewmodel.root.RootDialogContent
 import com.cornellappdev.resell.android.viewmodel.root.RootDialogRepository
 import kotlinx.coroutines.Job

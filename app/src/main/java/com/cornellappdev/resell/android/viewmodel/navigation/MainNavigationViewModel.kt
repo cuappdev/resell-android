@@ -1,7 +1,7 @@
 package com.cornellappdev.resell.android.viewmodel.navigation
 
-import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
 import com.cornellappdev.resell.android.ui.screens.main.ResellMainScreen
+import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
 import com.cornellappdev.resell.android.util.UIEvent
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel

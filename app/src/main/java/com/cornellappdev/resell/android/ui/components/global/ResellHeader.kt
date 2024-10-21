@@ -77,6 +77,7 @@ fun ResellHeader(
         bottomBar = bottomBar
     )
 }
+
 /**
  * A default header framework used on many screens.
  */

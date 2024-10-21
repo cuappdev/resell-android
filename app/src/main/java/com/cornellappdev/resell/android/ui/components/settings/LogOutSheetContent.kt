@@ -18,8 +18,8 @@ import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
 import com.cornellappdev.resell.android.ui.theme.Style
 import com.cornellappdev.resell.android.util.defaultHorizontalPadding
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
-import com.cornellappdev.resell.android.viewmodel.root.RootNavigationSheetRepository
 import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepository
+import com.cornellappdev.resell.android.viewmodel.root.RootNavigationSheetRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -31,7 +31,9 @@ fun LogOutSheetContent(
     val viewModel = hiltViewModel<LogOutSheetContentViewModel>()
 
     Column(
-        modifier = Modifier.defaultHorizontalPadding().fillMaxWidth(),
+        modifier = Modifier
+            .defaultHorizontalPadding()
+            .fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(

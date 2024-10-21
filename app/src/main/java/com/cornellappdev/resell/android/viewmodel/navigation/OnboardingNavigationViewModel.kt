@@ -17,6 +17,7 @@ class OnboardingNavigationViewModel @Inject constructor(
     data class OnboardingNavigationUiState(
         val route: UIEvent<ResellOnboardingScreen>? = null
     )
+
     init {
         asyncCollect(onboardingNavigationRepository.routeFlow) { route ->
             applyMutation {

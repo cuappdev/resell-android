@@ -87,10 +87,12 @@ fun RootOptionsMenuOverlay(
                     )
 
                     if (option != uiState.options.last()) {
-                        Spacer(modifier = Modifier
-                            .height(1.dp)
-                            .fillMaxWidth()
-                            .background(AppDev))
+                        Spacer(
+                            modifier = Modifier
+                                .height(1.dp)
+                                .fillMaxWidth()
+                                .background(AppDev)
+                        )
                     }
                 }
             }

@@ -29,7 +29,8 @@ class RootConfirmationRepository @Inject constructor() {
 
     fun showError(
         message: String = "Something went wrong with your request. Please try again.",
-        painterRes: Int? = R.drawable.ic_warning) {
+        painterRes: Int? = R.drawable.ic_warning
+    ) {
         _confirmationSurfaceInfo.value = UIEvent(
             ConfirmationSurfaceInfo(
                 painterRes = painterRes,

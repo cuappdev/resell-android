@@ -42,7 +42,9 @@ fun ReportRow(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Row(
-            modifier = Modifier.padding(vertical = 20.dp).weight(5f),
+            modifier = Modifier
+                .padding(vertical = 20.dp)
+                .weight(5f),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Spacer(Modifier.width(24.dp))
@@ -55,7 +57,9 @@ fun ReportRow(
         Spacer(modifier = Modifier.width(24.dp))
 
         Row(
-            modifier = Modifier.padding(end = 24.dp).weight(1f),
+            modifier = Modifier
+                .padding(end = 24.dp)
+                .weight(1f),
             horizontalArrangement = Arrangement.End
         ) {
             Icon(
