@@ -83,8 +83,10 @@ android {
 }
 
 dependencies {
+    // Declare the dependency for the Firestore library
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.auth.ktx)
+    implementation(libs.firebase.firestore.ktx)
     implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.hilt.android)
     implementation(libs.androidx.datastore.core.android)

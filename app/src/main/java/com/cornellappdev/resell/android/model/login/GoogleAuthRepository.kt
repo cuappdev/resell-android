@@ -1,4 +1,4 @@
-package com.cornellappdev.resell.android.model
+package com.cornellappdev.resell.android.model.login
 
 import android.app.Activity
 import android.content.Context
@@ -9,9 +9,7 @@ import androidx.activity.result.contract.ActivityResultContract
 import androidx.compose.runtime.Composable
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.preferencesDataStore
 import com.cornellappdev.resell.android.BuildConfig
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
@@ -19,11 +17,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.tasks.Task
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
-import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
@@ -33,21 +27,8 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
 
-val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "login")
-
-@Module
-@InstallIn(SingletonComponent::class) // This ensures it's a singleton across the app
-object LoginStoreModule {
-
-    @Provides
-    @Singleton
-    fun provideDataStore(@ApplicationContext context: Context): DataStore<Preferences> {
-        return context.dataStore
-    }
-}
-
 @Singleton
-class LoginRepository @Inject constructor(
+class GoogleAuthRepository @Inject constructor(
     private val dataStore: DataStore<Preferences>,
     @ApplicationContext private val context: Context,
 ) {
@@ -119,7 +100,7 @@ class LoginRepository @Inject constructor(
      * @param onGoogleSignInCompleted The success callback. Takes in the id token and email.
      */
     @Composable
-    fun makeActivityResultLauncher(
+    fun googleLoginLauncher(
         onError: () -> Unit,
         onGoogleSignInCompleted: (id: String, email: String) -> Unit,
     ): ManagedActivityResultLauncher<Int, Task<GoogleSignInAccount>?> {
@@ -144,8 +125,4 @@ class LoginRepository @Inject constructor(
             }
         }
     }
-}
-
-object PreferencesKeys {
-    val IS_LOGGED_IN = booleanPreferencesKey("is_logged_in")
 }

@@ -1,7 +1,7 @@
 package com.cornellappdev.resell.android.viewmodel.settings
 
 import androidx.lifecycle.viewModelScope
-import com.cornellappdev.resell.android.model.LoginRepository
+import com.cornellappdev.resell.android.model.login.GoogleAuthRepository
 import com.cornellappdev.resell.android.model.core.UserInfoRepository
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonContainer
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonState
@@ -25,7 +25,7 @@ class SettingsLandingViewModel @Inject constructor(
     private val rootNavigationSheetRepository: RootNavigationSheetRepository,
     private val dialogRepository: RootDialogRepository,
     private val userInfoRepository: UserInfoRepository,
-    private val loginRepository: LoginRepository,
+    private val googleAuthRepository: GoogleAuthRepository,
     private val rootNavigationRepository: RootNavigationRepository,
 ) : ResellViewModel<Unit>(
     initialUiState = Unit
@@ -99,8 +99,8 @@ class SettingsLandingViewModel @Inject constructor(
         viewModelScope.launch {
             delay(1000)
             dialogRepository.dismissDialog()
-            loginRepository.saveLoginState(false)
-            loginRepository.invalidateEmail()
+            googleAuthRepository.saveLoginState(false)
+            googleAuthRepository.invalidateEmail()
             rootNavigationRepository.navigate(ResellRootRoute.LANDING)
             delay(1000)
             dialogRepository.showDialog(

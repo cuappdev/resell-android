@@ -3,7 +3,7 @@ package com.cornellappdev.resell.android.viewmodel.onboarding
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.viewModelScope
-import com.cornellappdev.resell.android.model.LoginRepository
+import com.cornellappdev.resell.android.model.login.GoogleAuthRepository
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonState
 import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
@@ -18,7 +18,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class LandingViewModel @Inject constructor(
-    private val loginRepository: LoginRepository,
+    private val googleAuthRepository: GoogleAuthRepository,
     private val rootNavigationRepository: RootNavigationRepository,
     private val rootNavigationSheetRepository: RootNavigationSheetRepository,
 ) : ResellViewModel<LandingViewModel.LandingUiState>(
@@ -35,7 +35,7 @@ class LandingViewModel @Inject constructor(
      * Otherwise does nothing.
      */
     fun navigateIfLoggedIn() {
-        if (loginRepository.accountOrNull() != null) {
+        if (googleAuthRepository.accountOrNull() != null) {
             // TODO: If account actually still exists on backend...
             rootNavigationRepository.navigate(ResellRootRoute.MAIN)
         }
@@ -62,14 +62,14 @@ class LandingViewModel @Inject constructor(
             RootSheet.LoginFailed
         )
 
-        loginRepository.invalidateEmail()
+        googleAuthRepository.invalidateEmail()
     }
 
     private fun onSignInCompleted(idToken: String, email: String) {
         // Cornell email.
         if (email.endsWith("@cornell.edu")) {
             viewModelScope.launch {
-                loginRepository.saveLoginState(true)
+                googleAuthRepository.saveLoginState(true)
                 applyMutation {
                     copy(buttonState = ResellTextButtonState.DISABLED)
                 }
@@ -85,7 +85,7 @@ class LandingViewModel @Inject constructor(
             }
 
             // No longer logged in.
-            loginRepository.invalidateEmail()
+            googleAuthRepository.invalidateEmail()
             rootNavigationSheetRepository.showBottomSheet(
                 RootSheet.LoginCornellEmail
             )
@@ -95,7 +95,7 @@ class LandingViewModel @Inject constructor(
 
     @Composable
     fun makeSignInLauncher(): ManagedActivityResultLauncher<Int, Task<GoogleSignInAccount>?> {
-        return loginRepository.makeActivityResultLauncher(
+        return googleAuthRepository.googleLoginLauncher(
             onError = ::onSignInFailed,
             onGoogleSignInCompleted = ::onSignInCompleted,
         )
