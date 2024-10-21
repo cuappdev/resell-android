@@ -1,18 +1,17 @@
 package com.cornellappdev.resell.android.viewmodel.main
 
-import androidx.navigation.NavHostController
 import com.cornellappdev.resell.android.model.Chat
 import com.cornellappdev.resell.android.model.ResellApiState
-import com.cornellappdev.resell.android.model.RootNav
-import com.cornellappdev.resell.android.ui.screens.ResellRootRoute
+import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
 import com.cornellappdev.resell.android.util.justinChats
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
+import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
 @HiltViewModel
 class ChatViewModel @Inject constructor(
-    @RootNav private val navController: NavHostController,
+    private val navController: RootNavigationRepository,
 ) :
     ResellViewModel<ChatViewModel.MessagesUiState>(
         initialUiState = MessagesUiState(

@@ -4,16 +4,14 @@ import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.isImeVisible
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -37,6 +35,7 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.resell.android.R
@@ -52,7 +51,6 @@ import com.cornellappdev.resell.android.viewmodel.main.ChatViewModel
 import kotlinx.coroutines.launch
 
 @SuppressLint("CoroutineCreationDuringComposition")
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun ChatScreen(
     messagesViewModel: ChatViewModel = hiltViewModel()
@@ -60,7 +58,6 @@ fun ChatScreen(
     val chatUiState = messagesViewModel.collectUiStateValue()
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
-    val insets = WindowInsets.isImeVisible
 
     LaunchedEffect(Chat(chatId = -1).chatHistory) {
         coroutineScope.launch {
@@ -73,7 +70,6 @@ fun ChatScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(bottom = if (insets) 24.dp else 0.dp, top = if (insets) 304.dp else 0.dp),
     ) {
         ChatHeader(
             chat = chatUiState.currentChat ?: Chat(chatId = -1),
@@ -86,7 +82,10 @@ fun ChatScreen(
             listState = listState,
             modifier = Modifier.weight(1f)
         )
-        ChatFooter(chatUiState.chatType)
+        ChatFooter(
+            chatType = chatUiState.chatType,
+            modifier = Modifier.imePadding(),
+        )
     }
 }
 
@@ -150,10 +149,11 @@ private fun ChatHeader(
 
 @Composable
 private fun ChatFooter(
-    chatType: ChatViewModel.ChatType
+    chatType: ChatViewModel.ChatType,
+    modifier: Modifier = Modifier,
 ) {
     var text by remember { mutableStateOf("") }
-    Column {
+    Column (modifier = modifier){
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -208,16 +208,19 @@ private fun ChatFooter(
                     .heightIn(min = 24.dp),
                 verticalAlignment = Alignment.Bottom
             ) {
-                BasicTextField(
-                    value = text,
-                    onValueChange = { text = it },
-                    textStyle = Style.body2,
-                    modifier = Modifier
-                        .weight(1f)
-                        .defaultMinSize(20.dp)
-                        .heightIn(min = 20.dp, max = 172.dp)
-                )
+                    BasicTextField(
+                        value = text,
+                        onValueChange = { text = it },
+                        visualTransformation = VisualTransformation.None,
+                        textStyle = Style.body2,
+                        modifier = Modifier
+                            .weight(1f)
+                            .defaultMinSize(20.dp)
+                            .heightIn(min = 20.dp, max = 172.dp)
+                    )
+
                 Spacer(modifier = Modifier.width(12.dp))
+
                 if (text.isNotEmpty()) {
                     Box(
                         modifier = Modifier
