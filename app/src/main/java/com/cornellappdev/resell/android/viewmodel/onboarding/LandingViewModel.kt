@@ -3,6 +3,7 @@ package com.cornellappdev.resell.android.viewmodel.onboarding
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.viewModelScope
+import com.cornellappdev.resell.android.model.login.FireStoreRepository
 import com.cornellappdev.resell.android.model.login.GoogleAuthRepository
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonState
 import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
@@ -21,6 +22,7 @@ class LandingViewModel @Inject constructor(
     private val googleAuthRepository: GoogleAuthRepository,
     private val rootNavigationRepository: RootNavigationRepository,
     private val rootNavigationSheetRepository: RootNavigationSheetRepository,
+    private val fireStoreRepository: FireStoreRepository
 ) : ResellViewModel<LandingViewModel.LandingUiState>(
     initialUiState = LandingUiState()
 ) {
@@ -62,20 +64,33 @@ class LandingViewModel @Inject constructor(
             RootSheet.LoginFailed
         )
 
-        googleAuthRepository.invalidateEmail()
+        googleAuthRepository.signOut()
     }
 
     private fun onSignInCompleted(idToken: String, email: String) {
         // Cornell email.
         if (email.endsWith("@cornell.edu")) {
             viewModelScope.launch {
-                googleAuthRepository.saveLoginState(true)
-                applyMutation {
-                    copy(buttonState = ResellTextButtonState.DISABLED)
-                }
-
                 // TODO Should have some logic to check if setup already or not
-                rootNavigationRepository.navigate(ResellRootRoute.ONBOARDING)
+                fireStoreRepository.getUserOnboarded(email = email,
+                    onError = {
+                        googleAuthRepository.signOut()
+                        rootNavigationSheetRepository.showBottomSheet(RootSheet.LoginFailed)
+                    },
+                    onSuccess = { onboarded ->
+                        viewModelScope.launch {
+                            applyMutation {
+                                copy(buttonState = ResellTextButtonState.DISABLED)
+                            }
+
+                            if (onboarded) {
+                                rootNavigationRepository.navigate(ResellRootRoute.MAIN)
+                            } else {
+                                rootNavigationRepository.navigate(ResellRootRoute.ONBOARDING)
+                            }
+                        }
+                    }
+                )
             }
         }
         // Not a Cornell email.
@@ -85,12 +100,11 @@ class LandingViewModel @Inject constructor(
             }
 
             // No longer logged in.
-            googleAuthRepository.invalidateEmail()
+            googleAuthRepository.signOut()
             rootNavigationSheetRepository.showBottomSheet(
                 RootSheet.LoginCornellEmail
             )
         }
-
     }
 
     @Composable

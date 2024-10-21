@@ -21,12 +21,7 @@ class FireStoreRepository @Inject constructor(
                 .get().await()
 
             val user = doc.toObject(FirebaseUser::class.java)
-
-            if (user == null) {
-                onError()
-            } else {
-                onSuccess(user.onboarded)
-            }
+            onSuccess(user?.onboarded ?: false)
         } catch (e: Exception) {
             onError()
         }

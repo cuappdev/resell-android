@@ -72,8 +72,7 @@ private class LogOutSheetContentViewModel @Inject constructor(
     fun onLogOut() {
         rootNavigationSheetRepository.hideSheet()
         viewModelScope.launch {
-            googleAuthRepository.saveLoginState(false)
-            googleAuthRepository.invalidateEmail()
+            googleAuthRepository.signOut()
             rootNavigationRepository.navigate(ResellRootRoute.LANDING)
         }
     }

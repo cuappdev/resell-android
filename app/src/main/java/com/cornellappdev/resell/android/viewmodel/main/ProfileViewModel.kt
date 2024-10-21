@@ -97,7 +97,7 @@ class ProfileViewModel @Inject constructor(
 
     fun onSignOutClick() {
         // TODO: Implement
-        loginRepository.invalidateEmail()
+        loginRepository.signOut()
         rootNavigationRepository.navigate(ResellRootRoute.LANDING)
     }
 

@@ -9,7 +9,6 @@ import androidx.activity.result.contract.ActivityResultContract
 import androidx.compose.runtime.Composable
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.core.edit
 import com.cornellappdev.resell.android.BuildConfig
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
@@ -20,9 +19,6 @@ import com.google.android.gms.tasks.Task
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -32,23 +28,6 @@ class GoogleAuthRepository @Inject constructor(
     private val dataStore: DataStore<Preferences>,
     @ApplicationContext private val context: Context,
 ) {
-    /**
-     * Flow for the login state.
-     * @return true if the user is known to have been logged in, false otherwise.
-     */
-    val loginState = dataStore.data.map { preferences ->
-        preferences[PreferencesKeys.IS_LOGGED_IN] ?: false
-    }.stateIn(CoroutineScope(Dispatchers.IO), SharingStarted.Eagerly, false)
-
-    /**
-     * Writes the login state to DataStore.
-     */
-    suspend fun saveLoginState(state: Boolean) {
-        dataStore.edit { preferences ->
-            preferences[PreferencesKeys.IS_LOGGED_IN] = state
-        }
-    }
-
     /**
      * Constructs and returns a GoogleSignInClient.
      */
@@ -69,9 +48,19 @@ class GoogleAuthRepository @Inject constructor(
     }
 
     /**
-     * If an email is invalid, such as it not being a Cornell email, sign out.
+     * Returns if the user is logged in or not. Identical to `accountOrNull() != null`.
      */
-    fun invalidateEmail() {
+    fun isLoggedIn(): Boolean {
+        return accountOrNull() != null
+    }
+
+    /**
+     * Sign out. Call if the user logs in with a non-cornell email, or whenever a log out should occur.
+     *
+     * After calling this, the user will no longer auto-navigate to home, and google auth will
+     * correctly query for a new email.
+     */
+    fun signOut() {
         googleSignInClient.signOut()
     }
 

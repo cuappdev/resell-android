@@ -99,8 +99,7 @@ class SettingsLandingViewModel @Inject constructor(
         viewModelScope.launch {
             delay(1000)
             dialogRepository.dismissDialog()
-            googleAuthRepository.saveLoginState(false)
-            googleAuthRepository.invalidateEmail()
+            googleAuthRepository.signOut()
             rootNavigationRepository.navigate(ResellRootRoute.LANDING)
             delay(1000)
             dialogRepository.showDialog(
