@@ -1,6 +1,6 @@
 package com.cornellappdev.resell.android.model.login
 
-import com.cornellappdev.resell.android.model.classes.login.FirebaseUser
+import android.util.Log
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
@@ -26,4 +26,25 @@ class FireStoreRepository @Inject constructor(
             onError()
         }
     }
+
+    /**
+     * Saves the specified device token to the user's document in FireStore.
+     */
+    suspend fun saveDeviceTokenToFireStore(userEmail: String, deviceToken: String) {
+        try {
+            val userDocRef = fireStore.collection("user").document(userEmail)
+            userDocRef.update("fcmToken", deviceToken).await()
+            Log.d("FireStoreRepository", "Device token saved successfully")
+        } catch (e: Exception) {
+            Log.e("FireStoreRepository", "Error saving device token: ", e)
+            throw e
+        }
+    }
 }
+
+data class FirebaseUser(
+    val venmo: String,
+    val onboarded: Boolean,
+    val notificationsEnabled: Boolean,
+    val fcmToken: String
+)

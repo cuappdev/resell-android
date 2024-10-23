@@ -4,6 +4,7 @@ import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.viewModelScope
 import com.cornellappdev.resell.android.model.login.FireStoreRepository
+import com.cornellappdev.resell.android.model.login.FirebaseAuthRepository
 import com.cornellappdev.resell.android.model.login.GoogleAuthRepository
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonState
 import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
@@ -13,6 +14,7 @@ import com.cornellappdev.resell.android.viewmodel.root.RootNavigationSheetReposi
 import com.cornellappdev.resell.android.viewmodel.root.RootSheet
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.tasks.Task
+import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -22,7 +24,8 @@ class LandingViewModel @Inject constructor(
     private val googleAuthRepository: GoogleAuthRepository,
     private val rootNavigationRepository: RootNavigationRepository,
     private val rootNavigationSheetRepository: RootNavigationSheetRepository,
-    private val fireStoreRepository: FireStoreRepository
+    private val fireStoreRepository: FireStoreRepository,
+    private val firebaseAuthRepository: FirebaseAuthRepository,
 ) : ResellViewModel<LandingViewModel.LandingUiState>(
     initialUiState = LandingUiState()
 ) {
@@ -38,7 +41,6 @@ class LandingViewModel @Inject constructor(
      */
     fun navigateIfLoggedIn() {
         if (googleAuthRepository.accountOrNull() != null) {
-            // TODO: If account actually still exists on backend...
             rootNavigationRepository.navigate(ResellRootRoute.MAIN)
         }
     }
@@ -71,8 +73,10 @@ class LandingViewModel @Inject constructor(
         // Cornell email.
         if (email.endsWith("@cornell.edu")) {
             viewModelScope.launch {
-                // TODO Should have some logic to check if setup already or not
-                fireStoreRepository.getUserOnboarded(email = email,
+                firebaseAuthRepository.firebaseAuthWithGoogle(idToken)
+
+                fireStoreRepository.getUserOnboarded(
+                    email = email,
                     onError = {
                         googleAuthRepository.signOut()
                         rootNavigationSheetRepository.showBottomSheet(RootSheet.LoginFailed)
