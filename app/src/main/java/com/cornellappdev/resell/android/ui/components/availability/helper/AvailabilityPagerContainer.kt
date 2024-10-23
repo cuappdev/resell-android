@@ -24,7 +24,7 @@ import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.ui.theme.Secondary
 import com.cornellappdev.resell.android.ui.theme.Style
 import kotlinx.coroutines.launch
-import java.time.LocalDateTime
+import java.time.LocalDate
 
 /**
  * @param startDate the initial date that shows in the leftmost column of the grid
@@ -37,9 +37,9 @@ import java.time.LocalDateTime
  */
 @Composable
 fun AvailabilityPagerContainer(
-    startDate: LocalDateTime,
+    startDate: LocalDate,
     scrollRange: Pair<Int, Int>,
-    availabilityGrid: @Composable (dates: List<LocalDateTime>, page: Int) -> Unit
+    availabilityGrid: @Composable (dates: List<LocalDate>, page: Int) -> Unit
 ) {
     val state =
         rememberPagerState(initialPage = scrollRange.first) { scrollRange.first + scrollRange.second + 1 }
@@ -106,21 +106,3 @@ fun AvailabilityPagerContainer(
         }
     }
 }
-
-/*
-@Composable
-@Preview
-fun AvailabilityPagerContainerPreview() = ResellPreview {
-    Column(modifier = Modifier.padding(vertical = 32.dp)) {
-        AvailabilityPagerContainer(
-            scrollRange = (4 to 0),
-            startDate = LocalDateTime.now()
-        ) { dates, _ ->
-            SelectableAvailabilityGrid(
-                dates,
-                setSelectedAvailabilities = {},
-                modifier = Modifier.padding(horizontal = 32.dp)
-            )
-        }
-    }
-}*/

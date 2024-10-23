@@ -11,6 +11,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.cornellappdev.resell.android.ui.components.availability.helper.AvailabilityPagerContainer
 import com.cornellappdev.resell.android.ui.components.availability.helper.SelectableAvailabilityGrid
 import com.cornellappdev.resell.android.ui.theme.ResellPreview
+import java.time.LocalDate
 import java.time.LocalDateTime
 
 @Composable
@@ -26,7 +27,7 @@ fun SelectableAvailabilityPager(setSelectedAvailabilities: (List<LocalDateTime>)
     }
 
     AvailabilityPagerContainer(
-        startDate = LocalDateTime.now(),
+        startDate = LocalDate.now(),
         scrollRange = 0 to 6
     ) { dates, page ->
         SelectableAvailabilityGrid(

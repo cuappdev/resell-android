@@ -8,6 +8,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import com.cornellappdev.resell.android.ui.theme.ResellPurple
 import com.cornellappdev.resell.android.ui.theme.Stroke
 import com.cornellappdev.resell.android.util.day
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import kotlin.math.floor
@@ -24,13 +25,14 @@ fun getGridCell(offset: Offset, canvasSize: Size, width: Int, height: Int): Pair
     return gridRow to gridCol
 }
 
-fun List<BooleanArray>.toAvailabilities(dates: List<LocalDateTime>): List<LocalDateTime> =
+fun List<BooleanArray>.toAvailabilities(dates: List<LocalDate>): List<LocalDateTime> =
     flatMapIndexed { row, cells ->
         cells.mapIndexed { col, filled ->
             if (!filled) {
                 null
             } else {
-                val day = dates.getOrNull(col) ?: return@mapIndexed null
+                val day = LocalDateTime.of(dates.getOrNull(col), LocalTime.now())
+                    ?: return@mapIndexed null
                 day
                     .withHour(gridStartTime.hour)
                     .withMinute(gridStartTime.minute)
@@ -45,7 +47,7 @@ fun getTimeForRow(row: Int): LocalTime {
     return gridStartTime.plusHours(1L * row)
 }
 
-fun List<LocalDateTime>.mapToGrid(dates: List<LocalDateTime>): List<BooleanArray> {
+fun List<LocalDateTime>.mapToGrid(dates: List<LocalDate>): List<BooleanArray> {
     val grid = buildList {
         repeat(GRID_HEIGHT) {
             add(BooleanArray(dates.size))

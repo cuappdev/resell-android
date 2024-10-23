@@ -24,6 +24,7 @@ import com.cornellappdev.resell.android.ui.theme.ResellPreview
 import com.cornellappdev.resell.android.ui.theme.Style
 import com.cornellappdev.resell.android.ui.theme.changeBrightness
 import com.cornellappdev.resell.android.util.toSortedPair
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -141,13 +142,11 @@ private fun SelectableGrid(
 
 @Composable
 fun SelectableAvailabilityGrid(
-    dates: List<LocalDateTime>,
+    dates: List<LocalDate>,
     selectedAvailabilities: List<LocalDateTime>,
     setSelectedAvailabilities: (List<LocalDateTime>) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val width = dates.size
-
     var grid by remember {
         mutableStateOf(
             selectedAvailabilities.mapToGrid(dates)
@@ -155,7 +154,7 @@ fun SelectableAvailabilityGrid(
     }
 
 
-    AvailabilityGridContainer(dates) {
+    AvailabilityGridContainer(dates, modifier) {
         SelectableGrid(
             grid = grid,
             updateGrid = {

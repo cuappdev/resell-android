@@ -15,6 +15,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.toSize
 import com.cornellappdev.resell.android.ui.theme.ResellPreview
+import java.time.LocalDate
 import java.time.LocalDateTime
 
 @Composable
@@ -54,16 +55,16 @@ private fun ViewOnlyGrid(grid: List<BooleanArray>, onGridCellClick: (Pair<Int, I
 
 @Composable
 fun ViewOnlyAvailabilityGrid(
-    dates: List<LocalDateTime>,
+    dates: List<LocalDate>,
     availabilities: List<LocalDateTime>,
     onSelectAvailability: (LocalDateTime) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    AvailabilityGridContainer(dates) {
+    AvailabilityGridContainer(dates, modifier) {
         ViewOnlyGrid(availabilities.mapToGrid(dates), onGridCellClick = { (row, col) ->
             onSelectAvailability(
                 LocalDateTime.of(
-                    dates[col].toLocalDate(),
+                    dates[col],
                     gridStartTime.plusMinutes(30L * row)
                 )
             )

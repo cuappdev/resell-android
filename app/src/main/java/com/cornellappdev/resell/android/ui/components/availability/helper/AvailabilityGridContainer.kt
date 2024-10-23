@@ -18,7 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.cornellappdev.resell.android.ui.theme.Style
-import java.time.LocalDateTime
+import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 @Composable
@@ -52,7 +52,7 @@ private fun TimeColumn() {
 }
 
 @Composable
-private fun DateRow(dates: List<LocalDateTime>, modifier: Modifier = Modifier) {
+private fun DateRow(dates: List<LocalDate>, modifier: Modifier = Modifier) {
     Row(
         modifier = modifier
             .fillMaxWidth(),
@@ -76,7 +76,7 @@ private fun DateRow(dates: List<LocalDateTime>, modifier: Modifier = Modifier) {
 
 @Composable
 fun AvailabilityGridContainer(
-    dates: List<LocalDateTime>,
+    dates: List<LocalDate>,
     modifier: Modifier = Modifier,
     content: @Composable BoxScope.() -> Unit,
 ) {

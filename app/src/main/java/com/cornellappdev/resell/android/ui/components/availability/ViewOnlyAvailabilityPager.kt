@@ -12,6 +12,7 @@ import com.cornellappdev.resell.android.ui.components.availability.helper.Availa
 import com.cornellappdev.resell.android.ui.components.availability.helper.ViewOnlyAvailabilityGrid
 import com.cornellappdev.resell.android.ui.components.availability.helper.testAvailabilities
 import com.cornellappdev.resell.android.ui.theme.ResellPreview
+import java.time.LocalDate
 import java.time.LocalDateTime
 
 @Composable
@@ -19,7 +20,7 @@ fun ViewOnlyAvailabilityPager(
     availabilities: List<LocalDateTime>,
     onSelectAvailability: (LocalDateTime) -> Unit,
 ) {
-    val startDate = availabilities.max()
+    val startDate = availabilities.max().toLocalDate()
     AvailabilityPagerContainer(startDate, scrollRange = 6 to 0) { dates, _ ->
         ViewOnlyAvailabilityGrid(
             dates,
@@ -36,7 +37,7 @@ private fun ViewOnlyAvailabilityPagerPreview() = ResellPreview {
     val availabilities = remember {
         testAvailabilities(buildList {
             repeat(5) {
-                add(LocalDateTime.now().plusDays(it * 2L))
+                add(LocalDate.now().plusDays(it * 2L))
             }
         })
     }

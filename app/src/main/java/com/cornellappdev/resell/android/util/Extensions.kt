@@ -7,3 +7,5 @@ import java.time.temporal.ChronoUnit
 fun Pair<Int, Int>.toSortedPair() = if (first <= second) this else second to first
 
 val LocalDateTime.day: Long get() = ChronoUnit.DAYS.between(LocalDate.ofEpochDay(0), this)
+
+val LocalDate.day: Long get() = ChronoUnit.DAYS.between(LocalDate.ofEpochDay(0), this)
