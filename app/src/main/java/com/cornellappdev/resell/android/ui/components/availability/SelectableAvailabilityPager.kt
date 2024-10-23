@@ -18,10 +18,9 @@ import java.time.LocalDateTime
 fun SelectableAvailabilityPager(setSelectedAvailabilities: (List<LocalDateTime>) -> Unit) {
     val scrollRange = 0 to 6
     var selectedDatesByPage by remember {
-        mutableStateOf(buildList {
+        mutableStateOf(buildList<List<LocalDateTime>> {
             repeat(scrollRange.second + 1) {
-                // The IDE is wrong here, this type annotation is necessary
-                add(emptyList<LocalDateTime>())
+                add(emptyList())
             }
         })
     }
