@@ -27,6 +27,7 @@ import com.cornellappdev.resell.android.ui.screens.onboarding.OnboardingNavigati
 import com.cornellappdev.resell.android.ui.screens.pdp.PostDetailPage
 import com.cornellappdev.resell.android.ui.screens.settings.SettingsNavigation
 import com.cornellappdev.resell.android.util.LocalRootNavigator
+import com.cornellappdev.resell.android.viewmodel.main.ChatViewModel
 import com.cornellappdev.resell.android.viewmodel.root.RootNavigationViewModel
 import com.cornellappdev.resell.android.viewmodel.root.RootSheet
 import kotlinx.coroutines.launch
@@ -45,6 +46,7 @@ fun RootNavigation(
     var lastSheetValue: RootSheet by remember {
         mutableStateOf(RootSheet.LoginCornellEmail)
     }
+    val chatViewModel: ChatViewModel = hiltViewModel()
     val coroutineScope = rememberCoroutineScope()
     var showBottomSheet by remember { mutableStateOf(false) }
 
@@ -114,7 +116,7 @@ fun RootNavigation(
             }
 
             composable<ResellRootRoute.CHAT> {
-                ChatScreen()
+                ChatScreen(chatViewModel)
             }
         }
 
@@ -160,7 +162,7 @@ sealed class ResellRootRoute {
     data object NEW_REQUEST : ResellRootRoute()
 
     @Serializable
-    data object PDP: ResellRootRoute()
+    data object PDP : ResellRootRoute()
 
     @Serializable
     data object CHAT : ResellRootRoute()

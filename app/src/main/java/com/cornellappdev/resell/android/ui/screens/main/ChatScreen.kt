@@ -74,8 +74,7 @@ fun ChatScreen(
         ChatHeader(
             chat = chatUiState.currentChat ?: Chat(chatId = -1),
             onBackPressed = { messagesViewModel.onBackPressed() },
-            modifier = Modifier
-                .background(Color.White)
+            confirmedMeeting = true
         )
         ResellChatScroll(
             chatHistory = chatUiState.currentChat?.chatHistory ?: Chat(chatId = -1).chatHistory,
@@ -85,6 +84,7 @@ fun ChatScreen(
         ChatFooter(
             chatType = chatUiState.chatType,
             modifier = Modifier.imePadding(),
+            onNegotiatePressed = { messagesViewModel.onSyncToCalendarPressed() }
         )
     }
 }
@@ -94,6 +94,8 @@ private fun ChatHeader(
     chat: Chat,
     onBackPressed: () -> Unit,
     modifier: Modifier = Modifier,
+    confirmedMeeting: Boolean
+
 ) {
     Column(
         modifier = modifier
@@ -144,6 +146,39 @@ private fun ChatHeader(
 
         }
         Spacer(Modifier.height(20.dp))
+        if (confirmedMeeting) {
+            Row(
+                modifier = Modifier
+                    .background(ResellPurple)
+                    .padding(horizontal = 24.dp, vertical = 12.dp)
+                    .fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_calendar),
+                    contentDescription = "image",
+                    tint = Color.White,
+                    modifier = Modifier
+                        .size(24.dp)
+                )
+                Spacer(modifier = Modifier.width(16.dp))
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = "Meeting Confirmed",
+                        style = Style.title2.copy(color = Color.White)
+                    )
+                    Text(
+                        text = "October 23, 1:30 PM",
+                        style = Style.body2.copy(color = Color.White)
+                    )
+                }
+                Text(
+                    text = "View",
+                    style = Style.title2.copy(color = Color.White)
+                )
+            }
+        }
+
     }
 }
 
@@ -151,9 +186,10 @@ private fun ChatHeader(
 private fun ChatFooter(
     chatType: ChatViewModel.ChatType,
     modifier: Modifier = Modifier,
+    onNegotiatePressed: () -> Unit
 ) {
     var text by remember { mutableStateOf("") }
-    Column (modifier = modifier){
+    Column(modifier = modifier) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -163,7 +199,7 @@ private fun ChatFooter(
             ChatTag(
                 text = "Negotiate",
                 active = true,
-                onClick = {}
+                onClick = { onNegotiatePressed() }
             )
             if (chatType == ChatViewModel.ChatType.Purchases) {
                 Spacer(modifier = Modifier.width(12.dp))
@@ -208,16 +244,16 @@ private fun ChatFooter(
                     .heightIn(min = 24.dp),
                 verticalAlignment = Alignment.Bottom
             ) {
-                    BasicTextField(
-                        value = text,
-                        onValueChange = { text = it },
-                        visualTransformation = VisualTransformation.None,
-                        textStyle = Style.body2,
-                        modifier = Modifier
-                            .weight(1f)
-                            .defaultMinSize(20.dp)
-                            .heightIn(min = 20.dp, max = 172.dp)
-                    )
+                BasicTextField(
+                    value = text,
+                    onValueChange = { text = it },
+                    visualTransformation = VisualTransformation.None,
+                    textStyle = Style.body2,
+                    modifier = Modifier
+                        .weight(1f)
+                        .defaultMinSize(20.dp)
+                        .heightIn(min = 20.dp, max = 172.dp)
+                )
 
                 Spacer(modifier = Modifier.width(12.dp))
 

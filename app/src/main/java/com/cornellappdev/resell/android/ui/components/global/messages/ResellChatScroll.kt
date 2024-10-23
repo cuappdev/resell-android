@@ -22,10 +22,13 @@ fun ResellChatScroll(
         state = listState,
         modifier = modifier
             .fillMaxWidth()
-            .padding(12.dp)
+            .padding(horizontal = 12.dp)
             .padding(end = 8.dp),
     ) {
         chatHistory.forEachIndexed { i, message ->
+            item {
+                Spacer(modifier = Modifier.height(8.dp))
+            }
             item {
                 ChatMessage(
                     imageUrl = if (message.fromUser) null else message.senderImage,

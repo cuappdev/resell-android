@@ -72,9 +72,16 @@ val justinMessages = { count: Int ->
             if (it == 1) {
                 ChatMessageData(
                     0,
-                    "https://media.licdn.com/dms/image/D4E03AQGOCNNbxGtcjw/profile-displayphoto-shrink_200_200/0/1704329714345?e=2147483647&v=beta&t=Kq7ex1pKyiifjOpuNIojeZ8f4dXjEAsNSpkJDXBwjxc",
+                    "Lia",
                     0.toLong(),
-                    MessageType.Card
+                    MessageType.Availability
+                )
+            } else if (it == 2) {
+                ChatMessageData(
+                    0,
+                    "Lia",
+                    0.toLong(),
+                    MessageType.State
                 )
             } else {
                 ChatMessageData(0, "HELP", 0.toLong(), MessageType.Message)

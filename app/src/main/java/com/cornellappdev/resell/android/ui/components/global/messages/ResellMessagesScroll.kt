@@ -33,7 +33,7 @@ fun ResellMessagesScroll(
                 seller = item.seller,
                 title = item.title,
                 message = "message preview",
-                unread = false,
+                unread = true,
             ) {
                 onChatPressed(item)
             }

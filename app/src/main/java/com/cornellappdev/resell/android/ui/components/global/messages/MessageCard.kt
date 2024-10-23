@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,6 +17,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -50,35 +52,48 @@ fun MessageCard(
             .fillMaxWidth()
             .background(Color.White)
             .clickable(onClick = onClick)
-            .padding(horizontal = 15.dp, vertical = 11.dp),
+            .padding(horizontal = 24.dp, vertical = 11.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        if (unread) {
-            Box(
-                modifier = Modifier
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(ResellPurple)
-                    .height(10.dp)
-                    .width(10.dp)
-            )
-            Spacer(modifier.width(12.dp))
-        } else {
-            Spacer(modifier.width(22.dp))
+        Box {
+            Row {
+                AsyncImage(
+                    model = imageUrl,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .aspectRatio(1f)
+                        .clip(RoundedCornerShape(32.dp)),
+
+                    placeholder = painterResource(id = R.drawable.ic_launcher_background),
+                    contentScale = ContentScale.Crop
+                )
+                Spacer(modifier = Modifier.width(12.dp))
+            }
+
+            if (unread) {
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .fillMaxHeight()
+                        .width(36.dp)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .border(
+                                BorderStroke(width = 2.dp, color = Color.White),
+                                shape = CircleShape
+                            )
+                            .clip(CircleShape)
+                            .background(ResellPurple)
+                            .align(Alignment.BottomEnd)
+                            .size(14.dp)
+                            .absoluteOffset(x = (-200).dp)
+
+                    )
+                }
+            }
         }
-
-        AsyncImage(
-            model = imageUrl,
-            contentDescription = null,
-            modifier = Modifier
-                .fillMaxHeight()
-                .aspectRatio(1f)
-                .clip(RoundedCornerShape(32.dp)),
-
-            placeholder = painterResource(id = R.drawable.ic_launcher_background),
-            contentScale = ContentScale.Crop
-        )
-
-        Spacer(modifier = Modifier.width(12.dp))
 
         Column(
             modifier = Modifier
@@ -95,7 +110,7 @@ fun MessageCard(
                     text = seller,
                     color = Color.Black,
                 )
-                Spacer(modifier = Modifier.padding(Padding.extraSmall))
+                Spacer(modifier = Modifier.width(12.dp))
                 Row(
                     modifier = Modifier
                         .border(BorderStroke(1.dp, Color.LightGray), RoundedCornerShape(25.dp))
@@ -110,6 +125,7 @@ fun MessageCard(
                     )
                 }
             }
+            Spacer(modifier = Modifier.height(1.dp))
             Text(
                 style = Style.title4,
                 text = message,

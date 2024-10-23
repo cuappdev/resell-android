@@ -123,7 +123,7 @@ private fun MessagesHeader(
         ) {
             Spacer(modifier = Modifier.size(Padding.medium))
             MessageTag(
-                text = "Purchases",
+                text = "Your Orders",
                 active = activeChat == ChatViewModel.ChatType.Purchases,
                 unreads = 0,
                 onClick = { onChatTypePressed(ChatViewModel.ChatType.Purchases) }
