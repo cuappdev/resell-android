@@ -1,10 +1,14 @@
 package com.cornellappdev.resell.android.ui.components.availability
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.calculateCentroid
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -25,138 +29,14 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
 import com.cornellappdev.resell.android.ui.theme.ResellPreview
-import com.cornellappdev.resell.android.ui.theme.ResellPurple
-import com.cornellappdev.resell.android.ui.theme.Stroke
 import com.cornellappdev.resell.android.ui.theme.Style
 import com.cornellappdev.resell.android.ui.theme.changeBrightness
 import com.cornellappdev.resell.android.util.toSortedPair
 import java.time.LocalDateTime
-import java.time.LocalTime
 import java.time.format.DateTimeFormatter
-import kotlin.math.floor
-
-@Preview
-@Composable
-private fun AvailabilityGrid_RUNME_Preview() = ResellPreview {
-    var selectedAvailabilities by remember { mutableStateOf(emptyList<LocalDateTime>()) }
-    Column {
-        Text(
-            "Selected availabilities: ${
-                selectedAvailabilities
-                    .joinToString(", ")
-                    { it.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) }
-            }",
-            style = Style.body1
-        )
-        AvailabilityGrid(
-            listOf(
-                LocalDateTime.now().minusDays(1L),
-                LocalDateTime.now(),
-                LocalDateTime.now().plusDays(1L)
-            ),
-            setSelectedAvailabilities = {
-                selectedAvailabilities = it
-            },
-            modifier = Modifier.weight(1F)
-        )
-    }
-}
-
-@Composable
-fun AvailabilityGrid(
-    dates: List<LocalDateTime>,
-    setSelectedAvailabilities: (List<LocalDateTime>) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    val width = dates.size
-    val height = 24
-    val dayStart = LocalTime.of(9, 0)
-
-    var grid by remember {
-        mutableStateOf(
-            buildList {
-                repeat(height) {
-                    add(BooleanArray(width))
-                }
-            }
-        )
-    }
-
-    fun List<BooleanArray>.toAvailabilities(): List<LocalDateTime> =
-        flatMapIndexed { row, cells ->
-            cells.mapIndexed { col, filled ->
-                if (!filled) {
-                    null
-                } else {
-                    val day = dates[col]
-                    day
-                        .withHour(dayStart.hour)
-                        .withMinute(dayStart.minute)
-                        .withSecond(dayStart.second)
-                        .withNano(dayStart.nano)
-                        .plusMinutes(30L * row)
-                }
-            }.filterNotNull()
-        }
-
-
-    fun getTimeForRow(row: Int): LocalTime {
-        return dayStart.plusHours(1L * row)
-    }
-
-    Column(modifier = modifier) {
-        Row(modifier = Modifier.weight(1F)) {
-            Spacer(modifier = Modifier.weight(1F))
-            Row(
-                modifier = Modifier
-                    .weight(3F)
-                    .fillMaxHeight(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceAround,
-            ) {
-                dates.forEach {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text(
-                            it.format(DateTimeFormatter.ofPattern("E")),
-                            style = Style.title1
-                        )
-                        Text(
-                            it.format(DateTimeFormatter.ofPattern("MMM d")),
-                            style = Style.body1
-                        )
-                    }
-                }
-            }
-        }
-        Row(modifier = Modifier.weight(height.toFloat() / 2)) {
-            Column(
-                modifier = Modifier
-                    .weight(1F)
-                    .fillMaxHeight(),
-                verticalArrangement = Arrangement.SpaceAround,
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                repeat(height / 2) { index ->
-                    Text(
-                        getTimeForRow(index).format(DateTimeFormatter.ofPattern("hh:mm a")),
-                        style = Style.title2
-                    )
-                }
-            }
-            SelectableGrid(
-                grid = grid,
-                updateGrid = {
-                    val newGrid = it(grid)
-                    grid = newGrid
-                    setSelectedAvailabilities(newGrid.toAvailabilities())
-                },
-                modifier = Modifier.weight(width.toFloat())
-            )
-        }
-    }
-}
 
 /**
  * Requires: grid is non-empty
@@ -166,8 +46,6 @@ private fun SelectableGrid(
     grid: List<BooleanArray>,
     updateGrid: ((List<BooleanArray>) -> List<BooleanArray>) -> Unit,
     modifier: Modifier = Modifier,
-    gridStroke: Color = Stroke,
-    fillColor: Color = ResellPurple,
 ) {
     var isFirstMove by remember { mutableStateOf(true) }
     var isRemoving by remember { mutableStateOf(false) }
@@ -175,11 +53,6 @@ private fun SelectableGrid(
     var selectionStart by remember { mutableStateOf<Pair<Int, Int>?>(null) }
     var selectionEnd by remember { mutableStateOf<Pair<Int, Int>?>(null) }
 
-    fun getGridCell(offset: Offset, canvasSize: Size): Pair<Int, Int> {
-        val gridCol = floor(offset.x / (canvasSize.width / width)).toInt().coerceIn(0, width - 1)
-        val gridRow = floor(offset.y / (canvasSize.height / height)).toInt().coerceIn(0, height - 1)
-        return gridRow to gridCol
-    }
 
     fun inSelection(row: Int, col: Int): Boolean = selectionStart?.let { selectionStart ->
         selectionEnd?.let { selectionEnd ->
@@ -212,12 +85,12 @@ private fun SelectableGrid(
                     val position = event.calculateCentroid()
                     if (event.type == PointerEventType.Move) {
                         if (isFirstMove) {
-                            val (row, col) = getGridCell(position, size.toSize())
+                            val (row, col) = getGridCell(position, size.toSize(), width, height)
                             selectionStart = row to col
                             isRemoving = grid[row][col]
                             isFirstMove = false
                         }
-                        selectionEnd = getGridCell(position, size.toSize())
+                        selectionEnd = getGridCell(position, size.toSize(), width, height)
                     } else if (event.type == PointerEventType.Release) {
                         updateGrid {
                             it.changeBySelection(!isRemoving)
@@ -301,29 +174,227 @@ private fun SelectableGrid(
 }
 
 
-@Preview
 @Composable
-private fun AvailabilityTablePreview() = ResellPreview {
-    var grid by remember {
-        mutableStateOf(
-            listOf(
-                BooleanArray(5),
-                BooleanArray(5),
-                BooleanArray(5),
-                BooleanArray(5),
-                BooleanArray(5),
-                BooleanArray(5),
-                BooleanArray(5),
-                BooleanArray(5),
-                BooleanArray(5),
-                BooleanArray(5),
-                BooleanArray(5),
-                BooleanArray(5),
-                BooleanArray(5),
-            )
+private fun ViewOnlyGrid(grid: List<BooleanArray>, onGridCellClick: (Pair<Int, Int>) -> Unit) {
+    val (width, height) = grid.first().size to grid.size
+
+    Canvas(modifier = Modifier
+        .fillMaxSize()
+        .pointerInput(grid) {
+            awaitPointerEventScope {
+                while (true) {
+                    val event = awaitPointerEvent()
+
+                    if (event.type == PointerEventType.Press) {
+
+                        val (row, col) = getGridCell(
+                            event.changes.first().position,
+                            size.toSize(),
+                            width,
+                            height
+                        )
+                        if (grid[row][col]) {
+                            onGridCellClick(row to col)
+                        }
+                    }
+                }
+            }
+        }) {
+        val rectWidth = size.width / width
+        val rectHeight = size.height / height
+
+        // Draw border
+        for (row in grid.indices.filter { it % 2 == 0 }) {
+            for (col in grid[row].indices) {
+                val position = Offset(rectWidth * col, rectHeight * row)
+
+                drawRect(
+                    size = Size(rectWidth, rectHeight * 2),
+                    topLeft = position,
+                    color = gridStroke,
+                    style = Stroke(width = 4F)
+                )
+            }
+        }
+
+        // Draw selected grid cells
+        for (row in grid.indices) {
+            for (col in grid[row].indices) {
+                if (grid[row][col]) {
+                    val position = Offset(rectWidth * col, rectHeight * row)
+
+                    drawRect(
+                        size = Size(rectWidth, rectHeight),
+                        topLeft = position,
+                        color = fillColor,
+                        style = Fill
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun RowScope.TimeColumn() {
+    Column(
+        modifier = Modifier.Companion
+            .weight(1F)
+            .fillMaxHeight(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Column(
+            modifier = Modifier
+                .weight(GRID_HEIGHT.toFloat() / 2F - 1F)
+                .fillMaxHeight(),
+            verticalArrangement = Arrangement.SpaceBetween,
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            repeat(GRID_HEIGHT / 2) { index ->
+                Text(
+                    getTimeForRow(index).format(DateTimeFormatter.ofPattern("hh:mm a")),
+                    style = Style.title2
+                )
+            }
+        }
+        Spacer(
+            modifier = Modifier
+                .weight(.8F)
+                .border(color = Color.Red, width = 1.dp)
         )
     }
-    SelectableGrid(grid, updateGrid = {
-        grid = it(grid)
-    })
+}
+
+@Composable
+private fun RowScope.DateRow(dates: List<LocalDateTime>) {
+    Row(
+        modifier = Modifier
+            .weight(3F)
+            .fillMaxHeight(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceAround,
+    ) {
+        dates.forEach {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(
+                    it.format(DateTimeFormatter.ofPattern("E")),
+                    style = Style.title1
+                )
+                Text(
+                    it.format(DateTimeFormatter.ofPattern("MMM d")),
+                    style = Style.body1
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun AvailabilityGridContainer(
+    dates: List<LocalDateTime>,
+    modifier: Modifier = Modifier,
+    content: @Composable BoxScope.() -> Unit,
+) {
+    Column(modifier = modifier) {
+        Row(modifier = Modifier.weight(1F)) {
+            Spacer(modifier = Modifier.weight(1F))
+            DateRow(dates)
+        }
+        Row(modifier = Modifier.weight(GRID_HEIGHT.toFloat() / 2)) {
+            TimeColumn()
+
+            Box(modifier = Modifier.weight(dates.size.toFloat())) {
+                content()
+            }
+        }
+    }
+}
+
+@Composable
+fun ViewOnlyAvailabilityGrid(
+    dates: List<LocalDateTime>,
+    availabilities: List<LocalDateTime>,
+    onSelectAvailability: (LocalDateTime) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    AvailabilityGridContainer(dates, modifier) {
+        ViewOnlyGrid(availabilities.mapToGrid(dates), onGridCellClick = { (row, col) ->
+            onSelectAvailability(
+                LocalDateTime.of(
+                    dates[col].toLocalDate(),
+                    gridStartTime.plusMinutes(30L * row)
+                )
+            )
+        })
+    }
+}
+
+
+@Composable
+fun SelectableAvailabilityGrid(
+    dates: List<LocalDateTime>,
+    setSelectedAvailabilities: (List<LocalDateTime>) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val width = dates.size
+
+    var grid by remember {
+        mutableStateOf(
+            buildList {
+                repeat(GRID_HEIGHT) {
+                    add(BooleanArray(width))
+                }
+            }
+        )
+    }
+
+
+    AvailabilityGridContainer(dates, modifier = modifier) {
+        SelectableGrid(
+            grid = grid,
+            updateGrid = {
+                val newGrid = it(grid)
+                grid = newGrid
+                setSelectedAvailabilities(newGrid.toAvailabilities(dates))
+            },
+        )
+    }
+}
+
+
+@Preview
+@Composable
+private fun AvailabilityGrid_RUNME_Preview() = ResellPreview {
+    var selectedAvailabilities by remember { mutableStateOf(emptyList<LocalDateTime>()) }
+    Column {
+        Text(
+            "Selected availabilities: ${
+                selectedAvailabilities
+                    .joinToString(", ")
+                    { it.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) }
+            }",
+            style = Style.body1
+        )
+        SelectableAvailabilityGrid(
+            dates,
+            setSelectedAvailabilities = {
+                selectedAvailabilities = it
+            },
+            modifier = Modifier.weight(1F)
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun ViewOnlyAvailabilityGrid_RUNME_Preview() {
+    var selectedTime by remember { mutableStateOf(LocalDateTime.now()) }
+    Column {
+        Text("Selected time: $selectedTime")
+        ViewOnlyAvailabilityGrid(
+            dates, availabilities, onSelectAvailability = {
+                selectedTime = it
+            }
+        )
+    }
 }
