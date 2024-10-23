@@ -2,6 +2,9 @@ package com.cornellappdev.resell.android.ui.components.availability
 
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.Fill
+import androidx.compose.ui.graphics.drawscope.Stroke
 import com.cornellappdev.resell.android.ui.theme.ResellPurple
 import com.cornellappdev.resell.android.ui.theme.Stroke
 import com.cornellappdev.resell.android.util.day
@@ -50,8 +53,41 @@ fun List<LocalDateTime>.mapToGrid(dates: List<LocalDateTime>): List<BooleanArray
     }.toMutableList()
     forEach { date ->
         val column = dates.indexOfFirst { it.day == date.day }
+        if (column == -1) return@forEach
         val row = (date.hour * 60 + date.minute - 9 * 60) / 30
         grid[row][column] = true
     }
     return grid
+}
+
+fun DrawScope.drawBorder(grid: List<BooleanArray>, rectWidth: Float, rectHeight: Float) {
+    for (row in grid.indices.filter { it % 2 == 0 }) {
+        for (col in grid[row].indices) {
+            val position = Offset(rectWidth * col, rectHeight * row)
+
+            drawRect(
+                size = Size(rectWidth, rectHeight * 2),
+                topLeft = position,
+                color = gridStroke,
+                style = Stroke(width = 4F)
+            )
+        }
+    }
+}
+
+fun DrawScope.drawSelectedGridCells(grid: List<BooleanArray>, rectWidth: Float, rectHeight: Float) {
+    for (row in grid.indices) {
+        for (col in grid[row].indices) {
+            if (grid[row][col]) {
+                val position = Offset(rectWidth * col, rectHeight * row)
+
+                drawRect(
+                    size = Size(rectWidth, rectHeight),
+                    topLeft = position,
+                    color = fillColor,
+                    style = Fill
+                )
+            }
+        }
+    }
 }
