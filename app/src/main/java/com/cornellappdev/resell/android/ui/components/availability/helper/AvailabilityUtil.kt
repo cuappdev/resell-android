@@ -1,4 +1,4 @@
-package com.cornellappdev.resell.android.ui.components.availability
+package com.cornellappdev.resell.android.ui.components.availability.helper
 
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size

@@ -1,4 +1,4 @@
-package com.cornellappdev.resell.android.ui.components.availability
+package com.cornellappdev.resell.android.ui.components.availability.helper
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement

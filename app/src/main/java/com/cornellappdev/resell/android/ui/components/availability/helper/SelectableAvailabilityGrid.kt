@@ -1,4 +1,4 @@
-package com.cornellappdev.resell.android.ui.components.availability
+package com.cornellappdev.resell.android.ui.components.availability.helper
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.calculateCentroid
@@ -182,7 +182,7 @@ private fun AvailabilityGrid_RUNME_Preview() = ResellPreview {
             style = Style.body1
         )
         SelectableAvailabilityGrid(
-            dates,
+            testDates,
             selectedAvailabilities,
             setSelectedAvailabilities = {
                 selectedAvailabilities = it

@@ -1,14 +1,16 @@
-package com.cornellappdev.resell.android.ui.components.availability
+package com.cornellappdev.resell.android.ui.components.availability.helper
 
 import java.time.LocalDateTime
 
-val dates = listOf(
+val testDates = listOf(
     LocalDateTime.now().minusDays(1L),
     LocalDateTime.now(),
     LocalDateTime.now().plusDays(1L)
 )
 
-val availabilities = dates.flatMap { date ->
+val availabilities = testAvailabilities(testDates)
+
+fun testAvailabilities(dates: List<LocalDateTime>): List<LocalDateTime> = dates.flatMap { date ->
     buildList {
         val startDate = LocalDateTime.of(date.toLocalDate(), gridStartTime)
         repeat(GRID_HEIGHT - 1) { i ->
