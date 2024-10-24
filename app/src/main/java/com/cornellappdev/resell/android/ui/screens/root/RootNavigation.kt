@@ -25,6 +25,7 @@ import com.cornellappdev.resell.android.ui.screens.newpost.RequestDetailsEntrySc
 import com.cornellappdev.resell.android.ui.screens.onboarding.LandingScreen
 import com.cornellappdev.resell.android.ui.screens.onboarding.OnboardingNavigation
 import com.cornellappdev.resell.android.ui.screens.pdp.PostDetailPage
+import com.cornellappdev.resell.android.ui.screens.reporting.ReportNavigation
 import com.cornellappdev.resell.android.ui.screens.settings.SettingsNavigation
 import com.cornellappdev.resell.android.util.LocalRootNavigator
 import com.cornellappdev.resell.android.viewmodel.main.ChatViewModel
@@ -107,7 +108,6 @@ fun RootNavigation(
             }
 
             composable<ResellRootRoute.NEW_REQUEST> {
-                // TODO: Proposal
                 RequestDetailsEntryScreen()
             }
 
@@ -117,6 +117,10 @@ fun RootNavigation(
 
             composable<ResellRootRoute.CHAT> {
                 ChatScreen(chatViewModel)
+            }
+            
+            composable<ResellRootRoute.REPORT> {
+                ReportNavigation()
             }
         }
 
@@ -166,4 +170,11 @@ sealed class ResellRootRoute {
 
     @Serializable
     data object CHAT : ResellRootRoute()
+
+    @Serializable
+    data class REPORT(
+        val reportPost: Boolean,
+        val postId: String,
+        val userId: String
+    ) : ResellRootRoute()
 }

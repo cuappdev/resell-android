@@ -96,8 +96,7 @@ fun TwoButtonDialog(
                 containerType = secondaryButtonContainer,
                 state = secondaryButtonState
             )
-        }
-        else {
+        } else {
             Spacer(
                 modifier = Modifier.height(10.dp)
             )

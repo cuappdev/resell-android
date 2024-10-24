@@ -11,7 +11,8 @@ import com.cornellappdev.resell.android.ui.theme.Padding
 /**
  * 24.dp padding.
  */
-fun Modifier.defaultHorizontalPadding() = this.padding(horizontal = Padding.leftRight)
+fun Modifier.defaultHorizontalPadding(scale: Float = 1f) =
+    this.padding(horizontal = Padding.leftRight * scale)
 
 @Composable
 fun Modifier.clickableNoIndication(onClick: () -> Unit) = this.clickable(

@@ -124,7 +124,14 @@ class ProfileViewModel @Inject constructor(
                 }
 
                 OptionType.REPORT -> {
-                    // TODO: Implement
+                    // TODO: user id and post id
+                    rootNavigationRepository.navigate(
+                        ResellRootRoute.REPORT(
+                            reportPost = false,
+                            postId = "",
+                            userId = "",
+                        )
+                    )
                 }
 
                 OptionType.BLOCK -> {

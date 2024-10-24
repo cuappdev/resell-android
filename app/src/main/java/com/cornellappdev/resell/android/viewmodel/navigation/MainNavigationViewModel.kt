@@ -1,11 +1,12 @@
 package com.cornellappdev.resell.android.viewmodel.navigation
 
-import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
 import com.cornellappdev.resell.android.ui.screens.main.ResellMainScreen
+import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
 import com.cornellappdev.resell.android.util.UIEvent
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
+import javax.inject.Singleton
 
 @HiltViewModel
 class MainNavigationViewModel @Inject constructor(
@@ -68,3 +69,6 @@ class MainNavigationViewModel @Inject constructor(
         }
     }
 }
+
+@Singleton
+class MainNavigationRepository @Inject constructor() : BaseNavigationRepository<ResellMainScreen>()
