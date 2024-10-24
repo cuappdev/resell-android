@@ -18,6 +18,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.cornellappdev.resell.android.ui.screens.main.ChatScreen
 import com.cornellappdev.resell.android.ui.screens.main.MainTabNavigation
 import com.cornellappdev.resell.android.ui.screens.newpost.NewPostNavigation
 import com.cornellappdev.resell.android.ui.screens.newpost.RequestDetailsEntryScreen
@@ -27,6 +28,7 @@ import com.cornellappdev.resell.android.ui.screens.pdp.PostDetailPage
 import com.cornellappdev.resell.android.ui.screens.reporting.ReportNavigation
 import com.cornellappdev.resell.android.ui.screens.settings.SettingsNavigation
 import com.cornellappdev.resell.android.util.LocalRootNavigator
+import com.cornellappdev.resell.android.viewmodel.main.ChatViewModel
 import com.cornellappdev.resell.android.viewmodel.root.RootNavigationViewModel
 import com.cornellappdev.resell.android.viewmodel.root.RootSheet
 import kotlinx.coroutines.launch
@@ -45,6 +47,7 @@ fun RootNavigation(
     var lastSheetValue: RootSheet by remember {
         mutableStateOf(RootSheet.LoginCornellEmail)
     }
+    val chatViewModel: ChatViewModel = hiltViewModel()
     val coroutineScope = rememberCoroutineScope()
     var showBottomSheet by remember { mutableStateOf(false) }
 
@@ -112,6 +115,10 @@ fun RootNavigation(
                 PostDetailPage()
             }
 
+            composable<ResellRootRoute.CHAT> {
+                ChatScreen(chatViewModel)
+            }
+            
             composable<ResellRootRoute.REPORT> {
                 ReportNavigation()
             }
@@ -160,6 +167,9 @@ sealed class ResellRootRoute {
 
     @Serializable
     data object PDP : ResellRootRoute()
+
+    @Serializable
+    data object CHAT : ResellRootRoute()
 
     @Serializable
     data class REPORT(

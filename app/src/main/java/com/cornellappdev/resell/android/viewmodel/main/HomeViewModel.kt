@@ -25,7 +25,8 @@ class HomeViewModel @Inject constructor(
         val loadedState: ResellApiState,
         val listings: List<Listing>,
         val activeFilter: HomeFilter,
-    )
+    ) {
+    }
 
     enum class HomeFilter {
         RECENT, CLOTHING, BOOKS, SCHOOL, ELECTRONICS, HOUSEHOLD, HANDMADE, SPORTS, OTHER
