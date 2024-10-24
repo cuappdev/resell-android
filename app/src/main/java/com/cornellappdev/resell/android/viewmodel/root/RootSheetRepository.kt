@@ -73,6 +73,8 @@ sealed class RootSheet {
         val confirmColor: ResellTextButtonContainer,
         val callback : () -> Unit,
         val title: String,
+        // TODO: We should just make several more sheets (or some other multiplex) instead of this.
+        //  Because this demands the VM to make UI which is poor abstraction.
         val content: @Composable () -> Unit
     ) : RootSheet()
 
