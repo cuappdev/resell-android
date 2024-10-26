@@ -23,6 +23,7 @@ class FireStoreRepository @Inject constructor(
             val user = doc.toObject(FirebaseUser::class.java)
             onSuccess(user?.onboarded ?: false)
         } catch (e: Exception) {
+            Log.e("FireStoreRepository", "Error getting user: ", e)
             onError()
         }
     }
@@ -43,8 +44,8 @@ class FireStoreRepository @Inject constructor(
 }
 
 data class FirebaseUser(
-    val venmo: String,
-    val onboarded: Boolean,
-    val notificationsEnabled: Boolean,
-    val fcmToken: String
+    val venmo: String = "",
+    val onboarded: Boolean = false,
+    val notificationsEnabled: Boolean = true,
+    val fcmToken: String = ""
 )

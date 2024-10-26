@@ -1,6 +1,9 @@
 package com.cornellappdev.resell.android.viewmodel.onboarding
 
+import android.content.Context
+import android.content.Intent
 import androidx.activity.compose.ManagedActivityResultLauncher
+import androidx.activity.result.ActivityResult
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.viewModelScope
 import com.cornellappdev.resell.android.model.login.FireStoreRepository
@@ -12,10 +15,14 @@ import com.cornellappdev.resell.android.viewmodel.ResellViewModel
 import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepository
 import com.cornellappdev.resell.android.viewmodel.root.RootNavigationSheetRepository
 import com.cornellappdev.resell.android.viewmodel.root.RootSheet
+import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -26,6 +33,7 @@ class LandingViewModel @Inject constructor(
     private val rootNavigationSheetRepository: RootNavigationSheetRepository,
     private val fireStoreRepository: FireStoreRepository,
     private val firebaseAuthRepository: FirebaseAuthRepository,
+    @ApplicationContext private val context: Context
 ) : ResellViewModel<LandingViewModel.LandingUiState>(
     initialUiState = LandingUiState()
 ) {
@@ -80,6 +88,9 @@ class LandingViewModel @Inject constructor(
                     onError = {
                         googleAuthRepository.signOut()
                         rootNavigationSheetRepository.showBottomSheet(RootSheet.LoginFailed)
+                        applyMutation {
+                            copy(buttonState = ResellTextButtonState.ENABLED)
+                        }
                     },
                     onSuccess = { onboarded ->
                         viewModelScope.launch {
@@ -112,10 +123,17 @@ class LandingViewModel @Inject constructor(
     }
 
     @Composable
-    fun makeSignInLauncher(): ManagedActivityResultLauncher<Int, Task<GoogleSignInAccount>?> {
+    fun makeSignInLauncher(): ManagedActivityResultLauncher<Intent, ActivityResult> {
         return googleAuthRepository.googleLoginLauncher(
             onError = ::onSignInFailed,
             onGoogleSignInCompleted = ::onSignInCompleted,
         )
+    }
+
+    fun getSignInClient(): GoogleSignInClient {
+        val gso = googleAuthRepository.googleSignInClient
+        val client = GoogleSignIn.getClient(context, gso)
+
+        return client
     }
 }

@@ -3,10 +3,14 @@ package com.cornellappdev.resell.android.model.login
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.util.Log
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContract
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import com.cornellappdev.resell.android.BuildConfig
@@ -16,29 +20,29 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.tasks.Task
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.GoogleAuthProvider
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class GoogleAuthRepository @Inject constructor(
     private val dataStore: DataStore<Preferences>,
+    private val firebaseAuth: FirebaseAuth,
     @ApplicationContext private val context: Context,
 ) {
+
     /**
      * Constructs and returns a GoogleSignInClient.
      */
-    private val googleSignInClient: GoogleSignInClient =
+    val googleSignInClient =
         GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestIdToken(BuildConfig.GOOGLE_AUTH_CLIENT_ID)
             .requestEmail()
             .build()
-            .let { gso ->
-                GoogleSignIn.getClient(context, gso)
-            }
 
     /**
      * Returns the current [GoogleSignInAccount] if logged in, null otherwise.
@@ -61,7 +65,8 @@ class GoogleAuthRepository @Inject constructor(
      * correctly query for a new email.
      */
     fun signOut() {
-        googleSignInClient.signOut()
+        firebaseAuth.signOut()
+        GoogleSignIn.getClient(context, googleSignInClient).signOut()
     }
 
     /**
@@ -71,6 +76,7 @@ class GoogleAuthRepository @Inject constructor(
     class AuthResultContract(private val googleSignInClient: GoogleSignInClient) :
         ActivityResultContract<Int, Task<GoogleSignInAccount>?>() {
         override fun parseResult(resultCode: Int, intent: Intent?): Task<GoogleSignInAccount>? {
+            Log.d("helpme", resultCode.toString())
             return when (resultCode) {
                 Activity.RESULT_OK -> GoogleSignIn.getSignedInAccountFromIntent(intent)
                 else -> null
@@ -92,24 +98,23 @@ class GoogleAuthRepository @Inject constructor(
     fun googleLoginLauncher(
         onError: () -> Unit,
         onGoogleSignInCompleted: (id: String, email: String) -> Unit,
-    ): ManagedActivityResultLauncher<Int, Task<GoogleSignInAccount>?> {
-        val coroutineScope = CoroutineScope(Dispatchers.Main)
-        return rememberLauncherForActivityResult(
-            contract = AuthResultContract(googleSignInClient)
-        ) {
+    ): ManagedActivityResultLauncher<Intent, ActivityResult> {
+        val scope = rememberCoroutineScope()
+        return rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
             try {
-                val account = it?.getResult(ApiException::class.java)
-                if (account == null || account.idToken == null || account.email == null) {
-                    onError()
-                } else {
-                    coroutineScope.launch {
-                        onGoogleSignInCompleted(
-                            account.idToken!!,
-                            account.email!!
-                        )
-                    }
+                val account = task.getResult(ApiException::class.java)!!
+                val credential = GoogleAuthProvider.getCredential(account.idToken!!, null)
+                scope.launch {
+                    val authResult = firebaseAuth.signInWithCredential(credential).await()
+                    Log.d("GoogleAuthRepository", "Success: ${authResult.user!!.uid}")
+                    onGoogleSignInCompleted(
+                        account.idToken!!,
+                        account.email!!
+                    )
                 }
             } catch (e: ApiException) {
+                e.printStackTrace()
                 onError()
             }
         }

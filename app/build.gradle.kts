@@ -97,7 +97,10 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     kapt(libs.hilt.android.compiler)
     implementation(libs.coil.compose)
+
+    // Google Play Services Auth
     implementation(libs.gms.play.services.auth)
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)

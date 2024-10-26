@@ -63,7 +63,7 @@ fun LandingScreen(
         showButton = state.showButton,
         buttonState = state.buttonState,
         onSignInPressed = {
-            resultLauncher.launch(1)
+            resultLauncher.launch(landingViewModel.getSignInClient().signInIntent)
             landingViewModel.onSignInClick()
         },
     )

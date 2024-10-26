@@ -57,7 +57,9 @@ class MainNavigationViewModel @Inject constructor(
                 if (userInfoRepository.getUserId() == null ||
                     userInfoRepository.getUsername() == null
                 ) {
-                    val user = resellAuthRepository.getGoogleUser(googleAuthRepository.accountOrNull()!!.id!!)
+                    val user = resellAuthRepository.getGoogleUser(
+                        id = googleAuthRepository.accountOrNull()!!.id!!
+                    )
 
                     userInfoRepository.storeUserId(user.id)
                     userInfoRepository.storeUsername(user.name)
