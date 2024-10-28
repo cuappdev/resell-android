@@ -60,12 +60,12 @@ fun VenmoFieldScreen(
         Column {
             ResellTextButton(
                 text = "Continue",
-                state = uiState.buttonState,
+                state = uiState.continueButtonState,
                 onClick = venmoFieldViewModel::onContinueClick
             )
             ResellTextButton(
                 text = "Skip",
-                state = ResellTextButtonState.ENABLED,
+                state = uiState.skipButtonState,
                 onClick = venmoFieldViewModel::onSkipClick,
                 containerType = ResellTextButtonContainer.NAKED
             )

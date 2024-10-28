@@ -21,6 +21,7 @@ val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "lo
 
 object PreferencesKeys {
     val USER_ID = stringPreferencesKey("user_id")
+    val ID_TOKEN = stringPreferencesKey("id_token")
     val USERNAME = stringPreferencesKey("username")
     val ACCESS_TOKEN = stringPreferencesKey("access_token")
 }

@@ -16,3 +16,11 @@ sealed class ResellApiState {
     data object Error : ResellApiState()
     data object Loading : ResellApiState()
 }
+
+fun <T : Any> ResellApiResponse<T>.toResellApiState(): ResellApiState {
+    return when (this) {
+        is ResellApiResponse.Success -> ResellApiState.Success
+        is ResellApiResponse.Error -> ResellApiState.Error
+        is ResellApiResponse.Pending -> ResellApiState.Loading
+    }
+}

@@ -1,7 +1,11 @@
 package com.cornellappdev.resell.android.model.login
 
+import android.util.Log
+import com.cornellappdev.resell.android.model.api.CreateUserBody
 import com.cornellappdev.resell.android.model.api.GoogleUser
+import com.cornellappdev.resell.android.model.api.LoginBody
 import com.cornellappdev.resell.android.model.api.RetrofitInstance
+import com.cornellappdev.resell.android.model.api.User
 import com.cornellappdev.resell.android.model.core.UserInfoRepository
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -10,17 +14,27 @@ import javax.inject.Singleton
 class ResellAuthRepository @Inject constructor(
     private val userInfoRepository: UserInfoRepository,
     private val retrofitInstance: RetrofitInstance,
+    private val firebaseMessagingRepository: FirebaseMessagingRepository,
 ) {
 
-    suspend fun getGoogleUser(id: String): GoogleUser {
+    suspend fun getGoogleUser(id: String): User {
         val users = retrofitInstance.loginApi.getGoogleUser(id)
 
-        if (users.isEmpty()) {
-            throw Exception("No Google User found")
-        }
-
-        return users[0]
+        return users.user
     }
+
+    // TODO may be redundant
+    suspend fun loginToResell(idToken: String, user: String) =
+        retrofitInstance.loginApi.login(
+            LoginBody(
+                idToken = idToken,
+                user = user,
+                deviceToken = firebaseMessagingRepository.getDeviceFCMToken()!!
+            )
+        )
+
+    suspend fun createUser(createUserBody: CreateUserBody) =
+        retrofitInstance.loginApi.createUser(createUserBody)
 
     /**
      * Hits the Resell backend to check if our auth session is still valid. If not,
@@ -36,6 +50,18 @@ class ResellAuthRepository @Inject constructor(
         // Allowed by precondition
         val userId = userInfoRepository.getUserId()!!
 
-        val session = retrofitInstance.loginApi.getSession(userId)
+        val response = retrofitInstance.loginApi.getSession(userId)
+        var session = response.sessions[0]
+
+        if (!session.active) {
+            Log.d("ResellAuthRepository", "Session is not active. Refreshing...")
+            session = retrofitInstance.loginApi.refreshSession(session.refreshToken).session
+        }
+
+        Log.d("helpme", "${session.expiresAt} vs ${System.currentTimeMillis()}")
+        Log.d("helpme", session.accessToken)
+        Log.d("helpme", session.active.toString())
+
+        userInfoRepository.storeAccessToken(session.accessToken)
     }
 }

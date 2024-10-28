@@ -1,6 +1,7 @@
 package com.cornellappdev.resell.android.ui.screens.onboarding
 
 import android.graphics.Bitmap
+import androidx.activity.compose.BackHandler
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedContent
@@ -34,6 +35,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -46,6 +48,7 @@ import com.cornellappdev.resell.android.ui.components.global.ResellTextEntry
 import com.cornellappdev.resell.android.ui.components.settings.ProfilePictureEdit
 import com.cornellappdev.resell.android.ui.theme.ResellPurple
 import com.cornellappdev.resell.android.ui.theme.Style
+import com.cornellappdev.resell.android.util.closeApp
 import com.cornellappdev.resell.android.util.defaultHorizontalPadding
 import com.cornellappdev.resell.android.util.singlePhotoPicker
 import com.cornellappdev.resell.android.viewmodel.onboarding.SetupViewModel
@@ -61,6 +64,11 @@ fun SetupScreen(
         } else {
             setupViewModel.onImageLoadFail()
         }
+    }
+    val context = LocalContext.current
+
+    BackHandler {
+        closeApp(context)
     }
 
     Box(

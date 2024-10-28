@@ -2,6 +2,7 @@ package com.cornellappdev.resell.android.viewmodel.onboarding
 
 import android.content.Context
 import android.content.Intent
+import android.util.Log
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.result.ActivityResult
 import androidx.compose.runtime.Composable
@@ -16,11 +17,7 @@ import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepos
 import com.cornellappdev.resell.android.viewmodel.root.RootNavigationSheetRepository
 import com.cornellappdev.resell.android.viewmodel.root.RootSheet
 import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import com.google.android.gms.tasks.Task
-import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.launch
@@ -49,7 +46,10 @@ class LandingViewModel @Inject constructor(
      */
     fun navigateIfLoggedIn() {
         if (googleAuthRepository.accountOrNull() != null) {
-            rootNavigationRepository.navigate(ResellRootRoute.MAIN)
+            onSignInCompleted(
+                idToken = googleAuthRepository.accountOrNull()!!.idToken!!,
+                email = googleAuthRepository.accountOrNull()!!.email!!
+            )
         }
     }
 
@@ -79,18 +79,28 @@ class LandingViewModel @Inject constructor(
 
     private fun onSignInCompleted(idToken: String, email: String) {
         // Cornell email.
-        if (email.endsWith("@cornell.edu")) {
-            viewModelScope.launch {
+        if (!email.endsWith("@cornell.edu")) {
+            applyMutation {
+                copy(buttonState = ResellTextButtonState.ENABLED)
+            }
+
+            // No longer logged in.
+            googleAuthRepository.signOut()
+            rootNavigationSheetRepository.showBottomSheet(
+                RootSheet.LoginCornellEmail
+            )
+
+            return
+        }
+
+        viewModelScope.launch {
+            try {
                 firebaseAuthRepository.firebaseAuthWithGoogle(idToken)
 
                 fireStoreRepository.getUserOnboarded(
                     email = email,
                     onError = {
-                        googleAuthRepository.signOut()
-                        rootNavigationSheetRepository.showBottomSheet(RootSheet.LoginFailed)
-                        applyMutation {
-                            copy(buttonState = ResellTextButtonState.ENABLED)
-                        }
+                        onSignInFailed()
                     },
                     onSuccess = { onboarded ->
                         viewModelScope.launch {
@@ -106,19 +116,10 @@ class LandingViewModel @Inject constructor(
                         }
                     }
                 )
+            } catch (e: Exception) {
+                Log.e("LandingViewModel", "Error getting user: ", e)
+                onSignInFailed()
             }
-        }
-        // Not a Cornell email.
-        else {
-            applyMutation {
-                copy(buttonState = ResellTextButtonState.ENABLED)
-            }
-
-            // No longer logged in.
-            googleAuthRepository.signOut()
-            rootNavigationSheetRepository.showBottomSheet(
-                RootSheet.LoginCornellEmail
-            )
         }
     }
 

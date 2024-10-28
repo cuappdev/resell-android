@@ -6,11 +6,11 @@ import com.cornellappdev.resell.android.model.classes.UserInfo
 val richieListings = { count: Int ->
     List(count) {
         Listing(
-            id = it,
+            id = it.toString(),
             title = "title$it",
             image = richieUrl,
             price = "$$it.00",
-            category = "category$it"
+            categories = listOf("category$it")
         )
     }
 }

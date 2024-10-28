@@ -119,6 +119,10 @@ dependencies {
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
     implementation(libs.kotlinx.coroutines.android)
+
+    // OkHttp3
+    implementation(libs.okhttp)
+    implementation(libs.logging.interceptor)
 }
 
 // Allow references to generated code
