@@ -1,6 +1,8 @@
 package com.cornellappdev.resell.android.model.api
 
+import android.util.Log
 import com.cornellappdev.resell.android.model.classes.Listing
+import com.google.gson.annotations.SerializedName
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
@@ -36,22 +38,25 @@ data class Post(
     val archive: Boolean,
     val created: Date,  // Use Long for timestamps
     val price: Double,
+    @SerializedName("altered_price") val altered: String,
     val images: List<String>,
     val location: String,
     val user: User // Reusing the User class from before
 ) {
 
-    val priceString
-        get() = String.format(Locale.US, "$%.2f", price)
+    private val priceString
+        get() = String.format(Locale.US, "$%.2f", altered.toDouble())
 
     fun toListing(): Listing {
+        Log.d("helpme", "$price")
         return Listing(
             id = id,
             title = title,
             images = images,
             price = priceString,
             categories = categories,
-            description = description
+            description = description,
+            user = user.toUserInfo(),
         )
     }
 }

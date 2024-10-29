@@ -106,8 +106,8 @@ class PostDetailViewModel @Inject constructor(
                 applyMutation {
                     copy(
                         similarItems = ResellApiResponse.Success(
-                            posts.map { it.toListing() }),
-                        hideSheetEvent = UIEvent(Unit)
+                            posts.map { it.toListing() }
+                        )
                     )
                 }
             } catch (e: Exception) {
@@ -164,7 +164,10 @@ class PostDetailViewModel @Inject constructor(
                 postId = listing.id,
                 title = listing.title,
                 price = listing.price,
-                description = listing.description
+                description = listing.description,
+                hideSheetEvent = UIEvent(Unit),
+                profileImageUrl = listing.user.imageUrl,
+                username = listing.user.name
             )
         }
 
@@ -186,7 +189,9 @@ class PostDetailViewModel @Inject constructor(
                 postId = navArgs.id,
                 title = navArgs.title,
                 price = navArgs.price,
-                description = navArgs.description
+                description = navArgs.description,
+                profileImageUrl = navArgs.userImageUrl,
+                username = navArgs.userHumanName
             )
         }
         onNeedLoadImages(

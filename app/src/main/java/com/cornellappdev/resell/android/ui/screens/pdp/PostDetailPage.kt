@@ -91,15 +91,10 @@ fun PostDetailPage(
         aspectRatioPreferredHeight
     }
 
-    val scaffoldState = rememberBottomSheetScaffoldState(
-        bottomSheetState = rememberModalBottomSheetState(
-            skipPartiallyExpanded = false
-        )
-    )
-
     LaunchedEffect(uiState.hideSheetEvent) {
         uiState.hideSheetEvent?.consumeSuspend {
-            scaffoldState.bottomSheetState.partialExpand()
+            // TODO: Making the bottom sheet hide is complicated... and sometimes it hides
+            //  automatically anyways.
         }
     }
 
@@ -119,7 +114,6 @@ fun PostDetailPage(
         onSimilarClick = {
             postDetailViewModel.onSimilarPressed(it)
         },
-        scaffoldState = scaffoldState
     )
 }
 
@@ -140,7 +134,6 @@ private fun Content(
     bookmarked: Boolean = false,
     onBookmarkClick: () -> Unit = {},
     onSimilarClick: (Int) -> Unit = {},
-    scaffoldState: BottomSheetScaffoldState = rememberBottomSheetScaffoldState(),
 ) {
     var sheetHeightFromBottom by remember { mutableStateOf(0.dp) }
     val pagerState = rememberPagerState(pageCount = { images.size })
@@ -155,7 +148,6 @@ private fun Content(
         modifier = Modifier.fillMaxWidth()
     ) {
         BottomSheetScaffold(
-            scaffoldState = scaffoldState,
             sheetContent = {
                 BottomSheetContent(
                     profilePictureUrl = userPfp,

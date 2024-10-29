@@ -167,6 +167,10 @@ sealed class ResellRootRoute {
         val price: String,
         val categories: List<String>,
         val description: String,
+        val userImageUrl: String,
+        val username: String,
+        val userId: String,
+        val userHumanName: String
     ) : ResellRootRoute()
 
     @Serializable

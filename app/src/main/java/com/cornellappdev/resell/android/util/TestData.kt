@@ -1,5 +1,6 @@
 package com.cornellappdev.resell.android.util
 
+import com.cornellappdev.resell.android.model.api.User
 import com.cornellappdev.resell.android.model.classes.Listing
 import com.cornellappdev.resell.android.model.classes.UserInfo
 
@@ -11,7 +12,8 @@ val richieListings = { count: Int ->
             images = listOf(richieUrl),
             price = "$$it.00",
             categories = listOf("category$it"),
-            description = "Hello! I need to sell this."
+            description = "Hello! I need to sell this.",
+            user = richieUserInfo
         )
     }
 }
@@ -30,5 +32,6 @@ val richieUserInfo = UserInfo(
     netId = "richie",
     username = "richie",
     venmoHandle = "richie",
-    bio = "bio bio bio"
+    bio = "bio bio bio",
+    id = "richie"
 )

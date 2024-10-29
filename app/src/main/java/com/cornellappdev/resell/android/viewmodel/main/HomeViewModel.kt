@@ -62,7 +62,11 @@ class HomeViewModel @Inject constructor(
             price = listing.price,
             images = listing.images,
             description = listing.description,
-            categories = listing.categories
+            categories = listing.categories,
+            userImageUrl = listing.user.imageUrl,
+            username = listing.user.username,
+            userId = listing.user.id,
+            userHumanName = listing.user.name
         ))
     }
 

@@ -1,6 +1,8 @@
 package com.cornellappdev.resell.android.model.api
 
+import com.cornellappdev.resell.android.model.classes.UserInfo
 import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.Serializable
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.Header
@@ -72,6 +74,7 @@ data class UserResponse(
     val user: User
 )
 
+@Serializable
 data class User(
     val id: String,
     val username: String,
@@ -82,7 +85,18 @@ data class User(
     val photoUrl: String,
     val email: String,
     val googleId: String
-)
+) {
+    fun toUserInfo() = UserInfo(
+        username = username,
+        name = "$givenName $familyName",
+        imageUrl = photoUrl,
+        netId = netid,
+        // TODO Refactor UserInfo because we don't have all these fields
+        venmoHandle = "TODO",
+        bio = "TODO",
+        id = id
+    )
+}
 
 data class UsersResponse(
     val users: List<GoogleUser>
