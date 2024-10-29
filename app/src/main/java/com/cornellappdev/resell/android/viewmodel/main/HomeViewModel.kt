@@ -56,7 +56,6 @@ class HomeViewModel @Inject constructor(
     }
 
     fun onListingPressed(listing: Listing) {
-        // TODO: Implement
         rootNavigationRepository.navigate(ResellRootRoute.PDP(
             id = listing.id,
             title = listing.title,
