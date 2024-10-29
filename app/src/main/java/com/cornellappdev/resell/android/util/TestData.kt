@@ -8,9 +8,10 @@ val richieListings = { count: Int ->
         Listing(
             id = it.toString(),
             title = "title$it",
-            image = richieUrl,
+            images = listOf(richieUrl),
             price = "$$it.00",
-            categories = listOf("category$it")
+            categories = listOf("category$it"),
+            description = "Hello! I need to sell this."
         )
     }
 }

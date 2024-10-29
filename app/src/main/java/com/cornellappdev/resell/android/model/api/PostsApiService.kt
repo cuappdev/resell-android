@@ -34,9 +34,10 @@ data class Post(
         return Listing(
             id = id,
             title = title,
-            image = images[0],
+            images = images,
             price = priceString,
-            categories = categories
+            categories = categories,
+            description = description
         )
     }
 }

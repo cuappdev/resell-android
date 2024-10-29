@@ -18,6 +18,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.cornellappdev.resell.android.model.classes.Listing
 import com.cornellappdev.resell.android.ui.screens.main.MainTabNavigation
 import com.cornellappdev.resell.android.ui.screens.newpost.NewPostNavigation
 import com.cornellappdev.resell.android.ui.screens.newpost.RequestDetailsEntryScreen
@@ -159,7 +160,14 @@ sealed class ResellRootRoute {
     data object NEW_REQUEST : ResellRootRoute()
 
     @Serializable
-    data object PDP : ResellRootRoute()
+    data class PDP(
+        val id: String,
+        val title: String,
+        val images: List<String>,
+        val price: String,
+        val categories: List<String>,
+        val description: String,
+    ) : ResellRootRoute()
 
     @Serializable
     data class REPORT(

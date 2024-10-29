@@ -2,7 +2,9 @@ package com.cornellappdev.resell.android.viewmodel.pdp
 
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.toRoute
 import com.cornellappdev.resell.android.model.pdp.ImageBitmapLoader
 import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
 import com.cornellappdev.resell.android.util.longUrl
@@ -20,7 +22,8 @@ import javax.inject.Inject
 class PostDetailViewModel @Inject constructor(
     private val rootOptionsMenuRepository: RootOptionsMenuRepository,
     private val imageBitmapLoader: ImageBitmapLoader,
-    private val rootNavigationRepository: RootNavigationRepository
+    private val rootNavigationRepository: RootNavigationRepository,
+    savedStateHandle: SavedStateHandle
 ) : ResellViewModel<PostDetailViewModel.UiState>(
     initialUiState = UiState()
 ) {
@@ -103,22 +106,18 @@ class PostDetailViewModel @Inject constructor(
     }
 
     init {
-        // TODO: Replace with the packaged data, whenever I get around to that
+        val navArgs = savedStateHandle.toRoute<ResellRootRoute.PDP>()
         applyMutation {
             copy(
-                postId = "1",
-                title = "my soul",
-                price = "-$10.00",
-                description = "I need to get rid of this."
+                postId = navArgs.id,
+                title = navArgs.title,
+                price = navArgs.price,
+                description = navArgs.description
             )
         }
         onNeedLoadImages(
-            urls = listOf(
-                richieUrl,
-                tallUrl,
-                longUrl,
-            ),
-            currentPostId = "1"
+            urls = navArgs.images,
+            currentPostId = navArgs.id
         )
     }
 }

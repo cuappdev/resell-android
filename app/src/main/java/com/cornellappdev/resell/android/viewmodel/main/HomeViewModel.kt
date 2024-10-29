@@ -57,7 +57,14 @@ class HomeViewModel @Inject constructor(
 
     fun onListingPressed(listing: Listing) {
         // TODO: Implement
-        rootNavigationRepository.navigate(ResellRootRoute.PDP)
+        rootNavigationRepository.navigate(ResellRootRoute.PDP(
+            id = listing.id,
+            title = listing.title,
+            price = listing.price,
+            images = listing.images,
+            description = listing.description,
+            categories = listing.categories
+        ))
     }
 
     fun onToggleFilter(filter: HomeFilter) {
