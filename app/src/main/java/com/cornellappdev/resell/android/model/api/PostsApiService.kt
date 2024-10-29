@@ -2,12 +2,16 @@ package com.cornellappdev.resell.android.model.api
 
 import com.cornellappdev.resell.android.model.classes.Listing
 import retrofit2.http.GET
+import retrofit2.http.Path
 import java.util.Date
 import java.util.Locale
 
 interface PostsApiService {
     @GET("post")
     suspend fun getPosts(): PostsResponse
+
+    @GET("post/similar/postId/{id}")
+    suspend fun getSimilarPosts(@Path("id") id: String): PostsResponse
 }
 
 data class PostsResponse(

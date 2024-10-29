@@ -1,5 +1,7 @@
 package com.cornellappdev.resell.android.model.classes
 
+import androidx.compose.runtime.Composable
+
 /**
  * Represents the state of an api response fetching data of type [T].
  * Can be: [Pending], which represents the call still loading in, [Error], which represents the
@@ -9,6 +11,39 @@ sealed class ResellApiResponse<out T : Any> {
     data object Pending : ResellApiResponse<Nothing>()
     data object Error : ResellApiResponse<Nothing>()
     data class Success<out T : Any>(val data: T) : ResellApiResponse<T>()
+
+
+    fun <K: Any> map(transform: (T) -> K): ResellApiResponse<K> {
+        return when (this) {
+            is Pending -> Pending
+            is Error -> Error
+            is Success -> Success(transform(data))
+        }
+    }
+
+    /**
+     * Basically a force `!!`, but for [Success] responses.
+     */
+    fun asSuccess(): ResellApiResponse.Success<T> {
+        if (this is Success) return this
+        throw IllegalStateException("Response is not a success: $this")
+    }
+
+    /**
+     * Runs the block if the response is a [Success]
+     */
+    fun ifSuccess(block: (T) -> Unit) {
+        if (this is Success) {
+            block(data)
+        }
+    }
+
+    @Composable
+    fun composableIfSuccess(block: @Composable (T) -> Unit) {
+        if (this is Success) {
+            block(data)
+        }
+    }
 }
 
 sealed class ResellApiState {
