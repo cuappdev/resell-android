@@ -6,11 +6,13 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
+import com.cornellappdev.resell.android.model.api.CategoryRequest
 import com.cornellappdev.resell.android.model.api.RetrofitInstance
 import com.cornellappdev.resell.android.model.classes.Listing
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.model.pdp.ImageBitmapLoader
 import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
+import com.cornellappdev.resell.android.util.UIEvent
 import com.cornellappdev.resell.android.util.richieUrl
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
 import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepository
@@ -42,7 +44,8 @@ class PostDetailViewModel @Inject constructor(
         val images: List<ImageBitmap> = listOf(),
         val postId: String = "",
         val bookmarked: Boolean = false,
-        val similarItems: ResellApiResponse<List<Listing>> = ResellApiResponse.Pending
+        val similarItems: ResellApiResponse<List<Listing>> = ResellApiResponse.Pending,
+        val hideSheetEvent: UIEvent<Unit>? = null,
     ) {
         val minAspectRatio
             get() = images.minOfOrNull { it.width.toFloat() / it.height.toFloat() } ?: 1f
@@ -83,7 +86,7 @@ class PostDetailViewModel @Inject constructor(
      * Invalidates current similar posts, then fetches new similar posts. Once loaded, these similar
      * posts will populate the bottom of the screen.
      */
-    private fun fetchSimilarPosts(id: String) {
+    private fun fetchSimilarPosts(id: String, category: String) {
         applyMutation {
             copy(
                 similarItems = ResellApiResponse.Pending
@@ -93,14 +96,18 @@ class PostDetailViewModel @Inject constructor(
         // Start networking
         viewModelScope.launch {
             try {
-                val response = retrofitInstance.postsApi.getSimilarPosts(id)
-
-                Log.d("helpme", response.posts.size.toString())
+                // TODO: Backend be mf tweaking breh
+                //  Replace with `getSimilarPosts` when that endpoint is back up running.
+                val response = retrofitInstance.postsApi.getFilteredPosts(
+                    CategoryRequest(category)
+                )
+                val posts = response.posts.take(4)
 
                 applyMutation {
                     copy(
                         similarItems = ResellApiResponse.Success(
-                            response.posts.map { it.toListing() })
+                            posts.map { it.toListing() }),
+                        hideSheetEvent = UIEvent(Unit)
                     )
                 }
             } catch (e: Exception) {
@@ -167,7 +174,8 @@ class PostDetailViewModel @Inject constructor(
         )
 
         fetchSimilarPosts(
-            id = listing.id
+            id = listing.id,
+            category = listing.categories.firstOrNull() ?: ""
         )
     }
 
@@ -186,7 +194,8 @@ class PostDetailViewModel @Inject constructor(
             currentPostId = navArgs.id
         )
         fetchSimilarPosts(
-            id = navArgs.id
+            id = navArgs.id,
+            category = navArgs.categories.firstOrNull() ?: ""
         )
     }
 }

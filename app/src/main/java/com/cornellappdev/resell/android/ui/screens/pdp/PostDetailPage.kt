@@ -21,10 +21,15 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.BottomSheetScaffold
+import androidx.compose.material3.BottomSheetScaffoldState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberBottomSheetScaffoldState
+import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -63,6 +68,7 @@ import com.cornellappdev.resell.android.util.clickableNoIndication
 import com.cornellappdev.resell.android.util.defaultHorizontalPadding
 import com.cornellappdev.resell.android.viewmodel.pdp.PostDetailViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PostDetailPage(
     postDetailViewModel: PostDetailViewModel = hiltViewModel(),
@@ -85,6 +91,18 @@ fun PostDetailPage(
         aspectRatioPreferredHeight
     }
 
+    val scaffoldState = rememberBottomSheetScaffoldState(
+        bottomSheetState = rememberModalBottomSheetState(
+            skipPartiallyExpanded = false
+        )
+    )
+
+    LaunchedEffect(uiState.hideSheetEvent) {
+        uiState.hideSheetEvent?.consumeSuspend {
+            scaffoldState.bottomSheetState.partialExpand()
+        }
+    }
+
     Content(
         onContactClick = postDetailViewModel::onContactClick,
         onEllipseClick = postDetailViewModel::onEllipseClick,
@@ -100,7 +118,8 @@ fun PostDetailPage(
         similarImageUrls = uiState.similarImageUrls,
         onSimilarClick = {
             postDetailViewModel.onSimilarPressed(it)
-        }
+        },
+        scaffoldState = scaffoldState
     )
 }
 
@@ -121,6 +140,7 @@ private fun Content(
     bookmarked: Boolean = false,
     onBookmarkClick: () -> Unit = {},
     onSimilarClick: (Int) -> Unit = {},
+    scaffoldState: BottomSheetScaffoldState = rememberBottomSheetScaffoldState(),
 ) {
     var sheetHeightFromBottom by remember { mutableStateOf(0.dp) }
     val pagerState = rememberPagerState(pageCount = { images.size })
@@ -135,6 +155,7 @@ private fun Content(
         modifier = Modifier.fillMaxWidth()
     ) {
         BottomSheetScaffold(
+            scaffoldState = scaffoldState,
             sheetContent = {
                 BottomSheetContent(
                     profilePictureUrl = userPfp,
