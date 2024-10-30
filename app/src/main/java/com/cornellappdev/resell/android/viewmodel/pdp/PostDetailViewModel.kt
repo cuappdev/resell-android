@@ -111,7 +111,6 @@ class PostDetailViewModel @Inject constructor(
                     )
                 }
             } catch (e: Exception) {
-                Log.e("helpme", "Error fetching similar posts: ", e)
                 applyMutation {
                     copy(
                         similarItems = ResellApiResponse.Error

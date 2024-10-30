@@ -57,11 +57,6 @@ class ResellAuthRepository @Inject constructor(
             Log.d("ResellAuthRepository", "Session is not active. Refreshing...")
             session = retrofitInstance.loginApi.refreshSession(session.refreshToken).session
         }
-
-        Log.d("helpme", "${session.expiresAt} vs ${System.currentTimeMillis()}")
-        Log.d("helpme", session.accessToken)
-        Log.d("helpme", session.active.toString())
-
         userInfoRepository.storeAccessToken(session.accessToken)
     }
 }

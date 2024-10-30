@@ -48,7 +48,6 @@ data class Post(
         get() = String.format(Locale.US, "$%.2f", altered.toDouble())
 
     fun toListing(): Listing {
-        Log.d("helpme", "$price")
         return Listing(
             id = id,
             title = title,

@@ -76,7 +76,6 @@ class GoogleAuthRepository @Inject constructor(
     class AuthResultContract(private val googleSignInClient: GoogleSignInClient) :
         ActivityResultContract<Int, Task<GoogleSignInAccount>?>() {
         override fun parseResult(resultCode: Int, intent: Intent?): Task<GoogleSignInAccount>? {
-            Log.d("helpme", resultCode.toString())
             return when (resultCode) {
                 Activity.RESULT_OK -> GoogleSignIn.getSignedInAccountFromIntent(intent)
                 else -> null

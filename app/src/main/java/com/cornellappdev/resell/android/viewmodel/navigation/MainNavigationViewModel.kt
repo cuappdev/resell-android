@@ -77,7 +77,6 @@ class MainNavigationViewModel @Inject constructor(
                 userInfoRepository.getUsername() == null ||
                 userInfoRepository.getIdToken() == null
             ) {
-                Log.d("helpme", "logging in with ${googleAuthRepository.accountOrNull()!!.id!!}")
                 try {
                     val user = resellAuthRepository.getGoogleUser(
                         id = googleAuthRepository.accountOrNull()!!.id!!

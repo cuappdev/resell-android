@@ -33,7 +33,6 @@ class ResellPostRepository @Inject constructor(
             try {
                 _allPostsFlow.value =
                     ResellApiResponse.Success(retrofitInstance.postsApi.getPosts().posts)
-                Log.d("helpme", "success")
             } catch (e: Exception) {
                 Log.e("ResellPostRepository", "Error fetching posts: ", e)
                 _allPostsFlow.value = ResellApiResponse.Error

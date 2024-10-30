@@ -26,7 +26,6 @@ class RootDialogViewModel @Inject constructor(
     init {
         asyncCollect(rootDialogRepository.showDialogEvent) { event ->
             event?.consume {
-                Log.d("helpme", "event: $event")
                 applyMutation {
                     copy(
                         content = event.payload,
