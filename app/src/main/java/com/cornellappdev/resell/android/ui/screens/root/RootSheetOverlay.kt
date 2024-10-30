@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
+import com.cornellappdev.resell.android.ui.components.global.sheet.ChatMeetingSheet
 import com.cornellappdev.resell.android.ui.components.global.sheet.LoginErrorSheet
 import com.cornellappdev.resell.android.ui.components.global.sheet.PriceProposalSheet
 import com.cornellappdev.resell.android.ui.components.main.WelcomeSheetContent
@@ -58,6 +59,14 @@ fun RootSheetOverlay(
 
                 is RootSheet.WebViewSheet -> {
                     ResellWebView(url = sheetType.url)
+                }
+
+                is RootSheet.MeetingCancel -> {
+                    ChatMeetingSheet()
+                }
+
+                is RootSheet.MeetingDetails -> {
+                    ChatMeetingSheet()
                 }
 
                 RootSheet.LogOut -> {

@@ -1,5 +1,7 @@
 package com.cornellappdev.resell.android.viewmodel.root
 
+import androidx.compose.runtime.Composable
+import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonContainer
 import com.cornellappdev.resell.android.util.UIEvent
 import dagger.Module
 import dagger.Provides
@@ -57,6 +59,31 @@ sealed class RootSheet {
 
     data object LogOut : RootSheet()
     data object Welcome : RootSheet()
+
+    data class MeetingCancel (
+        val confirmString: String,
+        val closeString: String,
+        val callback : () -> Unit,
+        val title: String
+    ) : RootSheet()
+
+    data class MeetingDetails (
+        val confirmString: String,
+        val closeString: String,
+        val confirmColor: ResellTextButtonContainer,
+        val callback : () -> Unit,
+        val title: String,
+        // TODO: We should just make several more sheets (or some other multiplex) instead of this.
+        //  Because this demands the VM to make UI which is poor abstraction.
+        val content: @Composable () -> Unit
+    ) : RootSheet()
+
+    data class MeetingGCalSync (
+        val confirmString: String,
+        val closeString: String,
+        val callback : () -> Unit,
+        val title: String
+    )
 }
 
 @Module

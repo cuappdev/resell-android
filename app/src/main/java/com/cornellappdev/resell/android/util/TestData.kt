@@ -3,6 +3,11 @@ package com.cornellappdev.resell.android.util
 import com.cornellappdev.resell.android.model.classes.Listing
 import com.cornellappdev.resell.android.model.classes.UserInfo
 
+import com.cornellappdev.resell.android.model.Chat
+import com.cornellappdev.resell.android.model.ChatMessageCluster
+import com.cornellappdev.resell.android.model.ChatMessageData
+import com.cornellappdev.resell.android.model.MessageType
+
 val richieListings = { count: Int ->
     List(count) {
         Listing(
@@ -34,3 +39,58 @@ val richieUserInfo = UserInfo(
     bio = "bio bio bio",
     id = "richie"
 )
+
+val justinChats = { count: Int ->
+    List(count) {
+        Chat(
+            chatId = -1
+        )
+    }
+}
+
+val richieMessages = { count: Int ->
+    ChatMessageCluster(
+        senderId = count,
+        senderImage = "https://media.licdn.com/dms/image/D4E03AQGOCNNbxGtcjw/profile-displayphoto-shrink_200_200/0/1704329714345?e=2147483647&v=beta&t=Kq7ex1pKyiifjOpuNIojeZ8f4dXjEAsNSpkJDXBwjxc",
+        fromUser = false,
+        messages = List(count) {
+            if (it == 1) {
+                ChatMessageData(
+                    0,
+                    "https://media.licdn.com/dms/image/D4E03AQGOCNNbxGtcjw/profile-displayphoto-shrink_200_200/0/1704329714345?e=2147483647&v=beta&t=Kq7ex1pKyiifjOpuNIojeZ8f4dXjEAsNSpkJDXBwjxc",
+                    0.toLong(),
+                    MessageType.Card
+                )
+            } else {
+                ChatMessageData(0, "HELP", 0.toLong(), MessageType.Message)
+            }
+        }
+    )
+}
+
+val justinMessages = { count: Int ->
+    ChatMessageCluster(
+        senderId = count,
+        senderImage = "https://media.licdn.com/dms/image/D4E03AQGOCNNbxGtcjw/profile-displayphoto-shrink_200_200/0/1704329714345?e=2147483647&v=beta&t=Kq7ex1pKyiifjOpuNIojeZ8f4dXjEAsNSpkJDXBwjxc",
+        fromUser = true,
+        messages = List(count) {
+            if (it == 1) {
+                ChatMessageData(
+                    0,
+                    "Lia",
+                    0.toLong(),
+                    MessageType.Availability
+                )
+            } else if (it == 2) {
+                ChatMessageData(
+                    0,
+                    "Lia",
+                    0.toLong(),
+                    MessageType.State
+                )
+            } else {
+                ChatMessageData(0, "HELP", 0.toLong(), MessageType.Message)
+            }
+        }
+    )
+}

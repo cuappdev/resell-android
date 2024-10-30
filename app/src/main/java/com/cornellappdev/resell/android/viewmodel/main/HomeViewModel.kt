@@ -29,7 +29,8 @@ class HomeViewModel @Inject constructor(
         val loadedState: ResellApiState,
         val listings: List<Listing>,
         val activeFilter: HomeFilter,
-    )
+    ) {
+    }
 
     init {
         asyncCollect(resellPostRepository.allPostsFlow) { response ->
