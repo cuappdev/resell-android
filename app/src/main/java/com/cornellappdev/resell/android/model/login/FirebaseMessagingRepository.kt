@@ -8,7 +8,7 @@ import javax.inject.Singleton
 @Singleton
 class FirebaseMessagingRepository @Inject constructor(
     private val firebaseMessaging: FirebaseMessaging,
-){
+) {
     suspend fun getDeviceFCMToken(): String? {
         return try {
             // Get the FCM token

@@ -2,7 +2,6 @@ package com.cornellappdev.resell.android.model.login
 
 import android.util.Log
 import com.cornellappdev.resell.android.model.api.CreateUserBody
-import com.cornellappdev.resell.android.model.api.GoogleUser
 import com.cornellappdev.resell.android.model.api.LoginBody
 import com.cornellappdev.resell.android.model.api.RetrofitInstance
 import com.cornellappdev.resell.android.model.api.User

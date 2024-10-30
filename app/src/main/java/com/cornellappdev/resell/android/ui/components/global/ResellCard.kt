@@ -77,7 +77,9 @@ fun ResellCard(
                 style = Style.title3,
                 text = title,
                 color = Color.Black,
-                modifier = Modifier.weight(1f).padding(end = 12.dp)
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(end = 12.dp)
             )
             Text(
                 style = Style.title4,

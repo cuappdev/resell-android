@@ -1,6 +1,5 @@
 package com.cornellappdev.resell.android.util
 
-import com.cornellappdev.resell.android.model.api.User
 import com.cornellappdev.resell.android.model.classes.Listing
 import com.cornellappdev.resell.android.model.classes.UserInfo
 

@@ -1,8 +1,8 @@
 package com.cornellappdev.resell.android.viewmodel.settings
 
 import androidx.lifecycle.viewModelScope
-import com.cornellappdev.resell.android.model.login.GoogleAuthRepository
 import com.cornellappdev.resell.android.model.core.UserInfoRepository
+import com.cornellappdev.resell.android.model.login.GoogleAuthRepository
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonContainer
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonState
 import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute

@@ -1,6 +1,5 @@
 package com.cornellappdev.resell.android.viewmodel.pdp
 
-import android.util.Log
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.lifecycle.SavedStateHandle

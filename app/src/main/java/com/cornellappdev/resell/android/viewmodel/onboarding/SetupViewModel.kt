@@ -75,11 +75,13 @@ class SetupViewModel @Inject constructor(
             delay(2000)
 
             // Navigate away.
-            onboardingNavigationRepository.navigate(ResellOnboardingScreen.Venmo(
-                username = stateValue().username,
-                bio = stateValue().bio,
-                // TODO Add photo URL
-            ))
+            onboardingNavigationRepository.navigate(
+                ResellOnboardingScreen.Venmo(
+                    username = stateValue().username,
+                    bio = stateValue().bio,
+                    // TODO Add photo URL
+                )
+            )
 
             applyMutation {
                 copy(

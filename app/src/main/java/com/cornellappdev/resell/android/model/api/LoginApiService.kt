@@ -47,7 +47,7 @@ data class UserSession(
     @SerializedName("refreshToken") val refreshToken: String
 )
 
-data class SessionResponse<T> (
+data class SessionResponse<T>(
     @SerializedName("sessions") val sessions: List<T>
 )
 

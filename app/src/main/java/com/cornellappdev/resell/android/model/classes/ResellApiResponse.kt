@@ -1,6 +1,13 @@
 package com.cornellappdev.resell.android.model.classes
 
 import androidx.compose.runtime.Composable
+import com.cornellappdev.resell.android.model.classes.ResellApiResponse.Error
+import com.cornellappdev.resell.android.model.classes.ResellApiResponse.Pending
+import com.cornellappdev.resell.android.model.classes.ResellApiResponse.Success
+import kotlin.Any
+import kotlin.IllegalStateException
+import kotlin.Nothing
+import kotlin.Unit
 
 /**
  * Represents the state of an api response fetching data of type [T].
@@ -13,7 +20,7 @@ sealed class ResellApiResponse<out T : Any> {
     data class Success<out T : Any>(val data: T) : ResellApiResponse<T>()
 
 
-    fun <K: Any> map(transform: (T) -> K): ResellApiResponse<K> {
+    fun <K : Any> map(transform: (T) -> K): ResellApiResponse<K> {
         return when (this) {
             is Pending -> Pending
             is Error -> Error

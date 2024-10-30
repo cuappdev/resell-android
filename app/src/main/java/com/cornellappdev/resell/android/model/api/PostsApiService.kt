@@ -1,6 +1,5 @@
 package com.cornellappdev.resell.android.model.api
 
-import android.util.Log
 import com.cornellappdev.resell.android.model.classes.Listing
 import com.google.gson.annotations.SerializedName
 import retrofit2.http.Body

@@ -86,8 +86,7 @@ class MainNavigationViewModel @Inject constructor(
                     userInfoRepository.storeIdToken(googleAuthRepository.accountOrNull()!!.idToken!!)
 
                     Log.d("MainNavigationViewModel", "User ID and username stored!")
-                }
-                catch (e: HttpException) {
+                } catch (e: HttpException) {
                     // Edge case: If for some reason the user doesn't exist,
                     // we should move to onboarding instead. This handles the case in which
                     // a DEV user logs in with an onboarded PROD user.

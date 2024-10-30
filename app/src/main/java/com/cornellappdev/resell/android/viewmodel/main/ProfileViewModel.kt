@@ -3,8 +3,8 @@ package com.cornellappdev.resell.android.viewmodel.main
 import androidx.compose.ui.Alignment
 import androidx.lifecycle.viewModelScope
 import com.cornellappdev.resell.android.model.classes.Listing
-import com.cornellappdev.resell.android.model.login.GoogleAuthRepository
 import com.cornellappdev.resell.android.model.classes.ResellApiState
+import com.cornellappdev.resell.android.model.login.GoogleAuthRepository
 import com.cornellappdev.resell.android.model.settings.BlockedUsersRepository
 import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
 import com.cornellappdev.resell.android.util.richieListings

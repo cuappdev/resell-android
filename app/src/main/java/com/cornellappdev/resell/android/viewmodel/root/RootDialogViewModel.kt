@@ -1,6 +1,5 @@
 package com.cornellappdev.resell.android.viewmodel.root
 
-import android.util.Log
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonContainer
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonState
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel

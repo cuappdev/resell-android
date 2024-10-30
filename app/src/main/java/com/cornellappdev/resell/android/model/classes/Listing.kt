@@ -1,6 +1,5 @@
 package com.cornellappdev.resell.android.model.classes
 
-import com.cornellappdev.resell.android.model.api.User
 import kotlinx.serialization.Serializable
 
 /**
