@@ -1,19 +1,18 @@
-package com.cornellappdev.resell.android.model
+package com.cornellappdev.resell.android.model.login
 
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.os.Debug
 import android.util.Log
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContract
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.core.booleanPreferencesKey
-import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.preferencesDataStore
 import com.cornellappdev.resell.android.BuildConfig
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
@@ -21,66 +20,29 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.tasks.Task
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.GoogleAuthProvider
 import dagger.hilt.android.qualifiers.ApplicationContext
-import dagger.hilt.components.SingletonComponent
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 import javax.inject.Singleton
 
-val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "login")
-
-@Module
-@InstallIn(SingletonComponent::class) // This ensures it's a singleton across the app
-object LoginStoreModule {
-
-    @Provides
-    @Singleton
-    fun provideDataStore(@ApplicationContext context: Context): DataStore<Preferences> {
-        return context.dataStore
-    }
-}
-
 @Singleton
-class LoginRepository @Inject constructor(
+class GoogleAuthRepository @Inject constructor(
     private val dataStore: DataStore<Preferences>,
+    private val firebaseAuth: FirebaseAuth,
     @ApplicationContext private val context: Context,
 ) {
-    /**
-     * Flow for the login state.
-     * @return true if the user is known to have been logged in, false otherwise.
-     */
-    val loginState = dataStore.data.map { preferences ->
-        preferences[PreferencesKeys.IS_LOGGED_IN] ?: false
-    }.stateIn(CoroutineScope(Dispatchers.IO), SharingStarted.Eagerly, false)
-
-    /**
-     * Writes the login state to DataStore.
-     */
-    suspend fun saveLoginState(state: Boolean) {
-        dataStore.edit { preferences ->
-            preferences[PreferencesKeys.IS_LOGGED_IN] = state
-        }
-    }
 
     /**
      * Constructs and returns a GoogleSignInClient.
      */
-    private val googleSignInClient: GoogleSignInClient =
+    val googleSignInClient =
         GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestIdToken(BuildConfig.GOOGLE_AUTH_CLIENT_ID)
             .requestEmail()
             .build()
-            .let { gso ->
-                GoogleSignIn.getClient(context, gso)
-            }
 
     /**
      * Returns the current [GoogleSignInAccount] if logged in, null otherwise.
@@ -90,10 +52,21 @@ class LoginRepository @Inject constructor(
     }
 
     /**
-     * If an email is invalid, such as it not being a Cornell email, sign out.
+     * Returns if the user is logged in or not. Identical to `accountOrNull() != null`.
      */
-    fun invalidateEmail() {
-        googleSignInClient.signOut()
+    fun isLoggedIn(): Boolean {
+        return accountOrNull() != null
+    }
+
+    /**
+     * Sign out. Call if the user logs in with a non-cornell email, or whenever a log out should occur.
+     *
+     * After calling this, the user will no longer auto-navigate to home, and google auth will
+     * correctly query for a new email.
+     */
+    fun signOut() {
+        firebaseAuth.signOut()
+        GoogleSignIn.getClient(context, googleSignInClient).signOut()
     }
 
     /**
@@ -121,33 +94,28 @@ class LoginRepository @Inject constructor(
      * @param onGoogleSignInCompleted The success callback. Takes in the id token and email.
      */
     @Composable
-    fun makeActivityResultLauncher(
+    fun googleLoginLauncher(
         onError: () -> Unit,
         onGoogleSignInCompleted: (id: String, email: String) -> Unit,
-    ): ManagedActivityResultLauncher<Int, Task<GoogleSignInAccount>?> {
-        val coroutineScope = CoroutineScope(Dispatchers.Main)
-        return rememberLauncherForActivityResult(
-            contract = AuthResultContract(googleSignInClient)
-        ) {
+    ): ManagedActivityResultLauncher<Intent, ActivityResult> {
+        val scope = rememberCoroutineScope()
+        return rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
             try {
-                val account = it?.getResult(ApiException::class.java)
-                if (account == null || account.idToken == null || account.email == null) {
-                    onError()
-                } else {
-                    coroutineScope.launch {
-                        onGoogleSignInCompleted(
-                            account.idToken!!,
-                            account.email!!
-                        )
-                    }
+                val account = task.getResult(ApiException::class.java)!!
+                val credential = GoogleAuthProvider.getCredential(account.idToken!!, null)
+                scope.launch {
+                    val authResult = firebaseAuth.signInWithCredential(credential).await()
+                    Log.d("GoogleAuthRepository", "Success: ${authResult.user!!.uid}")
+                    onGoogleSignInCompleted(
+                        account.idToken!!,
+                        account.email!!
+                    )
                 }
             } catch (e: ApiException) {
+                e.printStackTrace()
                 onError()
             }
         }
     }
-}
-
-object PreferencesKeys {
-    val IS_LOGGED_IN = booleanPreferencesKey("is_logged_in")
 }

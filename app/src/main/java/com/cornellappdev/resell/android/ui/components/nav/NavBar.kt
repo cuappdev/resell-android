@@ -39,17 +39,26 @@ fun NavBar(
     onBookmarksClick: () -> Unit,
     onMessagesClick: () -> Unit,
     onUserClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
 ) {
     val navigationBarsPadding =
         WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
     Box(modifier = modifier) {
         NavBarContent(
-            onHomeClick,
-            selectedTab,
-            onBookmarksClick,
-            onMessagesClick,
-            onUserClick
+            onHomeClick = if (!enabled) {
+                {}
+            } else onHomeClick,
+            selectedTab = selectedTab,
+            onBookmarksClick = if (!enabled) {
+                {}
+            } else onBookmarksClick,
+            onMessagesClick = if (!enabled) {
+                {}
+            } else onMessagesClick,
+            onUserClick = if (!enabled) {
+                {}
+            } else onUserClick,
         )
 
         Box(
@@ -68,7 +77,7 @@ private fun NavBarContent(
     selectedTab: ResellMainScreen,
     onBookmarksClick: () -> Unit,
     onMessagesClick: () -> Unit,
-    onUserClick: () -> Unit
+    onUserClick: () -> Unit,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
 

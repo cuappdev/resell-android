@@ -49,5 +49,8 @@ sealed class ResellOnboardingScreen {
     data object Setup : ResellOnboardingScreen()
 
     @Serializable
-    data object Venmo : ResellOnboardingScreen()
+    data class Venmo(
+        val username: String,
+        val bio: String,
+    ) : ResellOnboardingScreen()
 }

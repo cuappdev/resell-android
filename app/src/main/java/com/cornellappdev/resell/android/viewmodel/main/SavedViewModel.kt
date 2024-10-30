@@ -1,7 +1,7 @@
 package com.cornellappdev.resell.android.viewmodel.main
 
-import com.cornellappdev.resell.android.model.Listing
-import com.cornellappdev.resell.android.model.ResellApiState
+import com.cornellappdev.resell.android.model.classes.Listing
+import com.cornellappdev.resell.android.model.classes.ResellApiState
 import com.cornellappdev.resell.android.util.richieListings
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel

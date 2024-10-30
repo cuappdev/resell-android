@@ -25,6 +25,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -50,6 +51,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.cornellappdev.resell.android.R
+import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButton
 import com.cornellappdev.resell.android.ui.components.main.ProfilePictureView
 import com.cornellappdev.resell.android.ui.components.newpost.WhichPage
@@ -61,6 +63,7 @@ import com.cornellappdev.resell.android.util.clickableNoIndication
 import com.cornellappdev.resell.android.util.defaultHorizontalPadding
 import com.cornellappdev.resell.android.viewmodel.pdp.PostDetailViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PostDetailPage(
     postDetailViewModel: PostDetailViewModel = hiltViewModel(),
@@ -83,6 +86,13 @@ fun PostDetailPage(
         aspectRatioPreferredHeight
     }
 
+    LaunchedEffect(uiState.hideSheetEvent) {
+        uiState.hideSheetEvent?.consumeSuspend {
+            // TODO: Making the bottom sheet hide is complicated... and sometimes it hides
+            //  automatically anyways.
+        }
+    }
+
     Content(
         onContactClick = postDetailViewModel::onContactClick,
         onEllipseClick = postDetailViewModel::onEllipseClick,
@@ -95,6 +105,10 @@ fun PostDetailPage(
         description = uiState.description,
         onBookmarkClick = postDetailViewModel::onBookmarkClick,
         bookmarked = uiState.bookmarked,
+        similarImageUrls = uiState.similarImageUrls,
+        onSimilarClick = {
+            postDetailViewModel.onSimilarPressed(it)
+        },
     )
 }
 
@@ -104,6 +118,7 @@ fun PostDetailPage(
 private fun Content(
     imageHeight: Dp = 500.dp,
     images: List<ImageBitmap> = emptyList(),
+    similarImageUrls: ResellApiResponse<List<String>> = ResellApiResponse.Pending,
     onContactClick: () -> Unit = {},
     onEllipseClick: () -> Unit = {},
     userPfp: String = "",
@@ -112,7 +127,8 @@ private fun Content(
     price: String = "",
     description: String = "",
     bookmarked: Boolean = false,
-    onBookmarkClick: () -> Unit = {}
+    onBookmarkClick: () -> Unit = {},
+    onSimilarClick: (Int) -> Unit = {},
 ) {
     var sheetHeightFromBottom by remember { mutableStateOf(0.dp) }
     val pagerState = rememberPagerState(pageCount = { images.size })
@@ -136,7 +152,9 @@ private fun Content(
                     description = description,
                     onHeightChanged = {
                         sheetHeightFromBottom = it
-                    }
+                    },
+                    onSimilarClick = onSimilarClick,
+                    similarImageUrls = similarImageUrls
                 )
             },
             sheetPeekHeight = peekHeight,
@@ -273,7 +291,9 @@ private fun BottomSheetContent(
     profilePictureUrl: String,
     username: String,
     paddingTop: Dp = 116.dp,
-    onHeightChanged: (Dp) -> Unit = {},
+    similarImageUrls: ResellApiResponse<List<String>>,
+    onHeightChanged: (Dp) -> Unit,
+    onSimilarClick: (Int) -> Unit,
 ) {
 
     // Get screen height
@@ -354,21 +374,22 @@ private fun BottomSheetContent(
 
         Spacer(Modifier.height(28.dp))
 
-        Text(
-            text = "Similar Items",
-            style = Style.body2,
-            modifier = Modifier.defaultHorizontalPadding()
-        )
+        similarImageUrls.composableIfSuccess {
+            Text(
+                text = "Similar Items",
+                style = Style.body2,
+                modifier = Modifier.defaultHorizontalPadding()
+            )
 
-        Spacer(Modifier.height(8.dp))
+            Spacer(Modifier.height(8.dp))
 
-        SimilarItemsRow(
-            images = listOf(
-                "https://picsum.photos/id/237/200/300",
-                "https://picsum.photos/id/238/200/300",
-            ),
-            onListingClick = {}
-        )
+            SimilarItemsRow(
+                images = it,
+                onListingClick = { ind ->
+                    onSimilarClick(ind)
+                }
+            )
+        }
     }
 }
 

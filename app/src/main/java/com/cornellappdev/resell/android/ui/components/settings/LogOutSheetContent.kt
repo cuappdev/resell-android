@@ -11,7 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewModelScope
-import com.cornellappdev.resell.android.model.LoginRepository
+import com.cornellappdev.resell.android.model.login.GoogleAuthRepository
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButton
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonContainer
 import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
@@ -63,7 +63,7 @@ fun LogOutSheetContent(
 
 @HiltViewModel
 private class LogOutSheetContentViewModel @Inject constructor(
-    private val loginRepository: LoginRepository,
+    private val googleAuthRepository: GoogleAuthRepository,
     private val rootNavigationRepository: RootNavigationRepository,
     private val rootNavigationSheetRepository: RootNavigationSheetRepository,
 ) : ResellViewModel<Unit>(
@@ -72,8 +72,7 @@ private class LogOutSheetContentViewModel @Inject constructor(
     fun onLogOut() {
         rootNavigationSheetRepository.hideSheet()
         viewModelScope.launch {
-            loginRepository.saveLoginState(false)
-            loginRepository.invalidateEmail()
+            googleAuthRepository.signOut()
             rootNavigationRepository.navigate(ResellRootRoute.LANDING)
         }
     }

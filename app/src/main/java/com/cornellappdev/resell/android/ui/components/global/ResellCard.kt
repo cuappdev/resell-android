@@ -77,6 +77,9 @@ fun ResellCard(
                 style = Style.title3,
                 text = title,
                 color = Color.Black,
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(end = 12.dp)
             )
             Text(
                 style = Style.title4,
@@ -102,6 +105,15 @@ private fun PreviewListingCard() {
         ResellCard(
             imageUrl = "",
             title = "Richie man",
+            price = "$999.99",
+            onClick = {}
+        )
+
+        Spacer(modifier = Modifier.padding(Padding.large))
+
+        ResellCard(
+            imageUrl = "",
+            title = "Richie man with a damn long listing name",
             price = "$999.99",
             onClick = {}
         )

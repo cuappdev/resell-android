@@ -25,7 +25,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButton
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonContainer
-import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonState
 import com.cornellappdev.resell.android.ui.components.global.ResellTextEntry
 import com.cornellappdev.resell.android.ui.theme.Secondary
 import com.cornellappdev.resell.android.ui.theme.Style
@@ -60,12 +59,12 @@ fun VenmoFieldScreen(
         Column {
             ResellTextButton(
                 text = "Continue",
-                state = uiState.buttonState,
+                state = uiState.continueButtonState,
                 onClick = venmoFieldViewModel::onContinueClick
             )
             ResellTextButton(
                 text = "Skip",
-                state = ResellTextButtonState.ENABLED,
+                state = uiState.skipButtonState,
                 onClick = venmoFieldViewModel::onSkipClick,
                 containerType = ResellTextButtonContainer.NAKED
             )

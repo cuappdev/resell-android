@@ -101,7 +101,8 @@ fun MainTabNavigation(
                 },
                 selectedTab = navDestination?.destination?.route?.toResellMainScreen()
                     ?: ResellMainScreen.Home,
-                modifier = Modifier.align(Alignment.BottomCenter)
+                modifier = Modifier.align(Alignment.BottomCenter),
+                enabled = uiState.bottomBarEnabled
             )
 
             ShadeOverlay(

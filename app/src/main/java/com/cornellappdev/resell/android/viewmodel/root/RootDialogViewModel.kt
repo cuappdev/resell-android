@@ -1,6 +1,5 @@
 package com.cornellappdev.resell.android.viewmodel.root
 
-import android.util.Log
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonContainer
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonState
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
@@ -26,7 +25,6 @@ class RootDialogViewModel @Inject constructor(
     init {
         asyncCollect(rootDialogRepository.showDialogEvent) { event ->
             event?.consume {
-                Log.d("helpme", "event: $event")
                 applyMutation {
                     copy(
                         content = event.payload,

@@ -157,7 +157,7 @@ fun ResellTextEntry(
 @Composable
 private fun TextEntryPreview() {
     var multiLineText by remember {
-        mutableStateOf("AAAAAAAAAAAAAAHELPMEHELPMEAAAAAAAAAAAA")
+        mutableStateOf("AAAAAAAAAAAAAAHELPHELPAAAAAAAAAAAA")
     }
     Column(
         modifier = Modifier

@@ -1,7 +1,7 @@
 package com.cornellappdev.resell.android.util
 
-import com.cornellappdev.resell.android.model.Listing
-import com.cornellappdev.resell.android.model.UserInfo
+import com.cornellappdev.resell.android.model.classes.Listing
+import com.cornellappdev.resell.android.model.classes.UserInfo
 
 import com.cornellappdev.resell.android.model.Chat
 import com.cornellappdev.resell.android.model.ChatMessageCluster
@@ -11,11 +11,13 @@ import com.cornellappdev.resell.android.model.MessageType
 val richieListings = { count: Int ->
     List(count) {
         Listing(
-            id = it,
+            id = it.toString(),
             title = "title$it",
-            image = richieUrl,
+            images = listOf(richieUrl),
             price = "$$it.00",
-            category = "category$it"
+            categories = listOf("category$it"),
+            description = "Hello! I need to sell this.",
+            user = richieUserInfo
         )
     }
 }
@@ -34,7 +36,8 @@ val richieUserInfo = UserInfo(
     netId = "richie",
     username = "richie",
     venmoHandle = "richie",
-    bio = "bio bio bio"
+    bio = "bio bio bio",
+    id = "richie"
 )
 
 val justinChats = { count: Int ->

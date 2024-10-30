@@ -2,12 +2,17 @@ package com.cornellappdev.resell.android.viewmodel.pdp
 
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.toRoute
+import com.cornellappdev.resell.android.model.api.CategoryRequest
+import com.cornellappdev.resell.android.model.api.RetrofitInstance
+import com.cornellappdev.resell.android.model.classes.Listing
+import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.model.pdp.ImageBitmapLoader
 import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
-import com.cornellappdev.resell.android.util.longUrl
+import com.cornellappdev.resell.android.util.UIEvent
 import com.cornellappdev.resell.android.util.richieUrl
-import com.cornellappdev.resell.android.util.tallUrl
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
 import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepository
 import com.cornellappdev.resell.android.viewmodel.root.OptionType
@@ -20,7 +25,9 @@ import javax.inject.Inject
 class PostDetailViewModel @Inject constructor(
     private val rootOptionsMenuRepository: RootOptionsMenuRepository,
     private val imageBitmapLoader: ImageBitmapLoader,
-    private val rootNavigationRepository: RootNavigationRepository
+    private val rootNavigationRepository: RootNavigationRepository,
+    private val retrofitInstance: RetrofitInstance,
+    savedStateHandle: SavedStateHandle
 ) : ResellViewModel<PostDetailViewModel.UiState>(
     initialUiState = UiState()
 ) {
@@ -36,17 +43,25 @@ class PostDetailViewModel @Inject constructor(
         val images: List<ImageBitmap> = listOf(),
         val postId: String = "",
         val bookmarked: Boolean = false,
-        private val similarItemIds: List<Int> = emptyList()
+        val similarItems: ResellApiResponse<List<Listing>> = ResellApiResponse.Pending,
+        val hideSheetEvent: UIEvent<Unit>? = null,
     ) {
         val minAspectRatio
             get() = images.minOfOrNull { it.width.toFloat() / it.height.toFloat() } ?: 1f
+
+        val similarImageUrls
+            get() = similarItems.map {
+                it.mapNotNull { listing ->
+                    listing.images.firstOrNull()
+                }
+            }
     }
 
     /**
      * Initiates a load of new images. After some time, the images will be loaded and pipelined
      * down the UiState as bitmaps.
      */
-    fun onNeedLoadImages(urls: List<String>, currentPostId: String) {
+    private fun onNeedLoadImages(urls: List<String>, currentPostId: String) {
         viewModelScope.launch {
             applyMutation { copy(imageLoading = true) }
 
@@ -63,6 +78,44 @@ class PostDetailViewModel @Inject constructor(
             applyMutation { copy(images = images) }
 
             applyMutation { copy(imageLoading = false) }
+        }
+    }
+
+    /**
+     * Invalidates current similar posts, then fetches new similar posts. Once loaded, these similar
+     * posts will populate the bottom of the screen.
+     */
+    private fun fetchSimilarPosts(id: String, category: String) {
+        applyMutation {
+            copy(
+                similarItems = ResellApiResponse.Pending
+            )
+        }
+
+        // Start networking
+        viewModelScope.launch {
+            try {
+                // TODO: Backend be mf tweaking breh
+                //  Replace with `getSimilarPosts` when that endpoint is back up running.
+                val response = retrofitInstance.postsApi.getFilteredPosts(
+                    CategoryRequest(category)
+                )
+                val posts = response.posts.take(4)
+
+                applyMutation {
+                    copy(
+                        similarItems = ResellApiResponse.Success(
+                            posts.map { it.toListing() }
+                        )
+                    )
+                }
+            } catch (e: Exception) {
+                applyMutation {
+                    copy(
+                        similarItems = ResellApiResponse.Error
+                    )
+                }
+            }
         }
     }
 
@@ -102,23 +155,50 @@ class PostDetailViewModel @Inject constructor(
 
     }
 
-    init {
-        // TODO: Replace with the packaged data, whenever I get around to that
+    fun onSimilarPressed(index: Int) {
+        val listing = stateValue().similarItems.asSuccess().data[index]
         applyMutation {
             copy(
-                postId = "1",
-                title = "my soul",
-                price = "-$10.00",
-                description = "I need to get rid of this."
+                postId = listing.id,
+                title = listing.title,
+                price = listing.price,
+                description = listing.description,
+                hideSheetEvent = UIEvent(Unit),
+                profileImageUrl = listing.user.imageUrl,
+                username = listing.user.name
+            )
+        }
+
+        onNeedLoadImages(
+            urls = listing.images,
+            currentPostId = listing.id
+        )
+
+        fetchSimilarPosts(
+            id = listing.id,
+            category = listing.categories.firstOrNull() ?: ""
+        )
+    }
+
+    init {
+        val navArgs = savedStateHandle.toRoute<ResellRootRoute.PDP>()
+        applyMutation {
+            copy(
+                postId = navArgs.id,
+                title = navArgs.title,
+                price = navArgs.price,
+                description = navArgs.description,
+                profileImageUrl = navArgs.userImageUrl,
+                username = navArgs.userHumanName
             )
         }
         onNeedLoadImages(
-            urls = listOf(
-                richieUrl,
-                tallUrl,
-                longUrl,
-            ),
-            currentPostId = "1"
+            urls = navArgs.images,
+            currentPostId = navArgs.id
+        )
+        fetchSimilarPosts(
+            id = navArgs.id,
+            category = navArgs.categories.firstOrNull() ?: ""
         )
     }
 }
