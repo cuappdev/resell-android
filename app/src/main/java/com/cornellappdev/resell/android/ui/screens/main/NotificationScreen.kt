@@ -1,5 +1,6 @@
 package com.cornellappdev.resell.android.ui.screens.main
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -19,7 +20,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -31,36 +32,37 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.model.classes.ResellApiState
-import com.cornellappdev.resell.android.ui.components.global.ResellListingsScroll
+import com.cornellappdev.resell.android.model.messages.NotificationType
 import com.cornellappdev.resell.android.ui.components.global.ResellTag
+import com.cornellappdev.resell.android.ui.components.global.notifications.ResellNotificationsScroll
 import com.cornellappdev.resell.android.ui.theme.Padding
 import com.cornellappdev.resell.android.ui.theme.Primary
 import com.cornellappdev.resell.android.ui.theme.Style
 import com.cornellappdev.resell.android.util.clickableNoIndication
 import com.cornellappdev.resell.android.util.defaultHorizontalPadding
-import com.cornellappdev.resell.android.viewmodel.main.HomeViewModel
+import com.cornellappdev.resell.android.viewmodel.main.NotificationsHubViewModel
 import kotlinx.coroutines.launch
 
 @Composable
-fun HomeScreen(
-    homeViewModel: HomeViewModel = hiltViewModel(),
+fun NotificationsHubScreen(
+    notificationsHubViewModel: NotificationsHubViewModel = hiltViewModel(),
 ) {
-    val homeUiState = homeViewModel.collectUiStateValue()
-    val listState = rememberLazyStaggeredGridState()
+    val notificationsHubUiState = notificationsHubViewModel.collectUiStateValue()
+    val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
 
     Column(
         modifier = Modifier
             .fillMaxSize()
     ) {
-        HomeHeader(
-            activeFilter = homeUiState.activeFilter,
-            onFilterPressed = homeViewModel::onToggleFilter,
-            onNotificationPressed = homeViewModel::onNotificationPressed,
+        NotificationsHubHeader(
+            notificationType = notificationsHubUiState.notificationType,
+            onFilterPressed = notificationsHubViewModel::onToggleFilter,
             onTopPressed = {
                 coroutineScope.launch {
                     listState.animateScrollToItem(0)
@@ -68,29 +70,55 @@ fun HomeScreen(
             }
         )
 
-        when (homeUiState.loadedState) {
-            is ResellApiState.Success -> {
-                ResellListingsScroll(
-                    listings = homeUiState.listings,
-                    onListingPressed = {
-                        homeViewModel.onListingPressed(it)
-                    },
-                    listState = listState,
-                )
+        Column (
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(bottom = if (notificationsHubUiState.categorizedNotifications.isEmpty()) 128.dp else 0.dp),
+            verticalArrangement = Arrangement.Center
+        ) {
+            when (notificationsHubUiState.loadedState) {
+                is ResellApiState.Success -> {
+                    if (notificationsHubUiState.categorizedNotifications.isEmpty()) {
+                        Text(
+                            modifier = Modifier.align(alignment = Alignment.CenterHorizontally),
+                            text = "You're all caught up",
+                            style = Style.heading2
+                        )
+                        Spacer(modifier = Modifier.height(19.dp))
+                        Text(
+                            modifier = Modifier.align(alignment = Alignment.CenterHorizontally),
+                            text = "No new notifications right now",
+                            color = Color.Gray,
+                            textAlign = TextAlign.Center,
+                            style = Style.body1
+                        )
+                    } else {
+                        ResellNotificationsScroll(
+                            notificationsHubUiState,
+                            onNotificationPressed = {
+                                notificationsHubViewModel.onNotificationPressed()
+                            },
+                            onNotificationArchived = {
+                                Log.d("Unread List Length", notificationsHubUiState.newNotifications.size.toString())
+                                notificationsHubViewModel.onNotificationArchived(it)
+                            },
+                            listState = listState,
+                        )
+                    }
+                }
+
+                is ResellApiState.Loading -> {}
+
+                is ResellApiState.Error -> {}
             }
-
-            is ResellApiState.Loading -> {}
-
-            is ResellApiState.Error -> {}
         }
     }
 }
 
 @Composable
-private fun HomeHeader(
-    activeFilter: HomeViewModel.HomeFilter,
-    onFilterPressed: (HomeViewModel.HomeFilter) -> Unit = {},
-    onNotificationPressed: () -> Unit = {},
+private fun NotificationsHubHeader(
+    notificationType: NotificationType?,
+    onFilterPressed: (NotificationType?) -> Unit = {},
     onTopPressed: () -> Unit,
 ) {
     Column {
@@ -112,10 +140,10 @@ private fun HomeHeader(
                 text = "resell",
                 style = Style.resellBrand
             )
-            Row{
-                Box (
+            Row {
+                Box(
                     modifier = Modifier
-                        .clickableNoIndication { onNotificationPressed() }
+                        .clickableNoIndication { }
                 ) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_notification_bell),
@@ -157,13 +185,19 @@ private fun HomeHeader(
             item {
                 Spacer(modifier = Modifier.size(Padding.medium))
             }
-
-            items(items = HomeViewModel.HomeFilter.entries) { filter ->
+            item {
+                ResellTag(
+                    text = "All",
+                    active = notificationType == null,
+                    onClick = { onFilterPressed(null) }
+                )
+            }
+            items(items = NotificationType.entries) { filter ->
                 ResellTag(
                     text = filter.name.lowercase().replaceFirstChar {
                         it.uppercase()
                     },
-                    active = filter == activeFilter,
+                    active = filter == notificationType,
                     onClick = { onFilterPressed(filter) }
                 )
             }
@@ -172,7 +206,6 @@ private fun HomeHeader(
                 Spacer(modifier = Modifier.size(Padding.medium))
             }
         }
-
         Spacer(modifier = Modifier.height(Padding.medium))
     }
 }

@@ -74,6 +74,10 @@ class HomeViewModel @Inject constructor(
         )
     }
 
+    fun onNotificationPressed() {
+        rootNavigationRepository.navigate(ResellRootRoute.NOTIFICATIONS)
+    }
+
     fun onToggleFilter(filter: HomeFilter) {
         applyMutation {
             copy(activeFilter = filter)

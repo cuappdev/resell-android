@@ -1,4 +1,4 @@
-package com.cornellappdev.resell.android.model
+package com.cornellappdev.resell.android.model.messages
 
 import com.cornellappdev.resell.android.util.justinMessages
 import com.cornellappdev.resell.android.util.richieMessages

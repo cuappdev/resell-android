@@ -9,7 +9,7 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.cornellappdev.resell.android.model.ChatMessageCluster
+import com.cornellappdev.resell.android.model.messages.ChatMessageCluster
 import com.cornellappdev.resell.android.util.richieMessages
 
 @Composable

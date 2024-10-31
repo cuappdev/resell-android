@@ -39,7 +39,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.resell.android.R
-import com.cornellappdev.resell.android.model.Chat
+import com.cornellappdev.resell.android.model.messages.Chat
 import com.cornellappdev.resell.android.ui.components.global.messages.ChatTag
 import com.cornellappdev.resell.android.ui.components.global.messages.ResellChatScroll
 import com.cornellappdev.resell.android.ui.theme.ResellPurple

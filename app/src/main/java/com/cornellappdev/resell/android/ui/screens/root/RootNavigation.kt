@@ -20,6 +20,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.cornellappdev.resell.android.ui.screens.main.ChatScreen
 import com.cornellappdev.resell.android.ui.screens.main.MainTabNavigation
+import com.cornellappdev.resell.android.ui.screens.main.NotificationsHubScreen
 import com.cornellappdev.resell.android.ui.screens.newpost.NewPostNavigation
 import com.cornellappdev.resell.android.ui.screens.newpost.RequestDetailsEntryScreen
 import com.cornellappdev.resell.android.ui.screens.onboarding.LandingScreen
@@ -122,6 +123,10 @@ fun RootNavigation(
             composable<ResellRootRoute.REPORT> {
                 ReportNavigation()
             }
+
+            composable <ResellRootRoute.NOTIFICATIONS>{
+                NotificationsHubScreen()
+            }
         }
 
         RootConfirmationOverlay()
@@ -188,4 +193,7 @@ sealed class ResellRootRoute {
         val postId: String,
         val userId: String
     ) : ResellRootRoute()
+
+    @Serializable
+    data object NOTIFICATIONS : ResellRootRoute()
 }
