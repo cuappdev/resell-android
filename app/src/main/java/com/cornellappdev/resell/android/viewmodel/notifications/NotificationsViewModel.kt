@@ -39,21 +39,26 @@ class NotificationsHubViewModel @Inject constructor(
                 .toEpochMilli() - a) / 86400000).toInt()
         }
 
-        val categorizedNotifications = notifications
-            .filter { it.notificationType.contains(notificationType) || notificationType == null }
-            .groupBy { notification ->
-                when {
-                    notification.unread -> "new"
-                    dayDifference(notification.timestate) <= 7 -> "week"
-                    dayDifference(notification.timestate) in 8..30 -> "month"
-                    else -> "old"
+        val categorizedNotifications
+            get() = notifications
+                .filter { it.notificationType.contains(notificationType) || notificationType == null }
+                .groupBy { notification ->
+                    when {
+                        notification.unread -> "new"
+                        dayDifference(notification.timestate) <= 7 -> "week"
+                        dayDifference(notification.timestate) in 8..30 -> "month"
+                        else -> "old"
+                    }
                 }
-            }
 
-        val newNotifications = categorizedNotifications["new"].orEmpty()
-        val weekNotifications = categorizedNotifications["week"].orEmpty()
-        val monthNotifications = categorizedNotifications["month"].orEmpty()
-        val oldNotifications = categorizedNotifications["old"].orEmpty()
+        val newNotifications
+            get() = categorizedNotifications["new"].orEmpty()
+        val weekNotifications
+            get() = categorizedNotifications["week"].orEmpty()
+        val monthNotifications
+            get() = categorizedNotifications["month"].orEmpty()
+        val oldNotifications
+            get() = categorizedNotifications["old"].orEmpty()
     }
 
     fun onToggleFilter(filter: NotificationType?) {
@@ -77,6 +82,11 @@ class NotificationsHubViewModel @Inject constructor(
                 }
             })
         }
-        Log.d("ARCHIVED NOTIFICATION", "Notification with the id ${notification.id} has been archived.")
+        Log.d(
+            "ARCHIVED NOTIFICATION",
+            "Notification with the id ${notification.id} has been archived.\n" +
+                    "New size: ${stateValue().newNotifications.size}"
+        )
+
     }
 }

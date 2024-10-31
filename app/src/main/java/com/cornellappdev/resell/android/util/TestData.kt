@@ -68,7 +68,7 @@ fun getRandomPastTime(): Long {
 val richieNotifications = { count: Int ->
     List(count) {
         Notification(
-            id = (System.currentTimeMillis() * Random.nextInt(1000, 9999)).toInt(),
+            id = it,
             title = "richie is interested in buying AppDev",
             timestate = getRandomPastTime(),
             notificationType = listOf(NotificationType.Message, NotificationType.Buyer),

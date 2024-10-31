@@ -11,10 +11,8 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.util.fastForEach
 import com.cornellappdev.resell.android.model.messages.Notification
 import com.cornellappdev.resell.android.ui.components.global.messages.NotificationCard
 import com.cornellappdev.resell.android.ui.components.global.messages.SwipeableNotificationCard
@@ -35,9 +33,9 @@ fun ResellNotificationsScroll(
         state = listState,
         contentPadding = PaddingValues(bottom = 24.dp),
         modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        if (notificationsHubUiState.newNotifications.isNotEmpty()){
+
+        if (notificationsHubUiState.newNotifications.isNotEmpty()) {
             item {
                 Text(
                     text = "New",
@@ -58,10 +56,11 @@ fun ResellNotificationsScroll(
                         onNotificationPressed(notification)
                     }
                 }
+                Spacer(modifier = Modifier.height(12.dp))
             }
         }
 
-        if (notificationsHubUiState.weekNotifications.isNotEmpty()){
+        if (notificationsHubUiState.weekNotifications.isNotEmpty()) {
             item {
                 Text(
                     text = "Last 7 Days",
@@ -70,7 +69,7 @@ fun ResellNotificationsScroll(
                 )
                 Spacer(modifier = Modifier.height(12.dp))
                 notificationsHubUiState.weekNotifications.forEach {
-                    NotificationCard (
+                    NotificationCard(
                         imageUrl = "https://media.licdn.com/dms/image/D4E03AQGOCNNbxGtcjw/profile-displayphoto-shrink_200_200/0/1704329714345?e=2147483647&v=beta&t=Kq7ex1pKyiifjOpuNIojeZ8f4dXjEAsNSpkJDXBwjxc",
                         title = it.title,
                         timestamp = it.timestamp(),
@@ -79,11 +78,12 @@ fun ResellNotificationsScroll(
                         onNotificationPressed(it)
                     }
                 }
+                Spacer(modifier = Modifier.height(12.dp))
             }
         }
 
 
-        if (notificationsHubUiState.monthNotifications.isNotEmpty()){
+        if (notificationsHubUiState.monthNotifications.isNotEmpty()) {
             item {
                 Text(
                     text = "Last 30 Days",
@@ -92,7 +92,7 @@ fun ResellNotificationsScroll(
                 )
                 Spacer(modifier = Modifier.height(12.dp))
                 notificationsHubUiState.monthNotifications.forEach {
-                    NotificationCard (
+                    NotificationCard(
                         imageUrl = "https://media.licdn.com/dms/image/D4E03AQGOCNNbxGtcjw/profile-displayphoto-shrink_200_200/0/1704329714345?e=2147483647&v=beta&t=Kq7ex1pKyiifjOpuNIojeZ8f4dXjEAsNSpkJDXBwjxc",
                         title = it.title,
                         timestamp = it.timestamp(),
@@ -101,10 +101,11 @@ fun ResellNotificationsScroll(
                         onNotificationPressed(it)
                     }
                 }
+                Spacer(modifier = Modifier.height(12.dp))
             }
         }
 
-        if(notificationsHubUiState.oldNotifications.isNotEmpty()){
+        if (notificationsHubUiState.oldNotifications.isNotEmpty()) {
             item {
                 Text(
                     text = "Older",
@@ -113,7 +114,7 @@ fun ResellNotificationsScroll(
                 )
                 Spacer(modifier = Modifier.height(12.dp))
                 notificationsHubUiState.oldNotifications.forEach {
-                    NotificationCard (
+                    NotificationCard(
                         imageUrl = "https://media.licdn.com/dms/image/D4E03AQGOCNNbxGtcjw/profile-displayphoto-shrink_200_200/0/1704329714345?e=2147483647&v=beta&t=Kq7ex1pKyiifjOpuNIojeZ8f4dXjEAsNSpkJDXBwjxc",
                         title = it.title,
                         timestamp = it.timestamp(),

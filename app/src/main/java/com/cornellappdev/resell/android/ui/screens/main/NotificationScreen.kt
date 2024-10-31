@@ -99,7 +99,6 @@ fun NotificationsHubScreen(
                                 notificationsHubViewModel.onNotificationPressed()
                             },
                             onNotificationArchived = {
-                                Log.d("Unread List Length", notificationsHubUiState.newNotifications.size.toString())
                                 notificationsHubViewModel.onNotificationArchived(it)
                             },
                             listState = listState,
