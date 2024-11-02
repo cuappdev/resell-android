@@ -25,6 +25,12 @@ fun ExternalProfileNavigation(
         }
     }
 
+    LaunchedEffect(uiState.popBackStack) {
+        uiState.popBackStack?.consume {
+            navController.popBackStack()
+        }
+    }
+
     NavHost(
         navController = navController,
         startDestination = uiState.startingRoute,
@@ -35,7 +41,7 @@ fun ExternalProfileNavigation(
         }
 
         composable<ExternalProfileRoute.Search> {
-            // TODO
+            ExternalProfileSearchScreen()
         }
     }
 }
@@ -49,6 +55,7 @@ sealed class ExternalProfileRoute {
 
     @Serializable
     data class Search(
-        val uid: String
+        val uid: String,
+        val username: String,
     ) : ExternalProfileRoute()
 }

@@ -33,6 +33,7 @@ import com.cornellappdev.resell.android.ui.components.global.ResellTag
 import com.cornellappdev.resell.android.ui.theme.Padding
 import com.cornellappdev.resell.android.ui.theme.Primary
 import com.cornellappdev.resell.android.ui.theme.Style
+import com.cornellappdev.resell.android.util.clickableNoIndication
 import com.cornellappdev.resell.android.util.defaultHorizontalPadding
 import com.cornellappdev.resell.android.viewmodel.main.HomeViewModel
 import kotlinx.coroutines.launch
@@ -56,7 +57,8 @@ fun HomeScreen(
                 coroutineScope.launch {
                     listState.animateScrollToItem(0)
                 }
-            }
+            },
+            onSearchPressed = homeViewModel::onSearchPressed
         )
 
         when (homeUiState.loadedState) {
@@ -82,6 +84,7 @@ private fun HomeHeader(
     activeFilter: HomeViewModel.HomeFilter,
     onFilterPressed: (HomeViewModel.HomeFilter) -> Unit = {},
     onTopPressed: () -> Unit,
+    onSearchPressed: () -> Unit,
 ) {
     Column {
         Row(
@@ -106,7 +109,11 @@ private fun HomeHeader(
                 painter = painterResource(id = R.drawable.ic_search),
                 contentDescription = "search",
                 tint = Primary,
-                modifier = Modifier.size(25.dp)
+                modifier = Modifier
+                    .size(25.dp)
+                    .clickableNoIndication {
+                        onSearchPressed()
+                    }
             )
         }
 

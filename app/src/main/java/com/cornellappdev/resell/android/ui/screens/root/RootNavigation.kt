@@ -18,10 +18,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.cornellappdev.resell.android.model.api.User
-import com.cornellappdev.resell.android.model.classes.UserInfo
 import com.cornellappdev.resell.android.ui.screens.externalprofile.ExternalProfileNavigation
-import com.cornellappdev.resell.android.ui.screens.externalprofile.ExternalProfileScreen
+import com.cornellappdev.resell.android.ui.screens.main.AllSearchScreen
 import com.cornellappdev.resell.android.ui.screens.main.ChatScreen
 import com.cornellappdev.resell.android.ui.screens.main.MainTabNavigation
 import com.cornellappdev.resell.android.ui.screens.newpost.NewPostNavigation
@@ -81,6 +79,12 @@ fun RootNavigation(
         }
     }
 
+    LaunchedEffect(uiState.popBackStack) {
+        uiState.popBackStack?.consumeSuspend {
+            navController.popBackStack() }
+    }
+
+
     CompositionLocalProvider(
         LocalRootNavigator provides navController
     ) {
@@ -122,13 +126,17 @@ fun RootNavigation(
             composable<ResellRootRoute.CHAT> {
                 ChatScreen(chatViewModel)
             }
-            
+
             composable<ResellRootRoute.REPORT> {
                 ReportNavigation()
             }
 
             composable<ResellRootRoute.EXTERNAL_PROFILE> {
                 ExternalProfileNavigation()
+            }
+
+            composable<ResellRootRoute.SEARCH> {
+                AllSearchScreen()
             }
         }
 
@@ -201,4 +209,7 @@ sealed class ResellRootRoute {
     data class EXTERNAL_PROFILE(
         val id: String
     ) : ResellRootRoute()
+
+    @Serializable
+    data object SEARCH : ResellRootRoute()
 }

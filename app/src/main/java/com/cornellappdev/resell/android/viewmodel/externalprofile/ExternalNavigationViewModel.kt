@@ -19,12 +19,14 @@ class ExternalNavigationViewModel @Inject constructor(
     ResellViewModel<ExternalNavigationViewModel.ExternalNavUIState>(
         initialUiState = ExternalNavUIState(
             route = null,
-            startingRoute = ExternalProfileRoute.ExternalProfile("")
+            startingRoute = ExternalProfileRoute.ExternalProfile(""),
+            popBackStack = null,
         )
     ) {
 
     data class ExternalNavUIState(
         val route: UIEvent<ExternalProfileRoute>?,
+        val popBackStack: UIEvent<Unit>?,
         val startingRoute: ExternalProfileRoute
     )
 
@@ -42,6 +44,14 @@ class ExternalNavigationViewModel @Inject constructor(
             applyMutation {
                 copy(
                     route = event
+                )
+            }
+        }
+
+        asyncCollect(externalNavigationRepository.popBackStackFlow) { event ->
+            applyMutation {
+                copy(
+                    popBackStack = event
                 )
             }
         }

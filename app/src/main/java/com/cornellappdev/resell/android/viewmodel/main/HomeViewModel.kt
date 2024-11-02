@@ -79,4 +79,8 @@ class HomeViewModel @Inject constructor(
             copy(activeFilter = filter)
         }
     }
+
+    fun onSearchPressed() {
+        rootNavigationRepository.navigate(ResellRootRoute.SEARCH)
+    }
 }

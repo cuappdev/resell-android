@@ -13,7 +13,6 @@ import com.cornellappdev.resell.android.model.settings.BlockedUsersRepository
 import com.cornellappdev.resell.android.ui.screens.externalprofile.ExternalProfileRoute
 import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
-import com.cornellappdev.resell.android.viewmodel.main.ProfileViewModel.ProfileTab
 import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepository
 import com.cornellappdev.resell.android.viewmodel.root.OptionType
 import com.cornellappdev.resell.android.viewmodel.root.RootConfirmationRepository
@@ -31,6 +30,7 @@ class ExternalProfileViewModel @Inject constructor(
     private val blockedUsersRepository: BlockedUsersRepository,
     private val rootConfirmationRepository: RootConfirmationRepository,
     private val profileRepository: ProfileRepository,
+    private val externalNavigationRepository: ExternalNavigationRepository,
     savedStateHandle: SavedStateHandle
 ) :
     ResellViewModel<ExternalProfileViewModel.ExternalProfileState>(
@@ -112,7 +112,12 @@ class ExternalProfileViewModel @Inject constructor(
     }
 
     fun onSearchPressed() {
-        // TODO: Implement
+        externalNavigationRepository.navigate(
+            ExternalProfileRoute.Search(
+                uid = stateValue().uid,
+                username = stateValue().shopName
+            )
+        )
     }
 
     /**
@@ -125,7 +130,7 @@ class ExternalProfileViewModel @Inject constructor(
     }
 
     init {
-        val navArgs = savedStateHandle.toRoute< ExternalProfileRoute.ExternalProfile>()
+        val navArgs = savedStateHandle.toRoute<ExternalProfileRoute.ExternalProfile>()
         applyMutation {
             copy(
                 uid = navArgs.uid,
