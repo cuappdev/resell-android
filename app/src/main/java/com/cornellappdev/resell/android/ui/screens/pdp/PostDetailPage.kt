@@ -109,6 +109,7 @@ fun PostDetailPage(
         onSimilarClick = {
             postDetailViewModel.onSimilarPressed(it)
         },
+        onUserClick = postDetailViewModel::onUserClick
     )
 }
 
@@ -129,6 +130,7 @@ private fun Content(
     bookmarked: Boolean = false,
     onBookmarkClick: () -> Unit = {},
     onSimilarClick: (Int) -> Unit = {},
+    onUserClick: () -> Unit = {},
 ) {
     var sheetHeightFromBottom by remember { mutableStateOf(0.dp) }
     val pagerState = rememberPagerState(pageCount = { images.size })
@@ -154,7 +156,8 @@ private fun Content(
                         sheetHeightFromBottom = it
                     },
                     onSimilarClick = onSimilarClick,
-                    similarImageUrls = similarImageUrls
+                    similarImageUrls = similarImageUrls,
+                    onUserClick = onUserClick
                 )
             },
             sheetPeekHeight = peekHeight,
@@ -294,6 +297,7 @@ private fun BottomSheetContent(
     similarImageUrls: ResellApiResponse<List<String>>,
     onHeightChanged: (Dp) -> Unit,
     onSimilarClick: (Int) -> Unit,
+    onUserClick: () -> Unit,
 ) {
 
     // Get screen height
@@ -345,8 +349,10 @@ private fun BottomSheetContent(
 
         Row(
             modifier = Modifier
-                .fillMaxWidth()
-                .defaultHorizontalPadding(),
+                .defaultHorizontalPadding()
+                .clickableNoIndication {
+                    onUserClick()
+                },
             verticalAlignment = Alignment.CenterVertically
         ) {
             ProfilePictureView(

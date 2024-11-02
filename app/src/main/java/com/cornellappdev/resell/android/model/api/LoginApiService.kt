@@ -83,6 +83,7 @@ data class User(
     val familyName: String,
     val admin: Boolean,
     val photoUrl: String,
+    val bio: String,
     val email: String,
     val googleId: String
 ) {
@@ -93,7 +94,7 @@ data class User(
         netId = netid,
         // TODO Refactor UserInfo because we don't have all these fields
         venmoHandle = "TODO",
-        bio = "TODO",
+        bio = bio,
         id = id
     )
 }
