@@ -30,6 +30,14 @@ class ProfileRepository @Inject constructor(
         MutableStateFlow(ResellApiResponse.Pending)
     val internalArchivedListings = _internalArchivedListings.asStateFlow()
 
+    private val _externalUser: MutableStateFlow<ResellApiResponse<UserInfo>> =
+        MutableStateFlow(ResellApiResponse.Pending)
+    val externalUser = _externalUser.asStateFlow()
+
+    private val _externalListings: MutableStateFlow<ResellApiResponse<List<Listing>>> =
+        MutableStateFlow(ResellApiResponse.Pending)
+    val externalListings = _externalListings.asStateFlow()
+
     /**
      * Initiates a fetch of the user's internal profile from the API.
      *
@@ -79,6 +87,34 @@ class ProfileRepository @Inject constructor(
             } catch (e: Exception) {
                 Log.e("ProfileRepository", "Error fetching listings: ", e)
                 _internalArchivedListings.value = ResellApiResponse.Error
+            }
+        }
+    }
+
+    fun fetchExternalListings(id: String) {
+        _externalListings.value = ResellApiResponse.Pending
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val response = retrofitInstance.postsApi.getPostsByUser(id)
+                _externalListings.value = ResellApiResponse.Success(response.posts.map {
+                    it.toListing()
+                })
+            } catch (e: Exception) {
+                Log.e("ProfileRepository", "Error fetching listings: ", e)
+                _externalListings.value = ResellApiResponse.Error
+            }
+        }
+    }
+
+    fun fetchExternalProfile(id: String) {
+        _externalUser.value = ResellApiResponse.Pending
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val response = retrofitInstance.userApi.getUser(id)
+                _externalUser.value = ResellApiResponse.Success(response.user.toUserInfo())
+            } catch (e: Exception) {
+                Log.e("ProfileRepository", "Error fetching profile: ", e)
+                _externalUser.value = ResellApiResponse.Error
             }
         }
     }

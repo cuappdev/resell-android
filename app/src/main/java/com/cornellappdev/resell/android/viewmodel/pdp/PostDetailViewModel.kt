@@ -45,6 +45,7 @@ class PostDetailViewModel @Inject constructor(
         val bookmarked: Boolean = false,
         val similarItems: ResellApiResponse<List<Listing>> = ResellApiResponse.Pending,
         val hideSheetEvent: UIEvent<Unit>? = null,
+        val uid: String = "",
     ) {
         val minAspectRatio
             get() = images.minOfOrNull { it.width.toFloat() / it.height.toFloat() } ?: 1f
@@ -100,7 +101,10 @@ class PostDetailViewModel @Inject constructor(
                 val response = retrofitInstance.postsApi.getFilteredPosts(
                     CategoryRequest(category)
                 )
-                val posts = response.posts.take(4)
+
+                val posts = response.posts.filter {
+                    it.id != stateValue().postId
+                }.take(4)
 
                 applyMutation {
                     copy(
@@ -155,6 +159,14 @@ class PostDetailViewModel @Inject constructor(
 
     }
 
+    fun onUserClick() {
+        rootNavigationRepository.navigate(
+            ResellRootRoute.EXTERNAL_PROFILE(
+                id = stateValue().uid
+            )
+        )
+    }
+
     fun onSimilarPressed(index: Int) {
         val listing = stateValue().similarItems.asSuccess().data[index]
         applyMutation {
@@ -165,7 +177,8 @@ class PostDetailViewModel @Inject constructor(
                 description = listing.description,
                 hideSheetEvent = UIEvent(Unit),
                 profileImageUrl = listing.user.imageUrl,
-                username = listing.user.name
+                username = listing.user.name,
+                uid = listing.user.id
             )
         }
 
@@ -189,7 +202,8 @@ class PostDetailViewModel @Inject constructor(
                 price = navArgs.price,
                 description = navArgs.description,
                 profileImageUrl = navArgs.userImageUrl,
-                username = navArgs.userHumanName
+                username = navArgs.userHumanName,
+                uid = navArgs.userId
             )
         }
         onNeedLoadImages(

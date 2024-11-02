@@ -37,11 +37,10 @@ class ProfileViewModel @Inject constructor(
         loadedState = ResellApiState.Loading,
         shopListings = ResellApiResponse.Pending,
         archiveListings = ResellApiResponse.Pending,
-        shopName = "Sunshine Shop",
-        vendorName = "Richie Sun",
-        bio = "I cook food and you eat it. Simple.\nAlsotest\n\n\nthis\n\n\ngogogo",
+        shopName = "",
+        vendorName = "",
+        bio = "",
         imageUrl = "",
-        isSelf = false,
     )
 ) {
 
@@ -54,7 +53,6 @@ class ProfileViewModel @Inject constructor(
         val vendorName: String,
         val bio: String,
         val imageUrl: String,
-        val isSelf: Boolean,
     )
 
     enum class ProfileTab {
@@ -95,39 +93,7 @@ class ProfileViewModel @Inject constructor(
         // TODO: Implement
 
         // TODO: showing this for testing
-        rootOptionsMenuRepository.showOptionsMenu(
-            options = listOf(
-                OptionType.SHARE,
-                OptionType.REPORT,
-                OptionType.BLOCK,
-            ),
-            alignment = Alignment.TopEnd,
-        ) {
-            when (it) {
-                OptionType.SHARE -> {
-                    // TODO: Implement
-                }
 
-                OptionType.REPORT -> {
-                    // TODO: user id and post id
-                    rootNavigationRepository.navigate(
-                        ResellRootRoute.REPORT(
-                            reportPost = false,
-                            postId = "",
-                            userId = "",
-                        )
-                    )
-                }
-
-                OptionType.BLOCK -> {
-                    showBlockDialog(
-                        rootDialogRepository = rootDialogRepository,
-                        blockedUsersRepository = blockedUsersRepository,
-                        rootConfirmationRepository = rootConfirmationRepository
-                    )
-                }
-            }
-        }
     }
 
     /**
@@ -156,7 +122,6 @@ class ProfileViewModel @Inject constructor(
                     vendorName = response.asSuccessOrNull()?.data?.name ?: "",
                     bio = response.asSuccessOrNull()?.data?.bio ?: "",
                     imageUrl = response.asSuccessOrNull()?.data?.imageUrl ?: "",
-                    isSelf = true,
                 )
             }
         }
