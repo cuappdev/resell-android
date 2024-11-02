@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -22,12 +23,15 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.resell.android.R
+import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.ui.components.global.ResellListingsScroll
 import com.cornellappdev.resell.android.ui.components.global.ResellTabBar
 import com.cornellappdev.resell.android.ui.components.main.ProfilePictureView
+import com.cornellappdev.resell.android.ui.components.profile.ProfileEmptyState
 import com.cornellappdev.resell.android.ui.theme.Secondary
 import com.cornellappdev.resell.android.ui.theme.Style
 import com.cornellappdev.resell.android.ui.theme.instantFadeInOut
+import com.cornellappdev.resell.android.ui.theme.simpleFadeInOut
 import com.cornellappdev.resell.android.util.clickableNoIndication
 import com.cornellappdev.resell.android.util.defaultHorizontalPadding
 import com.cornellappdev.resell.android.viewmodel.main.ProfileViewModel
@@ -43,45 +47,77 @@ fun ProfileScreen(
         modifier = Modifier
             .fillMaxSize()
     ) {
-        val header = @Composable {
-            ProfileHeader(
-                imageUrl = uiState.imageUrl,
-                shopName = uiState.shopName,
-                vendorName = uiState.vendorName,
-                bio = uiState.bio,
-                selectedTab = uiState.profileTab,
-                onTabSelected = { profileViewModel.onTabSelected(it) },
-                onSettingsPressed = { profileViewModel.onSettingsPressed() },
-                onSearchPressed = { profileViewModel.onSearchPressed() },
-            )
-        }
+        ProfileHeader(
+            imageUrl = uiState.imageUrl,
+            shopName = uiState.shopName,
+            vendorName = uiState.vendorName,
+            bio = uiState.bio,
+            selectedTab = uiState.profileTab,
+            onTabSelected = { profileViewModel.onTabSelected(it) },
+            onSettingsPressed = { profileViewModel.onSettingsPressed() },
+            onSearchPressed = { profileViewModel.onSearchPressed() },
+        )
 
         AnimatedContent(
             targetState = uiState.profileTab,
             label = "profile content",
-            transitionSpec = instantFadeInOut,
+            transitionSpec = simpleFadeInOut,
             modifier = Modifier.fillMaxSize()
         ) { tab ->
             when (tab) {
                 ProfileViewModel.ProfileTab.SHOP -> {
-                    ResellListingsScroll(
-                        listings = uiState.shopListings,
-                        onListingPressed = { profileViewModel.onListingPressed(it) },
-                        listState = staggeredState,
-                        paddedTop = 12.dp,
-                    ) {
-                        header()
+                    when (uiState.shopListings) {
+                        is ResellApiResponse.Pending -> {
+
+                        }
+
+                        is ResellApiResponse.Error -> {
+
+                        }
+
+                        is ResellApiResponse.Success -> {
+                            ResellListingsScroll(
+                                listings = uiState.shopListings.data,
+                                onListingPressed = { profileViewModel.onListingPressed(it) },
+                                listState = staggeredState,
+                                paddedTop = 12.dp,
+                                emptyState = {
+                                    ProfileEmptyState(
+                                        title = "No listings posted",
+                                        body = "When you post a listing, it will be displayed here",
+                                        modifier = Modifier.fillMaxHeight().padding(bottom = 60.dp)
+                                    )
+                                }
+                            )
+                        }
                     }
                 }
 
                 ProfileViewModel.ProfileTab.ARCHIVE -> {
-                    ResellListingsScroll(
-                        listings = uiState.archiveListings,
-                        onListingPressed = { profileViewModel.onListingPressed(it) },
-                        listState = staggeredState,
-                        paddedTop = 12.dp,
-                    ) {
-                        header()
+                    when (uiState.archiveListings) {
+                        is ResellApiResponse.Pending -> {
+
+                        }
+
+                        is ResellApiResponse.Error -> {
+
+                        }
+
+                        is ResellApiResponse.Success -> {
+                            ResellListingsScroll(
+                                listings = uiState.archiveListings.data,
+                                onListingPressed = { profileViewModel.onListingPressed(it) },
+                                listState = staggeredState,
+                                paddedTop = 12.dp,
+                                emptyState = {
+                                    ProfileEmptyState(
+                                        title = "No listings archived",
+                                        body = "When you archive a listing, it will be displayed here",
+                                        modifier = Modifier.fillMaxHeight().padding(bottom = 60.dp)
+                                    )
+                                }
+                            )
+                        }
                     }
                 }
 
@@ -91,9 +127,7 @@ fun ProfileScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(top = 12.dp)
-                    ) {
-                        header()
-                    }
+                    ) {}
                 }
             }
         }

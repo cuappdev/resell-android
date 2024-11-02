@@ -3,6 +3,7 @@ package com.cornellappdev.resell.android.viewmodel.main
 import androidx.compose.ui.Alignment
 import androidx.lifecycle.viewModelScope
 import com.cornellappdev.resell.android.model.classes.Listing
+import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.model.classes.ResellApiState
 import com.cornellappdev.resell.android.model.classes.toResellApiState
 import com.cornellappdev.resell.android.model.core.UserInfoRepository
@@ -34,23 +35,21 @@ class ProfileViewModel @Inject constructor(
     initialUiState = ProfileUiState(
         profileTab = ProfileTab.SHOP,
         loadedState = ResellApiState.Loading,
-        shopListings = emptyList(),
-        archiveListings = emptyList(),
+        shopListings = ResellApiResponse.Pending,
+        archiveListings = ResellApiResponse.Pending,
         shopName = "Sunshine Shop",
         vendorName = "Richie Sun",
         bio = "I cook food and you eat it. Simple.\nAlsotest\n\n\nthis\n\n\ngogogo",
         imageUrl = "",
         isSelf = false,
-        postsLoadedState = ResellApiState.Loading
     )
 ) {
 
     data class ProfileUiState(
         val profileTab: ProfileTab,
         val loadedState: ResellApiState,
-        val postsLoadedState: ResellApiState,
-        val shopListings: List<Listing>,
-        val archiveListings: List<Listing>,
+        val shopListings: ResellApiResponse<List<Listing>>,
+        val archiveListings: ResellApiResponse<List<Listing>>,
         val shopName: String,
         val vendorName: String,
         val bio: String,
@@ -135,21 +134,9 @@ class ProfileViewModel @Inject constructor(
      * Reloads the listings made by the internal user.
      */
     fun onReloadListings() {
-        applyMutation {
-            copy(
-                postsLoadedState = ResellApiState.Loading
-            )
-        }
-
         viewModelScope.launch {
             profileRepository.fetchInternalListings(userInfoRepository.getUserId() ?: "lol")
             profileRepository.fetchArchivedListings(userInfoRepository.getUserId() ?: "lol")
-
-            applyMutation {
-                copy(
-                    postsLoadedState = ResellApiState.Success
-                )
-            }
         }
     }
 
@@ -177,7 +164,7 @@ class ProfileViewModel @Inject constructor(
         asyncCollect(profileRepository.internalListings) { response ->
             applyMutation {
                 copy(
-                    shopListings = response.asSuccessOrNull()?.data ?: listOf(),
+                    shopListings = response,
                 )
             }
         }
@@ -185,7 +172,7 @@ class ProfileViewModel @Inject constructor(
         asyncCollect(profileRepository.internalArchivedListings) { response ->
             applyMutation {
                 copy(
-                    archiveListings = response.asSuccessOrNull()?.data ?: listOf(),
+                    archiveListings = response,
                 )
             }
         }

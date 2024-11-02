@@ -24,8 +24,14 @@ fun ResellListingsScroll(
     listState: LazyStaggeredGridState,
     modifier: Modifier = Modifier,
     paddedTop: Dp = 0.dp,
+    emptyState: @Composable () -> Unit = { },
     header: @Composable () -> Unit = {},
 ) {
+    if (listings.isEmpty()) {
+        emptyState()
+        return
+    }
+
     LazyVerticalStaggeredGrid(
         state = listState,
         columns = StaggeredGridCells.Fixed(2),
