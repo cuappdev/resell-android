@@ -27,9 +27,15 @@ class HomeViewModel @Inject constructor(
 
     data class HomeUiState(
         val loadedState: ResellApiState,
-        val listings: List<Listing>,
+        private val listings: List<Listing>,
         val activeFilter: HomeFilter,
     ) {
+        // TODO This should change to an endpoint, but backend is simple.
+        val filteredListings: List<Listing>
+            get() = listings.filter {
+                activeFilter == HomeFilter.RECENT ||
+                        it.categories.map { it.lowercase() }.contains(activeFilter.name.lowercase())
+            }
     }
 
     init {

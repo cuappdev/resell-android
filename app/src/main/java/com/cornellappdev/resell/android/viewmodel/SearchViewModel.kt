@@ -8,14 +8,17 @@ import com.cornellappdev.resell.android.model.classes.Listing
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.model.profile.SearchRepository
 import com.cornellappdev.resell.android.ui.screens.externalprofile.ExternalProfileRoute
+import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
 import com.cornellappdev.resell.android.viewmodel.externalprofile.ExternalNavigationRepository
 import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepository
+import com.cornellappdev.resell.android.viewmodel.root.RootNavigationViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 abstract class SearchViewModel(
     private val searchRepository: SearchRepository,
+    private val rootNavigationRepository: RootNavigationRepository,
 ) : ResellViewModel<
         SearchViewModel.SearchUiState>(
     initialUiState = SearchUiState(
@@ -60,7 +63,20 @@ abstract class SearchViewModel(
     }
 
     fun onListingPressed(listing: Listing) {
-
+        rootNavigationRepository.navigate(
+            ResellRootRoute.PDP(
+                id = listing.id,
+                title = listing.title,
+                price = listing.price,
+                images = listing.images,
+                description = listing.description,
+                categories = listing.categories,
+                userImageUrl = listing.user.imageUrl,
+                username = listing.user.username,
+                userId = listing.user.id,
+                userHumanName = listing.user.name
+            )
+        )
     }
 
     abstract fun onExit()
@@ -71,7 +87,8 @@ class ExternalProfileSearchViewModel @Inject constructor(
     private val externalNavigationRepository: ExternalNavigationRepository,
     searchRepository: SearchRepository,
     savedStateHandle: SavedStateHandle,
-) : SearchViewModel(searchRepository) {
+    rootNavigationRepository: RootNavigationRepository
+) : SearchViewModel(searchRepository, rootNavigationRepository) {
     init {
         val navArgs = savedStateHandle.toRoute<ExternalProfileRoute.Search>()
 
@@ -87,7 +104,7 @@ class ExternalProfileSearchViewModel @Inject constructor(
 class AllSearchViewModel @Inject constructor(
     private val rootNavigationRepository: RootNavigationRepository,
     searchRepository: SearchRepository,
-) : SearchViewModel(searchRepository) {
+) : SearchViewModel(searchRepository, rootNavigationRepository) {
     init {
         applyMutation { copy(uid = null, username = "") }
     }

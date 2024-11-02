@@ -64,7 +64,7 @@ fun HomeScreen(
         when (homeUiState.loadedState) {
             is ResellApiState.Success -> {
                 ResellListingsScroll(
-                    listings = homeUiState.listings,
+                    listings = homeUiState.filteredListings,
                     onListingPressed = {
                         homeViewModel.onListingPressed(it)
                     },
