@@ -1,16 +1,11 @@
 package com.cornellappdev.resell.android.viewmodel.main
 
-import com.cornellappdev.resell.android.model.Listing
-import com.cornellappdev.resell.android.model.ResellApiState
-import com.cornellappdev.resell.android.util.fakeRichieListings
 import com.cornellappdev.resell.android.model.classes.Listing
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.model.classes.ResellApiState
 import com.cornellappdev.resell.android.model.classes.toResellApiState
 import com.cornellappdev.resell.android.model.posts.ResellPostRepository
 import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
-import com.cornellappdev.resell.android.util.richieListings
-import com.cornellappdev.resell.android.util.tallRichieListings
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
 import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -23,9 +18,9 @@ class HomeViewModel @Inject constructor(
 ) :
     ResellViewModel<HomeViewModel.HomeUiState>(
         initialUiState = HomeUiState(
-            listings = richieListings(10) + fakeRichieListings(10) + tallRichieListings(10),
+            listings = listOf(),
             activeFilter = HomeFilter.RECENT,
-            loadedState = ResellApiState.Success
+            loadedState = ResellApiState.Loading
         )
     ) {
 

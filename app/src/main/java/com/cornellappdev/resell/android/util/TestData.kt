@@ -25,11 +25,13 @@ val richieListings = { count: Int ->
 val fakeRichieListings = { count: Int ->
     List(count) {
         Listing(
-            imageUrl = "https://kohantextilejournal.com/wp-content/uploads/2020/11/Mr.-Ruizhe-Sun-China-768x384.jpg",
+            images = listOf("https://kohantextilejournal.com/wp-content/uploads/2020/11/Mr.-Ruizhe-Sun-China-768x384.jpg"),
             title = "title$it",
             price = "$$it.00",
-            category = "category$it",
-            id = it,
+            categories = listOf("category$it"),
+            id = it.toString(),
+            description = "Hello! I didn't sell this.",
+            user = richieUserInfo
         )
     }
 }
@@ -37,11 +39,13 @@ val fakeRichieListings = { count: Int ->
 val tallRichieListings = { count: Int ->
     List(count) {
         Listing(
-            imageUrl = "https://images.squarespace-cdn.com/content/v1/558a10ebe4b09c778262786f/1557230577805-U5SJ6EPAWZMYGGTDEAWY/Richie-Moriarty-B46A2378-20.jpg",
+            images = listOf("https://images.squarespace-cdn.com/content/v1/558a10ebe4b09c778262786f/1557230577805-U5SJ6EPAWZMYGGTDEAWY/Richie-Moriarty-B46A2378-20.jpg"),
             title = "title$it",
             price = "$$it.00",
-            category = "category$it",
-            id = it,
+            categories = listOf("category$it"),
+            id = it.toString(),
+            description = "Hello! I didn't sell this.",
+            user = richieUserInfo
         )
     }
 }
