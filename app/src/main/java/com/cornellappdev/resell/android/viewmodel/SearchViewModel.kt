@@ -11,7 +11,6 @@ import com.cornellappdev.resell.android.ui.screens.externalprofile.ExternalProfi
 import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
 import com.cornellappdev.resell.android.viewmodel.externalprofile.ExternalNavigationRepository
 import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepository
-import com.cornellappdev.resell.android.viewmodel.root.RootNavigationViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject

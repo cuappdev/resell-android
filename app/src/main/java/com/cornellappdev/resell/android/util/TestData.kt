@@ -1,12 +1,11 @@
 package com.cornellappdev.resell.android.util
 
-import com.cornellappdev.resell.android.model.classes.Listing
-import com.cornellappdev.resell.android.model.classes.UserInfo
-
 import com.cornellappdev.resell.android.model.Chat
 import com.cornellappdev.resell.android.model.ChatMessageCluster
 import com.cornellappdev.resell.android.model.ChatMessageData
 import com.cornellappdev.resell.android.model.MessageType
+import com.cornellappdev.resell.android.model.classes.Listing
+import com.cornellappdev.resell.android.model.classes.UserInfo
 
 val richieListings = { count: Int ->
     List(count) {

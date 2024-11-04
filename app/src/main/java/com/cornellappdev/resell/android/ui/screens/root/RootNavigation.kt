@@ -104,7 +104,8 @@ fun RootNavigation(
 
     LaunchedEffect(uiState.popBackStack) {
         uiState.popBackStack?.consumeSuspend {
-            navController.popBackStack() }
+            navController.popBackStack()
+        }
     }
 
 

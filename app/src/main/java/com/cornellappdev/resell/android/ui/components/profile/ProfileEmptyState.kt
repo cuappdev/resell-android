@@ -24,7 +24,9 @@ fun ProfileEmptyState(
     modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = modifier.fillMaxWidth().padding(horizontal = 58.dp),
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 58.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {

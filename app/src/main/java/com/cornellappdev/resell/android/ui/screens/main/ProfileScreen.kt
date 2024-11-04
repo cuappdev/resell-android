@@ -68,7 +68,9 @@ fun ProfileScreen(
                                     ProfileEmptyState(
                                         title = "No listings posted",
                                         body = "When you post a listing, it will be displayed here",
-                                        modifier = Modifier.fillMaxHeight().padding(bottom = 60.dp)
+                                        modifier = Modifier
+                                            .fillMaxHeight()
+                                            .padding(bottom = 60.dp)
                                     )
                                 }
                             )
@@ -96,7 +98,9 @@ fun ProfileScreen(
                                     ProfileEmptyState(
                                         title = "No listings archived",
                                         body = "When you archive a listing, it will be displayed here",
-                                        modifier = Modifier.fillMaxHeight().padding(bottom = 60.dp)
+                                        modifier = Modifier
+                                            .fillMaxHeight()
+                                            .padding(bottom = 60.dp)
                                     )
                                 }
                             )

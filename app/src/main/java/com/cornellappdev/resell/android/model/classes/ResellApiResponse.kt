@@ -4,10 +4,6 @@ import androidx.compose.runtime.Composable
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse.Error
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse.Pending
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse.Success
-import kotlin.Any
-import kotlin.IllegalStateException
-import kotlin.Nothing
-import kotlin.Unit
 
 /**
  * Represents the state of an api response fetching data of type [T].
