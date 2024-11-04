@@ -1,27 +1,36 @@
 package com.cornellappdev.resell.android.viewmodel.onboarding
 
+import android.content.Context
+import android.content.Intent
+import android.util.Log
 import androidx.activity.compose.ManagedActivityResultLauncher
+import androidx.activity.result.ActivityResult
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.viewModelScope
-import androidx.navigation.NavHostController
-import com.cornellappdev.resell.android.model.LoginRepository
-import com.cornellappdev.resell.android.model.RootNav
+import com.cornellappdev.resell.android.model.login.FireStoreRepository
+import com.cornellappdev.resell.android.model.login.FirebaseAuthRepository
+import com.cornellappdev.resell.android.model.login.GoogleAuthRepository
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonState
-import com.cornellappdev.resell.android.ui.screens.ResellRootRoute
+import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
-import com.cornellappdev.resell.android.viewmodel.RootNavigationSheetRepository
-import com.cornellappdev.resell.android.viewmodel.RootSheet
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount
-import com.google.android.gms.tasks.Task
+import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepository
+import com.cornellappdev.resell.android.viewmodel.root.RootNavigationSheetRepository
+import com.cornellappdev.resell.android.viewmodel.root.RootSheet
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class LandingViewModel @Inject constructor(
-    private val loginRepository: LoginRepository,
-    @RootNav private val navController: NavHostController,
+    private val googleAuthRepository: GoogleAuthRepository,
+    private val rootNavigationRepository: RootNavigationRepository,
     private val rootNavigationSheetRepository: RootNavigationSheetRepository,
+    private val fireStoreRepository: FireStoreRepository,
+    private val firebaseAuthRepository: FirebaseAuthRepository,
+    @ApplicationContext private val context: Context
 ) : ResellViewModel<LandingViewModel.LandingUiState>(
     initialUiState = LandingUiState()
 ) {
@@ -36,9 +45,11 @@ class LandingViewModel @Inject constructor(
      * Otherwise does nothing.
      */
     fun navigateIfLoggedIn() {
-        if (loginRepository.accountOrNull() != null) {
-            // TODO: If account actually still exists on backend...
-            navController.navigate(ResellRootRoute.MAIN)
+        if (googleAuthRepository.accountOrNull() != null) {
+            onSignInCompleted(
+                idToken = googleAuthRepository.accountOrNull()!!.idToken!!,
+                email = googleAuthRepository.accountOrNull()!!.email!!
+            )
         }
     }
 
@@ -60,45 +71,70 @@ class LandingViewModel @Inject constructor(
         }
 
         rootNavigationSheetRepository.showBottomSheet(
-            RootSheet.LOGIN_FAILED
+            RootSheet.LoginFailed
         )
 
-        loginRepository.invalidateEmail()
+        googleAuthRepository.signOut()
     }
 
     private fun onSignInCompleted(idToken: String, email: String) {
         // Cornell email.
-        if (email.endsWith("@cornell.edu")) {
-            viewModelScope.launch {
-                loginRepository.saveLoginState(true)
-                applyMutation {
-                    copy(buttonState = ResellTextButtonState.DISABLED)
-                }
-
-                // TODO Should have some logic to check if setup already or not
-                navController.navigate(ResellRootRoute.ONBOARDING)
-            }
-        }
-        // Not a Cornell email.
-        else {
+        if (!email.endsWith("@cornell.edu")) {
             applyMutation {
                 copy(buttonState = ResellTextButtonState.ENABLED)
             }
 
             // No longer logged in.
-            loginRepository.invalidateEmail()
+            googleAuthRepository.signOut()
             rootNavigationSheetRepository.showBottomSheet(
-                RootSheet.LOGIN_CORNELL_EMAIL
+                RootSheet.LoginCornellEmail
             )
+
+            return
         }
 
+        viewModelScope.launch {
+            try {
+                firebaseAuthRepository.firebaseAuthWithGoogle(idToken)
+
+                fireStoreRepository.getUserOnboarded(
+                    email = email,
+                    onError = {
+                        onSignInFailed()
+                    },
+                    onSuccess = { onboarded ->
+                        viewModelScope.launch {
+                            applyMutation {
+                                copy(buttonState = ResellTextButtonState.DISABLED)
+                            }
+
+                            if (onboarded) {
+                                rootNavigationRepository.navigate(ResellRootRoute.MAIN)
+                            } else {
+                                rootNavigationRepository.navigate(ResellRootRoute.ONBOARDING)
+                            }
+                        }
+                    }
+                )
+            } catch (e: Exception) {
+                Log.e("LandingViewModel", "Error getting user: ", e)
+                onSignInFailed()
+            }
+        }
     }
 
     @Composable
-    fun makeSignInLauncher(): ManagedActivityResultLauncher<Int, Task<GoogleSignInAccount>?> {
-        return loginRepository.makeActivityResultLauncher(
+    fun makeSignInLauncher(): ManagedActivityResultLauncher<Intent, ActivityResult> {
+        return googleAuthRepository.googleLoginLauncher(
             onError = ::onSignInFailed,
             onGoogleSignInCompleted = ::onSignInCompleted,
         )
+    }
+
+    fun getSignInClient(): GoogleSignInClient {
+        val gso = googleAuthRepository.googleSignInClient
+        val client = GoogleSignIn.getClient(context, gso)
+
+        return client
     }
 }

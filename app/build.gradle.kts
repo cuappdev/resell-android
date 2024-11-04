@@ -45,11 +45,20 @@ android {
                 "String",
                 "GOOGLE_AUTH_CLIENT_ID", "\"${secrets.getProperty("GOOGLE_AUTH_CLIENT_ID")}\""
             )
+            buildConfigField(
+                "String",
+                "BASE_API_URL", "\"${secrets.getProperty("API_URL_PROD")}\""
+            )
         }
         debug {
             buildConfigField(
                 "String",
                 "GOOGLE_AUTH_CLIENT_ID", "\"${secrets.getProperty("GOOGLE_AUTH_CLIENT_ID_LOCAL")}\""
+            )
+            // TODO: Make sure this sets back to Dev lmao
+            buildConfigField(
+                "String",
+                "BASE_API_URL", "\"${secrets.getProperty("API_URL_PROD")}\""
             )
         }
     }
@@ -65,7 +74,7 @@ android {
         buildConfig = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.1"
+        kotlinCompilerExtensionVersion = "1.5.7"
     }
     packaging {
         resources {
@@ -75,17 +84,24 @@ android {
 }
 
 dependencies {
+    // Declare the dependency for the Firestore library
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.auth.ktx)
+    implementation(libs.firebase.messaging)
+    implementation(libs.firebase.firestore.ktx)
     implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.hilt.android)
     implementation(libs.androidx.datastore.core.android)
+    implementation(libs.androidx.foundation)
     implementation(libs.jetbrains.kotlinx.serialization.json)
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.androidx.navigation.compose)
     kapt(libs.hilt.android.compiler)
     implementation(libs.coil.compose)
+
+    // Google Play Services Auth
     implementation(libs.gms.play.services.auth)
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -101,6 +117,13 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+    implementation(libs.retrofit)
+    implementation(libs.converter.gson)
+    implementation(libs.kotlinx.coroutines.android)
+
+    // OkHttp3
+    implementation(libs.okhttp)
+    implementation(libs.logging.interceptor)
 }
 
 // Allow references to generated code

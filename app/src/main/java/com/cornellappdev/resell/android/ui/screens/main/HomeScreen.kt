@@ -27,12 +27,13 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.resell.android.R
-import com.cornellappdev.resell.android.model.ResellApiState
+import com.cornellappdev.resell.android.model.classes.ResellApiState
 import com.cornellappdev.resell.android.ui.components.global.ResellListingsScroll
 import com.cornellappdev.resell.android.ui.components.global.ResellTag
 import com.cornellappdev.resell.android.ui.theme.Padding
 import com.cornellappdev.resell.android.ui.theme.Primary
 import com.cornellappdev.resell.android.ui.theme.Style
+import com.cornellappdev.resell.android.util.clickableNoIndication
 import com.cornellappdev.resell.android.util.defaultHorizontalPadding
 import com.cornellappdev.resell.android.viewmodel.main.HomeViewModel
 import kotlinx.coroutines.launch
@@ -56,13 +57,14 @@ fun HomeScreen(
                 coroutineScope.launch {
                     listState.animateScrollToItem(0)
                 }
-            }
+            },
+            onSearchPressed = homeViewModel::onSearchPressed
         )
 
         when (homeUiState.loadedState) {
             is ResellApiState.Success -> {
                 ResellListingsScroll(
-                    listings = homeUiState.listings,
+                    listings = homeUiState.filteredListings,
                     onListingPressed = {
                         homeViewModel.onListingPressed(it)
                     },
@@ -82,6 +84,7 @@ private fun HomeHeader(
     activeFilter: HomeViewModel.HomeFilter,
     onFilterPressed: (HomeViewModel.HomeFilter) -> Unit = {},
     onTopPressed: () -> Unit,
+    onSearchPressed: () -> Unit,
 ) {
     Column {
         Row(
@@ -106,7 +109,11 @@ private fun HomeHeader(
                 painter = painterResource(id = R.drawable.ic_search),
                 contentDescription = "search",
                 tint = Primary,
-                modifier = Modifier.size(25.dp)
+                modifier = Modifier
+                    .size(25.dp)
+                    .clickableNoIndication {
+                        onSearchPressed()
+                    }
             )
         }
 

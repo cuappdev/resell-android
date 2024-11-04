@@ -4,13 +4,12 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.net.Uri
 import androidx.lifecycle.viewModelScope
-import androidx.navigation.NavHostController
-import com.cornellappdev.resell.android.model.OnboardingNav
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonState
 import com.cornellappdev.resell.android.ui.screens.onboarding.ResellOnboardingScreen
 import com.cornellappdev.resell.android.util.UIEvent
 import com.cornellappdev.resell.android.util.loadBitmapFromUri
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
+import com.cornellappdev.resell.android.viewmodel.navigation.OnboardingNavigationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.delay
@@ -20,7 +19,7 @@ import javax.inject.Inject
 @HiltViewModel
 class SetupViewModel @Inject constructor(
     @ApplicationContext private val appContext: Context,
-    @OnboardingNav private val navController: NavHostController,
+    private val onboardingNavigationRepository: OnboardingNavigationRepository,
 ) : ResellViewModel<SetupViewModel.SetupUiState>(
     initialUiState = SetupUiState()
 ) {
@@ -76,7 +75,13 @@ class SetupViewModel @Inject constructor(
             delay(2000)
 
             // Navigate away.
-            navController.navigate(ResellOnboardingScreen.Venmo)
+            onboardingNavigationRepository.navigate(
+                ResellOnboardingScreen.Venmo(
+                    username = stateValue().username,
+                    bio = stateValue().bio,
+                    // TODO Add photo URL
+                )
+            )
 
             applyMutation {
                 copy(

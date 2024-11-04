@@ -8,7 +8,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import com.cornellappdev.resell.android.ui.theme.Padding
 
-fun Modifier.defaultHorizontalPadding() = this.padding(horizontal = Padding.leftRight)
+/**
+ * 24.dp padding.
+ */
+fun Modifier.defaultHorizontalPadding(scale: Float = 1f) =
+    this.padding(horizontal = Padding.leftRight * scale)
 
 @Composable
 fun Modifier.clickableNoIndication(onClick: () -> Unit) = this.clickable(

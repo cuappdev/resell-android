@@ -8,6 +8,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 
+
 val Purple80 = Color(0xFFD0BCFF)
 val PurpleGrey80 = Color(0xFFCCC2DC)
 val Pink80 = Color(0xFFEFB8C8)
@@ -27,6 +28,7 @@ val Tint = Color(0x33000000)
 val AppDev = Color(0xFF707070)
 val Warning = Color(0xFFF20000)
 val Venmo = Color(0xFF3D95CE)
+val Overlay = Color(0xEEEDEDED)
 
 val LoginBlurBrushStart = Brush.radialGradient(
     colors = listOf(
@@ -73,6 +75,13 @@ val ResellGradientDiagonal = Brush.linearGradient(
     colors = gradientList,
     start = Offset(50f, 50f),
     end = Offset.Zero
+)
+
+fun Color.changeBrightness(factor: Float) = Color(
+    alpha = alpha,
+    red = red * factor,
+    blue = blue * factor,
+    green = green * factor,
 )
 
 /**
