@@ -23,6 +23,7 @@ import javax.inject.Singleton
 class CoilRepository @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
+    // TODO Make sure this doesn't cause OOM with too many images. Maybe put a size limit?
     private val urlMap: MutableMap<String, MutableState<ResellApiResponse<ImageBitmap>>> =
         mutableMapOf()
 
