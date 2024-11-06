@@ -11,8 +11,9 @@ data class Notification(
     val notificationType: List<NotificationType>,
     var unread: Boolean
 ) {
-    fun timestamp () : String {
-        val differenceInMillis = abs(LocalDateTime.now().toInstant(ZoneOffset.UTC).toEpochMilli() - timestate)
+    fun timestamp(): String {
+        val differenceInMillis =
+            abs(LocalDateTime.now().toInstant(ZoneOffset.UTC).toEpochMilli() - timestate)
         val differenceInHours = differenceInMillis / (1000 * 60 * 60)
         return if (differenceInHours < 24) {
             "$differenceInHours hrs ago"

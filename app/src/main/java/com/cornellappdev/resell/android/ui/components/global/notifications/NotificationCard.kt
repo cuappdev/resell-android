@@ -22,7 +22,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -40,7 +39,6 @@ import com.cornellappdev.resell.android.model.messages.Notification
 import com.cornellappdev.resell.android.ui.theme.ResellPurple
 import com.cornellappdev.resell.android.ui.theme.ResellPurpleWash
 import com.cornellappdev.resell.android.ui.theme.Style
-import com.cornellappdev.resell.android.util.clickableNoIndication
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
@@ -108,7 +106,7 @@ fun SwipeableNotificationCard(
 ) {
     val swipeOffset = remember { Animatable(0f) }
     val heightAnimatable = remember { Animatable(83f) }
-    val sizeAnimatable = remember{ Animatable(24f) }
+    val sizeAnimatable = remember { Animatable(24f) }
     val maxSwipeOffset = 250.dp.value // Maximum swipe distance for revealing the archive option
     val minSwipeVelocity = 1000f
     val coroutineScope = rememberCoroutineScope()
