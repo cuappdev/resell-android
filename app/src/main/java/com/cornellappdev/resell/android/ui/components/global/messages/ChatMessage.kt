@@ -43,8 +43,7 @@ fun ChatMessage(
     imageUrl: String? = null,
     messageSender: @Composable (String?, @Composable () -> Unit, Int?) -> Unit,
     messages: List<ChatMessageData>,
-
-    ) {
+) {
     Row(
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -257,4 +256,3 @@ fun MessageMeetingState(sender: String, denied: Boolean, propsal: Boolean) {
 
     }
 }
-

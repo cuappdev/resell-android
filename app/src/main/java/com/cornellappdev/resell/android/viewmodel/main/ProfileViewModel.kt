@@ -1,6 +1,5 @@
 package com.cornellappdev.resell.android.viewmodel.main
 
-import androidx.compose.ui.Alignment
 import androidx.lifecycle.viewModelScope
 import com.cornellappdev.resell.android.model.classes.Listing
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
@@ -13,7 +12,6 @@ import com.cornellappdev.resell.android.model.settings.BlockedUsersRepository
 import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
 import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepository
-import com.cornellappdev.resell.android.viewmodel.root.OptionType
 import com.cornellappdev.resell.android.viewmodel.root.RootConfirmationRepository
 import com.cornellappdev.resell.android.viewmodel.root.RootDialogRepository
 import com.cornellappdev.resell.android.viewmodel.root.RootOptionsMenuRepository

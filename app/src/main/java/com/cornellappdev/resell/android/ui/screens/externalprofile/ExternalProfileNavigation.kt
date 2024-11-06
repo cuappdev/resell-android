@@ -8,7 +8,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.cornellappdev.resell.android.ui.screens.main.ResellMainScreen
 import com.cornellappdev.resell.android.viewmodel.externalprofile.ExternalNavigationViewModel
 import kotlinx.serialization.Serializable
 

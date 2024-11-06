@@ -1,5 +1,9 @@
 package com.cornellappdev.resell.android.ui.screens.root
 
+import androidx.compose.animation.core.InfiniteRepeatableSpec
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.keyframes
+import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -29,6 +33,7 @@ import com.cornellappdev.resell.android.ui.screens.onboarding.OnboardingNavigati
 import com.cornellappdev.resell.android.ui.screens.pdp.PostDetailPage
 import com.cornellappdev.resell.android.ui.screens.reporting.ReportNavigation
 import com.cornellappdev.resell.android.ui.screens.settings.SettingsNavigation
+import com.cornellappdev.resell.android.util.LocalInfiniteLoading
 import com.cornellappdev.resell.android.util.LocalRootNavigator
 import com.cornellappdev.resell.android.viewmodel.main.ChatViewModel
 import com.cornellappdev.resell.android.viewmodel.root.RootNavigationViewModel
@@ -52,6 +57,24 @@ fun RootNavigation(
     val chatViewModel: ChatViewModel = hiltViewModel()
     val coroutineScope = rememberCoroutineScope()
     var showBottomSheet by remember { mutableStateOf(false) }
+
+    // Create an infinite transition for animation
+    val transition = rememberInfiniteTransition()
+
+    // Animate a value from 0 to 1 infinitely
+    val animatedValue = transition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = InfiniteRepeatableSpec(
+            animation = keyframes {
+                durationMillis = 2000
+                0f at 0
+                1f at 1000
+                0f at 2000
+            }
+        ),
+        label = "infinite loading"
+    ).value
 
     LaunchedEffect(uiState.sheetEvent) {
         uiState.sheetEvent?.consumeSuspend {
@@ -81,12 +104,14 @@ fun RootNavigation(
 
     LaunchedEffect(uiState.popBackStack) {
         uiState.popBackStack?.consumeSuspend {
-            navController.popBackStack() }
+            navController.popBackStack()
+        }
     }
 
 
     CompositionLocalProvider(
-        LocalRootNavigator provides navController
+        LocalRootNavigator provides navController,
+        LocalInfiniteLoading provides animatedValue
     ) {
         NavHost(
             navController = LocalRootNavigator.current,

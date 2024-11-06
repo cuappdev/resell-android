@@ -121,8 +121,7 @@ fun ProfileHeader(
                     .height(1.dp)
                     .background(IconInactive)
             )
-        }
-        else {
+        } else {
             ResellTabBar(
                 painterIds = listOf(
                     R.drawable.ic_shop,

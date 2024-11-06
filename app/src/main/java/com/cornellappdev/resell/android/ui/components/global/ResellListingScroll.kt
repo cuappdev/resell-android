@@ -13,7 +13,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.times
 import com.cornellappdev.resell.android.model.classes.Listing
 import com.cornellappdev.resell.android.ui.theme.Padding
 
@@ -52,7 +51,6 @@ fun ResellListingsScroll(
                 imageUrl = item.image,
                 title = item.title,
                 price = item.price,
-                photoHeight = 150.dp + (item.hashCode() % 10) * 8.dp,
                 modifier = Modifier.padding(horizontal = Padding.medium / 2f)
             ) {
                 onListingPressed(item)
