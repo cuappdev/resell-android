@@ -9,7 +9,7 @@ data class Notification(
     val title: String,
     val timestate: Long,
     val notificationType: List<NotificationType>,
-    val unread: Boolean
+    var unread: Boolean
 ) {
     fun timestamp () : String {
         val differenceInMillis = abs(LocalDateTime.now().toInstant(ZoneOffset.UTC).toEpochMilli() - timestate)

@@ -112,42 +112,27 @@ private fun HomeHeader(
                 text = "resell",
                 style = Style.resellBrand
             )
-            Row{
-                Box (
-                    modifier = Modifier
-                        .clickableNoIndication { onNotificationPressed() }
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_notification_bell),
-                        contentDescription = "notifications",
-                        tint = Primary,
-                        modifier = Modifier
-                            .height(28.dp)
-                            .width(30.dp)
-                    )
-                    Box(
-                        modifier = Modifier
-                            .padding(4.dp)
-                            .clip(CircleShape)
-                            .background(Color.Red)
-                            .size(8.dp)
-                            .align(Alignment.TopEnd)
-                    )
-                }
-
-                Spacer(
-                    modifier = Modifier.width(8.dp)
-                )
+            Box (
+                modifier = Modifier
+                    .clickableNoIndication { onNotificationPressed() }
+            ) {
                 Icon(
-                    painter = painterResource(id = R.drawable.ic_search),
-                    contentDescription = "search",
+                    painter = painterResource(id = R.drawable.ic_notification_bell),
+                    contentDescription = "notifications",
                     tint = Primary,
                     modifier = Modifier
-                        .size(25.dp)
-                        .align(Alignment.CenterVertically)
+                        .height(28.dp)
+                        .width(30.dp)
+                )
+                Box(
+                    modifier = Modifier
+                        .padding(4.dp)
+                        .clip(CircleShape)
+                        .background(Color.Red)
+                        .size(8.dp)
+                        .align(Alignment.TopEnd)
                 )
             }
-
         }
 
         // filters

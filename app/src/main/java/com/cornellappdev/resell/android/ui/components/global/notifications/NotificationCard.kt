@@ -16,8 +16,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -38,6 +40,7 @@ import com.cornellappdev.resell.android.model.messages.Notification
 import com.cornellappdev.resell.android.ui.theme.ResellPurple
 import com.cornellappdev.resell.android.ui.theme.ResellPurpleWash
 import com.cornellappdev.resell.android.ui.theme.Style
+import com.cornellappdev.resell.android.util.clickableNoIndication
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
@@ -105,14 +108,15 @@ fun SwipeableNotificationCard(
 ) {
     val swipeOffset = remember { Animatable(0f) }
     val heightAnimatable = remember { Animatable(83f) }
+    val sizeAnimatable = remember{ Animatable(24f) }
     val maxSwipeOffset = 250.dp.value // Maximum swipe distance for revealing the archive option
     val minSwipeVelocity = 1000f
     val coroutineScope = rememberCoroutineScope()
 
-    LaunchedEffect(notification) {
-        swipeOffset.snapTo(0f)
-        heightAnimatable.snapTo(83f)
-    }
+//    LaunchedEffect(notification) {
+//        swipeOffset.snapTo(0f)
+//        heightAnimatable.snapTo(83f)
+//    }
 
     Box(
         modifier = modifier
@@ -123,9 +127,12 @@ fun SwipeableNotificationCard(
                 detectHorizontalDragGestures(
                     onDragEnd = {
                         coroutineScope.launch {
-                            if (swipeOffset.value > maxSwipeOffset / 2 || swipeOffset.velocity > minSwipeVelocity) {
+                            if (swipeOffset.value > maxSwipeOffset * 0.9f || swipeOffset.velocity > minSwipeVelocity) {
                                 swipeOffset.animateTo(1500f)
                                 heightAnimatable.animateTo(0f)
+                                launch {
+                                    sizeAnimatable.animateTo(0f)
+                                }
                                 onArchive(notification)
                             } else {
                                 swipeOffset.animateTo(0f) // Animate back if not far enough
@@ -135,14 +142,35 @@ fun SwipeableNotificationCard(
                     onHorizontalDrag = { _, dragAmount ->
                         coroutineScope.launch {
                             val newOffset =
-                                (swipeOffset.value + dragAmount).coerceIn(0f, maxSwipeOffset)
+                                (swipeOffset.value + dragAmount).coerceIn(0f, 1500f)
                             swipeOffset.snapTo(newOffset)
+
+                            launch {
+                                val targetSize = if (newOffset > maxSwipeOffset * 0.9f) 32f else 24f
+                                if (sizeAnimatable.value != targetSize) {
+                                    sizeAnimatable.animateTo(targetSize)
+                                }
+                            }
                         }
 
                     }
                 )
             }
     ) {
+        Box(
+            modifier = Modifier
+                .size(83.dp)
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_unread_message),
+                contentDescription = "read",
+                modifier = Modifier
+                    .size((sizeAnimatable.value).dp)
+                    .align(Alignment.Center),
+                tint = Color.White
+            )
+        }
+
         // Notification Card Content
         NotificationCard(
             imageUrl = imageUrl,

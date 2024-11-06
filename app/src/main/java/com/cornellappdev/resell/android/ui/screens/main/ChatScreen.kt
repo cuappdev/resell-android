@@ -2,6 +2,7 @@ package com.cornellappdev.resell.android.ui.screens.main
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -124,7 +125,7 @@ private fun ChatHeader(
                     .padding(top = 20.dp, start = 12.dp)
                     .size(24.dp)
                     .align(Alignment.CenterStart)
-                    .clickableNoIndication { onBackPressed() }
+                    .clickable { onBackPressed() }
             )
             Column(
                 modifier = Modifier.align(Alignment.Center),
