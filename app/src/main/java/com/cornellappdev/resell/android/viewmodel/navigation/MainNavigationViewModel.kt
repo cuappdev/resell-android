@@ -73,29 +73,24 @@ class MainNavigationViewModel @Inject constructor(
     private suspend fun validateAccessToken() {
         try {
             // First step: if `UserInfoRepository` doesn't have a user ID and username, we should store:
-            if (userInfoRepository.getUserId() == null ||
-                userInfoRepository.getUsername() == null ||
-                userInfoRepository.getIdToken() == null
-            ) {
-                try {
-                    val user = resellAuthRepository.getGoogleUser(
-                        id = googleAuthRepository.accountOrNull()!!.id!!
-                    )
-                    userInfoRepository.storeUserId(user.id)
-                    userInfoRepository.storeUsername(user.username)
-                    userInfoRepository.storeIdToken(googleAuthRepository.accountOrNull()!!.idToken!!)
+            try {
+                val user = resellAuthRepository.getGoogleUser(
+                    id = googleAuthRepository.accountOrNull()!!.id!!
+                )
+                userInfoRepository.storeUserId(user.id)
+                userInfoRepository.storeUsername(user.username)
+                userInfoRepository.storeIdToken(googleAuthRepository.accountOrNull()!!.idToken!!)
 
-                    Log.d("MainNavigationViewModel", "User ID and username stored!")
-                } catch (e: HttpException) {
-                    // Edge case: If for some reason the user doesn't exist,
-                    // we should move to onboarding instead. This handles the case in which
-                    // a DEV user logs in with an onboarded PROD user.
-                    rootNavigationRepository.navigate(ResellRootRoute.ONBOARDING)
-                }
+                Log.d(
+                    "MainNavigationViewModel",
+                    "User ID and username stored: id: ${user.id}, username: ${user.username}, idToken: ${googleAuthRepository.accountOrNull()!!.idToken!!}"
+                )
+            } catch (e: HttpException) {
+                // Edge case: If for some reason the user doesn't exist,
+                // we should move to onboarding instead. This handles the case in which
+                // a DEV user logs in with an onboarded PROD user.
+                rootNavigationRepository.navigate(ResellRootRoute.ONBOARDING)
             }
-
-            Log.d("MainNavigationViewModel", userInfoRepository.getUserId()!!)
-            Log.d("MainNavigationViewModel", userInfoRepository.getUsername()!!)
 
 //            resellAuthRepository.loginToResell(
 //                idToken = userInfoRepository.getUserId()!!,

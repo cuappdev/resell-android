@@ -24,6 +24,7 @@ class RootNavigationViewModel @Inject constructor(
         val sheetEvent: UIEvent<RootSheet>? = null,
         val hideEvent: UIEvent<Unit>? = null,
         val navEvent: UIEvent<ResellRootRoute>? = null,
+        val popBackStack: UIEvent<Unit>? = null
     )
 
     init {
@@ -42,6 +43,12 @@ class RootNavigationViewModel @Inject constructor(
         asyncCollect(rootNavigationRepository.routeFlow) { route ->
             applyMutation {
                 copy(navEvent = route)
+            }
+        }
+
+        asyncCollect(rootNavigationRepository.popBackStackFlow) { pop ->
+            applyMutation {
+                copy(popBackStack = pop)
             }
         }
     }

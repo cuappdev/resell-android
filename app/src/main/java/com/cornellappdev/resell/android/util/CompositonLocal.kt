@@ -15,6 +15,7 @@ val LocalSettingsNavigator =
     compositionLocalOf<NavHostController> { error("No navigator provided") }
 val LocalReportNavigator = compositionLocalOf<NavHostController> { error("No navigator provided") }
 val LocalFireStore = compositionLocalOf<FirebaseFirestore> { error("No FireStore provided") }
+val LocalInfiniteLoading = compositionLocalOf<Float> { error("No infinite loading provided") }
 
 fun closeApp(context: Context) {
     val intent = Intent(Intent.ACTION_MAIN)
