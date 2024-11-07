@@ -51,6 +51,7 @@ fun RequestMatchesScreen(
             .fillMaxSize()
     ) {
         Header(
+            title = uiState.title,
             onTopPressed = {
                 coroutineScope.launch {
                     listState.animateScrollToItem(0)
@@ -87,6 +88,7 @@ fun RequestMatchesScreen(
 
 @Composable
 private fun Header(
+    title: String,
     onTopPressed: () -> Unit,
     onExitPressed: () -> Unit = {},
 ) {
@@ -106,7 +108,7 @@ private fun Header(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
-                text = "Saved",
+                text = title,
                 style = Style.heading1
             )
             Icon(
