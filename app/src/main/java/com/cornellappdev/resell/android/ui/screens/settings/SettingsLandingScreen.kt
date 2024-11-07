@@ -27,6 +27,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.wear.compose.material.ripple
 import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.ui.components.global.ResellHeader
 import com.cornellappdev.resell.android.ui.theme.Style
@@ -139,7 +140,7 @@ private fun EntryRow(
             .fillMaxWidth()
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
-                indication = rememberRipple()
+                indication = ripple()
             ) {
                 onClick()
             },

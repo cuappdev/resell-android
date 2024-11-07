@@ -18,3 +18,14 @@ data class Listing(
     val image
         get() = images[0]
 }
+
+/**
+ * A request listing.
+ */
+data class RequestListing(
+    val id: String,
+    val title: String,
+    val description: String,
+    val user: UserInfo,
+    val matches: List<Listing>
+)
