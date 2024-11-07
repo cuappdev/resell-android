@@ -100,7 +100,12 @@ class ProfileViewModel @Inject constructor(
     }
 
     fun onRequestPressed(request: RequestListing) {
-
+        rootNavigationRepository.navigate(
+            ResellRootRoute.REQUEST_MATCHES(
+                title = request.title,
+                id = request.id
+            )
+        )
     }
 
     fun onRequestDeletePressed(request: RequestListing) {

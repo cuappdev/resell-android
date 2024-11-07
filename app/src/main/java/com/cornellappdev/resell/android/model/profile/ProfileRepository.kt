@@ -166,4 +166,8 @@ class ProfileRepository @Inject constructor(
     suspend fun deleteRequestListing(id: String): RequestResponse {
         return retrofitInstance.requestsApi.deleteRequest(id)
     }
+
+    suspend fun getRequestById(id: String): RequestResponse {
+        return retrofitInstance.requestsApi.getRequest(id)
+    }
 }

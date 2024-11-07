@@ -13,7 +13,6 @@ import com.cornellappdev.resell.android.viewmodel.root.RootConfirmationRepositor
 import com.cornellappdev.resell.android.viewmodel.root.RootNavigationSheetRepository
 import com.cornellappdev.resell.android.viewmodel.root.RootSheet
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -35,9 +34,12 @@ class RequestDetailsEntryViewModel @Inject constructor(
         val maxPrice: String = "",
         val loadingPost: Boolean = false,
     ) {
+        private val priceValid
+            get() = minPrice.isNotEmpty() && maxPrice.isNotEmpty() &&
+                    minPrice.isLeqMoney(maxPrice) || minPrice.isEmpty() || maxPrice.isEmpty()
+
         private val canConfirm
-            get() = title.isNotBlank() && minPrice.isNotBlank() && maxPrice.isNotBlank()
-                    && minPrice.isLeqMoney(maxPrice)
+            get() = title.isNotBlank() && priceValid
 
         val buttonState: ResellTextButtonState
             get() = if (loadingPost) {

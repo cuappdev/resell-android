@@ -1,6 +1,8 @@
 package com.cornellappdev.resell.android.model.api
 
 import com.cornellappdev.resell.android.model.classes.RequestListing
+import com.cornellappdev.resell.android.model.classes.UserInfo
+import com.cornellappdev.resell.android.util.richieUserInfo
 import com.google.gson.annotations.SerializedName
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -18,6 +20,8 @@ interface RequestsApiService {
     @POST("request")
     suspend fun createRequest(@Body request: PostRequestBody): RequestResponse
 
+    @GET("request/id/{id}")
+    suspend fun getRequest(@Path("id") id: String): RequestResponse
 }
 
 data class PostRequestBody(
@@ -38,7 +42,7 @@ data class Request(
     val id: String,
     val title: String,
     val description: String,
-    val user: User,
+    @SerializedName("user") private val userNullable: User?,
     @SerializedName("matches") private val matchesNullable: List<Post>?
 ) {
     val matches
@@ -49,7 +53,7 @@ data class Request(
             id = id,
             title = title,
             description = description,
-            user = user.toUserInfo(),
+            user = userNullable?.toUserInfo() ?: richieUserInfo, // TODO lmao this is so sus
             matches = matches.map { it.toListing() }
         )
     }
