@@ -5,11 +5,13 @@ import android.net.Uri
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.lifecycle.viewModelScope
+import com.cornellappdev.resell.android.model.posts.ResellPostRepository
 import com.cornellappdev.resell.android.ui.screens.newpost.ResellNewPostScreen
 import com.cornellappdev.resell.android.util.UIEvent
 import com.cornellappdev.resell.android.util.loadBitmapFromUri
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
 import com.cornellappdev.resell.android.viewmodel.navigation.NewPostNavigationRepository
+import com.cornellappdev.resell.android.viewmodel.root.RootConfirmationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.launch
@@ -18,7 +20,9 @@ import javax.inject.Inject
 @HiltViewModel
 class ImageUploadViewModel @Inject constructor(
     @ApplicationContext private val appContext: Context,
-    val navigationRepository: NewPostNavigationRepository
+    val navigationRepository: NewPostNavigationRepository,
+    private val postRepository: ResellPostRepository,
+    private val rootConfirmationRepository: RootConfirmationRepository
 ) : ResellViewModel<ImageUploadViewModel.ImageUploadUiState>(
     initialUiState = ImageUploadUiState(),
 ) {
@@ -65,11 +69,14 @@ class ImageUploadViewModel @Inject constructor(
                 copy(launchPhotoPicker = UIEvent(Unit))
             }
         } else {
+            postRepository.cacheImageBitmaps(stateValue().images)
             navigationRepository.navigate(ResellNewPostScreen.PostDetails)
         }
     }
 
     fun onImageLoadFail() {
-        // TODO
+        rootConfirmationRepository.showError(
+            message = "Your image failed to load. Please try again."
+        )
     }
 }

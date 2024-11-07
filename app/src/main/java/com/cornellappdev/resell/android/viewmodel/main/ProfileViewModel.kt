@@ -10,6 +10,7 @@ import com.cornellappdev.resell.android.model.core.UserInfoRepository
 import com.cornellappdev.resell.android.model.login.GoogleAuthRepository
 import com.cornellappdev.resell.android.model.profile.ProfileRepository
 import com.cornellappdev.resell.android.model.settings.BlockedUsersRepository
+import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonContainer
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonState
 import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
@@ -115,6 +116,7 @@ class ProfileViewModel @Inject constructor(
                 description = "Are you sure you want to delete this request?",
                 primaryButtonText = "Delete",
                 secondaryButtonText = "Cancel",
+                primaryButtonContainer = ResellTextButtonContainer.PRIMARY_RED,
                 onPrimaryButtonClick = {
                     viewModelScope.launch {
                         deleteRequest(request)

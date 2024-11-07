@@ -107,6 +107,8 @@ class ExternalProfileViewModel @Inject constructor(
                         rootConfirmationRepository = rootConfirmationRepository
                     )
                 }
+
+                else -> {}
             }
         }
     }

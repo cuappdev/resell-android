@@ -3,6 +3,7 @@ package com.cornellappdev.resell.android.model.api
 import com.cornellappdev.resell.android.model.classes.Listing
 import com.google.gson.annotations.SerializedName
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
@@ -27,6 +28,12 @@ interface PostsApiService {
 
     @POST("post/search")
     suspend fun getPostsBySearch(@Body searchRequest: SearchRequest): PostsResponse
+
+    @POST("post")
+    suspend fun createPost(@Body newPostBody: NewPostBody): PostResponse
+
+    @DELETE("post/id/{id}")
+    suspend fun deletePost(@Path("id") id: String): PostResponse
 }
 
 data class SearchRequest(
@@ -40,6 +47,10 @@ data class CategoryRequest(
 
 data class PostsResponse(
     val posts: List<Post>
+)
+
+data class PostResponse(
+    val post: Post
 )
 
 data class Post(
@@ -71,3 +82,13 @@ data class Post(
         )
     }
 }
+
+data class NewPostBody(
+    val title: String,
+    val description: String,
+    val categories: List<String>,
+    val price: Double,
+    @SerializedName("original_price") val originalPrice: Double,
+    val imagesBase64: List<String>,
+    val userId: String
+)

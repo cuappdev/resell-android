@@ -1,9 +1,11 @@
 package com.cornellappdev.resell.android.viewmodel.root
 
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.cornellappdev.resell.android.R
+import com.cornellappdev.resell.android.ui.theme.Primary
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -48,9 +50,11 @@ class RootOptionsMenuViewModel @Inject constructor(
 
 enum class OptionType(
     val title: String,
-    val icon: Int
+    val icon: Int,
+    val color: Color = Primary
 ) {
     SHARE("Share", R.drawable.ic_share),
     REPORT("Report", R.drawable.ic_report),
     BLOCK("Block", R.drawable.ic_slash),
+    DELETE("Delete", R.drawable.ic_trash, Color.Red),;
 }
