@@ -55,6 +55,7 @@ class BlockedUsersViewModel @Inject constructor(
                                 confirmationRepository.showSuccess(
                                     message = "$name has been unblocked.",
                                 )
+                                blockedUsersRepository.fetchBlockedUsers()
                             }
                         )
                     }
@@ -69,8 +70,14 @@ class BlockedUsersViewModel @Inject constructor(
     }
 
     init {
-        blockedUsersRepository.fetchBlockedUsers { blockedUsers ->
-            applyMutation { copy(blockedUsers = blockedUsers) }
+        blockedUsersRepository.fetchBlockedUsers()
+
+        asyncCollect(blockedUsersRepository.blockedUsers) { response ->
+            response.ifSuccess {
+                applyMutation {
+                    copy(blockedUsers = it.map { UiBlockedUser(it.id, it.name, it.imageUrl) })
+                }
+            }
         }
     }
 }

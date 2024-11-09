@@ -34,6 +34,15 @@ interface PostsApiService {
 
     @DELETE("post/id/{id}")
     suspend fun deletePost(@Path("id") id: String): PostResponse
+
+    @POST("post/save/postId/{id}")
+    suspend fun savePost(@Path("id") id: String): PostResponse
+
+    @POST("post/unsave/postId/{id}")
+    suspend fun unsavePost(@Path("id") id: String): PostResponse
+
+    @GET("post/save")
+    suspend fun getSavedPosts(): PostsResponse
 }
 
 data class SearchRequest(

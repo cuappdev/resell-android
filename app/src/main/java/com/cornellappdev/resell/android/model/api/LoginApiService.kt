@@ -100,7 +100,7 @@ data class User(
 }
 
 data class UsersResponse(
-    val users: List<GoogleUser>
+    val users: List<User>
 )
 
 data class GoogleUser(
