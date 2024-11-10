@@ -1,8 +1,11 @@
 package com.cornellappdev.resell.android.model.profile
 
 import android.util.Log
+import com.cornellappdev.resell.android.model.api.PostRequestBody
+import com.cornellappdev.resell.android.model.api.RequestResponse
 import com.cornellappdev.resell.android.model.api.RetrofitInstance
 import com.cornellappdev.resell.android.model.classes.Listing
+import com.cornellappdev.resell.android.model.classes.RequestListing
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.model.classes.UserInfo
 import kotlinx.coroutines.CoroutineScope
@@ -37,6 +40,33 @@ class ProfileRepository @Inject constructor(
     private val _externalListings: MutableStateFlow<ResellApiResponse<List<Listing>>> =
         MutableStateFlow(ResellApiResponse.Pending)
     val externalListings = _externalListings.asStateFlow()
+
+    // Requests.
+
+    private val _requests: MutableStateFlow<ResellApiResponse<List<RequestListing>>> =
+        MutableStateFlow(ResellApiResponse.Pending)
+    val requests = _requests.asStateFlow()
+
+    /**
+     * Fetches the requests made by the user.
+     *
+     * Pipelines the response into [requests].
+     */
+    fun fetchRequests(uid: String) {
+        _requests.value = ResellApiResponse.Pending
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val response = retrofitInstance.requestsApi.getRequestsByUser(uid)
+                _requests.value = ResellApiResponse.Success(
+                    data = response.requests.map {
+                        it.toRequestListing()
+                    })
+            } catch (e: Exception) {
+                Log.e("ProfileRepository", "Error fetching requests: ", e)
+                _requests.value = ResellApiResponse.Error
+            }
+        }
+    }
 
     /**
      * Initiates a fetch of the user's internal profile from the API.
@@ -117,5 +147,27 @@ class ProfileRepository @Inject constructor(
                 _externalUser.value = ResellApiResponse.Error
             }
         }
+    }
+
+    suspend fun createRequestListing(
+        title: String,
+        description: String,
+        userId: String
+    ): RequestResponse {
+        return retrofitInstance.requestsApi.createRequest(
+            request = PostRequestBody(
+                title = title,
+                description = description,
+                userId = userId
+            )
+        )
+    }
+
+    suspend fun deleteRequestListing(id: String): RequestResponse {
+        return retrofitInstance.requestsApi.deleteRequest(id)
+    }
+
+    suspend fun getRequestById(id: String): RequestResponse {
+        return retrofitInstance.requestsApi.getRequest(id)
     }
 }

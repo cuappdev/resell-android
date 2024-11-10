@@ -96,6 +96,7 @@ dependencies {
     implementation(libs.jetbrains.kotlinx.serialization.json)
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.compose.material)
     kapt(libs.hilt.android.compiler)
     implementation(libs.coil.compose)
 

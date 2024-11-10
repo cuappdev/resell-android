@@ -7,9 +7,11 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.windowInsetsPadding
@@ -25,19 +27,22 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.resell.android.R
+import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.ui.components.global.ResellListingsScroll
+import com.cornellappdev.resell.android.ui.components.profile.ProfileEmptyState
 import com.cornellappdev.resell.android.ui.theme.Padding
 import com.cornellappdev.resell.android.ui.theme.Primary
 import com.cornellappdev.resell.android.ui.theme.Style
+import com.cornellappdev.resell.android.util.clickableNoIndication
 import com.cornellappdev.resell.android.util.defaultHorizontalPadding
-import com.cornellappdev.resell.android.viewmodel.main.SavedViewModel
+import com.cornellappdev.resell.android.viewmodel.main.RequestMatchesViewModel
 import kotlinx.coroutines.launch
 
 @Composable
-fun SavedScreen(
-    savedViewModel: SavedViewModel = hiltViewModel(),
+fun RequestMatchesScreen(
+    requestMatchesViewModel: RequestMatchesViewModel = hiltViewModel(),
 ) {
-    val savedUiState = savedViewModel.collectUiStateValue()
+    val uiState = requestMatchesViewModel.collectUiStateValue()
     val coroutineScope = rememberCoroutineScope()
     val listState = rememberLazyStaggeredGridState()
 
@@ -46,23 +51,46 @@ fun SavedScreen(
             .fillMaxSize()
     ) {
         Header(
+            title = uiState.title,
             onTopPressed = {
                 coroutineScope.launch {
                     listState.animateScrollToItem(0)
                 }
+            },
+            onExitPressed = requestMatchesViewModel::onExit
+        )
+
+        when (uiState.listings) {
+            is ResellApiResponse.Pending -> {}
+
+            is ResellApiResponse.Error -> {}
+
+            is ResellApiResponse.Success -> {
+                ResellListingsScroll(
+                    listings = uiState.listings.data,
+                    listState = listState,
+                    onListingPressed = requestMatchesViewModel::onListingPressed,
+                    emptyState = {
+                        ProfileEmptyState(
+                            title = "No matching listings",
+                            body = "You'll be notified when someone lists something similar to your request!",
+                            modifier = Modifier
+                                .fillMaxHeight()
+                                .padding(bottom = 60.dp)
+                        )
+                    }
+                )
             }
-        )
-        ResellListingsScroll(
-            listings = savedUiState.listings,
-            listState = listState,
-            onListingPressed = savedViewModel::onListingPressed
-        )
+        }
+
     }
 }
 
 @Composable
 private fun Header(
+    title: String,
     onTopPressed: () -> Unit,
+    onExitPressed: () -> Unit = {},
 ) {
     Column {
         Row(
@@ -80,14 +108,18 @@ private fun Header(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
-                text = "Saved",
+                text = title,
                 style = Style.heading1
             )
             Icon(
-                painter = painterResource(id = R.drawable.ic_search),
-                contentDescription = "search",
+                painter = painterResource(id = R.drawable.ic_exit),
+                contentDescription = "exit",
                 tint = Primary,
-                modifier = Modifier.size(25.dp)
+                modifier = Modifier
+                    .size(25.dp)
+                    .clickableNoIndication {
+                        onExitPressed()
+                    }
             )
         }
 

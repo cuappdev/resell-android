@@ -1,10 +1,10 @@
 package com.cornellappdev.resell.android.ui.screens.main
 
+import android.util.Log
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
 import androidx.compose.runtime.Composable
@@ -16,6 +16,7 @@ import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.ui.components.global.ResellListingsScroll
 import com.cornellappdev.resell.android.ui.components.profile.ProfileEmptyState
 import com.cornellappdev.resell.android.ui.components.profile.ProfileHeader
+import com.cornellappdev.resell.android.ui.components.profile.ResellRequestsScroll
 import com.cornellappdev.resell.android.ui.theme.simpleFadeInOut
 import com.cornellappdev.resell.android.viewmodel.main.ProfileViewModel
 
@@ -109,12 +110,41 @@ fun ProfileScreen(
                 }
 
                 ProfileViewModel.ProfileTab.WISHLIST -> {
-                    // TODO: Implement Wishlist view
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 12.dp)
-                    ) {}
+                    when (uiState.requests) {
+                        is ResellApiResponse.Pending -> {
+                            Log.d("helpme", "pending")
+                        }
+
+                        is ResellApiResponse.Error -> {
+                            Log.d("helpme", "error")
+                        }
+
+                        is ResellApiResponse.Success -> {
+                            Log.d("helpme", "success")
+                            ResellRequestsScroll(
+                                requests = uiState.requests.data,
+                                onClick = {
+                                    profileViewModel.onRequestPressed(
+                                        uiState.requests.data[it]
+                                    )
+                                },
+                                onDelete = {
+                                    profileViewModel.onRequestDeletePressed(
+                                        uiState.requests.data[it]
+                                    )
+                                },
+                                emptyState = {
+                                    ProfileEmptyState(
+                                        title = "No active requests",
+                                        body = "Submit a request and get notified when someone lists something similar",
+                                        modifier = Modifier
+                                            .fillMaxHeight()
+                                            .padding(bottom = 60.dp)
+                                    )
+                                }
+                            )
+                        }
+                    }
                 }
             }
         }

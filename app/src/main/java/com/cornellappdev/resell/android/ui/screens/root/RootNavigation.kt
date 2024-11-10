@@ -27,6 +27,7 @@ import com.cornellappdev.resell.android.ui.screens.main.AllSearchScreen
 import com.cornellappdev.resell.android.ui.screens.main.ChatScreen
 import com.cornellappdev.resell.android.ui.screens.main.MainTabNavigation
 import com.cornellappdev.resell.android.ui.screens.main.NotificationsHubScreen
+import com.cornellappdev.resell.android.ui.screens.main.RequestMatchesScreen
 import com.cornellappdev.resell.android.ui.screens.newpost.NewPostNavigation
 import com.cornellappdev.resell.android.ui.screens.newpost.RequestDetailsEntryScreen
 import com.cornellappdev.resell.android.ui.screens.onboarding.LandingScreen
@@ -167,6 +168,10 @@ fun RootNavigation(
             composable<ResellRootRoute.SEARCH> {
                 AllSearchScreen()
             }
+
+            composable<ResellRootRoute.REQUEST_MATCHES> {
+                RequestMatchesScreen()
+            }
         }
 
         RootConfirmationOverlay()
@@ -244,4 +249,10 @@ sealed class ResellRootRoute {
 
     @Serializable
     data object SEARCH : ResellRootRoute()
+
+    @Serializable
+    data class REQUEST_MATCHES(
+        val id: String,
+        val title: String,
+    ) : ResellRootRoute()
 }

@@ -33,7 +33,9 @@ class HomeViewModel @Inject constructor(
         val filteredListings: List<Listing>
             get() = listings.filter {
                 activeFilter == HomeFilter.RECENT ||
-                        it.categories.map { it.lowercase() }.contains(activeFilter.name.lowercase())
+                        it.categories.map { it.lowercase() }.any {
+                            it.contains(activeFilter.name.lowercase())
+                        }
             }
     }
 
