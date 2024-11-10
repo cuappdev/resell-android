@@ -18,10 +18,7 @@ import com.cornellappdev.resell.android.model.messages.Notification
 import com.cornellappdev.resell.android.ui.components.global.messages.NotificationCard
 import com.cornellappdev.resell.android.ui.components.global.messages.SwipeableNotificationCard
 import com.cornellappdev.resell.android.ui.theme.Style
-import com.cornellappdev.resell.android.viewmodel.main.NotificationsHubViewModel
 
-
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ResellNotificationsScroll(
     unreadNotifications : List<Notification>,

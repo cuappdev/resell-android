@@ -32,7 +32,6 @@ import com.cornellappdev.resell.android.ui.components.global.notifications.Resel
 import com.cornellappdev.resell.android.ui.theme.Padding
 import com.cornellappdev.resell.android.ui.theme.Style
 import com.cornellappdev.resell.android.util.clickableNoIndication
-import com.cornellappdev.resell.android.viewmodel.main.HomeViewModel
 import com.cornellappdev.resell.android.viewmodel.main.NotificationsHubViewModel
 import kotlinx.coroutines.launch
 
