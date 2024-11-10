@@ -94,12 +94,12 @@ class RetrofitInstance @Inject constructor() {
             .create(UserApiService::class.java)
     }
 
-    val reportApi: ReportApiService by lazy {
+    val settingsApi: SettingsApiService by lazy {
         Retrofit.Builder()
             .baseUrl(BuildConfig.BASE_API_URL)
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
-            .create(ReportApiService::class.java)
+            .create(SettingsApiService::class.java)
     }
 }

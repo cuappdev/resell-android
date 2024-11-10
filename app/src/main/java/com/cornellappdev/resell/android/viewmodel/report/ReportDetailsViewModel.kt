@@ -4,7 +4,7 @@ import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
-import com.cornellappdev.resell.android.model.settings.ReportRepository
+import com.cornellappdev.resell.android.model.settings.SettingsRepository
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonState
 import com.cornellappdev.resell.android.ui.screens.reporting.ReportScreen
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
@@ -18,7 +18,7 @@ import javax.inject.Inject
 class ReportDetailsViewModel @Inject constructor(
     private val reportNavigationRepository: ReportNavigationRepository,
     private val savedStateHandle: SavedStateHandle,
-    private val reportRepository: ReportRepository,
+    private val settingsRepository: SettingsRepository,
     private val rootConfirmationRepository: RootConfirmationRepository
 ) :
     ResellViewModel<ReportDetailsViewModel.ReportDetailsUiState>(
@@ -94,12 +94,12 @@ class ReportDetailsViewModel @Inject constructor(
             try {
                 // TODO Report message too?
                 if (stateValue().reportPost) {
-                    reportRepository.reportPost(
+                    settingsRepository.reportPost(
                         id = stateValue().postId,
                         reason = stateValue().reason
                     )
                 } else {
-                    reportRepository.reportProfile(
+                    settingsRepository.reportProfile(
                         uid = stateValue().userId,
                         reason = stateValue().reason,
                         description = stateValue().typedContent

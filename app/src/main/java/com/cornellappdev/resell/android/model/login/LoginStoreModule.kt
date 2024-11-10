@@ -25,6 +25,9 @@ object PreferencesKeys {
     val FIRST_NAME = stringPreferencesKey("first_name")
     val LAST_NAME = stringPreferencesKey("last_name")
     val PROFILE_PIC_URL = stringPreferencesKey("profile_pic_url")
+    val NET_ID = stringPreferencesKey("net_id")
+    val BIO = stringPreferencesKey("bio")
+    val EMAIL = stringPreferencesKey("email")
 }
 
 @Module

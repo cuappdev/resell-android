@@ -5,8 +5,8 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import com.cornellappdev.resell.android.model.api.RetrofitInstance
 import com.cornellappdev.resell.android.model.classes.UserInfo
+import com.cornellappdev.resell.android.model.login.FireStoreRepository
 import com.cornellappdev.resell.android.model.login.PreferencesKeys
-import com.cornellappdev.resell.android.util.richieUserInfo
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -15,10 +15,9 @@ import javax.inject.Singleton
 @Singleton
 class UserInfoRepository @Inject constructor(
     private val dataStore: DataStore<Preferences>,
-    private val retrofitInstance: RetrofitInstance
+    private val retrofitInstance: RetrofitInstance,
+    private val fireStoreRepository: FireStoreRepository,
 ) {
-
-    private val userInfo = richieUserInfo
 
     /**
      * If the user is signed in, returns the user's information. Otherwise, throws an exception.
@@ -26,12 +25,40 @@ class UserInfoRepository @Inject constructor(
      * Requires the user to be signed in.
      */
     suspend fun getUserInfo(): UserInfo {
-        return userInfo
+        return UserInfo(
+            username = getUsername()!!,
+            name = getFirstName() + " " + getLastName(),
+            imageUrl = getProfilePicUrl()!!,
+            netId = getNetId()!!,
+            venmoHandle = fireStoreRepository.getVenmoHandle(
+                getEmail()!!
+            )!!,
+            bio = getBio()!!,
+            id = getUserId()!!
+        )
     }
 
     suspend fun storeUserId(id: String) {
         dataStore.edit { preferences ->
             preferences[PreferencesKeys.USER_ID] = id
+        }
+    }
+
+    suspend fun storeEmail(email: String) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.EMAIL] = email
+        }
+    }
+
+    suspend fun storeNetId(netId: String) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.NET_ID] = netId
+        }
+    }
+
+    suspend fun storeBio(bio: String) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.BIO] = bio
         }
     }
 
@@ -111,6 +138,24 @@ class UserInfoRepository @Inject constructor(
     suspend fun getAccessToken(): String? {
         return dataStore.data.map { preferences ->
             preferences[PreferencesKeys.ACCESS_TOKEN]
+        }.firstOrNull()
+    }
+
+    suspend fun getBio(): String? {
+        return dataStore.data.map { preferences ->
+            preferences[PreferencesKeys.BIO]
+        }.firstOrNull()
+    }
+
+    suspend fun getNetId(): String? {
+        return dataStore.data.map { preferences ->
+            preferences[PreferencesKeys.NET_ID]
+        }.firstOrNull()
+    }
+
+    suspend fun getEmail(): String? {
+        return dataStore.data.map { preferences ->
+            preferences[PreferencesKeys.EMAIL]
         }.firstOrNull()
     }
 }

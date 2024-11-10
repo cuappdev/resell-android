@@ -2,16 +2,17 @@ package com.cornellappdev.resell.android.viewmodel.settings
 
 import android.content.Context
 import android.net.Uri
+import android.util.Log
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.lifecycle.viewModelScope
+import com.cornellappdev.resell.android.model.settings.SettingsRepository
 import com.cornellappdev.resell.android.util.loadBitmapFromUri
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
 import com.cornellappdev.resell.android.viewmodel.navigation.SettingsNavigationRepository
 import com.cornellappdev.resell.android.viewmodel.root.RootConfirmationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -20,6 +21,7 @@ class SendFeedbackViewModel @Inject constructor(
     @ApplicationContext private val appContext: Context,
     private val settingsNavigationRepository: SettingsNavigationRepository,
     private val confirmationRepository: RootConfirmationRepository,
+    private val settingsRepository: SettingsRepository
 ) : ResellViewModel<SendFeedbackViewModel.SendFeedbackUiState>(
     initialUiState = SendFeedbackUiState()
 ) {
@@ -58,25 +60,32 @@ class SendFeedbackViewModel @Inject constructor(
     }
 
     fun onImageFailed() {
-
+        confirmationRepository.showError(message = "Something went wrong. Please try again later.")
     }
 
     fun onFeedbackSubmit() {
         if (stateValue().canSubmit) {
-            // TODO
             viewModelScope.launch {
                 applyMutation {
                     copy(loading = true)
                 }
-                delay(2000)
 
-                applyMutation {
-                    copy(loading = false)
+                try {
+                    settingsRepository.sendFeedback(
+                        description = stateValue().feedback,
+                        images = stateValue().images
+                    )
+                    confirmationRepository.showSuccess(
+                        message = "Your message has been submitted. Thank you for your feedback!",
+                    )
+                    settingsNavigationRepository.popBackStack()
+                } catch (e: Exception) {
+                    applyMutation {
+                        copy(loading = false)
+                    }
+                    confirmationRepository.showError(message = "Something went wrong. Please try again later.")
+                    Log.e("SendFeedbackViewModel", "Error sending feedback: ", e)
                 }
-                confirmationRepository.showSuccess(
-                    message = "Your message has been submitted. Thank you for your feedback!",
-                )
-                settingsNavigationRepository.popBackStack()
             }
         }
     }

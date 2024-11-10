@@ -1,22 +1,19 @@
 package com.cornellappdev.resell.android.model.posts
 
-import android.graphics.Bitmap
-import android.util.Base64
 import android.util.Log
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.asAndroidBitmap
 import com.cornellappdev.resell.android.model.api.NewPostBody
 import com.cornellappdev.resell.android.model.api.Post
 import com.cornellappdev.resell.android.model.api.PostResponse
 import com.cornellappdev.resell.android.model.api.RetrofitInstance
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.model.core.UserInfoRepository
+import com.cornellappdev.resell.android.util.toNetworkingString
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import java.io.ByteArrayOutputStream
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -60,14 +57,7 @@ class ResellPostRepository @Inject constructor(
         categories: List<String>,
         userId: String,
     ): PostResponse {
-        val bitmaps = images.map { it.asAndroidBitmap() }
-
-        val base64s = bitmaps.map { bitmap ->
-            val outputStream = ByteArrayOutputStream()
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
-            val byteArray = outputStream.toByteArray()
-            "data:image/jpeg;base64," + Base64.encodeToString(byteArray, Base64.DEFAULT)
-        }
+        val base64s = images.map { it.toNetworkingString() }
 
         return retrofitInstance.postsApi.createPost(
             NewPostBody(
