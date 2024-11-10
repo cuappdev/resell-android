@@ -45,12 +45,10 @@ class BlockedUsersViewModel @Inject constructor(
                         blockedUsersRepository.onUnblockUser(
                             userId = id,
                             onError = {
-                                // TODO
                                 dialogRepository.dismissDialog()
                                 confirmationRepository.showError()
                             },
                             onSuccess = {
-                                // TODO
                                 dialogRepository.dismissDialog()
                                 confirmationRepository.showSuccess(
                                     message = "$name has been unblocked.",

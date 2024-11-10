@@ -23,7 +23,7 @@ class ReportReasonViewModel @Inject constructor(
      * @param reportPost True if it's a report of a post, false if it's a report of a user.
      */
     data class ReportReasonUiState(
-        private val reportPost: Boolean
+        private val reportPost: Boolean,
     ) {
         val reasons: List<String>
             get() = ReportReason.entries.filter {

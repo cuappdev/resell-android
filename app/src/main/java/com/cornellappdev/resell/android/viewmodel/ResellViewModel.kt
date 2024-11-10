@@ -56,7 +56,8 @@ abstract class ResellViewModel<UiState>(initialUiState: UiState) : ViewModel() {
         rootConfirmationRepository: RootConfirmationRepository,
         blockedUsersRepository: BlockedUsersRepository,
         onBlockSuccess: () -> Unit = {},
-        onBlockError: () -> Unit = {}
+        onBlockError: () -> Unit = {},
+        userId: String
     ) {
         rootDialogRepository.showDialog(
             RootDialogContent.TwoButtonDialog(
@@ -66,7 +67,7 @@ abstract class ResellViewModel<UiState>(initialUiState: UiState) : ViewModel() {
                 onPrimaryButtonClick = {
                     rootDialogRepository.setPrimaryButtonState(ResellTextButtonState.SPINNING)
                     blockedUsersRepository.onBlockUser(
-                        userId = "userId",
+                        userId = userId,
                         onError = {
                             rootDialogRepository.dismissDialog()
                             rootConfirmationRepository.showError()

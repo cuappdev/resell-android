@@ -1,21 +1,25 @@
 package com.cornellappdev.resell.android.viewmodel.report
 
+import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
+import com.cornellappdev.resell.android.model.settings.ReportRepository
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonState
 import com.cornellappdev.resell.android.ui.screens.reporting.ReportScreen
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
 import com.cornellappdev.resell.android.viewmodel.navigation.ReportNavigationRepository
+import com.cornellappdev.resell.android.viewmodel.root.RootConfirmationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class ReportDetailsViewModel @Inject constructor(
     private val reportNavigationRepository: ReportNavigationRepository,
-    private val savedStateHandle: SavedStateHandle
+    private val savedStateHandle: SavedStateHandle,
+    private val reportRepository: ReportRepository,
+    private val rootConfirmationRepository: RootConfirmationRepository
 ) :
     ResellViewModel<ReportDetailsViewModel.ReportDetailsUiState>(
         initialUiState = ReportDetailsUiState(
@@ -27,10 +31,12 @@ class ReportDetailsViewModel @Inject constructor(
 
 
     data class ReportDetailsUiState(
-        private val reportPost: Boolean,
+        val reportPost: Boolean,
         val loadingSubmit: Boolean = false,
         val reason: String,
-        val typedContent: String
+        val typedContent: String,
+        val postId: String = "",
+        val userId: String = "",
     ) {
         val title: String
             get() = if (reportPost) {
@@ -57,13 +63,14 @@ class ReportDetailsViewModel @Inject constructor(
     }
 
     init {
-        // TODO: Extract report type and other data from nav args.
         val navArgs = savedStateHandle.toRoute<ReportScreen.Details>()
 
         applyMutation {
             copy(
                 reportPost = navArgs.reportPost,
-                reason = navArgs.reason
+                reason = navArgs.reason,
+                postId = navArgs.postId,
+                userId = navArgs.userId
             )
         }
     }
@@ -77,7 +84,6 @@ class ReportDetailsViewModel @Inject constructor(
     }
 
     fun onSubmitPressed() {
-        // TODO: Send report
         viewModelScope.launch {
             applyMutation {
                 copy(
@@ -85,15 +91,39 @@ class ReportDetailsViewModel @Inject constructor(
                 )
             }
 
-            delay(1000)
+            try {
+                // TODO Report message too?
+                if (stateValue().reportPost) {
+                    reportRepository.reportPost(
+                        id = stateValue().postId,
+                        reason = stateValue().reason
+                    )
+                } else {
+                    reportRepository.reportProfile(
+                        uid = stateValue().userId,
+                        reason = stateValue().reason,
+                        description = stateValue().typedContent
+                    )
+                }
 
-            val navArgs = savedStateHandle.toRoute<ReportScreen.Details>()
-            reportNavigationRepository.navigate(
-                ReportScreen.Confirmation(
-                    reportPost = navArgs.reportPost,
-                    userId = navArgs.userId
+                val navArgs = savedStateHandle.toRoute<ReportScreen.Details>()
+                reportNavigationRepository.navigate(
+                    ReportScreen.Confirmation(
+                        reportPost = navArgs.reportPost,
+                        userId = navArgs.userId
+                    )
                 )
-            )
+            } catch (e: Exception) {
+                Log.e("ReportDetailsViewModel", "Error submitting report", e)
+                rootConfirmationRepository.showError(
+                    message = "Error submitting report. Please try again later."
+                )
+                applyMutation {
+                    copy(
+                        loadingSubmit = false
+                    )
+                }
+            }
         }
     }
 }

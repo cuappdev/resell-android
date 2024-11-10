@@ -41,6 +41,24 @@ class UserInfoRepository @Inject constructor(
         }
     }
 
+    suspend fun storeFirstName(firstName: String) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.FIRST_NAME] = firstName
+        }
+    }
+
+    suspend fun storeLastName(lastName: String) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.LAST_NAME] = lastName
+        }
+    }
+
+    suspend fun storeProfilePicUrl(profilePicUrl: String) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.PROFILE_PIC_URL] = profilePicUrl
+        }
+    }
+
     suspend fun storeUsername(username: String) {
         dataStore.edit { preferences ->
             preferences[PreferencesKeys.USERNAME] = username
@@ -69,6 +87,24 @@ class UserInfoRepository @Inject constructor(
     suspend fun getIdToken(): String? {
         return dataStore.data.map { preferences ->
             preferences[PreferencesKeys.ID_TOKEN]
+        }.firstOrNull()
+    }
+
+    suspend fun getFirstName(): String? {
+        return dataStore.data.map { preferences ->
+            preferences[PreferencesKeys.FIRST_NAME]
+        }.firstOrNull()
+    }
+
+    suspend fun getLastName(): String? {
+        return dataStore.data.map { preferences ->
+            preferences[PreferencesKeys.LAST_NAME]
+        }.firstOrNull()
+    }
+
+    suspend fun getProfilePicUrl(): String? {
+        return dataStore.data.map { preferences ->
+            preferences[PreferencesKeys.PROFILE_PIC_URL]
         }.firstOrNull()
     }
 

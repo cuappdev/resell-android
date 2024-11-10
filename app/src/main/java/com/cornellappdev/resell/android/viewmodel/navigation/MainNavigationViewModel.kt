@@ -79,6 +79,9 @@ class MainNavigationViewModel @Inject constructor(
                 )
                 userInfoRepository.storeUserId(user.id)
                 userInfoRepository.storeUsername(user.username)
+                userInfoRepository.storeFirstName(user.givenName)
+                userInfoRepository.storeLastName(user.familyName)
+                userInfoRepository.storeProfilePicUrl(user.photoUrl)
                 userInfoRepository.storeIdToken(googleAuthRepository.accountOrNull()!!.idToken!!)
 
                 Log.d(
