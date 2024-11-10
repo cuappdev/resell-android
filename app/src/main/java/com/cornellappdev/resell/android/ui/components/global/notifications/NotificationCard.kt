@@ -111,11 +111,6 @@ fun SwipeableNotificationCard(
     val minSwipeVelocity = 1000f
     val coroutineScope = rememberCoroutineScope()
 
-//    LaunchedEffect(notification) {
-//        swipeOffset.snapTo(0f)
-//        heightAnimatable.snapTo(83f)
-//    }
-
     Box(
         modifier = modifier
             .fillMaxWidth()

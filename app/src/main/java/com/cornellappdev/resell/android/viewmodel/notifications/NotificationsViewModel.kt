@@ -23,6 +23,7 @@ class NotificationsHubViewModel @Inject constructor(
             notificationType = null,
         )
     ) {
+
     init {
         applyMutation {
             copy(notifications = notifications.sortedBy { -it.timestate })
@@ -47,18 +48,18 @@ class NotificationsHubViewModel @Inject constructor(
                         notification.unread -> "new"
                         dayDifference(notification.timestate) <= 7 -> "week"
                         dayDifference(notification.timestate) in 8..30 -> "month"
-                        else -> "old"
+                        else -> "other"
                     }
                 }
 
-        val newNotifications
+        val unreadNotifications
             get() = categorizedNotifications["new"].orEmpty()
         val weekNotifications
             get() = categorizedNotifications["week"].orEmpty()
         val monthNotifications
             get() = categorizedNotifications["month"].orEmpty()
-        val oldNotifications
-            get() = categorizedNotifications["old"].orEmpty()
+        val otherNotifications
+            get() = categorizedNotifications["other"].orEmpty()
     }
 
     fun onToggleFilter(filter: NotificationType?) {
@@ -67,10 +68,12 @@ class NotificationsHubViewModel @Inject constructor(
         }
     }
 
+    // TODO: Connect to corresponding page
     fun onNotificationPressed() {
 
     }
 
+    // TODO: Networking
     fun onNotificationArchived(notification: Notification) {
         applyMutation {
             // Map through notifications and mark the specified notification as unread
@@ -85,8 +88,11 @@ class NotificationsHubViewModel @Inject constructor(
         Log.d(
             "ARCHIVED NOTIFICATION",
             "Notification with the id ${notification.id} has been archived.\n" +
-                    "New size: ${stateValue().newNotifications.size}"
+                    "New size: ${stateValue().unreadNotifications.size}"
         )
+    }
 
+    fun onBackPressed(){
+        navController.popBackStack()
     }
 }

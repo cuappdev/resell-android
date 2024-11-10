@@ -24,7 +24,10 @@ import com.cornellappdev.resell.android.viewmodel.main.NotificationsHubViewModel
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ResellNotificationsScroll(
-    notificationsHubUiState: NotificationsHubViewModel.NotificationsHubUiState,
+    unreadNotifications : List<Notification>,
+    weekNotifications : List<Notification>,
+    monthNotifications : List<Notification>,
+    otherNotifications : List<Notification>,
     onNotificationPressed: (Notification) -> Unit,
     onNotificationArchived: (Notification) -> Unit,
     listState: LazyListState,
@@ -36,7 +39,7 @@ fun ResellNotificationsScroll(
         modifier = modifier,
     ) {
 
-        if (notificationsHubUiState.newNotifications.isNotEmpty()) {
+        if (unreadNotifications.isNotEmpty()) {
             item {
                 Text(
                     text = "New",
@@ -44,14 +47,14 @@ fun ResellNotificationsScroll(
                     modifier = Modifier.padding(horizontal = 24.dp)
                 )
                 Spacer(modifier = Modifier.height(12.dp))
-                val unreadNotifications by remember { mutableStateOf(notificationsHubUiState.newNotifications) }
-                unreadNotifications.mapIndexed { i, notification ->
+                val currUnreads by remember { mutableStateOf(unreadNotifications) }
+                currUnreads.mapIndexed { i, notification ->
                     if (notification.unread) {
                         SwipeableNotificationCard(
                             notification = notification,
                             imageUrl = "https://media.licdn.com/dms/image/D4E03AQGOCNNbxGtcjw/profile-displayphoto-shrink_200_200/0/1704329714345?e=2147483647&v=beta&t=Kq7ex1pKyiifjOpuNIojeZ8f4dXjEAsNSpkJDXBwjxc",
                             title = notification.title,
-                            timestamp = notification.timestamp(),
+                            timestamp = notification.timestamp,
                             unread = notification.unread,
                             onArchive = {
                                 notification.unread = false
@@ -67,7 +70,7 @@ fun ResellNotificationsScroll(
             }
         }
 
-        if (notificationsHubUiState.weekNotifications.isNotEmpty()) {
+        if (weekNotifications.isNotEmpty()) {
             item {
                 Text(
                     text = "Last 7 Days",
@@ -75,11 +78,11 @@ fun ResellNotificationsScroll(
                     modifier = Modifier.padding(horizontal = 24.dp)
                 )
                 Spacer(modifier = Modifier.height(12.dp))
-                notificationsHubUiState.weekNotifications.forEach {
+                weekNotifications.forEach {
                     NotificationCard(
                         imageUrl = "https://media.licdn.com/dms/image/D4E03AQGOCNNbxGtcjw/profile-displayphoto-shrink_200_200/0/1704329714345?e=2147483647&v=beta&t=Kq7ex1pKyiifjOpuNIojeZ8f4dXjEAsNSpkJDXBwjxc",
                         title = it.title,
-                        timestamp = it.timestamp(),
+                        timestamp = it.timestamp,
                         unread = it.unread,
                     ) {
                         onNotificationPressed(it)
@@ -90,7 +93,7 @@ fun ResellNotificationsScroll(
         }
 
 
-        if (notificationsHubUiState.monthNotifications.isNotEmpty()) {
+        if (monthNotifications.isNotEmpty()) {
             item {
                 Text(
                     text = "Last 30 Days",
@@ -98,11 +101,11 @@ fun ResellNotificationsScroll(
                     modifier = Modifier.padding(horizontal = 24.dp)
                 )
                 Spacer(modifier = Modifier.height(12.dp))
-                notificationsHubUiState.monthNotifications.forEach {
+                monthNotifications.forEach {
                     NotificationCard(
                         imageUrl = "https://media.licdn.com/dms/image/D4E03AQGOCNNbxGtcjw/profile-displayphoto-shrink_200_200/0/1704329714345?e=2147483647&v=beta&t=Kq7ex1pKyiifjOpuNIojeZ8f4dXjEAsNSpkJDXBwjxc",
                         title = it.title,
-                        timestamp = it.timestamp(),
+                        timestamp = it.timestamp,
                         unread = it.unread,
                     ) {
                         onNotificationPressed(it)
@@ -112,7 +115,7 @@ fun ResellNotificationsScroll(
             }
         }
 
-        if (notificationsHubUiState.oldNotifications.isNotEmpty()) {
+        if (otherNotifications.isNotEmpty()) {
             item {
                 Text(
                     text = "Older",
@@ -120,11 +123,11 @@ fun ResellNotificationsScroll(
                     modifier = Modifier.padding(horizontal = 24.dp)
                 )
                 Spacer(modifier = Modifier.height(12.dp))
-                notificationsHubUiState.oldNotifications.forEach {
+                otherNotifications.forEach {
                     NotificationCard(
                         imageUrl = "https://media.licdn.com/dms/image/D4E03AQGOCNNbxGtcjw/profile-displayphoto-shrink_200_200/0/1704329714345?e=2147483647&v=beta&t=Kq7ex1pKyiifjOpuNIojeZ8f4dXjEAsNSpkJDXBwjxc",
                         title = it.title,
-                        timestamp = it.timestamp(),
+                        timestamp = it.timestamp,
                         unread = it.unread,
                     ) {
                         onNotificationPressed(it)
