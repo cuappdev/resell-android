@@ -1,9 +1,12 @@
 package com.cornellappdev.resell.android.ui.components.global
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -16,21 +19,29 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.times
-import coil.compose.AsyncImage
-import com.cornellappdev.resell.android.R
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.cornellappdev.resell.android.model.CoilRepository
+import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.ui.theme.Padding
+import com.cornellappdev.resell.android.ui.theme.Secondary
 import com.cornellappdev.resell.android.ui.theme.Stroke
 import com.cornellappdev.resell.android.ui.theme.Style
+import com.cornellappdev.resell.android.ui.theme.Wash
+import com.cornellappdev.resell.android.ui.theme.interpolateColorHSV
+import com.cornellappdev.resell.android.util.LocalInfiniteLoading
+import com.cornellappdev.resell.android.viewmodel.ResellViewModel
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
 /**
  * @param price The price of the listing, as $###.##.
@@ -41,12 +52,12 @@ fun ResellCard(
     title: String,
     price: String,
     modifier: Modifier = Modifier,
-    photoHeight: Dp = 220.dp,
+    viewModel: ResellCardViewModel = hiltViewModel(),
     onClick: () -> Unit,
 ) {
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
+    val image by viewModel.getImageUrlState(imageUrl)
 
-    // TODO: Find out how component height is determined.
     Column(
         modifier = modifier
             .widthIn(max = 0.5f * screenWidth)
@@ -56,15 +67,8 @@ fun ResellCard(
             .border(width = 1.dp, color = Stroke, shape = RoundedCornerShape(8.dp))
             .clickable(onClick = onClick)
     ) {
-        AsyncImage(
-            model = imageUrl,
-            contentDescription = null,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(photoHeight)
-                .heightIn(max = 220.dp),
-            placeholder = painterResource(id = R.drawable.ic_launcher_background),
-            contentScale = ContentScale.Crop
+        AnimatedClampedAsyncImage(
+            image = image
         )
 
         Row(
@@ -85,6 +89,51 @@ fun ResellCard(
                 style = Style.title4,
                 text = price
             )
+        }
+    }
+}
+
+@Composable
+private fun AnimatedClampedAsyncImage(image: ResellApiResponse<ImageBitmap>) {
+    Box(modifier = Modifier.heightIn(min = 130.dp, max = 220.dp)) {
+        AnimatedContent(targetState = image, label = "image loading") { response ->
+            when (response) {
+                ResellApiResponse.Pending -> {
+                    Box(
+                        modifier = Modifier
+                            .height(175.dp)
+                            .background(
+                                interpolateColorHSV(
+                                    Wash,
+                                    Stroke,
+                                    LocalInfiniteLoading.current
+                                )
+                            )
+                            .fillMaxWidth()
+                    )
+                }
+
+                ResellApiResponse.Error -> {
+                    Box(
+                        modifier = Modifier
+                            .height(175.dp)
+                            .background(
+                                Secondary
+                            )
+                            .fillMaxWidth()
+                    )
+                }
+
+                is ResellApiResponse.Success -> {
+                    Image(
+                        bitmap = response.data,
+                        contentDescription = null,
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        contentScale = ContentScale.Crop
+                    )
+                }
+            }
         }
     }
 }
@@ -118,4 +167,16 @@ private fun PreviewListingCard() {
             onClick = {}
         )
     }
+}
+
+// Semantics to be able to call this function in the composable...
+
+@HiltViewModel
+class ResellCardViewModel @Inject constructor(
+    private val coilRepository: CoilRepository
+) : ResellViewModel<Unit>(
+    initialUiState = Unit
+) {
+
+    fun getImageUrlState(imageUrl: String) = coilRepository.getUrlState(imageUrl)
 }

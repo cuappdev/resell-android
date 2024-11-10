@@ -4,10 +4,6 @@ import androidx.compose.runtime.Composable
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse.Error
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse.Pending
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse.Success
-import kotlin.Any
-import kotlin.IllegalStateException
-import kotlin.Nothing
-import kotlin.Unit
 
 /**
  * Represents the state of an api response fetching data of type [T].
@@ -31,7 +27,7 @@ sealed class ResellApiResponse<out T : Any> {
     /**
      * Basically a force `!!`, but for [Success] responses.
      */
-    fun asSuccess(): ResellApiResponse.Success<T> {
+    fun asSuccess(): Success<T> {
         if (this is Success) return this
         throw IllegalStateException("Response is not a success: $this")
     }
@@ -50,6 +46,11 @@ sealed class ResellApiResponse<out T : Any> {
         if (this is Success) {
             block(data)
         }
+    }
+
+    fun asSuccessOrNull(): Success<T>? {
+        if (this is Success) return this
+        return null
     }
 }
 

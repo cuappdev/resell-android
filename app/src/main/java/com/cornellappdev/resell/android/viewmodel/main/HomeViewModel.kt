@@ -6,7 +6,6 @@ import com.cornellappdev.resell.android.model.classes.ResellApiState
 import com.cornellappdev.resell.android.model.classes.toResellApiState
 import com.cornellappdev.resell.android.model.posts.ResellPostRepository
 import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
-import com.cornellappdev.resell.android.util.richieListings
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
 import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -19,17 +18,23 @@ class HomeViewModel @Inject constructor(
 ) :
     ResellViewModel<HomeViewModel.HomeUiState>(
         initialUiState = HomeUiState(
-            listings = richieListings(40),
+            listings = listOf(),
             activeFilter = HomeFilter.RECENT,
-            loadedState = ResellApiState.Success
+            loadedState = ResellApiState.Loading
         )
     ) {
 
     data class HomeUiState(
         val loadedState: ResellApiState,
-        val listings: List<Listing>,
+        private val listings: List<Listing>,
         val activeFilter: HomeFilter,
     ) {
+        // TODO This should change to an endpoint, but backend is simple.
+        val filteredListings: List<Listing>
+            get() = listings.filter {
+                activeFilter == HomeFilter.RECENT ||
+                        it.categories.map { it.lowercase() }.contains(activeFilter.name.lowercase())
+            }
     }
 
     init {
@@ -82,5 +87,9 @@ class HomeViewModel @Inject constructor(
         applyMutation {
             copy(activeFilter = filter)
         }
+    }
+
+    fun onSearchPressed() {
+        rootNavigationRepository.navigate(ResellRootRoute.SEARCH)
     }
 }

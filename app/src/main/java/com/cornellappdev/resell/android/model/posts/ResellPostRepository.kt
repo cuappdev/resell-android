@@ -32,7 +32,10 @@ class ResellPostRepository @Inject constructor(
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 _allPostsFlow.value =
-                    ResellApiResponse.Success(retrofitInstance.postsApi.getPosts().posts)
+                    ResellApiResponse.Success(retrofitInstance.postsApi.getPosts().posts
+                        .sortedByDescending {
+                            it.created
+                        })
             } catch (e: Exception) {
                 Log.e("ResellPostRepository", "Error fetching posts: ", e)
                 _allPostsFlow.value = ResellApiResponse.Error

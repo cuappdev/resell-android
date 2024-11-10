@@ -18,7 +18,20 @@ interface PostsApiService {
 
     @POST("post/filter")
     suspend fun getFilteredPosts(@Body categoryRequest: CategoryRequest): PostsResponse
+
+    @GET("post/userId/{id}")
+    suspend fun getPostsByUser(@Path("id") id: String): PostsResponse
+
+    @GET("post/archive/userId/{id}")
+    suspend fun getArchivedPostsByUser(@Path("id") id: String): PostsResponse
+
+    @POST("post/search")
+    suspend fun getPostsBySearch(@Body searchRequest: SearchRequest): PostsResponse
 }
+
+data class SearchRequest(
+    val keywords: String
+)
 
 data class CategoryRequest(
     val category: String

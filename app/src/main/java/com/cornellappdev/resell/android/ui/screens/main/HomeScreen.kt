@@ -65,13 +65,14 @@ fun HomeScreen(
                 coroutineScope.launch {
                     listState.animateScrollToItem(0)
                 }
-            }
+            },
+            onSearchPressed = homeViewModel::onSearchPressed
         )
 
         when (homeUiState.loadedState) {
             is ResellApiState.Success -> {
                 ResellListingsScroll(
-                    listings = homeUiState.listings,
+                    listings = homeUiState.filteredListings,
                     onListingPressed = {
                         homeViewModel.onListingPressed(it)
                     },
@@ -92,6 +93,7 @@ private fun HomeHeader(
     onFilterPressed: (HomeViewModel.HomeFilter) -> Unit = {},
     onNotificationPressed: () -> Unit = {},
     onTopPressed: () -> Unit,
+    onSearchPressed: () -> Unit,
 ) {
     Column {
         Row(
@@ -112,6 +114,7 @@ private fun HomeHeader(
                 text = "resell",
                 style = Style.resellBrand
             )
+            
             Box (
                 modifier = Modifier
                     .clickableNoIndication { onNotificationPressed() }
