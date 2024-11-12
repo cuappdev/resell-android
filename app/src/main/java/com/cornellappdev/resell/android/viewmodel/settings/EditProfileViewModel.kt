@@ -4,9 +4,11 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.net.Uri
 import android.util.Log
+import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.lifecycle.viewModelScope
 import com.cornellappdev.resell.android.model.core.UserInfoRepository
+import com.cornellappdev.resell.android.model.pdp.ImageBitmapLoader
 import com.cornellappdev.resell.android.model.settings.SettingsRepository
 import com.cornellappdev.resell.android.util.loadBitmapFromUri
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
@@ -23,7 +25,8 @@ class EditProfileViewModel @Inject constructor(
     private val settingsNavigationRepository: SettingsNavigationRepository,
     private val confirmationRepository: RootConfirmationRepository,
     private val userInfoRepository: UserInfoRepository,
-    private val settingsRepository: SettingsRepository
+    private val settingsRepository: SettingsRepository,
+    private val imageBitmapLoader: ImageBitmapLoader
 ) :
     ResellViewModel<EditProfileViewModel.EditProfileUiState>
         (
@@ -104,21 +107,42 @@ class EditProfileViewModel @Inject constructor(
     }
 
     init {
+        applyMutation {
+            copy(
+                loading = true
+            )
+        }
         viewModelScope.launch {
-            val netid = userInfoRepository.getUserInfo().netId
-            val name = userInfoRepository.getUserInfo().name
-            val username = userInfoRepository.getUserInfo().username
-            val venmo = userInfoRepository.getUserInfo().venmoHandle
-            val bio = userInfoRepository.getUserInfo().bio
+            val userInfo = userInfoRepository.getUserInfo()
+            val netId = userInfo.netId
+            val name = userInfo.name
+            val username = userInfo.username
+            val venmo = userInfo.venmoHandle
+            val bio = userInfo.bio
 
             applyMutation {
                 copy(
-                    netId = netid,
+                    netId = netId,
                     name = name,
                     username = username,
                     venmo = venmo,
-                    bio = bio
+                    bio = bio,
+                    loading = false
                 )
+            }
+        }
+
+        // Load current PFP. Should this be done in the same coroutine? Idk.
+        viewModelScope.launch {
+            val pfp = userInfoRepository.getProfilePicUrl()
+
+            if (pfp != null) {
+                val bitmap = imageBitmapLoader.getBitmap(pfp)
+                if (bitmap != null) {
+                    applyMutation {
+                        copy(imageBitmap = bitmap.asAndroidBitmap())
+                    }
+                }
             }
         }
     }

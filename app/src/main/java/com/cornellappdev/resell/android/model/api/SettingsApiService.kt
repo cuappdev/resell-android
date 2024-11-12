@@ -18,7 +18,7 @@ interface SettingsApiService {
     @POST("feedback")
     suspend fun sendFeedback(@Body feedback: Feedback)
 
-    @POST("api/user")
+    @POST("user")
     suspend fun editUser(@Body user: EditUser)
 }
 

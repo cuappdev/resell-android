@@ -70,7 +70,10 @@ class ResellPostRepository @Inject constructor(
                     it.uppercase()
                 },
                 userId = userId
-            )
+            ).let {
+                Log.d("helpme", it.toString())
+                it
+            }
         )
     }
 
