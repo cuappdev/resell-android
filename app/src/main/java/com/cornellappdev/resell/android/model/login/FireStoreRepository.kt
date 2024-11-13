@@ -1,7 +1,6 @@
 package com.cornellappdev.resell.android.model.login
 
 import android.util.Log
-import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
@@ -36,8 +35,7 @@ class FireStoreRepository @Inject constructor(
 
             val user = doc.toObject(FirebaseDoc::class.java)
             return user?.venmo ?: ""
-        }
-        catch (e: Exception) {
+        } catch (e: Exception) {
             Log.e("FireStoreRepository", "Error getting user: ", e)
             return ""
         }

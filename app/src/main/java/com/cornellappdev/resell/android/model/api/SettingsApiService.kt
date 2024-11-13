@@ -3,7 +3,6 @@ package com.cornellappdev.resell.android.model.api
 import com.google.gson.annotations.SerializedName
 import retrofit2.http.Body
 import retrofit2.http.POST
-import java.io.Serial
 
 interface SettingsApiService {
     @POST("report/post")

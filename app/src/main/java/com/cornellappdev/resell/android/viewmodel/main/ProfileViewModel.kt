@@ -141,8 +141,7 @@ class ProfileViewModel @Inject constructor(
                 message = "Your request has been deleted successfully!",
             )
             onReloadListings()
-        }
-        catch (e: Exception) {
+        } catch (e: Exception) {
             rootDialogRepository.dismissDialog()
             rootConfirmationRepository.showError()
         }

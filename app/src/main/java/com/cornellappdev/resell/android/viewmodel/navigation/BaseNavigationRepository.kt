@@ -1,7 +1,5 @@
 package com.cornellappdev.resell.android.viewmodel.navigation
 
-import com.cornellappdev.resell.android.model.classes.Listing
-import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
 import com.cornellappdev.resell.android.util.UIEvent
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

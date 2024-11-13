@@ -13,7 +13,6 @@ import com.cornellappdev.resell.android.viewmodel.root.RootConfirmationRepositor
 import com.cornellappdev.resell.android.viewmodel.root.RootNavigationSheetRepository
 import com.cornellappdev.resell.android.viewmodel.root.RootSheet
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -105,8 +104,7 @@ class PostDetailsEntryViewModel @Inject constructor(
                 rootConfirmationRepository.showSuccess(
                     message = "Your listing has been posted successfully!"
                 )
-            }
-            catch (e: Exception) {
+            } catch (e: Exception) {
                 Log.e("ProfileRepository", "Error creating listing: ", e)
                 applyMutation {
                     copy(loadingPost = false)

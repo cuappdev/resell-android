@@ -56,5 +56,5 @@ enum class OptionType(
     SHARE("Share", R.drawable.ic_share),
     REPORT("Report", R.drawable.ic_report),
     BLOCK("Block", R.drawable.ic_slash),
-    DELETE("Delete", R.drawable.ic_trash, Color.Red),;
+    DELETE("Delete", R.drawable.ic_trash, Color.Red), ;
 }
