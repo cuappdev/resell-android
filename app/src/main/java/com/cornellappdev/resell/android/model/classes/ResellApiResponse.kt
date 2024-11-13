@@ -61,7 +61,7 @@ sealed class ResellApiResponse<out T : Any> {
     }
 
     @Composable
-    fun composableIfSuccess(block: @Composable (T) -> Unit) {
+    fun ComposableIfSuccess(block: @Composable (T) -> Unit) {
         if (this is Success) {
             block(data)
         }
@@ -81,8 +81,8 @@ sealed class ResellApiState {
 
 fun <T : Any> ResellApiResponse<T>.toResellApiState(): ResellApiState {
     return when (this) {
-        is ResellApiResponse.Success -> ResellApiState.Success
-        is ResellApiResponse.Error -> ResellApiState.Error
-        is ResellApiResponse.Pending -> ResellApiState.Loading
+        is Success -> ResellApiState.Success
+        is Error -> ResellApiState.Error
+        is Pending -> ResellApiState.Loading
     }
 }

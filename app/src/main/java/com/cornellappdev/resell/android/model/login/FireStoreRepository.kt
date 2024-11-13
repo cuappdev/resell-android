@@ -55,6 +55,9 @@ class FireStoreRepository @Inject constructor(
         }
     }
 
+    /**
+     * Saves that the user has been onboarded.
+     */
     suspend fun saveOnboarded(userEmail: String) {
         try {
             val userDocRef = fireStore.collection("user").document(userEmail)

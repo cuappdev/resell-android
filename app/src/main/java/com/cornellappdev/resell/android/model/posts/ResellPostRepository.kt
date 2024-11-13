@@ -23,7 +23,6 @@ import javax.inject.Singleton
 @Singleton
 class ResellPostRepository @Inject constructor(
     private val retrofitInstance: RetrofitInstance,
-    private val userInfoRepository: UserInfoRepository
 ) {
 
     private val _allPostsFlow =

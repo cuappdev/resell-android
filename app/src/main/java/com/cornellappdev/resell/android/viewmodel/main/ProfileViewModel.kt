@@ -25,11 +25,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
-    private val loginRepository: GoogleAuthRepository,
     private val rootNavigationRepository: RootNavigationRepository,
-    private val rootOptionsMenuRepository: RootOptionsMenuRepository,
     private val rootDialogRepository: RootDialogRepository,
-    private val blockedUsersRepository: BlockedUsersRepository,
     private val rootConfirmationRepository: RootConfirmationRepository,
     private val profileRepository: ProfileRepository,
     private val userInfoRepository: UserInfoRepository
@@ -91,13 +88,6 @@ class ProfileViewModel @Inject constructor(
 
     fun onSettingsPressed() {
         rootNavigationRepository.navigate(ResellRootRoute.SETTINGS)
-    }
-
-    fun onSearchPressed() {
-        // TODO: Implement
-
-        // TODO: showing this for testing
-
     }
 
     fun onRequestPressed(request: RequestListing) {

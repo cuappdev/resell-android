@@ -5,6 +5,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.cornellappdev.resell.android.model.api.CreateUserBody
+import com.cornellappdev.resell.android.model.login.FireStoreRepository
 import com.cornellappdev.resell.android.model.login.GoogleAuthRepository
 import com.cornellappdev.resell.android.model.login.ResellAuthRepository
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonState
@@ -30,6 +31,7 @@ class VenmoFieldViewModel @Inject constructor(
     private val resellAuthRepository: ResellAuthRepository,
     private val googleAuthRepository: GoogleAuthRepository,
     private val rootConfirmationRepository: RootConfirmationRepository,
+    private val fireStoreRepository: FireStoreRepository,
     savedStateHandle: SavedStateHandle
 ) : ResellViewModel<VenmoFieldViewModel.VenmoFieldUiState>(
     initialUiState = VenmoFieldUiState()
@@ -120,6 +122,9 @@ class VenmoFieldViewModel @Inject constructor(
                         googleId = googleUser.id!!,
                         bio = stateValue().bio,
                     )
+                )
+                fireStoreRepository.saveOnboarded(
+                    googleUser.email!!
                 )
 
                 rootNavigationRepository.navigate(ResellRootRoute.MAIN)
