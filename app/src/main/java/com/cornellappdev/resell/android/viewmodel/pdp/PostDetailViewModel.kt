@@ -126,11 +126,28 @@ class PostDetailViewModel @Inject constructor(
                     )
                 }
             } catch (e: Exception) {
+                Log.e("PostDetailViewModel", "Error fetching similar posts: ", e)
                 applyMutation {
                     copy(
                         similarItems = ResellApiResponse.Error
                     )
                 }
+            }
+        }
+    }
+
+    private fun fetchSaved(id: String) {
+        applyMutation {
+            copy(bookmarked = false)
+        }
+        viewModelScope.launch {
+            try {
+                val saved = postsRepository.isPostSaved(id)
+                applyMutation {
+                    copy(bookmarked = saved)
+                }
+            } catch (e: Exception) {
+                Log.e("PostDetailViewModel", "Error fetching saved: ", e)
             }
         }
     }
@@ -213,6 +230,39 @@ class PostDetailViewModel @Inject constructor(
     }
 
     fun onBookmarkClick() {
+        if (stateValue().bookmarked) {
+            applyMutation {
+                copy(bookmarked = false)
+            }
+
+            viewModelScope.launch {
+                try {
+                    postsRepository.unsavePost(stateValue().postId)
+                } catch (e: Exception) {
+                    Log.e("PostDetailViewModel", "Error unsaving post: ", e)
+                    rootConfirmationRepository.showError()
+                    applyMutation {
+                        copy(bookmarked = true)
+                    }
+                }
+            }
+        } else {
+            applyMutation {
+                copy(bookmarked = true)
+            }
+
+            viewModelScope.launch {
+                try {
+                    postsRepository.savePost(stateValue().postId)
+                } catch (e: Exception) {
+                    Log.e("PostDetailViewModel", "Error saving post: ", e)
+                    rootConfirmationRepository.showError()
+                    applyMutation {
+                        copy(bookmarked = false)
+                    }
+                }
+            }
+        }
 
     }
 
@@ -226,50 +276,65 @@ class PostDetailViewModel @Inject constructor(
 
     fun onSimilarPressed(index: Int) {
         val listing = stateValue().similarItems.asSuccess().data[index]
+
+        loadPost(
+            id = listing.id,
+            title = listing.title,
+            price = listing.price,
+            description = listing.description,
+            userImageUrl = listing.user.imageUrl,
+            userHumanName = listing.user.name,
+            userId = listing.user.id,
+            images = listing.images,
+            categories = listing.categories
+        )
+    }
+
+    private fun loadPost(
+        id: String,
+        title: String,
+        price: String,
+        description: String,
+        userImageUrl: String,
+        userHumanName: String,
+        userId: String,
+        images: List<String>,
+        categories: List<String>
+    ) {
         applyMutation {
             copy(
-                postId = listing.id,
-                title = listing.title,
-                price = listing.price,
-                description = listing.description,
-                hideSheetEvent = UIEvent(Unit),
-                profileImageUrl = listing.user.imageUrl,
-                username = listing.user.name,
-                uid = listing.user.id
+                postId = id,
+                title = title,
+                price = price,
+                description = description,
+                profileImageUrl = userImageUrl,
+                username = userHumanName,
+                uid = userId
             )
         }
-
         onNeedLoadImages(
-            urls = listing.images,
-            currentPostId = listing.id
+            urls = images,
+            currentPostId = id
         )
-
         fetchSimilarPosts(
-            id = listing.id,
-            category = listing.categories.firstOrNull() ?: ""
+            id = id,
+            category = categories.firstOrNull() ?: ""
         )
+        fetchSaved(id)
     }
 
     init {
         val navArgs = savedStateHandle.toRoute<ResellRootRoute.PDP>()
-        applyMutation {
-            copy(
-                postId = navArgs.id,
-                title = navArgs.title,
-                price = navArgs.price,
-                description = navArgs.description,
-                profileImageUrl = navArgs.userImageUrl,
-                username = navArgs.userHumanName,
-                uid = navArgs.userId
-            )
-        }
-        onNeedLoadImages(
-            urls = navArgs.images,
-            currentPostId = navArgs.id
-        )
-        fetchSimilarPosts(
+        loadPost(
             id = navArgs.id,
-            category = navArgs.categories.firstOrNull() ?: ""
+            title = navArgs.title,
+            price = navArgs.price,
+            description = navArgs.description,
+            userImageUrl = navArgs.userImageUrl,
+            userHumanName = navArgs.userHumanName,
+            userId = navArgs.userId,
+            images = navArgs.images,
+            categories = navArgs.categories
         )
     }
 }

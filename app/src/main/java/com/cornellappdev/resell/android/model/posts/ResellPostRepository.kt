@@ -12,7 +12,10 @@ import com.cornellappdev.resell.android.util.toNetworkingString
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -26,6 +29,21 @@ class ResellPostRepository @Inject constructor(
     private val _allPostsFlow =
         MutableStateFlow<ResellApiResponse<List<Post>>>(ResellApiResponse.Pending)
     val allPostsFlow = _allPostsFlow.asStateFlow()
+
+    private val _savedPostsIds =
+        MutableStateFlow<ResellApiResponse<List<String>>>(ResellApiResponse.Pending)
+
+    val savedPosts = _savedPostsIds.combine(allPostsFlow) { savedIds, posts ->
+        savedIds.combine(posts).map { (saved, list) ->
+            list.filter {
+                saved.contains(it.id)
+            }
+        }
+    }.stateIn(
+        scope = CoroutineScope(Dispatchers.IO),
+        started = SharingStarted.Eagerly,
+        initialValue = ResellApiResponse.Pending
+    )
 
     private var recentBitmaps: List<ImageBitmap>? = null
 
@@ -87,5 +105,40 @@ class ResellPostRepository @Inject constructor(
 
     suspend fun deletePost(id: String): PostResponse {
         return retrofitInstance.postsApi.deletePost(id)
+    }
+
+    suspend fun savePost(id: String): PostResponse {
+        return retrofitInstance.postsApi.savePost(id).apply {
+            fetchSavedPosts()
+        }
+    }
+
+    suspend fun unsavePost(id: String): PostResponse {
+        return retrofitInstance.postsApi.unsavePost(id).apply {
+            fetchSavedPosts()
+        }
+    }
+
+    /**
+     * Starts a coroutine to fetch the list of saved posts from the API.
+     *
+     * Sometime after calling, [savedPosts] will be updated.
+     */
+    fun fetchSavedPosts() {
+        _savedPostsIds.value = ResellApiResponse.Pending
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val saved = retrofitInstance.postsApi.getSavedPosts().posts
+
+                _savedPostsIds.value = ResellApiResponse.Success(saved.map { it.id })
+            } catch (e: Exception) {
+                Log.e("ResellPostRepository", "Error fetching saved posts: ", e)
+                _savedPostsIds.value = ResellApiResponse.Error
+            }
+        }
+    }
+
+    suspend fun isPostSaved(id: String): Boolean {
+        return retrofitInstance.postsApi.isPostSaved(id).isSaved
     }
 }

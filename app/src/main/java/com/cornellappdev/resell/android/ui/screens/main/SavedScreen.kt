@@ -83,12 +83,6 @@ private fun Header(
                 text = "Saved",
                 style = Style.heading1
             )
-            Icon(
-                painter = painterResource(id = R.drawable.ic_search),
-                contentDescription = "search",
-                tint = Primary,
-                modifier = Modifier.size(25.dp)
-            )
         }
 
         Spacer(modifier = Modifier.height(Padding.medium))

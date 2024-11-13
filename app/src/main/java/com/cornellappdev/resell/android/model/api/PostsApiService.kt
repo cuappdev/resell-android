@@ -1,6 +1,8 @@
 package com.cornellappdev.resell.android.model.api
 
+import android.util.Log
 import com.cornellappdev.resell.android.model.classes.Listing
+import com.cornellappdev.resell.android.util.richieUserInfo
 import com.google.gson.annotations.SerializedName
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -43,6 +45,9 @@ interface PostsApiService {
 
     @GET("post/save")
     suspend fun getSavedPosts(): PostsResponse
+
+    @GET("post/isSaved/postId/{id}")
+    suspend fun isPostSaved(@Path("id") id: String): IsSavedResponse
 }
 
 data class SearchRequest(
@@ -73,7 +78,7 @@ data class Post(
     @SerializedName("altered_price") val altered: String,
     val images: List<String>,
     val location: String,
-    val user: User // Reusing the User class from before
+    val user: User? // Reusing the User class from before
 ) {
 
     private val priceString
@@ -87,7 +92,9 @@ data class Post(
             price = priceString,
             categories = categories,
             description = description,
-            user = user.toUserInfo(),
+            user = user?.toUserInfo() ?: richieUserInfo.apply {
+                Log.e("PostsApiService", "User is null")
+            },
         )
     }
 }
@@ -100,4 +107,8 @@ data class NewPostBody(
     @SerializedName("original_price") val originalPrice: Double,
     val imagesBase64: List<String>,
     val userId: String
+)
+
+data class IsSavedResponse(
+    val isSaved: Boolean
 )

@@ -24,6 +24,25 @@ sealed class ResellApiResponse<out T : Any> {
         }
     }
 
+    fun <K : Any> combine(other: ResellApiResponse<K>): ResellApiResponse<Pair<T, K>> {
+        return when (this) {
+            is Pending -> {
+                when (other) {
+                    is Pending -> Pending
+                    is Error -> Error
+                    is Success -> Pending
+                }
+            }
+
+            is Error -> Error
+            is Success -> when (other) {
+                is Pending -> Pending
+                is Error -> Error
+                is Success -> Success(Pair(data, other.data))
+            }
+        }
+    }
+
     /**
      * Basically a force `!!`, but for [Success] responses.
      */
