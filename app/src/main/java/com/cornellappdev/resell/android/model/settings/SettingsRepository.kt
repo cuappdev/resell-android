@@ -10,6 +10,7 @@ import com.cornellappdev.resell.android.model.api.Reporter
 import com.cornellappdev.resell.android.model.api.RetrofitInstance
 import com.cornellappdev.resell.android.model.core.UserInfoRepository
 import com.cornellappdev.resell.android.model.login.FireStoreRepository
+import com.cornellappdev.resell.android.model.profile.ProfileRepository
 import com.cornellappdev.resell.android.util.toNetworkingString
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -18,7 +19,8 @@ import javax.inject.Singleton
 class SettingsRepository @Inject constructor(
     private val retrofitInstance: RetrofitInstance,
     private val userInfoRepository: UserInfoRepository,
-    private val fireStoreRepository: FireStoreRepository
+    private val fireStoreRepository: FireStoreRepository,
+    private val profileRepository: ProfileRepository
 ) {
 
     suspend fun reportPost(id: String, reason: String) {
@@ -103,5 +105,7 @@ class SettingsRepository @Inject constructor(
             userInfoRepository.getEmail()!!,
             venmo
         )
+
+        profileRepository.fetchInternalProfile(userInfoRepository.getUserId()!!)
     }
 }
