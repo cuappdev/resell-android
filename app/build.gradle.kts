@@ -58,7 +58,7 @@ android {
             // TODO: Make sure this sets back to Dev lmao
             buildConfigField(
                 "String",
-                "BASE_API_URL", "\"${secrets.getProperty("API_URL_PROD")}\""
+                "BASE_API_URL", "\"${secrets.getProperty("API_URL_DEV")}\""
             )
         }
     }

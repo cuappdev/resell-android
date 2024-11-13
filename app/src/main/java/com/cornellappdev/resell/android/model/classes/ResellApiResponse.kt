@@ -24,6 +24,25 @@ sealed class ResellApiResponse<out T : Any> {
         }
     }
 
+    fun <K : Any> combine(other: ResellApiResponse<K>): ResellApiResponse<Pair<T, K>> {
+        return when (this) {
+            is Pending -> {
+                when (other) {
+                    is Pending -> Pending
+                    is Error -> Error
+                    is Success -> Pending
+                }
+            }
+
+            is Error -> Error
+            is Success -> when (other) {
+                is Pending -> Pending
+                is Error -> Error
+                is Success -> Success(Pair(data, other.data))
+            }
+        }
+    }
+
     /**
      * Basically a force `!!`, but for [Success] responses.
      */
@@ -42,7 +61,7 @@ sealed class ResellApiResponse<out T : Any> {
     }
 
     @Composable
-    fun composableIfSuccess(block: @Composable (T) -> Unit) {
+    fun ComposableIfSuccess(block: @Composable (T) -> Unit) {
         if (this is Success) {
             block(data)
         }
@@ -62,8 +81,8 @@ sealed class ResellApiState {
 
 fun <T : Any> ResellApiResponse<T>.toResellApiState(): ResellApiState {
     return when (this) {
-        is ResellApiResponse.Success -> ResellApiState.Success
-        is ResellApiResponse.Error -> ResellApiState.Error
-        is ResellApiResponse.Pending -> ResellApiState.Loading
+        is Success -> ResellApiState.Success
+        is Error -> ResellApiState.Error
+        is Pending -> ResellApiState.Loading
     }
 }

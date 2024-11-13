@@ -30,7 +30,7 @@ class ReportConfirmationViewModel @Inject constructor(
 
     data class ConfirmationUiState(
         private val reportPost: Boolean,
-        private val userId: String,
+        val userId: String,
     ) {
         val headerTitle: String
             get() = if (reportPost) {
@@ -63,7 +63,8 @@ class ReportConfirmationViewModel @Inject constructor(
             blockedUsersRepository = blockedUsersRepository,
             onBlockSuccess = {
                 rootNavigationRepository.navigate(ResellRootRoute.MAIN)
-            }
+            },
+            userId = stateValue().userId
         )
     }
 

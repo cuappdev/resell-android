@@ -1,7 +1,11 @@
 package com.cornellappdev.resell.android.util
 
+import android.graphics.Bitmap
+import android.util.Base64
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.toPixelMap
+import java.io.ByteArrayOutputStream
 
 /**
  * Returns if the bottom left is more black than white.
@@ -77,4 +81,12 @@ fun String.isLeqMoney(other: String): Boolean {
     } catch (e: Exception) {
         return false
     }
+}
+
+fun ImageBitmap.toNetworkingString(): String {
+    val bitmap = this.asAndroidBitmap()
+    val outputStream = ByteArrayOutputStream()
+    bitmap.compress(Bitmap.CompressFormat.JPEG, 50, outputStream)
+    val byteArray = outputStream.toByteArray()
+    return "data:image/jpeg;base64," + Base64.encodeToString(byteArray, Base64.DEFAULT)
 }

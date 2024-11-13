@@ -1,7 +1,6 @@
 package com.cornellappdev.resell.android.model.api
 
 import com.cornellappdev.resell.android.model.classes.RequestListing
-import com.cornellappdev.resell.android.model.classes.UserInfo
 import com.cornellappdev.resell.android.util.richieUserInfo
 import com.google.gson.annotations.SerializedName
 import retrofit2.http.Body

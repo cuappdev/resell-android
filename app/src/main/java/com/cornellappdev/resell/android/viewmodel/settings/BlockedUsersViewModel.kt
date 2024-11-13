@@ -45,16 +45,15 @@ class BlockedUsersViewModel @Inject constructor(
                         blockedUsersRepository.onUnblockUser(
                             userId = id,
                             onError = {
-                                // TODO
                                 dialogRepository.dismissDialog()
                                 confirmationRepository.showError()
                             },
                             onSuccess = {
-                                // TODO
                                 dialogRepository.dismissDialog()
                                 confirmationRepository.showSuccess(
                                     message = "$name has been unblocked.",
                                 )
+                                blockedUsersRepository.fetchBlockedUsers()
                             }
                         )
                     }
@@ -69,8 +68,14 @@ class BlockedUsersViewModel @Inject constructor(
     }
 
     init {
-        blockedUsersRepository.fetchBlockedUsers { blockedUsers ->
-            applyMutation { copy(blockedUsers = blockedUsers) }
+        blockedUsersRepository.fetchBlockedUsers()
+
+        asyncCollect(blockedUsersRepository.blockedUsers) { response ->
+            response.ifSuccess {
+                applyMutation {
+                    copy(blockedUsers = it.map { UiBlockedUser(it.id, it.name, it.imageUrl) })
+                }
+            }
         }
     }
 }

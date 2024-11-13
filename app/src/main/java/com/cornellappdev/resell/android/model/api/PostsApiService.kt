@@ -1,8 +1,11 @@
 package com.cornellappdev.resell.android.model.api
 
+import android.util.Log
 import com.cornellappdev.resell.android.model.classes.Listing
+import com.cornellappdev.resell.android.util.richieUserInfo
 import com.google.gson.annotations.SerializedName
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
@@ -27,6 +30,24 @@ interface PostsApiService {
 
     @POST("post/search")
     suspend fun getPostsBySearch(@Body searchRequest: SearchRequest): PostsResponse
+
+    @POST("post")
+    suspend fun createPost(@Body newPostBody: NewPostBody): PostResponse
+
+    @DELETE("post/id/{id}")
+    suspend fun deletePost(@Path("id") id: String): PostResponse
+
+    @POST("post/save/postId/{id}")
+    suspend fun savePost(@Path("id") id: String): PostResponse
+
+    @POST("post/unsave/postId/{id}")
+    suspend fun unsavePost(@Path("id") id: String): PostResponse
+
+    @GET("post/save")
+    suspend fun getSavedPosts(): PostsResponse
+
+    @GET("post/isSaved/postId/{id}")
+    suspend fun isPostSaved(@Path("id") id: String): IsSavedResponse
 }
 
 data class SearchRequest(
@@ -42,6 +63,10 @@ data class PostsResponse(
     val posts: List<Post>
 )
 
+data class PostResponse(
+    val post: Post
+)
+
 data class Post(
     val id: String,
     val title: String,
@@ -53,7 +78,7 @@ data class Post(
     @SerializedName("altered_price") val altered: String,
     val images: List<String>,
     val location: String,
-    val user: User // Reusing the User class from before
+    val user: User? // Reusing the User class from before
 ) {
 
     private val priceString
@@ -67,7 +92,23 @@ data class Post(
             price = priceString,
             categories = categories,
             description = description,
-            user = user.toUserInfo(),
+            user = user?.toUserInfo() ?: richieUserInfo.apply {
+                Log.e("PostsApiService", "User is null")
+            },
         )
     }
 }
+
+data class NewPostBody(
+    val title: String,
+    val description: String,
+    val categories: List<String>,
+    val price: Double,
+    @SerializedName("original_price") val originalPrice: Double,
+    val imagesBase64: List<String>,
+    val userId: String
+)
+
+data class IsSavedResponse(
+    val isSaved: Boolean
+)

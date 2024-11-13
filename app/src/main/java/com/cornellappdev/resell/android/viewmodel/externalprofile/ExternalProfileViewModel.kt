@@ -104,9 +104,12 @@ class ExternalProfileViewModel @Inject constructor(
                     showBlockDialog(
                         rootDialogRepository = rootDialogRepository,
                         blockedUsersRepository = blockedUsersRepository,
-                        rootConfirmationRepository = rootConfirmationRepository
+                        rootConfirmationRepository = rootConfirmationRepository,
+                        userId = stateValue().uid
                     )
                 }
+
+                else -> {}
             }
         }
     }

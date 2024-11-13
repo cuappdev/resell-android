@@ -380,7 +380,7 @@ private fun BottomSheetContent(
 
         Spacer(Modifier.height(28.dp))
 
-        similarImageUrls.composableIfSuccess {
+        similarImageUrls.ComposableIfSuccess {
             Text(
                 text = "Similar Items",
                 style = Style.body2,

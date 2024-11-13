@@ -55,8 +55,7 @@ class RequestMatchesViewModel @Inject constructor(
                         listings = ResellApiResponse.Success(response.request.toRequestListing().matches)
                     )
                 }
-            }
-            catch (e: Exception) {
+            } catch (e: Exception) {
                 Log.e("RequestMatchesViewModel", "Error fetching matches", e)
                 applyMutation {
                     copy(
