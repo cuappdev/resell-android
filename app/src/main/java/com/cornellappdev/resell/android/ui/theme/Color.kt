@@ -18,6 +18,7 @@ val PurpleGrey40 = Color(0xFF625b71)
 val Pink40 = Color(0xFF7D5260)
 
 val ResellPurple = Color(0xFF9E70F6)
+val ResellPurpleWash = Color(0xFFF7F2FF)
 
 val Primary = Color(0xFF000000)
 val Secondary = Color(0xFF4D4D4D)

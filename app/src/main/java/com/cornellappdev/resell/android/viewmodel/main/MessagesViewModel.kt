@@ -1,6 +1,6 @@
 package com.cornellappdev.resell.android.viewmodel.main
 
-import com.cornellappdev.resell.android.model.Chat
+import com.cornellappdev.resell.android.model.messages.Chat
 import com.cornellappdev.resell.android.model.classes.ResellApiState
 import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
 import com.cornellappdev.resell.android.util.justinChats

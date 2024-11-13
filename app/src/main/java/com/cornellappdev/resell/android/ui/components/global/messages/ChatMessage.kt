@@ -30,8 +30,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.cornellappdev.resell.android.R
-import com.cornellappdev.resell.android.model.ChatMessageData
-import com.cornellappdev.resell.android.model.MessageType
+import com.cornellappdev.resell.android.model.messages.ChatMessageData
+import com.cornellappdev.resell.android.model.messages.MessageType
 import com.cornellappdev.resell.android.ui.components.global.ResellCard
 import com.cornellappdev.resell.android.ui.theme.ResellPurple
 import com.cornellappdev.resell.android.ui.theme.Style

@@ -1,11 +1,16 @@
 package com.cornellappdev.resell.android.util
 
-import com.cornellappdev.resell.android.model.Chat
-import com.cornellappdev.resell.android.model.ChatMessageCluster
-import com.cornellappdev.resell.android.model.ChatMessageData
-import com.cornellappdev.resell.android.model.MessageType
 import com.cornellappdev.resell.android.model.classes.Listing
 import com.cornellappdev.resell.android.model.classes.UserInfo
+import com.cornellappdev.resell.android.model.messages.Chat
+import com.cornellappdev.resell.android.model.messages.ChatMessageCluster
+import com.cornellappdev.resell.android.model.messages.ChatMessageData
+import com.cornellappdev.resell.android.model.messages.MessageType
+import com.cornellappdev.resell.android.model.messages.Notification
+import com.cornellappdev.resell.android.model.messages.NotificationType
+import java.time.LocalDateTime
+import java.time.ZoneOffset
+import kotlin.random.Random
 
 val richieListings = { count: Int ->
     List(count) {
@@ -71,6 +76,30 @@ val justinChats = { count: Int ->
     List(count) {
         Chat(
             chatId = -1
+        )
+    }
+}
+
+fun getRandomPastTime(): Long {
+    // Define the range in milliseconds
+    val minTimeOffset = 1.0 * 60 * 60 * 1000 // 1 hour in milliseconds
+    val maxTimeOffset = 40.0 * 24 * 60 * 60 * 1000 // 40 days in milliseconds
+
+    // Generate a random offset within the range
+    val randomOffset = Random.nextLong(minTimeOffset.toLong(), maxTimeOffset.toLong())
+
+    // Subtract the random offset from the current time to get a past time
+    return LocalDateTime.now().toInstant(ZoneOffset.UTC).toEpochMilli() - randomOffset
+}
+
+val richieNotifications = { count: Int ->
+    List(count) {
+        Notification(
+            id = it,
+            title = "richie is interested in buying AppDev",
+            timestate = getRandomPastTime(),
+            notificationType = listOf(NotificationType.Message, NotificationType.Buyer),
+            unread = Random.nextBoolean(),
         )
     }
 }

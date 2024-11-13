@@ -26,6 +26,7 @@ import com.cornellappdev.resell.android.ui.screens.externalprofile.ExternalProfi
 import com.cornellappdev.resell.android.ui.screens.main.AllSearchScreen
 import com.cornellappdev.resell.android.ui.screens.main.ChatScreen
 import com.cornellappdev.resell.android.ui.screens.main.MainTabNavigation
+import com.cornellappdev.resell.android.ui.screens.main.NotificationsHubScreen
 import com.cornellappdev.resell.android.ui.screens.main.RequestMatchesScreen
 import com.cornellappdev.resell.android.ui.screens.newpost.NewPostNavigation
 import com.cornellappdev.resell.android.ui.screens.newpost.RequestDetailsEntryScreen
@@ -157,6 +158,9 @@ fun RootNavigation(
                 ReportNavigation()
             }
 
+            composable <ResellRootRoute.NOTIFICATIONS>{
+                NotificationsHubScreen()
+                
             composable<ResellRootRoute.EXTERNAL_PROFILE> {
                 ExternalProfileNavigation()
             }
@@ -234,6 +238,9 @@ sealed class ResellRootRoute {
         val postId: String,
         val userId: String
     ) : ResellRootRoute()
+
+    @Serializable
+    data object NOTIFICATIONS : ResellRootRoute()
 
     @Serializable
     data class EXTERNAL_PROFILE(

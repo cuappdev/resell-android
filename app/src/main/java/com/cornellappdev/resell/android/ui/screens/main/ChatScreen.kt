@@ -2,6 +2,7 @@ package com.cornellappdev.resell.android.ui.screens.main
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -39,7 +40,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.resell.android.R
-import com.cornellappdev.resell.android.model.Chat
+import com.cornellappdev.resell.android.model.messages.Chat
 import com.cornellappdev.resell.android.ui.components.global.messages.ChatTag
 import com.cornellappdev.resell.android.ui.components.global.messages.ResellChatScroll
 import com.cornellappdev.resell.android.ui.theme.ResellPurple
@@ -124,7 +125,7 @@ private fun ChatHeader(
                     .padding(top = 20.dp, start = 12.dp)
                     .size(24.dp)
                     .align(Alignment.CenterStart)
-                    .clickableNoIndication { onBackPressed() }
+                    .clickable { onBackPressed() }
             )
             Column(
                 modifier = Modifier.align(Alignment.Center),
