@@ -96,6 +96,7 @@ class ReportDetailsViewModel @Inject constructor(
                 if (stateValue().reportPost) {
                     settingsRepository.reportPost(
                         id = stateValue().postId,
+                        uid = stateValue().userId,
                         reason = stateValue().reason
                     )
                 } else {

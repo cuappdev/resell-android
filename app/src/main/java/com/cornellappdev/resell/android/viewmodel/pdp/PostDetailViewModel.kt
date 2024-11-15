@@ -196,9 +196,9 @@ class PostDetailViewModel @Inject constructor(
         rootDialogRepository.showDialog(
             event = RootDialogContent.TwoButtonDialog(
                 title = "Delete listing?",
-                description = "Are you sure you want to delete this listing?",
+                description = "Do you want to archive or PERMANENTLY delete this listing?",
                 primaryButtonText = "Delete",
-                secondaryButtonText = "Cancel",
+                secondaryButtonText = "Archive",
                 primaryButtonContainer = ResellTextButtonContainer.PRIMARY_RED,
                 onPrimaryButtonClick = {
                     viewModelScope.launch {
@@ -218,7 +218,22 @@ class PostDetailViewModel @Inject constructor(
                     }
                 },
                 onSecondaryButtonClick = {
-                    rootDialogRepository.dismissDialog()
+                    viewModelScope.launch {
+                        try {
+                            rootDialogRepository.setPrimaryButtonState(ResellTextButtonState.SPINNING)
+                            postsRepository.archivePost(stateValue().postId)
+                            rootNavigationRepository.navigate(ResellRootRoute.MAIN)
+                            rootConfirmationRepository.showSuccess(
+                                message = "Your listing has been archived successfully.",
+                            )
+                            rootDialogRepository.dismissDialog()
+                        }
+                        catch (e: Exception) {
+                            Log.e("PostDetailViewModel", "Error archiving post: ", e)
+                            rootConfirmationRepository.showError()
+                            rootDialogRepository.dismissDialog()
+                        }
+                    }
                 },
                 exitButton = true
             )

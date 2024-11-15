@@ -20,6 +20,7 @@ import com.cornellappdev.resell.android.viewmodel.root.RootDialogRepository
 import com.cornellappdev.resell.android.viewmodel.root.RootOptionsMenuRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import java.lang.StackWalker.Option
 import javax.inject.Inject
 
 @HiltViewModel
@@ -42,7 +43,8 @@ class ExternalProfileViewModel @Inject constructor(
             loadedState = ResellApiState.Loading,
             shopListings = ResellApiResponse.Pending,
             archiveListings = ResellApiResponse.Pending,
-            uid = ""
+            uid = "",
+            blockedUsers = listOf()
         )
     ) {
 
@@ -55,8 +57,12 @@ class ExternalProfileViewModel @Inject constructor(
         val loadedState: ResellApiState,
         val shopListings: ResellApiResponse<List<Listing>>,
         val archiveListings: ResellApiResponse<List<Listing>>,
-        val uid: String
-    )
+        val uid: String,
+        private val blockedUsers: List<String>,
+    ) {
+        val isBlocked: Boolean
+            get() = blockedUsers.contains(uid)
+    }
 
     fun onListingPressed(listing: Listing) {
         rootNavigationRepository.navigate(
@@ -80,7 +86,7 @@ class ExternalProfileViewModel @Inject constructor(
             options = listOf(
                 OptionType.SHARE,
                 OptionType.REPORT,
-                OptionType.BLOCK,
+                if (stateValue().isBlocked) OptionType.UNBLOCK else OptionType.BLOCK,
             ),
             alignment = Alignment.TopStart,
         ) {
@@ -105,7 +111,20 @@ class ExternalProfileViewModel @Inject constructor(
                         rootDialogRepository = rootDialogRepository,
                         blockedUsersRepository = blockedUsersRepository,
                         rootConfirmationRepository = rootConfirmationRepository,
-                        userId = stateValue().uid
+                        userId = stateValue().uid,
+                        onBlockSuccess = {
+                            rootNavigationRepository.navigate(ResellRootRoute.MAIN)
+                        }
+                    )
+                }
+
+                OptionType.UNBLOCK -> {
+                    showUnblockDialog(
+                        dialogRepository = rootDialogRepository,
+                        blockedUsersRepository = blockedUsersRepository,
+                        rootConfirmationRepository = rootConfirmationRepository,
+                        userId = stateValue().uid,
+                        name = stateValue().vendorName
                     )
                 }
 
@@ -134,6 +153,7 @@ class ExternalProfileViewModel @Inject constructor(
 
     init {
         val navArgs = savedStateHandle.toRoute<ExternalProfileRoute.ExternalProfile>()
+        blockedUsersRepository.fetchBlockedUsers()
         applyMutation {
             copy(
                 uid = navArgs.uid,
@@ -164,6 +184,16 @@ class ExternalProfileViewModel @Inject constructor(
                     loadedState = response.toResellApiState(),
                     shopListings = response
                 )
+            }
+        }
+
+        asyncCollect(blockedUsersRepository.blockedUsers) { response ->
+            response.ifSuccess {
+                applyMutation {
+                    copy(
+                        blockedUsers = it.map { it.id }
+                    )
+                }
             }
         }
     }

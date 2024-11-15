@@ -2,6 +2,7 @@ package com.cornellappdev.resell.android.model.posts
 
 import android.util.Log
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.text.capitalize
 import com.cornellappdev.resell.android.model.api.NewPostBody
 import com.cornellappdev.resell.android.model.api.Post
 import com.cornellappdev.resell.android.model.api.PostResponse
@@ -17,6 +18,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -81,10 +83,9 @@ class ResellPostRepository @Inject constructor(
                 title = title,
                 description = description,
                 imagesBase64 = base64s,
-                price = originalPrice,
                 originalPrice = originalPrice,
                 categories = categories.map {
-                    it.uppercase()
+                    it.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.US) else it.toString() }
                 },
                 userId = userId
             ).let {
@@ -116,6 +117,10 @@ class ResellPostRepository @Inject constructor(
         return retrofitInstance.postsApi.unsavePost(id).apply {
             fetchSavedPosts()
         }
+    }
+
+    suspend fun archivePost(id: String): PostResponse {
+        return retrofitInstance.postsApi.archivePost(id)
     }
 
     /**
