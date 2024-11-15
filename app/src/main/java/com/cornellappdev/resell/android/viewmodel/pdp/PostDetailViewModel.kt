@@ -200,6 +200,7 @@ class PostDetailViewModel @Inject constructor(
                 primaryButtonText = "Delete",
                 secondaryButtonText = "Archive",
                 primaryButtonContainer = ResellTextButtonContainer.PRIMARY_RED,
+                secondaryButtonContainer = ResellTextButtonContainer.SECONDARY,
                 onPrimaryButtonClick = {
                     viewModelScope.launch {
                         try {
