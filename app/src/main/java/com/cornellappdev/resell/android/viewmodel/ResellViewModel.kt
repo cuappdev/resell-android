@@ -5,6 +5,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cornellappdev.resell.android.model.settings.BlockedUsersRepository
+import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonContainer
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonState
 import com.cornellappdev.resell.android.viewmodel.root.RootConfirmationRepository
 import com.cornellappdev.resell.android.viewmodel.root.RootDialogContent
@@ -78,6 +79,7 @@ abstract class ResellViewModel<UiState>(initialUiState: UiState) : ViewModel() {
                             rootConfirmationRepository.showSuccess(
                                 message = "User has been blocked!"
                             )
+                            blockedUsersRepository.fetchBlockedUsers()
                             onBlockSuccess()
                         }
                     )
@@ -87,6 +89,51 @@ abstract class ResellViewModel<UiState>(initialUiState: UiState) : ViewModel() {
                     rootDialogRepository.dismissDialog()
                 },
                 exitButton = true
+            )
+        )
+    }
+
+    protected fun showUnblockDialog(
+        dialogRepository: RootDialogRepository,
+        rootConfirmationRepository: RootConfirmationRepository,
+        blockedUsersRepository: BlockedUsersRepository,
+        onUnblockSuccess: () -> Unit = {},
+        onUnblockError: () -> Unit = {},
+        userId: String,
+        name: String,
+    ) {
+        dialogRepository.showDialog(
+            RootDialogContent.TwoButtonDialog(
+                title = "Unblock $name?",
+                description = "They will be able to message you and view your posts.",
+                primaryButtonText = "Unblock",
+                secondaryButtonText = "Cancel",
+                onPrimaryButtonClick = {
+                    viewModelScope.launch {
+                        dialogRepository.setPrimaryButtonState(ResellTextButtonState.SPINNING)
+                        blockedUsersRepository.onUnblockUser(
+                            userId = userId,
+                            onError = {
+                                dialogRepository.dismissDialog()
+                                rootConfirmationRepository.showError()
+                                onUnblockError()
+                            },
+                            onSuccess = {
+                                dialogRepository.dismissDialog()
+                                rootConfirmationRepository.showSuccess(
+                                    message = "$name has been unblocked.",
+                                )
+                                blockedUsersRepository.fetchBlockedUsers()
+                                onUnblockSuccess()
+                            }
+                        )
+                    }
+                },
+                onSecondaryButtonClick = {
+                    dialogRepository.dismissDialog()
+                },
+                exitButton = true,
+                primaryButtonContainer = ResellTextButtonContainer.SECONDARY_RED
             )
         )
     }

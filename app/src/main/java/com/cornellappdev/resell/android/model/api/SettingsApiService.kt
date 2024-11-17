@@ -6,7 +6,7 @@ import retrofit2.http.POST
 
 interface SettingsApiService {
     @POST("report/post")
-    suspend fun reportPost(@Body reportBody: ReportBody): ReportBody
+    suspend fun reportPost(@Body reportBody: ReportPostBody): ReportBody
 
     @POST("report/profile")
     suspend fun reportProfile(@Body reportBody: ReportProfileBody): ReportBody
@@ -49,16 +49,15 @@ data class Reporter(
     val profilePicUrl: String
 )
 
-data class ReportedContent(
-    val id: String,
-    val type: String,
-    val content: String
+data class ReportPostBody(
+    val reported: String,
+    val post: String,
+    val reason: String
 )
 
 data class ReportProfileBody(
-    val profileId: String,
-    val reason: String,
-    val description: String
+    val reported: String,
+    val reason: String
 )
 
 data class Feedback(

@@ -43,6 +43,9 @@ interface PostsApiService {
     @POST("post/unsave/postId/{id}")
     suspend fun unsavePost(@Path("id") id: String): PostResponse
 
+    @POST("post/archive/postId/{id}")
+    suspend fun archivePost(@Path("id") id: String): PostResponse
+
     @GET("post/save")
     suspend fun getSavedPosts(): PostsResponse
 
@@ -103,7 +106,6 @@ data class NewPostBody(
     val title: String,
     val description: String,
     val categories: List<String>,
-    val price: Double,
     @SerializedName("original_price") val originalPrice: Double,
     val imagesBase64: List<String>,
     val userId: String

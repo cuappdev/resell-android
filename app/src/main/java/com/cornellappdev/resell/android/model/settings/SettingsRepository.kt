@@ -3,10 +3,8 @@ package com.cornellappdev.resell.android.model.settings
 import androidx.compose.ui.graphics.ImageBitmap
 import com.cornellappdev.resell.android.model.api.EditUser
 import com.cornellappdev.resell.android.model.api.Feedback
-import com.cornellappdev.resell.android.model.api.Report
-import com.cornellappdev.resell.android.model.api.ReportBody
+import com.cornellappdev.resell.android.model.api.ReportPostBody
 import com.cornellappdev.resell.android.model.api.ReportProfileBody
-import com.cornellappdev.resell.android.model.api.Reporter
 import com.cornellappdev.resell.android.model.api.RetrofitInstance
 import com.cornellappdev.resell.android.model.core.UserInfoRepository
 import com.cornellappdev.resell.android.model.login.FireStoreRepository
@@ -23,22 +21,13 @@ class SettingsRepository @Inject constructor(
     private val profileRepository: ProfileRepository
 ) {
 
-    suspend fun reportPost(id: String, reason: String) {
+    suspend fun reportPost(id: String, uid: String, reason: String) {
         // TODO: The backend input is really weird...
         retrofitInstance.settingsApi.reportPost(
-            ReportBody(
-                report = Report(
-                    id = id,
-                    reason = reason,
-                    type = "POST",
-                    resolved = false,
-                    reporter = Reporter(
-                        id = userInfoRepository.getUserId()!!,
-                        firstName = userInfoRepository.getFirstName()!!,
-                        lastName = userInfoRepository.getLastName()!!,
-                        profilePicUrl = userInfoRepository.getProfilePicUrl()!!,
-                    )
-                )
+            ReportPostBody(
+                reported = uid,
+                post = id,
+                reason = reason,
             )
         )
     }
@@ -46,31 +35,14 @@ class SettingsRepository @Inject constructor(
     suspend fun reportProfile(uid: String, reason: String, description: String) {
         retrofitInstance.settingsApi.reportProfile(
             ReportProfileBody(
-                profileId = uid,
+                reported = uid,
                 reason = reason,
-                description = description
             )
         )
     }
 
     suspend fun reportMessage(id: String, reason: String) {
         // TODO: The backend input is really weird...
-        retrofitInstance.settingsApi.reportPost(
-            ReportBody(
-                report = Report(
-                    id = id,
-                    reason = reason,
-                    type = "MESSAGE",
-                    resolved = false,
-                    reporter = Reporter(
-                        id = userInfoRepository.getUserId()!!,
-                        firstName = userInfoRepository.getFirstName()!!,
-                        lastName = userInfoRepository.getLastName()!!,
-                        profilePicUrl = userInfoRepository.getProfilePicUrl()!!,
-                    )
-                )
-            )
-        )
     }
 
     suspend fun sendFeedback(

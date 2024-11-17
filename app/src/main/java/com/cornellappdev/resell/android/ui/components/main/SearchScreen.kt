@@ -10,8 +10,12 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -21,6 +25,7 @@ import com.cornellappdev.resell.android.model.classes.Listing
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.ui.components.global.ResellListingsScroll
 import com.cornellappdev.resell.android.ui.components.global.ResellTextEntry
+import com.cornellappdev.resell.android.util.UIEvent
 import com.cornellappdev.resell.android.util.clickableNoIndication
 import com.cornellappdev.resell.android.util.defaultHorizontalPadding
 
@@ -31,8 +36,16 @@ fun SearchScreen(
     onExit: () -> Unit,
     onListingPressed: (Listing) -> Unit,
     listings: ResellApiResponse<List<Listing>>,
-    placeholder: String
+    placeholder: String,
+    focusKeyboard: UIEvent<Unit>?
 ) {
+    // Create a FocusRequester
+    val focusRequester = remember { FocusRequester() }
+    LaunchedEffect(focusKeyboard) {
+        focusKeyboard?.consume {
+            focusRequester.requestFocus()
+        }
+    }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -43,7 +56,8 @@ fun SearchScreen(
             query = query,
             onQueryChanged = onQueryChanged,
             onExit = onExit,
-            placeholder = placeholder
+            placeholder = placeholder,
+            focusRequester = focusRequester
         )
 
         when (listings) {
@@ -73,6 +87,7 @@ private fun SearchHeader(
     onQueryChanged: (String) -> Unit = {},
     onExit: () -> Unit = {},
     placeholder: String = "Search...",
+    focusRequester: FocusRequester? = null,
 ) {
     Row(
         modifier = Modifier
@@ -86,7 +101,9 @@ private fun SearchHeader(
             text = query,
             onTextChange = onQueryChanged,
             placeholder = placeholder,
-            modifier = Modifier.weight(1f)
+            modifier = Modifier
+                .weight(1f)
+                .focusRequester(focusRequester ?: FocusRequester()),
         )
 
         Icon(

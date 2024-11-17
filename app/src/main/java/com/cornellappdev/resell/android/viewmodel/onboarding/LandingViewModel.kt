@@ -14,6 +14,7 @@ import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonSta
 import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
 import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepository
+import com.cornellappdev.resell.android.viewmodel.root.RootConfirmationRepository
 import com.cornellappdev.resell.android.viewmodel.root.RootNavigationSheetRepository
 import com.cornellappdev.resell.android.viewmodel.root.RootSheet
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -30,6 +31,7 @@ class LandingViewModel @Inject constructor(
     private val rootNavigationSheetRepository: RootNavigationSheetRepository,
     private val fireStoreRepository: FireStoreRepository,
     private val firebaseAuthRepository: FirebaseAuthRepository,
+    private val rootConfirmationRepository: RootConfirmationRepository,
     @ApplicationContext private val context: Context
 ) : ResellViewModel<LandingViewModel.LandingUiState>(
     initialUiState = LandingUiState()
@@ -65,14 +67,18 @@ class LandingViewModel @Inject constructor(
         }
     }
 
-    private fun onSignInFailed() {
+    private fun onSignInFailed(
+        showSheet: Boolean
+    ) {
         applyMutation {
             copy(buttonState = ResellTextButtonState.ENABLED)
         }
 
-        rootNavigationSheetRepository.showBottomSheet(
-            RootSheet.LoginFailed
-        )
+        if (showSheet) {
+            rootNavigationSheetRepository.showBottomSheet(
+                RootSheet.LoginFailed
+            )
+        }
 
         googleAuthRepository.signOut()
     }
@@ -100,7 +106,7 @@ class LandingViewModel @Inject constructor(
                 fireStoreRepository.getUserOnboarded(
                     email = email,
                     onError = {
-                        onSignInFailed()
+                        onSignInFailed(showSheet = true)
                     },
                     onSuccess = { onboarded ->
                         viewModelScope.launch {
@@ -118,7 +124,10 @@ class LandingViewModel @Inject constructor(
                 )
             } catch (e: Exception) {
                 Log.e("LandingViewModel", "Error getting user: ", e)
-                onSignInFailed()
+                onSignInFailed(showSheet = false)
+                rootConfirmationRepository.showError(
+                    "Your Google Account session has expired. Please sign in again!",
+                )
             }
         }
     }
@@ -126,7 +135,9 @@ class LandingViewModel @Inject constructor(
     @Composable
     fun makeSignInLauncher(): ManagedActivityResultLauncher<Intent, ActivityResult> {
         return googleAuthRepository.googleLoginLauncher(
-            onError = ::onSignInFailed,
+            onError = {
+                onSignInFailed(showSheet = true)
+            },
             onGoogleSignInCompleted = ::onSignInCompleted,
         )
     }
