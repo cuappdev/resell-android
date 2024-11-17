@@ -96,12 +96,11 @@ class ExternalProfileViewModel @Inject constructor(
                 }
 
                 OptionType.REPORT -> {
-                    // TODO: user id and post id
                     rootNavigationRepository.navigate(
                         ResellRootRoute.REPORT(
                             reportPost = false,
                             postId = "",
-                            userId = "",
+                            userId = stateValue().uid,
                         )
                     )
                 }

@@ -34,8 +34,18 @@ android {
         }
     }
 
+    signingConfigs {
+        create("release") {
+            keyAlias = "resell"
+            keyPassword = secrets.getProperty("KEY_PASS")
+            storeFile = file("/../resell-keystore.jks")
+            storePassword = secrets.getProperty("KEY_PASS")
+        }
+    }
+
     buildTypes {
         release {
+            signingConfig = signingConfigs.getByName("release")
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
@@ -58,7 +68,7 @@ android {
             // TODO: Make sure this sets back to Dev lmao
             buildConfigField(
                 "String",
-                "BASE_API_URL", "\"${secrets.getProperty("API_URL_PROD")}\""
+                "BASE_API_URL", "\"${secrets.getProperty("API_URL_DEV")}\""
             )
         }
     }

@@ -4,6 +4,7 @@ import android.util.Log
 import com.cornellappdev.resell.android.model.api.PostRequestBody
 import com.cornellappdev.resell.android.model.api.RequestResponse
 import com.cornellappdev.resell.android.model.api.RetrofitInstance
+import com.cornellappdev.resell.android.model.api.UserResponse
 import com.cornellappdev.resell.android.model.classes.Listing
 import com.cornellappdev.resell.android.model.classes.RequestListing
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
@@ -183,5 +184,9 @@ class ProfileRepository @Inject constructor(
                 onError()
             }
         }
+    }
+
+    suspend fun getUserById(id: String): UserResponse {
+        return retrofitInstance.userApi.getUser(id)
     }
 }

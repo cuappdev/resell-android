@@ -177,7 +177,7 @@ class PostDetailViewModel @Inject constructor(
                             ResellRootRoute.REPORT(
                                 reportPost = true,
                                 postId = stateValue().postId,
-                                userId = ""
+                                userId = stateValue().uid,
                             )
                         )
                     }
