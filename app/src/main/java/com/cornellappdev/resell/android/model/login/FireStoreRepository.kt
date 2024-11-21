@@ -5,6 +5,7 @@ import com.cornellappdev.resell.android.model.api.Post
 import com.cornellappdev.resell.android.model.api.User
 import com.cornellappdev.resell.android.model.chats.BuyerSellerData
 import com.cornellappdev.resell.android.model.chats.ChatDocument
+import com.cornellappdev.resell.android.model.chats.UserDocument
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
@@ -132,15 +133,6 @@ class FireStoreRepository @Inject constructor(
         val recentSender = it.get("recentSender")?.toString() ?: ""
         val viewed = it.getBoolean("viewed") ?: false
 
-        Log.d("helpme", name)
-        Log.d("helpme", recentMessage)
-
-
-        Log.d("helpme", it.get("item").toString())
-        val gson = Gson()
-        val json = gson.toJson(it.get("item").toString())
-        Log.d("helpme", json)
-
         val raw = (it.get("item") as Map<String, Any>).mapValues { it?.value?.toString() }
         val userMap =
             ((it.get("item") as Map<String, Any>)["user"] as Map<String, Any>).mapValues { it?.value?.toString() }
@@ -216,7 +208,28 @@ class FireStoreRepository @Inject constructor(
             }
 
             val messages = snapshot.documents.mapNotNull {
-                it?.toObject(ChatDocument::class.java)
+
+                val userMap = (it.get("user") as Map<String, Any>).mapValues { it?.value?.toString() }
+
+                val userDoc = UserDocument(
+                    id = userMap["_id"] ?: "",
+                    avatar = userMap["avatar"] ?: "",
+                    name = userMap["name"] ?: "",
+                )
+
+                // TODO Availability and Product Documents
+
+                val chatDoc = ChatDocument(
+                    id = it.get("_id")?.toString() ?: "",
+                    createdAt = it.get("createdAt")?.toString() ?: "",
+                    user = userDoc,
+                    availability = null,
+                    product = null,
+                    image = it.get("image")?.toString() ?: "",
+                    text = it.get("text")?.toString() ?: "",
+                )
+
+                chatDoc
             }
 
             onSnapshotUpdate(messages)

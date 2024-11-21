@@ -66,7 +66,6 @@ android {
                 "String",
                 "GOOGLE_AUTH_CLIENT_ID", "\"${secrets.getProperty("GOOGLE_AUTH_CLIENT_ID_LOCAL")}\""
             )
-            // TODO: Make sure this sets back to Dev lmao
             buildConfigField(
                 "String",
                 "BASE_API_URL", "\"${secrets.getProperty("API_URL_DEV")}\""
