@@ -145,4 +145,8 @@ class ResellPostRepository @Inject constructor(
     suspend fun isPostSaved(id: String): Boolean {
         return retrofitInstance.postsApi.isPostSaved(id).isSaved
     }
+
+    suspend fun getPostById(id: String): Post {
+        return retrofitInstance.postsApi.getPost(id)
+    }
 }

@@ -13,6 +13,7 @@ import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.model.core.UserInfoRepository
 import com.cornellappdev.resell.android.model.pdp.ImageBitmapLoader
 import com.cornellappdev.resell.android.model.posts.ResellPostRepository
+import com.cornellappdev.resell.android.model.profile.ProfileRepository
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonContainer
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonState
 import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
@@ -39,6 +40,7 @@ class PostDetailViewModel @Inject constructor(
     private val userInfoRepository: UserInfoRepository,
     private val postsRepository: ResellPostRepository,
     private val rootConfirmationRepository: RootConfirmationRepository,
+    private val profileRepository: ProfileRepository,
     savedStateHandle: SavedStateHandle
 ) : ResellViewModel<PostDetailViewModel.UiState>(
     initialUiState = UiState()
@@ -58,6 +60,7 @@ class PostDetailViewModel @Inject constructor(
         val similarItems: ResellApiResponse<List<Listing>> = ResellApiResponse.Pending,
         val hideSheetEvent: UIEvent<Unit>? = null,
         val uid: String = "",
+        val contactButtonState: ResellTextButtonState = ResellTextButtonState.ENABLED,
     ) {
         val minAspectRatio
             get() = images.minOfOrNull { it.width.toFloat() / it.height.toFloat() } ?: 1f
@@ -140,6 +143,7 @@ class PostDetailViewModel @Inject constructor(
         applyMutation {
             copy(bookmarked = false)
         }
+
         viewModelScope.launch {
             try {
                 val saved = postsRepository.isPostSaved(id)
@@ -228,8 +232,7 @@ class PostDetailViewModel @Inject constructor(
                                 message = "Your listing has been archived successfully.",
                             )
                             rootDialogRepository.dismissDialog()
-                        }
-                        catch (e: Exception) {
+                        } catch (e: Exception) {
                             Log.e("PostDetailViewModel", "Error archiving post: ", e)
                             rootConfirmationRepository.showError()
                             rootDialogRepository.dismissDialog()
@@ -242,7 +245,36 @@ class PostDetailViewModel @Inject constructor(
     }
 
     fun onContactClick() {
+        val uid = stateValue().uid
+        val id = stateValue().postId
 
+        applyMutation {
+            copy(
+                contactButtonState = ResellTextButtonState.SPINNING
+            )
+        }
+        contactSeller(
+            uid = uid,
+            id = id,
+            onSuccess = {
+                applyMutation {
+                    copy(
+                        contactButtonState = ResellTextButtonState.ENABLED
+                    )
+                }
+            },
+            onError = {
+                applyMutation {
+                    copy(
+                        contactButtonState = ResellTextButtonState.ENABLED
+                    )
+                }
+            },
+            profileRepository = profileRepository,
+            postsRepository = postsRepository,
+            rootConfirmationRepository = rootConfirmationRepository,
+            rootNavigationRepository = rootNavigationRepository
+        )
     }
 
     fun onBookmarkClick() {

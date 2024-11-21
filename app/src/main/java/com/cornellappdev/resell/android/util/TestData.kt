@@ -64,7 +64,8 @@ val richieUserInfo = UserInfo(
     username = "richie",
     venmoHandle = "richie",
     bio = "bio bio bio",
-    id = "richie"
+    id = "richie",
+    email = "richie@sun.com"
 )
 
 val justinChats = { count: Int ->

@@ -55,7 +55,6 @@ fun RootNavigation(
     var lastSheetValue: RootSheet by remember {
         mutableStateOf(RootSheet.LoginCornellEmail)
     }
-    val chatViewModel: ChatViewModel = hiltViewModel()
     val coroutineScope = rememberCoroutineScope()
     var showBottomSheet by remember { mutableStateOf(false) }
 
@@ -150,7 +149,7 @@ fun RootNavigation(
             }
 
             composable<ResellRootRoute.CHAT> {
-                ChatScreen(chatViewModel)
+                ChatScreen()
             }
 
             composable<ResellRootRoute.REPORT> {
@@ -226,7 +225,15 @@ sealed class ResellRootRoute {
     ) : ResellRootRoute()
 
     @Serializable
-    data object CHAT : ResellRootRoute()
+    data class CHAT(
+        /** Real name.*/
+        val name: String,
+        val email: String,
+        val pfp: String,
+        // TODO There should be some way to fix this automatically but I can't figure it out.
+        val postJson: String,
+        val isBuyer: Boolean
+    ) : ResellRootRoute()
 
     @Serializable
     data class REPORT(

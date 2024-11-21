@@ -16,6 +16,9 @@ interface PostsApiService {
     @GET("post")
     suspend fun getPosts(): PostsResponse
 
+    @GET("post/id/{id}")
+    suspend fun getPost(@Path("id") id: String): Post
+
     @GET("post/similar/postId/{id}")
     suspend fun getSimilarPosts(@Path("id") id: String): PostsResponse
 
@@ -85,7 +88,7 @@ data class Post(
 ) {
 
     private val priceString
-        get() = String.format(Locale.US, "$%.2f", altered.toDouble())
+        get() = String.format(Locale.US, "$%.2f", altered?.toDouble() ?: 0.0)
 
     fun toListing(): Listing {
         return Listing(

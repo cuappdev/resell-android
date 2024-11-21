@@ -1,6 +1,7 @@
 package com.cornellappdev.resell.android.model.login
 
 import android.util.Log
+import com.cornellappdev.resell.android.model.chats.BuyerSellerData
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
@@ -10,6 +11,8 @@ import javax.inject.Singleton
 class FireStoreRepository @Inject constructor(
     private val fireStore: FirebaseFirestore
 ) {
+
+    private val historyCollection = fireStore.collection("history")
 
     /**
      * Checks if the specified email has been onboarded.
@@ -88,6 +91,24 @@ class FireStoreRepository @Inject constructor(
         } catch (e: Exception) {
             Log.e("FireStoreRepository", "Error saving notifications enabled: ", e)
             throw e
+        }
+    }
+
+    suspend fun getBuyerHistory(email: String): List<BuyerSellerData> {
+        val buyers = historyCollection.document(email)
+            .collection("buyers").get().await()
+
+        return buyers.documents.mapNotNull {
+            it?.toObject(BuyerSellerData::class.java)
+        }
+    }
+
+    suspend fun getSellerHistory(email: String): List<BuyerSellerData> {
+        val sellers = historyCollection.document(email)
+            .collection("sellers").get().await()
+
+        return sellers.documents.mapNotNull {
+            it?.toObject(BuyerSellerData::class.java)
         }
     }
 }

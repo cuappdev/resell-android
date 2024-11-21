@@ -1,20 +1,29 @@
 package com.cornellappdev.resell.android.viewmodel
 
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.cornellappdev.resell.android.model.posts.ResellPostRepository
+import com.cornellappdev.resell.android.model.profile.ProfileRepository
 import com.cornellappdev.resell.android.model.settings.BlockedUsersRepository
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonContainer
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonState
+import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
+import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepository
 import com.cornellappdev.resell.android.viewmodel.root.RootConfirmationRepository
 import com.cornellappdev.resell.android.viewmodel.root.RootDialogContent
 import com.cornellappdev.resell.android.viewmodel.root.RootDialogRepository
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 
 abstract class ResellViewModel<UiState>(initialUiState: UiState) : ViewModel() {
 
@@ -136,5 +145,43 @@ abstract class ResellViewModel<UiState>(initialUiState: UiState) : ViewModel() {
                 primaryButtonContainer = ResellTextButtonContainer.SECONDARY_RED
             )
         )
+    }
+
+    protected fun contactSeller(
+        onSuccess: () -> Unit,
+        onError: () -> Unit,
+        profileRepository: ProfileRepository,
+        postsRepository: ResellPostRepository,
+        rootNavigationRepository: RootNavigationRepository,
+        rootConfirmationRepository: RootConfirmationRepository,
+        uid: String,
+        id: String
+    ) {
+        viewModelScope.launch {
+            try {
+                val userInfo = profileRepository.getUserById(uid).user.toUserInfo()
+                val post = postsRepository.allPostsFlow.first().asSuccess().let {
+                    it.data.first {
+                        it.id == id
+                    }
+                }.toListing()
+                rootNavigationRepository.navigate(
+                    ResellRootRoute.CHAT(
+                        isBuyer = true,
+                        name = userInfo.name,
+                        pfp = userInfo.imageUrl,
+                        email = userInfo.email,
+                        postJson = Json.encodeToString(post),
+                    )
+                )
+
+                delay(500)
+                onSuccess()
+            } catch (e: Exception) {
+                Log.e("PostDetailViewModel", "Error navigating to chat: ", e)
+                onError()
+                rootConfirmationRepository.showError()
+            }
+        }
     }
 }

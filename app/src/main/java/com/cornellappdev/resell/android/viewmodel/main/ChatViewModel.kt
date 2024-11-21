@@ -7,7 +7,10 @@ import androidx.compose.material3.Text
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.SavedStateHandle
+import androidx.navigation.toRoute
 import com.cornellappdev.resell.android.model.Chat
+import com.cornellappdev.resell.android.model.classes.Listing
 import com.cornellappdev.resell.android.model.classes.ResellApiState
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonContainer
 import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
@@ -18,12 +21,14 @@ import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepos
 import com.cornellappdev.resell.android.viewmodel.root.RootNavigationSheetRepository
 import com.cornellappdev.resell.android.viewmodel.root.RootSheet
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.serialization.json.Json
 import javax.inject.Inject
 
 @HiltViewModel
 class ChatViewModel @Inject constructor(
     private val navController: RootNavigationRepository,
     private val rootNavigationSheetRepository: RootNavigationSheetRepository,
+    savedStateHandle: SavedStateHandle
 ) :
     ResellViewModel<ChatViewModel.MessagesUiState>(
         initialUiState = MessagesUiState(
@@ -51,7 +56,7 @@ class ChatViewModel @Inject constructor(
         applyMutation {
             copy(currentChat = chat)
         }
-        navController.navigate(ResellRootRoute.CHAT)
+        // TODO navController.navigate(ResellRootRoute.CHAT)
     }
 
     fun onChangeChatType(chatType: ChatType) {
@@ -187,5 +192,12 @@ class ChatViewModel @Inject constructor(
                 Spacer(Modifier.height(32.dp))
             }
         )
+    }
+
+    init {
+        val navArgs = savedStateHandle.toRoute<ResellRootRoute.CHAT>()
+        val listing = Json.decodeFromString<Listing>(navArgs.postJson)
+
+
     }
 }

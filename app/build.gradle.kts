@@ -11,6 +11,7 @@ if (secretsPropertiesFile.exists()) {
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
+    id("kotlin-parcelize")
     id("kotlin-kapt")
     id("com.google.dagger.hilt.android")
     id("org.jetbrains.kotlin.plugin.serialization")
@@ -109,6 +110,8 @@ dependencies {
     implementation(libs.androidx.compose.material)
     kapt(libs.hilt.android.compiler)
     implementation(libs.coil.compose)
+
+    implementation(libs.kotlinx.coroutines.core)
 
     // Google Play Services Auth
     implementation(libs.gms.play.services.auth)

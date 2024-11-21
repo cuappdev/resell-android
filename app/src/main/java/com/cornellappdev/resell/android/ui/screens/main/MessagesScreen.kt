@@ -31,11 +31,12 @@ import com.cornellappdev.resell.android.ui.theme.Padding
 import com.cornellappdev.resell.android.ui.theme.Style
 import com.cornellappdev.resell.android.util.defaultHorizontalPadding
 import com.cornellappdev.resell.android.viewmodel.main.ChatViewModel
+import com.cornellappdev.resell.android.viewmodel.main.MessagesViewModel
 import kotlinx.coroutines.launch
 
 @Composable
 fun MessagesScreen(
-    messagesViewModel: ChatViewModel = hiltViewModel(),
+    messagesViewModel: MessagesViewModel = hiltViewModel(),
 ) {
     val chatUiState = messagesViewModel.collectUiStateValue()
     val coroutineScope = rememberCoroutineScope()

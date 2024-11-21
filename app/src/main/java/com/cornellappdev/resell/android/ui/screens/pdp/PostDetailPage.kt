@@ -53,6 +53,7 @@ import coil.compose.AsyncImage
 import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButton
+import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonState
 import com.cornellappdev.resell.android.ui.components.main.ProfilePictureView
 import com.cornellappdev.resell.android.ui.components.newpost.WhichPage
 import com.cornellappdev.resell.android.ui.components.pdp.BookmarkFAB
@@ -109,7 +110,8 @@ fun PostDetailPage(
         onSimilarClick = {
             postDetailViewModel.onSimilarPressed(it)
         },
-        onUserClick = postDetailViewModel::onUserClick
+        onUserClick = postDetailViewModel::onUserClick,
+        contactButtonState = uiState.contactButtonState
     )
 }
 
@@ -122,6 +124,7 @@ private fun Content(
     similarImageUrls: ResellApiResponse<List<String>> = ResellApiResponse.Pending,
     onContactClick: () -> Unit = {},
     onEllipseClick: () -> Unit = {},
+    contactButtonState: ResellTextButtonState = ResellTextButtonState.ENABLED,
     userPfp: String = "",
     username: String = "",
     title: String = "",
@@ -203,7 +206,8 @@ private fun Content(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .padding(bottom = 46.dp)
-                .navigationBarsPadding()
+                .navigationBarsPadding(),
+            state = contactButtonState
         )
 
         WhichPage(
