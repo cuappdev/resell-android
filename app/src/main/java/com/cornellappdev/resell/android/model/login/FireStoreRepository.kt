@@ -2,7 +2,10 @@ package com.cornellappdev.resell.android.model.login
 
 import android.util.Log
 import com.cornellappdev.resell.android.model.chats.BuyerSellerData
+import com.cornellappdev.resell.android.model.chats.ChatDocument
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
+import com.google.firebase.firestore.Query
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -13,6 +16,9 @@ class FireStoreRepository @Inject constructor(
 ) {
 
     private val historyCollection = fireStore.collection("history")
+    private val chatsCollection = fireStore.collection("chats")
+
+    private var lastSubscription: ListenerRegistration? = null
 
     /**
      * Checks if the specified email has been onboarded.
@@ -109,6 +115,36 @@ class FireStoreRepository @Inject constructor(
 
         return sellers.documents.mapNotNull {
             it?.toObject(BuyerSellerData::class.java)
+        }
+    }
+
+    fun subscribeToChat(
+        myEmail: String,
+        email: String,
+        onSnapshotUpdate: (List<ChatDocument>) -> Unit
+    ) {
+        // Remove old subscription.
+        lastSubscription?.remove()
+
+        val chatDocRef = chatsCollection.document(myEmail).collection(email)
+            .orderBy("createdAt", Query.Direction.DESCENDING)
+
+        lastSubscription = chatDocRef.addSnapshotListener { snapshot, e ->
+            if (e != null) {
+                Log.e("FireStoreRepository", "Listen failed.", e)
+                return@addSnapshotListener
+            }
+
+            if (snapshot == null) {
+                Log.e("FireStoreRepository", "Current data null")
+                return@addSnapshotListener
+            }
+
+            val messages = snapshot.documents.mapNotNull {
+                it?.toObject(ChatDocument::class.java)
+            }
+
+            onSnapshotUpdate(messages)
         }
     }
 }

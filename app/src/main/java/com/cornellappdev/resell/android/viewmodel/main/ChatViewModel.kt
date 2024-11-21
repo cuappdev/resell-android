@@ -8,19 +8,22 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.cornellappdev.resell.android.model.Chat
+import com.cornellappdev.resell.android.model.api.ChatRepository
 import com.cornellappdev.resell.android.model.classes.Listing
-import com.cornellappdev.resell.android.model.classes.ResellApiState
+import com.cornellappdev.resell.android.model.classes.ResellApiResponse
+import com.cornellappdev.resell.android.model.core.UserInfoRepository
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonContainer
 import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
 import com.cornellappdev.resell.android.ui.theme.Style
-import com.cornellappdev.resell.android.util.justinChats
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
 import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepository
 import com.cornellappdev.resell.android.viewmodel.root.RootNavigationSheetRepository
 import com.cornellappdev.resell.android.viewmodel.root.RootSheet
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import javax.inject.Inject
 
@@ -28,41 +31,25 @@ import javax.inject.Inject
 class ChatViewModel @Inject constructor(
     private val navController: RootNavigationRepository,
     private val rootNavigationSheetRepository: RootNavigationSheetRepository,
+    private val userInfoRepository: UserInfoRepository,
+    private val chatRepository: ChatRepository,
     savedStateHandle: SavedStateHandle
 ) :
     ResellViewModel<ChatViewModel.MessagesUiState>(
         initialUiState = MessagesUiState(
-            chats = justinChats(40),
-            loadedState = ResellApiState.Success,
             chatType = ChatType.Purchases,
-            currentChat = null
+            currentChat = ResellApiResponse.Pending
         )
     ) {
     data class MessagesUiState(
-        val loadedState: ResellApiState,
-        val chats: List<Chat>,
         val chatType: ChatType,
-        val currentChat: Chat?,
-    ) {
-        val filteredChats = chats.filter { it.chatType == chatType }
-    }
-
+        val currentChat: ResellApiResponse<Chat>,
+        val sellerName: String = "Unknown",
+        val title: String = "Unknown",
+    )
 
     enum class ChatType {
         Purchases, Offers
-    }
-
-    fun onMessagePressed(chat: Chat) {
-        applyMutation {
-            copy(currentChat = chat)
-        }
-        // TODO navController.navigate(ResellRootRoute.CHAT)
-    }
-
-    fun onChangeChatType(chatType: ChatType) {
-        applyMutation {
-            copy(chatType = chatType)
-        }
     }
 
     fun onBackPressed() {
@@ -198,6 +185,28 @@ class ChatViewModel @Inject constructor(
         val navArgs = savedStateHandle.toRoute<ResellRootRoute.CHAT>()
         val listing = Json.decodeFromString<Listing>(navArgs.postJson)
 
+        applyMutation {
+            copy(
+                sellerName = navArgs.name,
+                title = listing.title,
+                chatType = if (navArgs.isBuyer) ChatType.Purchases else ChatType.Offers,
+            )
+        }
 
+        viewModelScope.launch {
+            val myEmail = userInfoRepository.getEmail()!!
+            val theirEmail = navArgs.email
+            val myId = userInfoRepository.getUserId()!!
+
+            chatRepository.subscribeToChat(myEmail, theirEmail, myId)
+        }
+
+        asyncCollect(chatRepository.subscribedChatFlow) { response ->
+            applyMutation {
+                copy(
+                    currentChat = response
+                )
+            }
+        }
     }
 }

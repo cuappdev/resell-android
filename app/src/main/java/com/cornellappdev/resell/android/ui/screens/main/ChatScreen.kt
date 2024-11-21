@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
@@ -40,6 +41,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.model.Chat
+import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.ui.components.global.messages.ChatTag
 import com.cornellappdev.resell.android.ui.components.global.messages.ResellChatScroll
 import com.cornellappdev.resell.android.ui.theme.ResellPurple
@@ -59,32 +61,64 @@ fun ChatScreen(
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
 
-    LaunchedEffect(Chat(chatId = -1).chatHistory) {
+    LaunchedEffect(Chat().chatHistory) {
         coroutineScope.launch {
-            if (Chat(chatId = -1).chatHistory.isNotEmpty()) {
-                listState.animateScrollToItem(Chat(chatId = -1).chatHistory.size - 1)
+            if (Chat().chatHistory.isNotEmpty()) {
+                listState.animateScrollToItem(Chat().chatHistory.size - 1)
             }
         }
     }
 
+
+    when (chatUiState.currentChat) {
+        is ResellApiResponse.Pending -> {
+            // TODO
+        }
+
+        is ResellApiResponse.Error -> {
+            // TODO
+        }
+
+        is ResellApiResponse.Success -> {
+            ChatLoadedContent(
+                chat = chatUiState.currentChat.data,
+                listState = listState,
+                onBackPressed = messagesViewModel::onBackPressed,
+                onSyncCalendarPressed = messagesViewModel::onSyncToCalendarPressed,
+                chatUiState = chatUiState
+            )
+        }
+    }
+}
+
+@Composable
+private fun ChatLoadedContent(
+    chatUiState: ChatViewModel.MessagesUiState,
+    chat: Chat,
+    listState: LazyListState,
+    onBackPressed: () -> Unit,
+    onSyncCalendarPressed: () -> Unit
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
     ) {
         ChatHeader(
-            chat = chatUiState.currentChat ?: Chat(chatId = -1),
-            onBackPressed = { messagesViewModel.onBackPressed() },
-            confirmedMeeting = true
+            chat = chat,
+            onBackPressed = { onBackPressed() },
+            confirmedMeeting = true,
+            sellerName = chatUiState.sellerName,
+            title = chatUiState.title
         )
         ResellChatScroll(
-            chatHistory = chatUiState.currentChat?.chatHistory ?: Chat(chatId = -1).chatHistory,
+            chatHistory = chat.chatHistory,
             listState = listState,
             modifier = Modifier.weight(1f)
         )
         ChatFooter(
             chatType = chatUiState.chatType,
             modifier = Modifier.imePadding(),
-            onNegotiatePressed = { messagesViewModel.onSyncToCalendarPressed() }
+            onNegotiatePressed = { onSyncCalendarPressed() }
         )
     }
 }
@@ -94,8 +128,9 @@ private fun ChatHeader(
     chat: Chat,
     onBackPressed: () -> Unit,
     modifier: Modifier = Modifier,
-    confirmedMeeting: Boolean
-
+    confirmedMeeting: Boolean,
+    title: String,
+    sellerName: String
 ) {
     Column(
         modifier = modifier
@@ -131,13 +166,13 @@ private fun ChatHeader(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = chat.title,
+                    text = title,
                     modifier = Modifier.padding(top = 12.dp),
                     style = Style.heading3
                 )
 
                 Text(
-                    text = chat.seller,
+                    text = sellerName,
                     modifier = Modifier.padding(top = 4.dp),
                     style = Style.body2,
                     color = Secondary
