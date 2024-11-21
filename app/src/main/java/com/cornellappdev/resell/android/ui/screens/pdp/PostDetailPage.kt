@@ -111,7 +111,8 @@ fun PostDetailPage(
             postDetailViewModel.onSimilarPressed(it)
         },
         onUserClick = postDetailViewModel::onUserClick,
-        contactButtonState = uiState.contactButtonState
+        contactButtonState = uiState.contactButtonState,
+        showContact = uiState.showContact
     )
 }
 
@@ -134,6 +135,7 @@ private fun Content(
     onBookmarkClick: () -> Unit = {},
     onSimilarClick: (Int) -> Unit = {},
     onUserClick: () -> Unit = {},
+    showContact: Boolean = false,
 ) {
     var sheetHeightFromBottom by remember { mutableStateOf(0.dp) }
     val pagerState = rememberPagerState(pageCount = { images.size })
@@ -200,15 +202,17 @@ private fun Content(
                 .height(64.dp)
         )
 
-        ResellTextButton(
-            text = "Contact Seller",
-            onClick = onContactClick,
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .padding(bottom = 46.dp)
-                .navigationBarsPadding(),
-            state = contactButtonState
-        )
+        if (showContact) {
+            ResellTextButton(
+                text = "Contact Seller",
+                onClick = onContactClick,
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = 46.dp)
+                    .navigationBarsPadding(),
+                state = contactButtonState
+            )
+        }
 
         WhichPage(
             pagerState = pagerState,

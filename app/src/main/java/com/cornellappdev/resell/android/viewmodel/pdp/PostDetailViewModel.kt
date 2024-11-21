@@ -61,6 +61,7 @@ class PostDetailViewModel @Inject constructor(
         val hideSheetEvent: UIEvent<Unit>? = null,
         val uid: String = "",
         val contactButtonState: ResellTextButtonState = ResellTextButtonState.ENABLED,
+        val showContact: Boolean = false,
     ) {
         val minAspectRatio
             get() = images.minOfOrNull { it.width.toFloat() / it.height.toFloat() } ?: 1f
@@ -369,6 +370,16 @@ class PostDetailViewModel @Inject constructor(
             category = categories.firstOrNull() ?: ""
         )
         fetchSaved(id)
+
+        // Hide "Contact Seller" if the current user is the same as the post owner.
+        viewModelScope.launch {
+            val myId = userInfoRepository.getUserId()!!
+            applyMutation {
+                copy(
+                    showContact = myId != userId
+                )
+            }
+        }
     }
 
     init {
