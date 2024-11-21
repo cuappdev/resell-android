@@ -9,12 +9,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.cornellappdev.resell.android.model.Chat
+import com.cornellappdev.resell.android.model.chats.BuyerSellerData
 
 
 @Composable
 fun ResellMessagesScroll(
-    chats: List<Chat>,
-    onChatPressed: (Chat) -> Unit,
+    chats: List<BuyerSellerData>,
+    onChatPressed: (BuyerSellerData) -> Unit,
     listState: LazyListState,
     modifier: Modifier = Modifier,
     paddedTop: Dp = 0.dp,
@@ -30,9 +31,9 @@ fun ResellMessagesScroll(
         items(items = chats) { item ->
             MessageCard(
                 imageUrl = "https://media.licdn.com/dms/image/D4E03AQGOCNNbxGtcjw/profile-displayphoto-shrink_200_200/0/1704329714345?e=2147483647&v=beta&t=Kq7ex1pKyiifjOpuNIojeZ8f4dXjEAsNSpkJDXBwjxc",
-                seller = item.seller,
-                title = item.title,
-                message = "message preview",
+                seller = item.name,
+                title = item.listing.title,
+                message = item.recentMessage,
                 unread = true,
             ) {
                 onChatPressed(item)

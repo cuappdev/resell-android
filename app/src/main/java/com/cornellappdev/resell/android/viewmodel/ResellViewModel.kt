@@ -147,6 +147,12 @@ abstract class ResellViewModel<UiState>(initialUiState: UiState) : ViewModel() {
         )
     }
 
+    /**
+     * Loads the user data of the seller and the indicated post's information, and navigates to the chat screen.
+     *
+     * @param uid The uid of the seller.
+     * @param id The id of the post.
+     */
     protected fun contactSeller(
         onSuccess: () -> Unit,
         onError: () -> Unit,

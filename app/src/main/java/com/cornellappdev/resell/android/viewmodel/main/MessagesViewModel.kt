@@ -15,7 +15,6 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MessagesViewModel @Inject constructor(
-    private val navController: RootNavigationRepository,
     private val chatRepository: ChatRepository,
     private val profileRepository: ProfileRepository,
     private val rootConfirmationRepository: RootConfirmationRepository,
@@ -37,6 +36,12 @@ class MessagesViewModel @Inject constructor(
         val filteredChats = when (chatType) {
             ChatType.Purchases -> sellerChats
             ChatType.Offers -> buyerChats
+        }.let {
+            if (it is ResellApiResponse.Success) {
+                it.data
+            } else {
+                emptyList()
+            }
         }
 
         val loadedState: ResellApiState =
