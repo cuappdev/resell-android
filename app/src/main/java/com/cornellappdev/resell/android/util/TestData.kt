@@ -71,26 +71,25 @@ val richieUserInfo = UserInfo(
 val justinChats = { count: Int ->
     List(count) {
         Chat(
-            chatId = -1
         )
     }
 }
 
 val richieMessages = { count: Int ->
     ChatMessageCluster(
-        senderId = count,
+        senderId = count.toString(),
         senderImage = "https://media.licdn.com/dms/image/D4E03AQGOCNNbxGtcjw/profile-displayphoto-shrink_200_200/0/1704329714345?e=2147483647&v=beta&t=Kq7ex1pKyiifjOpuNIojeZ8f4dXjEAsNSpkJDXBwjxc",
         fromUser = false,
         messages = List(count) {
             if (it == 1) {
                 ChatMessageData(
-                    0,
+                    "",
                     "https://media.licdn.com/dms/image/D4E03AQGOCNNbxGtcjw/profile-displayphoto-shrink_200_200/0/1704329714345?e=2147483647&v=beta&t=Kq7ex1pKyiifjOpuNIojeZ8f4dXjEAsNSpkJDXBwjxc",
-                    0.toLong(),
+                    "deajdaejk",
                     MessageType.Card
                 )
             } else {
-                ChatMessageData(0, "HELP", 0.toLong(), MessageType.Message)
+                ChatMessageData("", "HELP", "feajkdna", MessageType.Message)
             }
         }
     )
@@ -98,26 +97,26 @@ val richieMessages = { count: Int ->
 
 val justinMessages = { count: Int ->
     ChatMessageCluster(
-        senderId = count,
+        senderId = count.toString(),
         senderImage = "https://media.licdn.com/dms/image/D4E03AQGOCNNbxGtcjw/profile-displayphoto-shrink_200_200/0/1704329714345?e=2147483647&v=beta&t=Kq7ex1pKyiifjOpuNIojeZ8f4dXjEAsNSpkJDXBwjxc",
         fromUser = true,
         messages = List(count) {
             if (it == 1) {
                 ChatMessageData(
-                    0,
+                    "",
                     "Lia",
-                    0.toLong(),
+                    "feaojfea",
                     MessageType.Availability
                 )
             } else if (it == 2) {
                 ChatMessageData(
-                    0,
+                    "",
                     "Lia",
-                    0.toLong(),
+                    "00efa",
                     MessageType.State
                 )
             } else {
-                ChatMessageData(0, "HELP", 0.toLong(), MessageType.Message)
+                ChatMessageData("", "HELP", "FEADea", MessageType.Message)
             }
         }
     )

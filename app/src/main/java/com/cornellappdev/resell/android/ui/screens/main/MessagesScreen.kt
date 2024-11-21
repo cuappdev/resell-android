@@ -84,6 +84,7 @@ fun MessagesScreen(
                         messagesViewModel.onMessagePressed(it)
                     },
                     listState = listState,
+                    modifier = Modifier.fillMaxSize()
                 )
             }
         }

@@ -59,7 +59,7 @@ class ResellPostRepository @Inject constructor(
                 _allPostsFlow.value =
                     ResellApiResponse.Success(retrofitInstance.postsApi.getPosts().posts
                         .sortedByDescending {
-                            it.created
+                            it.createdDate
                         })
             } catch (e: Exception) {
                 Log.e("ResellPostRepository", "Error fetching posts: ", e)

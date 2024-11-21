@@ -1,11 +1,15 @@
 package com.cornellappdev.resell.android.model.login
 
 import android.util.Log
+import com.cornellappdev.resell.android.model.api.Post
+import com.cornellappdev.resell.android.model.api.User
 import com.cornellappdev.resell.android.model.chats.BuyerSellerData
 import com.cornellappdev.resell.android.model.chats.ChatDocument
+import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.Query
+import com.google.gson.Gson
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -105,7 +109,7 @@ class FireStoreRepository @Inject constructor(
             .collection("buyers").get().await()
 
         return buyers.documents.mapNotNull {
-            it?.toObject(BuyerSellerData::class.java)
+            makeBuyerSellerData(it)
         }
     }
 
@@ -114,8 +118,79 @@ class FireStoreRepository @Inject constructor(
             .collection("sellers").get().await()
 
         return sellers.documents.mapNotNull {
-            it?.toObject(BuyerSellerData::class.java)
+            makeBuyerSellerData(it)
         }
+    }
+
+    private fun makeBuyerSellerData(it: DocumentSnapshot): BuyerSellerData {
+        // Please don't look at this. This is the worst file I've ever written in my life.
+        val confirmedTime = it.get("confirmedTime")?.toString() ?: ""
+        val imageUrl = it.get("image")?.toString() ?: ""
+        val name = it.get("name")?.toString() ?: ""
+        val recentMessage = it.get("recentMessage")?.toString() ?: ""
+        val recentMessageTime = it.get("recentMessageTime")?.toString() ?: ""
+        val recentSender = it.get("recentSender")?.toString() ?: ""
+        val viewed = it.getBoolean("viewed") ?: false
+
+        Log.d("helpme", name)
+        Log.d("helpme", recentMessage)
+
+
+        Log.d("helpme", it.get("item").toString())
+        val gson = Gson()
+        val json = gson.toJson(it.get("item").toString())
+        Log.d("helpme", json)
+
+        val raw = (it.get("item") as Map<String, Any>).mapValues { it?.value?.toString() }
+        val userMap =
+            ((it.get("item") as Map<String, Any>)["user"] as Map<String, Any>).mapValues { it?.value?.toString() }
+
+        fun parseToList(input: String): List<String> {
+            return input
+                .removePrefix("[") // Remove the leading '['
+                .removeSuffix("]") // Remove the trailing ']'
+                .split(", ")        // Split by ", "
+                .map { it.trim() }  // Trim whitespace just in case
+        }
+
+        val user = User(
+            id = userMap["id"] ?: "",
+            familyName = userMap["familyName"] ?: "",
+            email = userMap["email"] ?: "",
+            givenName = userMap["givenName"] ?: "",
+            username = userMap["username"] ?: "",
+            netid = userMap["netid"] ?: "",
+            admin = userMap["admin"]?.toBoolean() ?: false,
+            photoUrl = userMap["photoUrl"] ?: "",
+            bio = userMap["bio"] ?: "",
+            googleId = userMap["googleId"] ?: ""
+        )
+
+        val post = Post(
+            id = raw["id"] ?: "",
+            title = raw["title"] ?: "",
+            description = raw["description"] ?: "",
+            price = (raw["price"] ?: "0.0").toDouble(),
+            user = user,
+            archive = (raw["archive"] ?: "").toBoolean(),
+            location = raw["location"] ?: "",
+            created = raw["created"] ?: "",
+            altered = raw["altered_price"] ?: "",
+            images = parseToList(raw["images"] ?: ""),
+            categories = parseToList(raw["categories"] ?: ""),
+        )
+
+        return BuyerSellerData(
+            confirmedTime = confirmedTime,
+            image = imageUrl,
+            name = name,
+            recentMessage = recentMessage,
+            recentMessageTime = recentMessageTime,
+            recentSender = recentSender,
+            viewed = viewed,
+            item = post,
+            confirmedViewed = viewed,
+        )
     }
 
     fun subscribeToChat(
