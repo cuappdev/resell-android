@@ -1,6 +1,7 @@
 package com.cornellappdev.resell.android.ui.screens.main
 
 import android.annotation.SuppressLint
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,9 +19,11 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.Icon
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -33,6 +36,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
@@ -231,6 +235,11 @@ private fun ChatFooter(
 ) {
     // TODO move to VM
     var text by remember { mutableStateOf("") }
+
+    val sendScale by animateFloatAsState(
+        targetValue = if (text.isNotEmpty()) 1f else 0f,
+        label = "send"
+    )
     Column(modifier = modifier) {
         Row(
             modifier = Modifier
@@ -299,25 +308,33 @@ private fun ChatFooter(
 
                 Spacer(modifier = Modifier.width(12.dp))
 
-                if (text.isNotEmpty()) {
-                    Box(
+                Box(
+                    modifier = Modifier
+                        .size(24.dp)
+                        .clickableNoIndication {
+                            if (text.isNotBlank()) {
+                                onSend(text)
+                                text = ""
+                            }
+                        }
+                ) {
+                    Surface(
+                        shape = CircleShape,
                         modifier = Modifier
                             .size(24.dp)
-                            .clip(RoundedCornerShape(24.dp))
-                            .background(ResellPurple)
-                            .clickableNoIndication {
-                                onSend(text)
-                            }
-                    ) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_arrow_up),
-                            contentDescription = "send",
-                            tint = Color.White,
-                            modifier = Modifier
-                                .size(20.dp)
-                                .align(Alignment.Center)
-                        )
-                    }
+                            .scale(sendScale)
+                            .align(Alignment.Center),
+                        color = ResellPurple
+                    ) {}
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_arrow_up),
+                        contentDescription = "send",
+                        tint = Color.White,
+                        modifier = Modifier
+                            .size(20.dp)
+                            .scale(sendScale)
+                            .align(Alignment.Center)
+                    )
                 }
             }
             Spacer(
