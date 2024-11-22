@@ -28,13 +28,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
 import com.cornellappdev.resell.android.R
+import com.cornellappdev.resell.android.ui.components.main.ProfilePictureView
 import com.cornellappdev.resell.android.ui.theme.Padding
 import com.cornellappdev.resell.android.ui.theme.ResellPreview
 import com.cornellappdev.resell.android.ui.theme.ResellPurple
@@ -61,16 +60,12 @@ fun MessageCard(
     ) {
         Box {
             Row {
-                AsyncImage(
-                    model = imageUrl,
-                    contentDescription = null,
+                ProfilePictureView(
+                    imageUrl = imageUrl,
                     modifier = Modifier
                         .fillMaxHeight()
                         .aspectRatio(1f)
-                        .clip(RoundedCornerShape(32.dp)),
-
-                    placeholder = painterResource(id = R.drawable.ic_launcher_background),
-                    contentScale = ContentScale.Crop
+                        .size(32.dp)
                 )
                 Spacer(modifier = Modifier.width(12.dp))
             }

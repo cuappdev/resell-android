@@ -30,11 +30,11 @@ fun ResellMessagesScroll(
     ) {
         items(items = chats) { item ->
             MessageCard(
-                imageUrl = "https://media.licdn.com/dms/image/D4E03AQGOCNNbxGtcjw/profile-displayphoto-shrink_200_200/0/1704329714345?e=2147483647&v=beta&t=Kq7ex1pKyiifjOpuNIojeZ8f4dXjEAsNSpkJDXBwjxc",
+                imageUrl = item.image,
                 seller = item.name,
                 title = item.listing.title,
                 message = item.recentMessage,
-                unread = true,
+                unread = !item.viewed,
             ) {
                 onChatPressed(item)
             }
