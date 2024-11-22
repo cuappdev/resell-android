@@ -55,6 +55,19 @@ class FireStoreRepository @Inject constructor(
         }
     }
 
+    suspend fun getUserFCMToken(email: String): String? {
+        try {
+            val doc = fireStore.collection("user").document(email)
+                .get().await()
+
+            val user = doc.toObject(FirebaseDoc::class.java)
+            return user?.fcmToken
+        } catch (e: Exception) {
+            Log.e("FireStoreRepository", "Error getting fcm token: ", e)
+            return null
+        }
+    }
+
     /**
      * Saves the specified device token to the user's document in FireStore.
      */

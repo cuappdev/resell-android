@@ -12,7 +12,7 @@ class FirebaseMessagingRepository @Inject constructor(
     suspend fun getDeviceFCMToken(): String? {
         return try {
             // Get the FCM token
-            FirebaseMessaging.getInstance().token.await()
+            firebaseMessaging.token.await()
         } catch (e: Exception) {
             // Handle any exceptions that occur
             e.printStackTrace()

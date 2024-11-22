@@ -3,6 +3,8 @@ package com.cornellappdev.resell.android.viewmodel.navigation
 import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.cornellappdev.resell.android.model.core.UserInfoRepository
+import com.cornellappdev.resell.android.model.login.FireStoreRepository
+import com.cornellappdev.resell.android.model.login.FirebaseMessagingRepository
 import com.cornellappdev.resell.android.model.login.GoogleAuthRepository
 import com.cornellappdev.resell.android.model.login.ResellAuthRepository
 import com.cornellappdev.resell.android.model.posts.ResellPostRepository
@@ -25,6 +27,8 @@ class MainNavigationViewModel @Inject constructor(
     private val googleAuthRepository: GoogleAuthRepository,
     private val rootConfirmationRepository: RootConfirmationRepository,
     private val resellPostRepository: ResellPostRepository,
+    private val fireStoreRepository: FireStoreRepository,
+    private val firebaseMessagingRepository: FirebaseMessagingRepository,
     mainNavigationRepository: MainNavigationRepository,
 ) : ResellViewModel<MainNavigationViewModel.MainNavigationUiState>(
     initialUiState = MainNavigationUiState(
@@ -50,6 +54,8 @@ class MainNavigationViewModel @Inject constructor(
         // Start networking if applicable
         viewModelScope.launch {
             validateAccessToken()
+
+            addFCMToken()
 
             // Enable bottom bar
             applyMutation {
@@ -98,11 +104,6 @@ class MainNavigationViewModel @Inject constructor(
                 rootNavigationRepository.navigate(ResellRootRoute.ONBOARDING)
             }
 
-//            resellAuthRepository.loginToResell(
-//                idToken = userInfoRepository.getUserId()!!,
-//                user = userInfoRepository.getUsername()!!,
-//            )
-
             Log.d("MainNavigationViewModel", "Logged in!")
 
             // Now `UserInfoRepository` should have a user ID and username.
@@ -116,6 +117,33 @@ class MainNavigationViewModel @Inject constructor(
                 message = "Something went wrong authenticating. Please try again."
             )
             Log.e("MainNavigationViewModel", "Error authenticating: ", e)
+        }
+    }
+
+    /**
+     * Attempts to publish the current user's FCM token, if it isn't already added.
+     *
+     * Catches edge cases in testing where we did not add the FCM token.
+     */
+    private suspend fun addFCMToken() {
+        try {
+            // Extra step: add FCM token if not already added
+            val email = userInfoRepository.getEmail()!!
+            val fcmToken = fireStoreRepository.getUserFCMToken(email)
+            if (fcmToken == null || fcmToken != firebaseMessagingRepository.getDeviceFCMToken()) {
+                fireStoreRepository.saveDeviceToken(
+                    email,
+                    firebaseMessagingRepository.getDeviceFCMToken()!!
+                )
+                Log.d("MainNavigationViewModel", "FCM token added successfully.")
+            } else {
+                Log.d(
+                    "MainNavigationViewModel",
+                    "FCM token already added: $fcmToken\n(This should match to: ${firebaseMessagingRepository.getDeviceFCMToken()})"
+                )
+            }
+        } catch (e: Exception) {
+            Log.e("MainNavigationViewModel", "Error adding FCM token: ", e)
         }
     }
 
