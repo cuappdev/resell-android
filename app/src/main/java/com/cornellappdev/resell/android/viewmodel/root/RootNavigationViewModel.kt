@@ -30,6 +30,7 @@ class RootNavigationViewModel @Inject constructor(
         val navEvent: UIEvent<ResellRootRoute>? = null,
         val popBackStack: UIEvent<Unit>? = null,
         val requestNotificationPermissions: UIEvent<Unit>? = null,
+        val directlyRequestNotificationPermissions: UIEvent<Unit>? = null
     )
 
     init {
@@ -68,18 +69,6 @@ class RootNavigationViewModel @Inject constructor(
 
     }
 
-    fun onPermissionsNewlyGranted() {
-        rootConfirmationRepository.showSuccess(
-            message = "You will now receive notifications for new messages!"
-        )
-    }
-
-    fun onPermissionsDenied() {
-        rootConfirmationRepository.showError(
-            message = "You will not receive notifications for new messages."
-        )
-    }
-
     fun onShowRationaleUi() {
         rootDialogRepository.showDialog(
             event = RootDialogContent.TwoButtonDialog(
@@ -90,9 +79,10 @@ class RootNavigationViewModel @Inject constructor(
                 onPrimaryButtonClick = {
                     applyMutation {
                         copy(
-                            requestNotificationPermissions = UIEvent(Unit),
+                            directlyRequestNotificationPermissions = UIEvent(Unit)
                         )
                     }
+                    rootDialogRepository.dismissDialog()
                 },
                 onSecondaryButtonClick = {},
                 exitButton = false,

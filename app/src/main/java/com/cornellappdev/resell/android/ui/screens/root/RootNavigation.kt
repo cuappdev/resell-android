@@ -1,5 +1,7 @@
 package com.cornellappdev.resell.android.ui.screens.root
 
+import android.Manifest
+import android.os.Build
 import androidx.compose.animation.core.InfiniteRepeatableSpec
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.keyframes
@@ -38,7 +40,6 @@ import com.cornellappdev.resell.android.ui.screens.reporting.ReportNavigation
 import com.cornellappdev.resell.android.ui.screens.settings.SettingsNavigation
 import com.cornellappdev.resell.android.util.LocalInfiniteLoading
 import com.cornellappdev.resell.android.util.LocalRootNavigator
-import com.cornellappdev.resell.android.viewmodel.main.ChatViewModel
 import com.cornellappdev.resell.android.viewmodel.root.RootNavigationViewModel
 import com.cornellappdev.resell.android.viewmodel.root.RootSheet
 import kotlinx.coroutines.launch
@@ -119,9 +120,17 @@ fun RootNavigation(
             context.askNotificationPermission(
                 onAlreadyGranted = rootNavigationViewModel::onPermissionsAlreadyGranted,
                 onShowUi = rootNavigationViewModel::onShowRationaleUi,
-                onRejected = rootNavigationViewModel::onPermissionsDenied,
-                onNewlyGranted = rootNavigationViewModel::onPermissionsNewlyGranted
             )
+        }
+    }
+
+    LaunchedEffect(uiState.directlyRequestNotificationPermissions) {
+        uiState.directlyRequestNotificationPermissions?.consumeSuspend {
+            if (context == null) return@consumeSuspend
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                context.requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
         }
     }
 

@@ -11,6 +11,7 @@ import com.cornellappdev.resell.android.model.api.RetrofitInstance
 import com.cornellappdev.resell.android.model.classes.Listing
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.model.core.UserInfoRepository
+import com.cornellappdev.resell.android.model.login.FirebaseMessagingRepository
 import com.cornellappdev.resell.android.model.pdp.ImageBitmapLoader
 import com.cornellappdev.resell.android.model.posts.ResellPostRepository
 import com.cornellappdev.resell.android.model.profile.ProfileRepository
@@ -41,6 +42,7 @@ class PostDetailViewModel @Inject constructor(
     private val postsRepository: ResellPostRepository,
     private val rootConfirmationRepository: RootConfirmationRepository,
     private val profileRepository: ProfileRepository,
+    private val firebaseMessagingRepository: FirebaseMessagingRepository,
     savedStateHandle: SavedStateHandle
 ) : ResellViewModel<PostDetailViewModel.UiState>(
     initialUiState = UiState()

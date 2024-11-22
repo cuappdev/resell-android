@@ -1,12 +1,6 @@
 package com.cornellappdev.resell.android.model.login
 
-import android.Manifest
 import android.content.Context
-import android.content.pm.PackageManager
-import android.os.Build
-import androidx.activity.result.ActivityResultLauncher
-import androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale
-import androidx.core.content.ContextCompat
 import com.cornellappdev.resell.android.util.UIEvent
 import com.cornellappdev.resell.android.viewmodel.root.RootConfirmationRepository
 import com.google.firebase.messaging.FirebaseMessaging
@@ -37,6 +31,11 @@ class FirebaseMessagingRepository @Inject constructor(
         }
     }
 
+    /**
+     * If the user has not granted notifications permission, request it.
+     *
+     * Does nothing if the device API level is lower than 33, or if the user has already granted notifications permission.
+     */
     fun requestNotificationsPermission() {
         _requestNotificationsEventFlow.value = UIEvent(Unit)
     }

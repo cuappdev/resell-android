@@ -14,12 +14,18 @@ import androidx.core.content.ContextCompat
 import com.cornellappdev.resell.android.ui.screens.root.RootNavigation
 import com.cornellappdev.resell.android.ui.theme.ResellTheme
 import com.cornellappdev.resell.android.util.LocalFireStore
+import com.cornellappdev.resell.android.viewmodel.root.RootConfirmationRepository
 import com.google.firebase.FirebaseApp
 import com.google.firebase.firestore.FirebaseFirestore
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    @Inject
+    lateinit var rootConfirmationRepository: RootConfirmationRepository
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         FirebaseApp.initializeApp(this)
@@ -34,29 +40,20 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-
-    private fun launchRequestPermission(
-        onNewlyGranted: () -> Unit,
-        onRejected: () -> Unit
-    ) {
-        val requestPermissionLauncher = registerForActivityResult(
-            ActivityResultContracts.RequestPermission(),
-        ) { isGranted: Boolean ->
-            if (isGranted) {
-                onNewlyGranted()
-            } else {
-                onRejected()
-            }
+    val requestPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission(),
+    ) { isGranted: Boolean ->
+        if (!isGranted) {
+            rootConfirmationRepository.showError(
+                message = "You will not receive notifications for new messages about your orders."
+            )
         }
     }
 
     fun askNotificationPermission(
         onAlreadyGranted: () -> Unit,
         onShowUi: () -> Unit,
-        onNewlyGranted: () -> Unit,
-        onRejected: () -> Unit
     ) {
-        // This is only necessary for API level >= 33 (TIRAMISU)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(
                     this, Manifest.permission.POST_NOTIFICATIONS
@@ -70,9 +67,9 @@ class MainActivity : ComponentActivity() {
                 )
             ) {
                 onShowUi()
-            } else {
-                // Directly ask for the permission
-                launchRequestPermission(onNewlyGranted, onRejected)
+            }
+            else {
+                requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
             }
         }
     }
