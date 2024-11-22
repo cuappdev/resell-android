@@ -92,7 +92,8 @@ fun ChatScreen(
                 onSyncCalendarPressed = chatViewModel::onSyncToCalendarPressed,
                 chatUiState = chatUiState,
                 onSend = chatViewModel::onSendMessage,
-                onTextChange = chatViewModel::onTyped
+                onTextChange = chatViewModel::onTyped,
+                onNegotiatePressed = chatViewModel::onNegotiatePressed
             )
         }
     }
@@ -104,6 +105,7 @@ private fun ChatLoadedContent(
     chat: Chat,
     listState: LazyListState,
     onBackPressed: () -> Unit,
+    onNegotiatePressed: () -> Unit,
     onSyncCalendarPressed: () -> Unit,
     onSend: (String) -> Unit,
     onTextChange: (String) -> Unit
@@ -127,7 +129,7 @@ private fun ChatLoadedContent(
         ChatFooter(
             chatType = chatUiState.chatType,
             modifier = Modifier.imePadding(),
-            onNegotiatePressed = { onSyncCalendarPressed() },
+            onNegotiatePressed = { onNegotiatePressed() },
             onSend = {
                 onSend(it)
             },

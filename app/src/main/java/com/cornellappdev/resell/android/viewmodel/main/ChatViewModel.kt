@@ -53,7 +53,8 @@ class ChatViewModel @Inject constructor(
         val sellerName: String = "Unknown",
         val title: String = "Unknown",
         val typedMessage: String = "",
-        val scrollBottom: UIEvent<Unit>? = null
+        val scrollBottom: UIEvent<Unit>? = null,
+        val listing: Listing? = null
     )
 
     enum class ChatType {
@@ -223,9 +224,30 @@ class ChatViewModel @Inject constructor(
 
     fun onTyped(message: String) = applyMutation { copy(typedMessage = message) }
 
+    fun onNegotiatePressed() {
+        rootNavigationSheetRepository.showBottomSheet(
+            RootSheet.ProposalSheet(
+                confirmString = "Propose",
+                title = "What price do you want to propose?",
+                defaultPrice = stateValue().listing!!.price.replace("$", ""),
+                callback = { price ->
+                    onTyped(
+                        message = "Hi! I'm interested in buying your ${stateValue().listing!!.title}, but would you be open to selling it for $$price?"
+                    )
+                }
+            )
+        )
+    }
+
     init {
         val navArgs = savedStateHandle.toRoute<ResellRootRoute.CHAT>()
         val listing = Json.decodeFromString<Listing>(navArgs.postJson)
+
+        applyMutation {
+            copy(
+                listing = listing,
+            )
+        }
 
         firebaseMessagingRepository.requestNotificationsPermission()
 
