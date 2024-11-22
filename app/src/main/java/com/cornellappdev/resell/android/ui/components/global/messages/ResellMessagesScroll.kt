@@ -32,7 +32,7 @@ fun ResellMessagesScroll(
             MessageCard(
                 imageUrl = item.image,
                 seller = item.name,
-                title = item.listing.title,
+                title = item.item.toListing().title,
                 message = item.recentMessage,
                 unread = !item.viewed,
             ) {

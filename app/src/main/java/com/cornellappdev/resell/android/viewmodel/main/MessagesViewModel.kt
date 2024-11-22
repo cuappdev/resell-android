@@ -63,8 +63,8 @@ class MessagesViewModel @Inject constructor(
     }
 
     fun onMessagePressed(historyEntry: BuyerSellerData) {
-        val id = historyEntry.listing.id
-        val uid = historyEntry.listing.user.id
+        val id = historyEntry.item.toListing().id
+        val uid = historyEntry.item.toListing().user.id
 
         contactSeller(
             onSuccess = {},

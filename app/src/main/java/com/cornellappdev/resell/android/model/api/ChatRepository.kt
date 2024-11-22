@@ -11,6 +11,7 @@ import com.cornellappdev.resell.android.model.chats.UserDocument
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.model.core.UserInfoRepository
 import com.cornellappdev.resell.android.model.login.FireStoreRepository
+import com.cornellappdev.resell.android.model.posts.ResellPostRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -26,7 +27,8 @@ import javax.inject.Singleton
 @Singleton
 class ChatRepository @Inject constructor(
     private val fireStoreRepository: FireStoreRepository,
-    private val userInfoRepository: UserInfoRepository
+    private val userInfoRepository: UserInfoRepository,
+    private val postRepository: ResellPostRepository,
 ) {
 
     private val _buyersHistoryFlow =
@@ -75,8 +77,12 @@ class ChatRepository @Inject constructor(
         }
     }
 
-    fun subscribeToChat(myEmail: String, otherEmail: String, myId: String) {
-        fireStoreRepository.subscribeToChat(myEmail, otherEmail) {
+    fun subscribeToChat(myEmail: String, otherEmail: String, myId: String, selfIsBuyer: Boolean) {
+        fireStoreRepository.subscribeToChat(
+            sellerEmail = if (selfIsBuyer) otherEmail else myEmail,
+            buyerEmail = if (selfIsBuyer) myEmail else otherEmail
+        ) {
+            Log.d("helpme", it.toString())
             // Convert the List<ChatDocument> into a Chat
             var otherPfp = ""
 
@@ -95,17 +101,17 @@ class ChatRepository @Inject constructor(
                         MessageType.Message
                     }
 
-                if (document.user.id != myId) {
+                if (document.user._id != myId) {
                     otherPfp = document.user.avatar
                 }
 
                 Pair(
                     ChatMessageData(
-                        id = document.id,
+                        id = document._id,
                         content = document.text,
                         timestampString = document.createdAt,
                         messageType = messageType
-                    ), document.user.id
+                    ), document.user._id
                 )
             }
 
@@ -145,10 +151,14 @@ class ChatRepository @Inject constructor(
                 )
             }
 
+            Log.d("helpme", messageClusters.toString())
+
             // Step 3: Return the final Chat object.
             val chat = Chat(
                 chatHistory = messageClusters
             )
+
+            Log.d("helpme", chat.toString())
 
             _subscribedChatFlow.value = ResellApiResponse.Success(chat)
         }
@@ -157,20 +167,36 @@ class ChatRepository @Inject constructor(
     suspend fun sendTextMessage(
         myEmail: String,
         otherEmail: String,
+        myName: String,
+        otherName: String,
+        myImageUrl: String,
+        otherImageUrl: String,
         text: String,
-        selfIsBuyer: Boolean
+        selfIsBuyer: Boolean,
+        postId: String,
     ) {
         val currentTimeMillis = System.currentTimeMillis()
         val userInfo = userInfoRepository.getUserInfo()
 
+        val sellerEmail = if (selfIsBuyer) otherEmail else myEmail
+        val buyerEmail = if (selfIsBuyer) myEmail else otherEmail
+
+        val sellerName = if (selfIsBuyer) otherName else myName
+        val buyerName = if (selfIsBuyer) myName else otherName
+
+        val sellerImageUrl = if (selfIsBuyer) otherImageUrl else myImageUrl
+        val buyerImageUrl = if (selfIsBuyer) myImageUrl else otherImageUrl
+
+        val time = getFormattedTime()
+
         val userDocument = UserDocument(
-            id = userInfo.id,
+            _id = myEmail,
             name = userInfo.name,
             avatar = userInfo.imageUrl
         )
         val chatDocument = ChatDocument(
-            id = currentTimeMillis.toString(),
-            createdAt = getFormattedTime(),
+            _id = currentTimeMillis.toString(),
+            createdAt = time,
             image = "",
             text = text,
             user = userDocument,
@@ -179,9 +205,61 @@ class ChatRepository @Inject constructor(
         )
 
         fireStoreRepository.sendTextMessage(
-            buyerEmail = if (selfIsBuyer) myEmail else otherEmail,
-            sellerEmail = if (selfIsBuyer) otherEmail else myEmail,
+            buyerEmail = buyerEmail,
+            sellerEmail = sellerEmail,
             chatDocument = chatDocument
+        )
+
+        val item = (postRepository.allPostsFlow.value.asSuccessOrNull()?.data?.firstOrNull {
+            it.id == postId
+        } ?: postRepository.getPostById(postId)).copy(
+            id = postId,
+        )
+
+        // The data that will go into the `seller` entry of the buyer. Amazing.
+        //  Basically, this belongs the buyer.
+        //  SO, this should be information about the seller.
+        val sellerData = BuyerSellerData(
+            item = item,
+            recentMessage = text,
+            viewed = selfIsBuyer,
+            name = sellerName,
+            image = sellerImageUrl,
+            recentMessageTime = time,
+            recentSender = myName,
+            confirmedTime = "",
+            confirmedViewed = false,
+        )
+
+        // Information about the buyer. Shown to the seller.
+        val buyerData = BuyerSellerData(
+            item = item,
+            recentMessage = text,
+            viewed = !selfIsBuyer,
+            name = buyerName,
+            image = buyerImageUrl,
+            recentMessageTime = time,
+            recentSender = myName,
+            confirmedTime = "",
+            confirmedViewed = false,
+        )
+
+        fireStoreRepository.updateBuyerHistory(
+            buyerEmail = buyerEmail,
+            sellerEmail = sellerEmail,
+            data = buyerData
+        )
+
+        fireStoreRepository.updateSellerHistory(
+            buyerEmail = buyerEmail,
+            sellerEmail = sellerEmail,
+            data = sellerData
+        )
+
+        fireStoreRepository.updateItems(
+            email = buyerEmail,
+            postId = postId,
+            post = item
         )
     }
 

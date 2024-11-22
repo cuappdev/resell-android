@@ -3,7 +3,7 @@ package com.cornellappdev.resell.android.model.chats
 import com.cornellappdev.resell.android.model.api.Post
 
 data class BuyerSellerData(
-    private val item: Post,
+    val item: Post,
     /**
      * The text of the most recent message.
      */
@@ -22,7 +22,4 @@ data class BuyerSellerData(
     /** URL */
     val image: String,
     val viewed: Boolean
-) {
-    val listing
-        get() = item.toListing()
-}
+)

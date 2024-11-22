@@ -3,7 +3,7 @@ package com.cornellappdev.resell.android.model.chats
 import com.google.gson.annotations.SerializedName
 
 data class ChatDocument(
-    @SerializedName("_id") val id: String,
+    val _id: String,
     val createdAt: String,
     val image: String,
     val text: String,
@@ -13,7 +13,7 @@ data class ChatDocument(
 )
 
 data class UserDocument(
-    @SerializedName("_id") val id: String,
+    val _id: String,
     val avatar: String,
     val name: String
 )

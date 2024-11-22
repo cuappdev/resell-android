@@ -10,7 +10,6 @@ import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.Query
-import com.google.gson.Gson
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -146,9 +145,9 @@ class FireStoreRepository @Inject constructor(
         val recentSender = it.get("recentSender")?.toString() ?: ""
         val viewed = it.getBoolean("viewed") ?: false
 
-        val raw = (it.get("item") as Map<String, Any>).mapValues { it?.value?.toString() }
+        val raw = (it.get("item") as Map<*, *>).mapValues { it?.value?.toString() }
         val userMap =
-            ((it.get("item") as Map<String, Any>)["user"] as Map<String, Any>).mapValues { it?.value?.toString() }
+            ((it.get("item") as Map<*, *>)["user"] as Map<*, *>).mapValues { it?.value?.toString() }
 
         fun parseToList(input: String): List<String> {
             return input
@@ -199,15 +198,15 @@ class FireStoreRepository @Inject constructor(
     }
 
     fun subscribeToChat(
-        myEmail: String,
-        email: String,
+        buyerEmail: String,
+        sellerEmail: String,
         onSnapshotUpdate: (List<ChatDocument>) -> Unit
     ) {
         // Remove old subscription.
         lastSubscription?.remove()
 
-        val chatDocRef = chatsCollection.document(myEmail).collection(email)
-            .orderBy("createdAt", Query.Direction.DESCENDING)
+        val chatDocRef = chatsCollection.document(buyerEmail).collection(sellerEmail)
+            .orderBy("createdAt", Query.Direction.ASCENDING)
 
         lastSubscription = chatDocRef.addSnapshotListener { snapshot, e ->
             if (e != null) {
@@ -220,13 +219,15 @@ class FireStoreRepository @Inject constructor(
                 return@addSnapshotListener
             }
 
+            Log.d("FireStoreRepository", "Current data: ${snapshot.documents}")
+
             val messages = snapshot.documents.mapNotNull {
 
                 val userMap =
                     (it.get("user") as Map<String, Any>).mapValues { it?.value?.toString() }
 
                 val userDoc = UserDocument(
-                    id = userMap["_id"] ?: "",
+                    _id = userMap["_id"] ?: "",
                     avatar = userMap["avatar"] ?: "",
                     name = userMap["name"] ?: "",
                 )
@@ -234,7 +235,7 @@ class FireStoreRepository @Inject constructor(
                 // TODO Availability and Product Documents
 
                 val chatDoc = ChatDocument(
-                    id = it.get("_id")?.toString() ?: "",
+                    _id = it.get("_id")?.toString() ?: "",
                     createdAt = it.get("createdAt")?.toString() ?: "",
                     user = userDoc,
                     availability = null,
@@ -260,9 +261,47 @@ class FireStoreRepository @Inject constructor(
             .document(buyerEmail)
             .collection(sellerEmail)
 
-        val gson = Gson()
-        val chatDocumentMap = gson.toJsonTree(chatDocument).asJsonObject
-        chatRef.add(chatDocumentMap).await()
+        chatRef.add(chatDocument).await()
+    }
+
+    /**
+     * Call for the seller to update their `buyer` history.
+     */
+    suspend fun updateBuyerHistory(
+        sellerEmail: String,
+        buyerEmail: String,
+        data: BuyerSellerData
+    ) {
+        val docRef = historyCollection.document(sellerEmail)
+            .collection("buyers")
+            .document(buyerEmail)
+
+        docRef.set(data).await()
+    }
+
+    /**
+     * Call for the buyer to update their `seller` history.
+     */
+    suspend fun updateSellerHistory(
+        buyerEmail: String,
+        sellerEmail: String,
+        data: BuyerSellerData
+    ) {
+        val docRef = historyCollection.document(buyerEmail)
+            .collection("sellers")
+            .document(sellerEmail)
+
+        docRef.set(data).await()
+    }
+
+    suspend fun updateItems(
+        email: String,
+        postId: String,
+        post: Post,
+    ) {
+        val docRef = historyCollection.document(email).collection("items").document(postId)
+
+        docRef.set(post).await()
     }
 }
 

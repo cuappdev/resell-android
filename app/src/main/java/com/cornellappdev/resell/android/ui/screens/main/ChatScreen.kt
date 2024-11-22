@@ -1,6 +1,7 @@
 package com.cornellappdev.resell.android.ui.screens.main
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -31,7 +32,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -54,7 +54,6 @@ import com.cornellappdev.resell.android.ui.theme.Style
 import com.cornellappdev.resell.android.ui.theme.Wash
 import com.cornellappdev.resell.android.util.clickableNoIndication
 import com.cornellappdev.resell.android.viewmodel.main.ChatViewModel
-import kotlinx.coroutines.launch
 
 @SuppressLint("CoroutineCreationDuringComposition")
 @Composable
@@ -63,16 +62,18 @@ fun ChatScreen(
 ) {
     val chatUiState = chatViewModel.collectUiStateValue()
     val listState = rememberLazyListState()
-    val coroutineScope = rememberCoroutineScope()
 
-    LaunchedEffect(Chat().chatHistory) {
-        coroutineScope.launch {
-            if (Chat().chatHistory.isNotEmpty()) {
-                listState.animateScrollToItem(Chat().chatHistory.size - 1)
+    LaunchedEffect(chatUiState.scrollBottom) {
+        chatUiState.scrollBottom?.consumeSuspend {
+            val history = chatUiState.currentChat.asSuccessOrNull()?.data?.chatHistory
+            if (history?.isNotEmpty() == true) {
+                // I put an empty item at the end of the list, so scroll to that.
+                listState.animateScrollToItem(
+                    history.size
+                )
             }
         }
     }
-
 
     when (chatUiState.currentChat) {
         is ResellApiResponse.Pending -> {

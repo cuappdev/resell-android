@@ -20,6 +20,7 @@ import com.cornellappdev.resell.android.model.login.FirebaseMessagingRepository
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonContainer
 import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
 import com.cornellappdev.resell.android.ui.theme.Style
+import com.cornellappdev.resell.android.util.UIEvent
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
 import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepository
 import com.cornellappdev.resell.android.viewmodel.root.RootConfirmationRepository
@@ -52,6 +53,7 @@ class ChatViewModel @Inject constructor(
         val sellerName: String = "Unknown",
         val title: String = "Unknown",
         val typedMessage: String = "",
+        val scrollBottom: UIEvent<Unit>? = null
     )
 
     enum class ChatType {
@@ -189,18 +191,26 @@ class ChatViewModel @Inject constructor(
 
     fun onSendMessage(message: String) {
         val navArgs = savedStateHandle.toRoute<ResellRootRoute.CHAT>()
+        val listing = Json.decodeFromString<Listing>(navArgs.postJson)
+
         applyMutation {
             copy(
                 typedMessage = ""
             )
         }
         viewModelScope.launch {
+            val myInfo = userInfoRepository.getUserInfo()
             try {
                 chatRepository.sendTextMessage(
-                    myEmail = userInfoRepository.getEmail()!!,
+                    myEmail = myInfo.email,
                     otherEmail = navArgs.email,
                     text = message,
-                    selfIsBuyer = navArgs.isBuyer
+                    selfIsBuyer = navArgs.isBuyer,
+                    postId = listing.id,
+                    myName = myInfo.name,
+                    otherName = navArgs.name,
+                    myImageUrl = myInfo.imageUrl,
+                    otherImageUrl = navArgs.pfp
                 )
             } catch (e: Exception) {
                 Log.e("ChatViewModel", "Error sending message: ", e)
@@ -232,13 +242,17 @@ class ChatViewModel @Inject constructor(
             val theirEmail = navArgs.email
             val myId = userInfoRepository.getUserId()!!
 
-            chatRepository.subscribeToChat(myEmail, theirEmail, myId)
+            chatRepository.subscribeToChat(
+                myEmail, theirEmail, myId,
+                selfIsBuyer = navArgs.isBuyer,
+            )
         }
 
         asyncCollect(chatRepository.subscribedChatFlow) { response ->
             applyMutation {
                 copy(
-                    currentChat = response
+                    currentChat = response,
+                    scrollBottom = UIEvent(Unit)
                 )
             }
         }
