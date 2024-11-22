@@ -90,7 +90,6 @@ class PostDetailsEntryViewModel @Inject constructor(
                     copy(loadingPost = true)
                 }
 
-                Log.d("helpme", stateValue().price.toDouble().toString())
                 postRepository.uploadPost(
                     title = stateValue().title,
                     description = stateValue().description,

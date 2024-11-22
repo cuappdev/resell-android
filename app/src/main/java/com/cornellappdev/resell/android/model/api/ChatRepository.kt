@@ -82,7 +82,6 @@ class ChatRepository @Inject constructor(
             sellerEmail = if (selfIsBuyer) otherEmail else myEmail,
             buyerEmail = if (selfIsBuyer) myEmail else otherEmail
         ) {
-            Log.d("helpme", it.toString())
             // Convert the List<ChatDocument> into a Chat
             var otherPfp = ""
 
@@ -151,14 +150,10 @@ class ChatRepository @Inject constructor(
                 )
             }
 
-            Log.d("helpme", messageClusters.toString())
-
             // Step 3: Return the final Chat object.
             val chat = Chat(
                 chatHistory = messageClusters
             )
-
-            Log.d("helpme", chat.toString())
 
             _subscribedChatFlow.value = ResellApiResponse.Success(chat)
         }

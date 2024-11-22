@@ -88,10 +88,7 @@ class ResellPostRepository @Inject constructor(
                     it.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.US) else it.toString() }
                 },
                 userId = userId
-            ).let {
-                Log.d("helpme", it.toString())
-                it
-            }
+            )
         )
     }
 

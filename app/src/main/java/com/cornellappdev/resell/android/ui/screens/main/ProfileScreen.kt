@@ -1,6 +1,5 @@
 package com.cornellappdev.resell.android.ui.screens.main
 
-import android.util.Log
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -112,15 +111,12 @@ fun ProfileScreen(
                 ProfileViewModel.ProfileTab.WISHLIST -> {
                     when (uiState.requests) {
                         is ResellApiResponse.Pending -> {
-                            Log.d("helpme", "pending")
                         }
 
                         is ResellApiResponse.Error -> {
-                            Log.d("helpme", "error")
                         }
 
                         is ResellApiResponse.Success -> {
-                            Log.d("helpme", "success")
                             ResellRequestsScroll(
                                 requests = uiState.requests.data,
                                 onClick = {
