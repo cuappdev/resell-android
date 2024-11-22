@@ -93,7 +93,8 @@ fun ChatScreen(
                 chatUiState = chatUiState,
                 onSend = chatViewModel::onSendMessage,
                 onTextChange = chatViewModel::onTyped,
-                onNegotiatePressed = chatViewModel::onNegotiatePressed
+                onNegotiatePressed = chatViewModel::onNegotiatePressed,
+                onVenmoPressed = chatViewModel::payWithVenmoPressed
             )
         }
     }
@@ -107,6 +108,7 @@ private fun ChatLoadedContent(
     onBackPressed: () -> Unit,
     onNegotiatePressed: () -> Unit,
     onSyncCalendarPressed: () -> Unit,
+    onVenmoPressed: () -> Unit,
     onSend: (String) -> Unit,
     onTextChange: (String) -> Unit
 ) {
@@ -136,7 +138,8 @@ private fun ChatLoadedContent(
             onTextChange = {
                 onTextChange(it)
             },
-            text = chatUiState.typedMessage
+            text = chatUiState.typedMessage,
+            onVenmoPressed = onVenmoPressed
         )
     }
 }
@@ -240,6 +243,7 @@ private fun ChatFooter(
     chatType: ChatViewModel.ChatType,
     modifier: Modifier = Modifier,
     onNegotiatePressed: () -> Unit,
+    onVenmoPressed: () -> Unit,
     onSend: (String) -> Unit,
     text: String,
     onTextChange: (String) -> Unit,
@@ -277,7 +281,7 @@ private fun ChatFooter(
                 ChatTag(
                     text = "Pay with",
                     active = false,
-                    onClick = {},
+                    onClick = { onVenmoPressed() },
                     venmo = true
                 )
             }

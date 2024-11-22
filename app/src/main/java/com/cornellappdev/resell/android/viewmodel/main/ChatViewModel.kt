@@ -1,5 +1,8 @@
 package com.cornellappdev.resell.android.viewmodel.main
 
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.util.Log
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -8,6 +11,7 @@ import androidx.compose.material3.Text
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat.startActivity
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
@@ -16,6 +20,7 @@ import com.cornellappdev.resell.android.model.api.ChatRepository
 import com.cornellappdev.resell.android.model.classes.Listing
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.model.core.UserInfoRepository
+import com.cornellappdev.resell.android.model.login.FireStoreRepository
 import com.cornellappdev.resell.android.model.login.FirebaseMessagingRepository
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonContainer
 import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
@@ -24,9 +29,12 @@ import com.cornellappdev.resell.android.util.UIEvent
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
 import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepository
 import com.cornellappdev.resell.android.viewmodel.root.RootConfirmationRepository
+import com.cornellappdev.resell.android.viewmodel.root.RootDialogContent
+import com.cornellappdev.resell.android.viewmodel.root.RootDialogRepository
 import com.cornellappdev.resell.android.viewmodel.root.RootNavigationSheetRepository
 import com.cornellappdev.resell.android.viewmodel.root.RootSheet
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import javax.inject.Inject
@@ -40,6 +48,9 @@ class ChatViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
     private val rootConfirmationRepository: RootConfirmationRepository,
     private val firebaseMessagingRepository: FirebaseMessagingRepository,
+    private val fireStoreRepository: FireStoreRepository,
+    private val rootDialogRepository: RootDialogRepository,
+    @ApplicationContext private val context: Context
 ) :
     ResellViewModel<ChatViewModel.MessagesUiState>(
         initialUiState = MessagesUiState(
@@ -237,6 +248,41 @@ class ChatViewModel @Inject constructor(
                 }
             )
         )
+    }
+
+    fun payWithVenmoPressed() = viewModelScope.launch {
+        val navArgs = savedStateHandle.toRoute<ResellRootRoute.CHAT>()
+
+        try {
+            val theirVenmo = fireStoreRepository.getVenmoHandle(
+                email = navArgs.email
+            )
+
+            if (theirVenmo.isNotBlank()) {
+                // Open Venmo URL
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://account.venmo.com/u/${theirVenmo}" ))
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                context.startActivity(intent)
+            }
+            else {
+                throw Exception("No Venmo handle found")
+            }
+        } catch (e: Exception) {
+            Log.e("ChatViewModel", "Error getting Venmo handle: ", e)
+            rootDialogRepository.showDialog(
+                RootDialogContent.TwoButtonDialog(
+                    title = "Venmo Not Set Up",
+                    description = "The user has not set up venmo yet, please contact the user directly.",
+                    primaryButtonText = "Dismiss",
+                    secondaryButtonText = null,
+                    onPrimaryButtonClick = {
+                        rootDialogRepository.dismissDialog()
+                    },
+                    onSecondaryButtonClick = {},
+                    exitButton = true
+                )
+            )
+        }
     }
 
     init {
