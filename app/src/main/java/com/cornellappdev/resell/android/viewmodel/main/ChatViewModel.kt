@@ -16,6 +16,7 @@ import com.cornellappdev.resell.android.model.api.ChatRepository
 import com.cornellappdev.resell.android.model.classes.Listing
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.model.core.UserInfoRepository
+import com.cornellappdev.resell.android.model.login.FirebaseMessagingRepository
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonContainer
 import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
 import com.cornellappdev.resell.android.ui.theme.Style
@@ -36,7 +37,8 @@ class ChatViewModel @Inject constructor(
     private val userInfoRepository: UserInfoRepository,
     private val chatRepository: ChatRepository,
     private val savedStateHandle: SavedStateHandle,
-    private val rootConfirmationRepository: RootConfirmationRepository
+    private val rootConfirmationRepository: RootConfirmationRepository,
+    private val firebaseMessagingRepository: FirebaseMessagingRepository,
 ) :
     ResellViewModel<ChatViewModel.MessagesUiState>(
         initialUiState = MessagesUiState(
@@ -207,6 +209,8 @@ class ChatViewModel @Inject constructor(
     init {
         val navArgs = savedStateHandle.toRoute<ResellRootRoute.CHAT>()
         val listing = Json.decodeFromString<Listing>(navArgs.postJson)
+
+        firebaseMessagingRepository.requestNotificationsPermission()
 
         applyMutation {
             copy(

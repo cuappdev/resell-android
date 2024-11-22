@@ -1,4 +1,5 @@
 [versions]
+activityKtx = "1.9.3"
 agp = "8.5.1"
 animation = "1.7.1"
 coilCompose = "2.7.0"
@@ -35,6 +36,7 @@ retrofit = "2.9.0"
 composeMaterial = "1.4.0"
 
 [libraries]
+androidx-activity-ktx = { module = "androidx.activity:activity-ktx", version.ref = "activityKtx" }
 androidx-animation = { module = "androidx.compose.animation:animation", version.ref = "animation" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferences" }

@@ -109,6 +109,7 @@ dependencies {
     implementation(libs.androidx.compose.material)
     kapt(libs.hilt.android.compiler)
     implementation(libs.coil.compose)
+    implementation(libs.androidx.activity.ktx)
 
     implementation(libs.kotlinx.coroutines.core)
 

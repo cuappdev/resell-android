@@ -18,10 +18,12 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.cornellappdev.resell.android.MainActivity
 import com.cornellappdev.resell.android.ui.screens.externalprofile.ExternalProfileNavigation
 import com.cornellappdev.resell.android.ui.screens.main.AllSearchScreen
 import com.cornellappdev.resell.android.ui.screens.main.ChatScreen
@@ -60,6 +62,8 @@ fun RootNavigation(
 
     // Create an infinite transition for animation
     val transition = rememberInfiniteTransition()
+
+    val context = LocalContext.current as? MainActivity
 
     // Animate a value from 0 to 1 infinitely
     val animatedValue = transition.animateFloat(
@@ -105,6 +109,19 @@ fun RootNavigation(
     LaunchedEffect(uiState.popBackStack) {
         uiState.popBackStack?.consumeSuspend {
             navController.popBackStack()
+        }
+    }
+
+    LaunchedEffect(uiState.requestNotificationPermissions) {
+        uiState.requestNotificationPermissions?.consumeSuspend {
+            if (context == null) return@consumeSuspend
+
+            context.askNotificationPermission(
+                onAlreadyGranted = rootNavigationViewModel::onPermissionsAlreadyGranted,
+                onShowUi = rootNavigationViewModel::onShowRationaleUi,
+                onRejected = rootNavigationViewModel::onPermissionsDenied,
+                onNewlyGranted = rootNavigationViewModel::onPermissionsNewlyGranted
+            )
         }
     }
 
