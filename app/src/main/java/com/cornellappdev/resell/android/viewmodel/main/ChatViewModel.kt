@@ -1,5 +1,6 @@
 package com.cornellappdev.resell.android.viewmodel.main
 
+import android.util.Log
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -20,6 +21,7 @@ import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
 import com.cornellappdev.resell.android.ui.theme.Style
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
 import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepository
+import com.cornellappdev.resell.android.viewmodel.root.RootConfirmationRepository
 import com.cornellappdev.resell.android.viewmodel.root.RootNavigationSheetRepository
 import com.cornellappdev.resell.android.viewmodel.root.RootSheet
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -33,7 +35,8 @@ class ChatViewModel @Inject constructor(
     private val rootNavigationSheetRepository: RootNavigationSheetRepository,
     private val userInfoRepository: UserInfoRepository,
     private val chatRepository: ChatRepository,
-    savedStateHandle: SavedStateHandle
+    private val savedStateHandle: SavedStateHandle,
+    private val rootConfirmationRepository: RootConfirmationRepository
 ) :
     ResellViewModel<ChatViewModel.MessagesUiState>(
         initialUiState = MessagesUiState(
@@ -179,6 +182,26 @@ class ChatViewModel @Inject constructor(
                 Spacer(Modifier.height(32.dp))
             }
         )
+    }
+
+    fun onSendMessage(message: String) {
+        val navArgs = savedStateHandle.toRoute<ResellRootRoute.CHAT>()
+        viewModelScope.launch {
+            try {
+                chatRepository.sendTextMessage(
+                    myEmail = userInfoRepository.getEmail()!!,
+                    otherEmail = navArgs.email,
+                    text = message,
+                    selfIsBuyer = navArgs.isBuyer
+                )
+            }
+            catch (e: Exception) {
+                Log.e("ChatViewModel", "Error sending message: ", e)
+                rootConfirmationRepository.showError(
+                    "Could not send your text message. Please try again."
+                )
+            }
+        }
     }
 
     init {

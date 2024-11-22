@@ -55,9 +55,9 @@ import kotlinx.coroutines.launch
 @SuppressLint("CoroutineCreationDuringComposition")
 @Composable
 fun ChatScreen(
-    messagesViewModel: ChatViewModel = hiltViewModel()
+    chatViewModel: ChatViewModel = hiltViewModel()
 ) {
-    val chatUiState = messagesViewModel.collectUiStateValue()
+    val chatUiState = chatViewModel.collectUiStateValue()
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
 
@@ -83,9 +83,10 @@ fun ChatScreen(
             ChatLoadedContent(
                 chat = chatUiState.currentChat.data,
                 listState = listState,
-                onBackPressed = messagesViewModel::onBackPressed,
-                onSyncCalendarPressed = messagesViewModel::onSyncToCalendarPressed,
-                chatUiState = chatUiState
+                onBackPressed = chatViewModel::onBackPressed,
+                onSyncCalendarPressed = chatViewModel::onSyncToCalendarPressed,
+                chatUiState = chatUiState,
+                onSend = chatViewModel::onSendMessage
             )
         }
     }
@@ -97,7 +98,8 @@ private fun ChatLoadedContent(
     chat: Chat,
     listState: LazyListState,
     onBackPressed: () -> Unit,
-    onSyncCalendarPressed: () -> Unit
+    onSyncCalendarPressed: () -> Unit,
+    onSend: (String) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -118,7 +120,10 @@ private fun ChatLoadedContent(
         ChatFooter(
             chatType = chatUiState.chatType,
             modifier = Modifier.imePadding(),
-            onNegotiatePressed = { onSyncCalendarPressed() }
+            onNegotiatePressed = { onSyncCalendarPressed() },
+            onSend = {
+                onSend(it)
+            }
         )
     }
 }
@@ -221,8 +226,10 @@ private fun ChatHeader(
 private fun ChatFooter(
     chatType: ChatViewModel.ChatType,
     modifier: Modifier = Modifier,
-    onNegotiatePressed: () -> Unit
+    onNegotiatePressed: () -> Unit,
+    onSend: (String) -> Unit
 ) {
+    // TODO move to VM
     var text by remember { mutableStateOf("") }
     Column(modifier = modifier) {
         Row(
@@ -298,7 +305,9 @@ private fun ChatFooter(
                             .size(24.dp)
                             .clip(RoundedCornerShape(24.dp))
                             .background(ResellPurple)
-                            .clickableNoIndication { }
+                            .clickableNoIndication {
+                                onSend(text)
+                            }
                     ) {
                         Icon(
                             painter = painterResource(id = R.drawable.ic_arrow_up),

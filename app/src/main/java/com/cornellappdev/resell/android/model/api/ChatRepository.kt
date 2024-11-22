@@ -6,6 +6,8 @@ import com.cornellappdev.resell.android.model.ChatMessageCluster
 import com.cornellappdev.resell.android.model.ChatMessageData
 import com.cornellappdev.resell.android.model.MessageType
 import com.cornellappdev.resell.android.model.chats.BuyerSellerData
+import com.cornellappdev.resell.android.model.chats.ChatDocument
+import com.cornellappdev.resell.android.model.chats.UserDocument
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.model.core.UserInfoRepository
 import com.cornellappdev.resell.android.model.login.FireStoreRepository
@@ -15,6 +17,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import okhttp3.internal.toImmutableList
+import java.time.ZoneId
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -147,5 +152,47 @@ class ChatRepository @Inject constructor(
 
             _subscribedChatFlow.value = ResellApiResponse.Success(chat)
         }
+    }
+
+    suspend fun sendTextMessage(
+        myEmail: String,
+        otherEmail: String,
+        text: String,
+        selfIsBuyer: Boolean
+    ) {
+        val currentTimeMillis = System.currentTimeMillis()
+        val userInfo = userInfoRepository.getUserInfo()
+
+        val userDocument = UserDocument(
+            id = userInfo.id,
+            name = userInfo.name,
+            avatar = userInfo.imageUrl
+        )
+        val chatDocument = ChatDocument(
+            id = currentTimeMillis.toString(),
+            createdAt = getFormattedTime(),
+            image = "",
+            text = text,
+            user = userDocument,
+            availability = null,
+            product = null
+        )
+
+        fireStoreRepository.sendTextMessage(
+            buyerEmail = if (selfIsBuyer) myEmail else otherEmail,
+            sellerEmail = if (selfIsBuyer) otherEmail else myEmail,
+            chatDocument = chatDocument
+        )
+    }
+
+    private fun getFormattedTime(): String {
+        // Get the current time in the system's time zone (you can change ZoneId for specific time zones)
+        val currentTime = ZonedDateTime.now(ZoneId.of("America/New_York"))
+
+        // Define the desired format
+        val formatter = DateTimeFormatter.ofPattern("MMMM dd, yyyy 'at' h:mm:ss a z")
+
+        // Format the current time according to the specified pattern
+        return currentTime.format(formatter)
     }
 }

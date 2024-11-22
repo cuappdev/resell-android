@@ -209,7 +209,8 @@ class FireStoreRepository @Inject constructor(
 
             val messages = snapshot.documents.mapNotNull {
 
-                val userMap = (it.get("user") as Map<String, Any>).mapValues { it?.value?.toString() }
+                val userMap =
+                    (it.get("user") as Map<String, Any>).mapValues { it?.value?.toString() }
 
                 val userDoc = UserDocument(
                     id = userMap["_id"] ?: "",
@@ -234,6 +235,21 @@ class FireStoreRepository @Inject constructor(
 
             onSnapshotUpdate(messages)
         }
+    }
+
+    suspend fun sendTextMessage(
+        buyerEmail: String,
+        sellerEmail: String,
+        chatDocument: ChatDocument,
+    ) {
+        // Reference to the desired collection
+        val chatRef = fireStore.collection("chats")
+            .document(buyerEmail)
+            .collection(sellerEmail)
+
+        val gson = Gson()
+        val chatDocumentMap = gson.toJsonTree(chatDocument).asJsonObject
+        chatRef.add(chatDocumentMap).await()
     }
 }
 
