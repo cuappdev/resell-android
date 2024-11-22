@@ -29,7 +29,9 @@ class MessagesViewModel @Inject constructor(
         )
     ) {
     data class MessagesUiState(
+        /** People who are buying things you are selling. */
         val buyerChats: ResellApiResponse<List<BuyerSellerData>>,
+        /** People who are selling things you are buying. */
         val sellerChats: ResellApiResponse<List<BuyerSellerData>>,
         val chatType: ChatType,
     ) {
@@ -52,6 +54,12 @@ class MessagesViewModel @Inject constructor(
             } else {
                 ResellApiState.Loading
             }
+
+        val purchasesUnreads: Int
+            get() = sellerChats.asSuccessOrNull()?.data?.filter { !it.viewed }?.size ?: 0
+
+        val offersUnreads: Int
+            get() = buyerChats.asSuccessOrNull()?.data?.filter { !it.viewed }?.size ?: 0
     }
 
     fun onMessagePressed(historyEntry: BuyerSellerData) {

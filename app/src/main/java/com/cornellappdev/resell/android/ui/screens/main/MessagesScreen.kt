@@ -53,7 +53,9 @@ fun MessagesScreen(
                     listState.animateScrollToItem(0)
                 }
             },
-            onChatTypePressed = messagesViewModel::onChangeChatType
+            onChatTypePressed = messagesViewModel::onChangeChatType,
+            purchasesUnreads = chatUiState.purchasesUnreads,
+            offersUnreads = chatUiState.offersUnreads
         )
         Column(
             modifier = Modifier
@@ -96,6 +98,8 @@ private fun MessagesHeader(
     activeChat: ChatViewModel.ChatType,
     onTopPressed: () -> Unit,
     onChatTypePressed: (ChatViewModel.ChatType) -> Unit = {},
+    purchasesUnreads: Int,
+    offersUnreads: Int,
 ) {
     Column {
         Row(
@@ -125,15 +129,15 @@ private fun MessagesHeader(
         ) {
             Spacer(modifier = Modifier.size(Padding.medium))
             MessageTag(
-                text = "Your Orders",
+                text = "Purchases",
                 active = activeChat == ChatViewModel.ChatType.Purchases,
-                unreads = 0,
+                unreads = purchasesUnreads,
                 onClick = { onChatTypePressed(ChatViewModel.ChatType.Purchases) }
             )
             MessageTag(
                 text = "Offers",
                 active = activeChat == ChatViewModel.ChatType.Offers,
-                unreads = 12,
+                unreads = offersUnreads,
                 onClick = { onChatTypePressed(ChatViewModel.ChatType.Offers) }
             )
         }
