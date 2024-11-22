@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,6 +18,7 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -28,10 +31,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -90,7 +90,8 @@ fun ChatScreen(
                 onBackPressed = chatViewModel::onBackPressed,
                 onSyncCalendarPressed = chatViewModel::onSyncToCalendarPressed,
                 chatUiState = chatUiState,
-                onSend = chatViewModel::onSendMessage
+                onSend = chatViewModel::onSendMessage,
+                onTextChange = chatViewModel::onTyped
             )
         }
     }
@@ -103,7 +104,8 @@ private fun ChatLoadedContent(
     listState: LazyListState,
     onBackPressed: () -> Unit,
     onSyncCalendarPressed: () -> Unit,
-    onSend: (String) -> Unit
+    onSend: (String) -> Unit,
+    onTextChange: (String) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -127,7 +129,11 @@ private fun ChatLoadedContent(
             onNegotiatePressed = { onSyncCalendarPressed() },
             onSend = {
                 onSend(it)
-            }
+            },
+            onTextChange = {
+                onTextChange(it)
+            },
+            text = chatUiState.typedMessage
         )
     }
 }
@@ -231,21 +237,26 @@ private fun ChatFooter(
     chatType: ChatViewModel.ChatType,
     modifier: Modifier = Modifier,
     onNegotiatePressed: () -> Unit,
-    onSend: (String) -> Unit
+    onSend: (String) -> Unit,
+    text: String,
+    onTextChange: (String) -> Unit,
 ) {
-    // TODO move to VM
-    var text by remember { mutableStateOf("") }
-
+    // Get the system insets
+    val insets = WindowInsets.systemBars.asPaddingValues()
     val sendScale by animateFloatAsState(
         targetValue = if (text.isNotEmpty()) 1f else 0f,
         label = "send"
     )
-    Column(modifier = modifier) {
+    Column(
+        modifier = modifier
+            .padding(bottom = insets.calculateBottomPadding())
+    ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(Color.White)
                 .padding(start = 12.dp, end = 12.dp, top = 8.dp, bottom = 8.dp)
+
         ) {
             ChatTag(
                 text = "Negotiate",
@@ -297,7 +308,9 @@ private fun ChatFooter(
             ) {
                 BasicTextField(
                     value = text,
-                    onValueChange = { text = it },
+                    onValueChange = {
+                        onTextChange(it)
+                    },
                     visualTransformation = VisualTransformation.None,
                     textStyle = Style.body2,
                     modifier = Modifier
@@ -314,7 +327,6 @@ private fun ChatFooter(
                         .clickableNoIndication {
                             if (text.isNotBlank()) {
                                 onSend(text)
-                                text = ""
                             }
                         }
                 ) {

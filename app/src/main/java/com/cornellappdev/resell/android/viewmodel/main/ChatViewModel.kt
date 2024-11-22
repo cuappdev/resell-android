@@ -51,6 +51,7 @@ class ChatViewModel @Inject constructor(
         val currentChat: ResellApiResponse<Chat>,
         val sellerName: String = "Unknown",
         val title: String = "Unknown",
+        val typedMessage: String = "",
     )
 
     enum class ChatType {
@@ -188,6 +189,11 @@ class ChatViewModel @Inject constructor(
 
     fun onSendMessage(message: String) {
         val navArgs = savedStateHandle.toRoute<ResellRootRoute.CHAT>()
+        applyMutation {
+            copy(
+                typedMessage = ""
+            )
+        }
         viewModelScope.launch {
             try {
                 chatRepository.sendTextMessage(
@@ -196,8 +202,7 @@ class ChatViewModel @Inject constructor(
                     text = message,
                     selfIsBuyer = navArgs.isBuyer
                 )
-            }
-            catch (e: Exception) {
+            } catch (e: Exception) {
                 Log.e("ChatViewModel", "Error sending message: ", e)
                 rootConfirmationRepository.showError(
                     "Could not send your text message. Please try again."
@@ -205,6 +210,8 @@ class ChatViewModel @Inject constructor(
             }
         }
     }
+
+    fun onTyped(message: String) = applyMutation { copy(typedMessage = message) }
 
     init {
         val navArgs = savedStateHandle.toRoute<ResellRootRoute.CHAT>()
