@@ -15,10 +15,12 @@ import com.cornellappdev.resell.android.model.login.GoogleAuthRepository
 import com.cornellappdev.resell.android.model.posts.ResellPostRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import okhttp3.internal.toImmutableList
+import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
@@ -290,6 +292,13 @@ class ChatRepository @Inject constructor(
                 authToken = "Bearer $oauth"
             )
         }
+    }
+
+    suspend fun sendAvailability(
+        availability: List<LocalDateTime>
+    ) {
+        // TODO
+        delay(500)
     }
 
     private fun getFormattedTime(): String {

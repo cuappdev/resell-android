@@ -2,6 +2,7 @@ package com.cornellappdev.resell.android.viewmodel.root
 
 import androidx.compose.runtime.Composable
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonContainer
+import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonState
 import com.cornellappdev.resell.android.util.UIEvent
 import dagger.Module
 import dagger.Provides
@@ -67,6 +68,7 @@ sealed class RootSheet {
     data class Availability(
         val buttonString: String,
         val initialTimes: List<LocalDateTime> = listOf(),
+        val initialButtonState: ResellTextButtonState = ResellTextButtonState.ENABLED,
         val title: String,
         val description: String,
         val callback: (List<LocalDateTime>) -> Unit,

@@ -61,7 +61,8 @@ class AvailabilitySheetViewModel @Inject constructor(
                     subtitle = uiEvent.payload.description,
                     callback = uiEvent.payload.callback,
                     addAvailability = uiEvent.payload.addAvailability,
-                    initialAvailabilities = uiEvent.payload.initialTimes
+                    initialAvailabilities = uiEvent.payload.initialTimes,
+                    textButtonState = uiEvent.payload.initialButtonState
                 )
             }
         }

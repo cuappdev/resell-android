@@ -11,7 +11,6 @@ import androidx.compose.material3.Text
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat.startActivity
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
@@ -37,6 +36,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
+import java.time.LocalDateTime
 import javax.inject.Inject
 
 @HiltViewModel
@@ -262,12 +262,24 @@ class ChatViewModel @Inject constructor(
                 title = "When are you free to meet?",
                 buttonString = "Continue",
                 description = "Tap on a cell to add/remove availability",
-                callback = {
-
-                },
+                callback = ::availabilityCallback,
                 addAvailability = true
             )
         )
+    }
+
+    private fun availabilityCallback(availability: List<LocalDateTime>) {
+        viewModelScope.launch {
+            try {
+                chatRepository.sendAvailability(availability)
+                rootNavigationSheetRepository.hideSheet()
+            } catch (e: Exception) {
+                Log.e("ChatViewModel", "Error sending availability: ", e)
+                rootConfirmationRepository.showError(
+                    "Something went wrong while sending your availability. Please try again later."
+                )
+            }
+        }
     }
 
     fun payWithVenmoPressed() = viewModelScope.launch {
@@ -280,11 +292,13 @@ class ChatViewModel @Inject constructor(
 
             if (theirVenmo.isNotBlank()) {
                 // Open Venmo URL
-                val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://account.venmo.com/u/${theirVenmo}" ))
+                val intent = Intent(
+                    Intent.ACTION_VIEW,
+                    Uri.parse("https://account.venmo.com/u/${theirVenmo}")
+                )
                 intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
                 context.startActivity(intent)
-            }
-            else {
+            } else {
                 throw Exception("No Venmo handle found")
             }
         } catch (e: Exception) {
