@@ -2,6 +2,7 @@ package com.cornellappdev.resell.android.ui.components.availability.helper
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.calculateCentroid
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Text
@@ -18,6 +19,7 @@ import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.toSize
 import com.cornellappdev.resell.android.ui.theme.ResellPreview
@@ -27,6 +29,7 @@ import com.cornellappdev.resell.android.util.toSortedPair
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import kotlin.math.abs
 
 /**
  * Requires: grid is non-empty
@@ -89,6 +92,13 @@ private fun SelectableGrid(
                         selectionStart = null
                         selectionEnd = null
                         isFirstMove = true
+                    }
+
+                    event.changes.forEach {
+                        val offset = it.positionChange()
+                        if (abs(offset.y) > 0f) {
+                            it.consume()
+                        }
                     }
                 }
             }
@@ -190,4 +200,3 @@ private fun AvailabilityGrid_RUNME_Preview() = ResellPreview {
         )
     }
 }
-

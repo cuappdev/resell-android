@@ -82,9 +82,9 @@ fun RootNavigation(
     ).value
 
     LaunchedEffect(uiState.sheetEvent) {
-        uiState.sheetEvent?.consumeSuspend {
+        uiState.sheetEvent?.consumeSuspend { sheet ->
             // Show bottom sheet.
-            lastSheetValue = uiState.sheetEvent.payload
+            lastSheetValue = sheet
             showBottomSheet = true
             sheetState.show()
         }

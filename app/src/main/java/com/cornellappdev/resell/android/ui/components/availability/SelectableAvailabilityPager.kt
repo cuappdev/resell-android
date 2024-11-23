@@ -8,6 +8,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.cornellappdev.resell.android.ui.components.availability.helper.AvailabilityPagerContainer
 import com.cornellappdev.resell.android.ui.components.availability.helper.SelectableAvailabilityGrid
@@ -17,31 +18,55 @@ import java.time.LocalDateTime
 
 @Composable
 fun SelectableAvailabilityPager(
+    title: String,
+    subtitle: String,
     initialSelectedAvailabilities: List<LocalDateTime> = emptyList(),
     scrollRange: Pair<Int, Int> = 0 to 6,
+    modifier: Modifier = Modifier,
     setSelectedAvailabilities: (List<LocalDateTime>) -> Unit,
 ) {
-    var selectedDatesByPage by remember {
-        mutableStateOf(buildList<List<LocalDateTime>> {
-            repeat(scrollRange.second + 1) {
-                add(emptyList())
+    /** Guaranteed to have non-null mappings for any page in the scroll range. */
+    var selectedDatesByPage: Map<Int, List<LocalDateTime>> by remember {
+        mutableStateOf(buildMap {
+            for (i in scrollRange.first..scrollRange.second) {
+                put(i, emptyList())
             }
         })
     }
 
+    // Initialize the selected dates by page.
     LaunchedEffect(initialSelectedAvailabilities) {
-        // TODO Use initialSelectedAvailabilities.
+        // Add each availability to the correct page based on its date.
+        //  Each page corresponds to an increment of 3 days, and each
+        //  inner list corresponds the availabilities for that 3-day period.
+        //  Thus, we must add to the correct 3 day period.
+        initialSelectedAvailabilities.forEach { availability ->
+            val today = LocalDate.now()
+            val dayDifference = availability.toLocalDate().until(today).days
+            val pageIndex = dayDifference % 3
+
+            if (selectedDatesByPage[pageIndex] != null) {
+                val list = selectedDatesByPage[pageIndex]!!.toMutableList()
+                list.add(availability)
+                val copy = selectedDatesByPage.toMutableMap()
+                copy[pageIndex] = list
+                selectedDatesByPage = copy.toMap()
+            }
+        }
     }
 
     AvailabilityPagerContainer(
         startDate = LocalDate.now(),
         scrollRange = scrollRange,
+        modifier = modifier,
+        title = title,
+        subtitle = subtitle,
     ) { dates, page ->
         SelectableAvailabilityGrid(
             dates,
-            selectedAvailabilities = selectedDatesByPage[page],
+            selectedAvailabilities = selectedDatesByPage[page]!!,
             setSelectedAvailabilities = { availabilities ->
-                val updatedDates = selectedDatesByPage.mapIndexed { index, localDateTimes ->
+                val updatedDates = selectedDatesByPage.mapValues { (index, localDateTimes) ->
                     if (index != page) {
                         localDateTimes
                     } else {
@@ -49,7 +74,7 @@ fun SelectableAvailabilityPager(
                     }
                 }
                 selectedDatesByPage = updatedDates
-                setSelectedAvailabilities(updatedDates.flatten())
+                setSelectedAvailabilities(updatedDates.values.flatten())
             })
     }
 }
@@ -60,6 +85,9 @@ private fun SelectableAvailabilityPagerPreview() = ResellPreview {
     var selectedAvailabilities by remember { mutableStateOf(emptyList<LocalDateTime>()) }
     Column {
         Text("Selected availabilities = $selectedAvailabilities")
-        SelectableAvailabilityPager { selectedAvailabilities = it }
+        SelectableAvailabilityPager(
+            title = "When are you free?",
+            subtitle = "Fill it out or else.",
+        ) { selectedAvailabilities = it }
     }
 }

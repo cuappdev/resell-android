@@ -1,5 +1,6 @@
 package com.cornellappdev.resell.android.ui.components.availability
 
+import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonState
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
 import com.cornellappdev.resell.android.viewmodel.root.RootNavigationSheetRepository
 import com.cornellappdev.resell.android.viewmodel.root.RootSheet
@@ -15,7 +16,7 @@ class AvailabilitySheetViewModel @Inject constructor(
         buttonString = "",
         allAvailabilities = emptyList(),
         title = "",
-        description = "",
+        subtitle = "",
         callback = {},
         addAvailability = false,
         currentPage = 0,
@@ -25,19 +26,25 @@ class AvailabilitySheetViewModel @Inject constructor(
 ) {
 
     data class AvailabilitySheetState(
-        private val allAvailabilities: List<LocalDateTime>,
         private val scrollRange: Pair<Int, Int>,
+        val allAvailabilities: List<LocalDateTime>,
         val buttonString: String,
         val title: String,
-        val description: String,
+        val subtitle: String,
         val callback: (List<LocalDateTime>) -> Unit,
         val addAvailability: Boolean,
         val currentPage: Int,
         val initialAvailabilities: List<LocalDateTime>,
+        val textButtonState: ResellTextButtonState = ResellTextButtonState.ENABLED
     )
 
     fun onAvailabilityChanged(availability: List<LocalDateTime>) {
         applyMutation { copy(allAvailabilities = availability) }
+    }
+
+    fun onButtonClick() {
+        applyMutation { copy(textButtonState = ResellTextButtonState.SPINNING) }
+        stateValue().callback(stateValue().allAvailabilities)
     }
 
     init {
@@ -51,7 +58,7 @@ class AvailabilitySheetViewModel @Inject constructor(
                     buttonString = uiEvent.payload.buttonString,
                     allAvailabilities = uiEvent.payload.initialTimes,
                     title = uiEvent.payload.title,
-                    description = uiEvent.payload.description,
+                    subtitle = uiEvent.payload.description,
                     callback = uiEvent.payload.callback,
                     addAvailability = uiEvent.payload.addAvailability,
                     initialAvailabilities = uiEvent.payload.initialTimes
