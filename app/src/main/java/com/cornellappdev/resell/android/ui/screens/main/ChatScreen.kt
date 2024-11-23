@@ -95,7 +95,8 @@ fun ChatScreen(
                 onNegotiatePressed = chatViewModel::onNegotiatePressed,
                 onVenmoPressed = chatViewModel::payWithVenmoPressed,
                 showPayWithVenmo = chatUiState.showPayWithVenmo,
-                showNegotiate = chatUiState.showNegotiate
+                showNegotiate = chatUiState.showNegotiate,
+                onSendAvailability = chatViewModel::onSendAvailabilityPressed
             )
         }
     }
@@ -109,6 +110,7 @@ private fun ChatLoadedContent(
     onBackPressed: () -> Unit,
     onNegotiatePressed: () -> Unit,
     onSyncCalendarPressed: () -> Unit,
+    onSendAvailability: () -> Unit,
     onVenmoPressed: () -> Unit,
     onSend: (String) -> Unit,
     onTextChange: (String) -> Unit,
@@ -144,7 +146,8 @@ private fun ChatLoadedContent(
             text = chatUiState.typedMessage,
             onVenmoPressed = onVenmoPressed,
             showPayWithVenmo = showPayWithVenmo,
-            showNegotiate = showNegotiate
+            showNegotiate = showNegotiate,
+            onSendAvailability = onSendAvailability
         )
     }
 }
@@ -254,6 +257,7 @@ private fun ChatFooter(
     onTextChange: (String) -> Unit,
     showPayWithVenmo: Boolean,
     showNegotiate: Boolean,
+    onSendAvailability: () -> Unit,
 ) {
     // Get the system insets
     val insets = WindowInsets.systemBars.asPaddingValues()
@@ -283,7 +287,9 @@ private fun ChatFooter(
             ChatTag(
                 text = "Send Availability",
                 active = true,
-                onClick = {}
+                onClick = {
+                    onSendAvailability()
+                }
             )
             Spacer(modifier = Modifier.width(12.dp))
 

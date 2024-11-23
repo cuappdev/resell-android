@@ -10,6 +10,7 @@ import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import java.time.LocalDateTime
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -59,6 +60,18 @@ sealed class RootSheet {
 
     data object LogOut : RootSheet()
     data object Welcome : RootSheet()
+
+    /**
+     * @param addAvailability True if adding availability, false if proposing a time.
+     */
+    data class Availability(
+        val buttonString: String,
+        val initialTimes: List<LocalDateTime> = listOf(),
+        val title: String,
+        val description: String,
+        val callback: (List<LocalDateTime>) -> Unit,
+        val addAvailability: Boolean,
+    ) : RootSheet()
 
     data class MeetingCancel(
         val confirmString: String,

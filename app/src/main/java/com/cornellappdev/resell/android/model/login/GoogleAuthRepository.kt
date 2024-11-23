@@ -36,7 +36,6 @@ import javax.inject.Singleton
 
 @Singleton
 class GoogleAuthRepository @Inject constructor(
-    private val dataStore: DataStore<Preferences>,
     private val firebaseAuth: FirebaseAuth,
     @ApplicationContext private val context: Context,
 ) {

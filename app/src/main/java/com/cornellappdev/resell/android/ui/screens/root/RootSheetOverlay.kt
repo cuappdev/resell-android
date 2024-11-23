@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
+import com.cornellappdev.resell.android.ui.components.availability.AvailabilitySheet
 import com.cornellappdev.resell.android.ui.components.global.sheet.ChatMeetingSheet
 import com.cornellappdev.resell.android.ui.components.global.sheet.LoginErrorSheet
 import com.cornellappdev.resell.android.ui.components.global.sheet.PriceProposalSheet
@@ -67,6 +68,10 @@ fun RootSheetOverlay(
 
                 is RootSheet.MeetingDetails -> {
                     ChatMeetingSheet()
+                }
+
+                is RootSheet.Availability -> {
+                    AvailabilitySheet()
                 }
 
                 RootSheet.LogOut -> {

@@ -3,6 +3,7 @@ package com.cornellappdev.resell.android.ui.components.availability
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -15,8 +16,11 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 
 @Composable
-fun SelectableAvailabilityPager(setSelectedAvailabilities: (List<LocalDateTime>) -> Unit) {
-    val scrollRange = 0 to 6
+fun SelectableAvailabilityPager(
+    initialSelectedAvailabilities: List<LocalDateTime> = emptyList(),
+    scrollRange: Pair<Int, Int> = 0 to 6,
+    setSelectedAvailabilities: (List<LocalDateTime>) -> Unit,
+) {
     var selectedDatesByPage by remember {
         mutableStateOf(buildList<List<LocalDateTime>> {
             repeat(scrollRange.second + 1) {
@@ -25,9 +29,13 @@ fun SelectableAvailabilityPager(setSelectedAvailabilities: (List<LocalDateTime>)
         })
     }
 
+    LaunchedEffect(initialSelectedAvailabilities) {
+        // TODO Use initialSelectedAvailabilities.
+    }
+
     AvailabilityPagerContainer(
         startDate = LocalDate.now(),
-        scrollRange = 0 to 6
+        scrollRange = scrollRange,
     ) { dates, page ->
         SelectableAvailabilityGrid(
             dates,

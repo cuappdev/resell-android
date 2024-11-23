@@ -256,6 +256,20 @@ class ChatViewModel @Inject constructor(
         )
     }
 
+    fun onSendAvailabilityPressed() {
+        rootNavigationSheetRepository.showBottomSheet(
+            sheet = RootSheet.Availability(
+                title = "When are you free to meet?",
+                buttonString = "Continue",
+                description = "Tap on a cell to add/remove availability",
+                callback = {
+
+                },
+                addAvailability = true
+            )
+        )
+    }
+
     fun payWithVenmoPressed() = viewModelScope.launch {
         val navArgs = savedStateHandle.toRoute<ResellRootRoute.CHAT>()
 
