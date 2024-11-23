@@ -20,11 +20,17 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.tasks.Task
+import com.google.auth.oauth2.GoogleCredentials
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.tasks.await
+import java.io.FileInputStream
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -117,5 +123,19 @@ class GoogleAuthRepository @Inject constructor(
                 onError()
             }
         }
+    }
+
+    suspend fun getOAuthToken(): String = coroutineScope {
+        val assetManager = context.assets
+        val inputStream = assetManager.open("resell-service.json")
+        val credentials = GoogleCredentials
+            .fromStream(inputStream)
+            .createScoped(listOf("https://www.googleapis.com/auth/cloud-platform"))
+
+        CoroutineScope(Dispatchers.IO).launch {
+            credentials.refreshIfExpired()
+        }.join()
+
+        credentials.accessToken.tokenValue
     }
 }

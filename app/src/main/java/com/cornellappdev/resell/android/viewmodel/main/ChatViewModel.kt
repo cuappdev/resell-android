@@ -66,7 +66,13 @@ class ChatViewModel @Inject constructor(
         val typedMessage: String = "",
         val scrollBottom: UIEvent<Unit>? = null,
         val listing: Listing? = null
-    )
+    ) {
+        val showNegotiate
+            get() = chatType == ChatType.Purchases
+
+        val showPayWithVenmo
+            get() = chatType == ChatType.Purchases
+    }
 
     enum class ChatType {
         Purchases, Offers
@@ -227,7 +233,7 @@ class ChatViewModel @Inject constructor(
             } catch (e: Exception) {
                 Log.e("ChatViewModel", "Error sending message: ", e)
                 rootConfirmationRepository.showError(
-                    "Could not send your text message. Please try again."
+                    "Something went wrong while sending your message."
                 )
             }
         }

@@ -11,6 +11,7 @@ import com.cornellappdev.resell.android.model.chats.UserDocument
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.model.core.UserInfoRepository
 import com.cornellappdev.resell.android.model.login.FireStoreRepository
+import com.cornellappdev.resell.android.model.login.GoogleAuthRepository
 import com.cornellappdev.resell.android.model.posts.ResellPostRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -29,6 +30,8 @@ class ChatRepository @Inject constructor(
     private val fireStoreRepository: FireStoreRepository,
     private val userInfoRepository: UserInfoRepository,
     private val postRepository: ResellPostRepository,
+    private val retrofitInstance: RetrofitInstance,
+    private val googleAuthRepository: GoogleAuthRepository,
 ) {
 
     private val _buyersHistoryFlow =
@@ -256,6 +259,37 @@ class ChatRepository @Inject constructor(
             postId = postId,
             post = item
         )
+
+        val otherNotifsEnabled = fireStoreRepository.getNotificationsEnabled(
+            otherEmail
+        )
+
+        val token = fireStoreRepository.getUserFCMToken(
+            email = otherEmail,
+        )
+        Log.d("ChatRepository", "Token: $token")
+        val oauth = googleAuthRepository.getOAuthToken()
+        if (token != null) {
+            retrofitInstance.notificationsApi.sendNotification(
+                body = FcmBody(
+                    message = FcmMessage(
+                        notification = if (otherNotifsEnabled) {
+                            FcmNotification(
+                                title = myName,
+                                body = text,
+                            )
+                        } else {
+                            null
+                        },
+                        token = token,
+                        data = NotificationData(
+                            navigationId = "chat"
+                        )
+                    )
+                ),
+                authToken = "Bearer $oauth"
+            )
+        }
     }
 
     private fun getFormattedTime(): String {

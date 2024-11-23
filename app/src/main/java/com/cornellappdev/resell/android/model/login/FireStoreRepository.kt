@@ -67,6 +67,19 @@ class FireStoreRepository @Inject constructor(
         }
     }
 
+    suspend fun getNotificationsEnabled(email: String): Boolean {
+        try {
+            val doc = fireStore.collection("user").document(email)
+                .get().await()
+
+            val user = doc.toObject(FirebaseDoc::class.java)
+            return user?.notificationsEnabled ?: true
+        } catch (e: Exception) {
+            Log.e("FireStoreRepository", "Error getting fcm token: ", e)
+            return true
+        }
+    }
+
     /**
      * Saves the specified device token to the user's document in FireStore.
      */

@@ -1,7 +1,6 @@
 package com.cornellappdev.resell.android.ui.screens.main
 
 import android.annotation.SuppressLint
-import android.util.Log
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -94,7 +93,9 @@ fun ChatScreen(
                 onSend = chatViewModel::onSendMessage,
                 onTextChange = chatViewModel::onTyped,
                 onNegotiatePressed = chatViewModel::onNegotiatePressed,
-                onVenmoPressed = chatViewModel::payWithVenmoPressed
+                onVenmoPressed = chatViewModel::payWithVenmoPressed,
+                showPayWithVenmo = chatUiState.showPayWithVenmo,
+                showNegotiate = chatUiState.showNegotiate
             )
         }
     }
@@ -110,7 +111,9 @@ private fun ChatLoadedContent(
     onSyncCalendarPressed: () -> Unit,
     onVenmoPressed: () -> Unit,
     onSend: (String) -> Unit,
-    onTextChange: (String) -> Unit
+    onTextChange: (String) -> Unit,
+    showPayWithVenmo: Boolean,
+    showNegotiate: Boolean
 ) {
     Column(
         modifier = Modifier
@@ -139,7 +142,9 @@ private fun ChatLoadedContent(
                 onTextChange(it)
             },
             text = chatUiState.typedMessage,
-            onVenmoPressed = onVenmoPressed
+            onVenmoPressed = onVenmoPressed,
+            showPayWithVenmo = showPayWithVenmo,
+            showNegotiate = showNegotiate
         )
     }
 }
@@ -247,6 +252,8 @@ private fun ChatFooter(
     onSend: (String) -> Unit,
     text: String,
     onTextChange: (String) -> Unit,
+    showPayWithVenmo: Boolean,
+    showNegotiate: Boolean,
 ) {
     // Get the system insets
     val insets = WindowInsets.systemBars.asPaddingValues()
@@ -265,19 +272,22 @@ private fun ChatFooter(
                 .padding(start = 12.dp, end = 12.dp, top = 8.dp, bottom = 8.dp)
 
         ) {
-            ChatTag(
-                text = "Negotiate",
-                active = true,
-                onClick = { onNegotiatePressed() }
-            )
-            if (chatType == ChatViewModel.ChatType.Purchases) {
-                Spacer(modifier = Modifier.width(12.dp))
+            if (showNegotiate) {
                 ChatTag(
-                    text = "Send Availability",
+                    text = "Negotiate",
                     active = true,
-                    onClick = {}
+                    onClick = { onNegotiatePressed() }
                 )
                 Spacer(modifier = Modifier.width(12.dp))
+            }
+            ChatTag(
+                text = "Send Availability",
+                active = true,
+                onClick = {}
+            )
+            Spacer(modifier = Modifier.width(12.dp))
+
+            if (showPayWithVenmo) {
                 ChatTag(
                     text = "Pay with",
                     active = false,

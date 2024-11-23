@@ -22,6 +22,10 @@ android {
     namespace = "com.cornellappdev.resell.android"
     compileSdk = 35
 
+    packaging {
+        resources.excludes.add("META-INF/DEPENDENCIES")
+    }
+
     defaultConfig {
         applicationId = "com.cornellappdev.resell.android"
         minSdk = 28
@@ -33,6 +37,16 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+
+        buildConfigField(
+            "String",
+            "FCM_URL", "\"${secrets.getProperty("FCM_URL")}\""
+        )
+
+        buildConfigField(
+            "String",
+            "NOTIFICATIONS_KEY", "\"${secrets.getProperty("FIREBASE_NOTIFICATIONS_KEY")}\""
+        )
     }
 
     signingConfigs {
@@ -115,6 +129,7 @@ dependencies {
 
     // Google Play Services Auth
     implementation(libs.gms.play.services.auth)
+    implementation(libs.google.auth.library.oauth2.http)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
