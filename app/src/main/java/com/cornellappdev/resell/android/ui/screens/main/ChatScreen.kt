@@ -1,6 +1,9 @@
 package com.cornellappdev.resell.android.ui.screens.main
 
 import android.annotation.SuppressLint
+import android.net.Uri
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -52,6 +55,7 @@ import com.cornellappdev.resell.android.ui.theme.Secondary
 import com.cornellappdev.resell.android.ui.theme.Style
 import com.cornellappdev.resell.android.ui.theme.Wash
 import com.cornellappdev.resell.android.util.clickableNoIndication
+import com.cornellappdev.resell.android.util.singlePhotoPicker
 import com.cornellappdev.resell.android.viewmodel.main.ChatViewModel
 
 @SuppressLint("CoroutineCreationDuringComposition")
@@ -96,7 +100,8 @@ fun ChatScreen(
                 onVenmoPressed = chatViewModel::payWithVenmoPressed,
                 showPayWithVenmo = chatUiState.showPayWithVenmo,
                 showNegotiate = chatUiState.showNegotiate,
-                onSendAvailability = chatViewModel::onSendAvailabilityPressed
+                onSendAvailability = chatViewModel::onSendAvailabilityPressed,
+                onImageUpload = chatViewModel::onImageSelected
             )
         }
     }
@@ -111,6 +116,7 @@ private fun ChatLoadedContent(
     onNegotiatePressed: () -> Unit,
     onSyncCalendarPressed: () -> Unit,
     onSendAvailability: () -> Unit,
+    onImageUpload: (Uri) -> Unit,
     onVenmoPressed: () -> Unit,
     onSend: (String) -> Unit,
     onTextChange: (String) -> Unit,
@@ -147,7 +153,8 @@ private fun ChatLoadedContent(
             onVenmoPressed = onVenmoPressed,
             showPayWithVenmo = showPayWithVenmo,
             showNegotiate = showNegotiate,
-            onSendAvailability = onSendAvailability
+            onSendAvailability = onSendAvailability,
+            onImageUpload = onImageUpload
         )
     }
 }
@@ -258,6 +265,7 @@ private fun ChatFooter(
     showPayWithVenmo: Boolean,
     showNegotiate: Boolean,
     onSendAvailability: () -> Unit,
+    onImageUpload: (Uri) -> Unit
 ) {
     // Get the system insets
     val insets = WindowInsets.systemBars.asPaddingValues()
@@ -265,6 +273,13 @@ private fun ChatFooter(
         targetValue = if (text.isNotEmpty()) 1f else 0f,
         label = "send"
     )
+
+    val singlePhotoPicker = singlePhotoPicker {
+        if (it != null) {
+            onImageUpload(it)
+        }
+    }
+
     Column(
         modifier = modifier
             .padding(bottom = insets.calculateBottomPadding())
@@ -315,7 +330,11 @@ private fun ChatFooter(
                 tint = Color.Gray,
                 modifier = Modifier
                     .size(32.dp)
-                    .clickableNoIndication {}
+                    .clickableNoIndication {
+                        singlePhotoPicker.launch(
+                            input = PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                        )
+                    }
             )
 
             Spacer(modifier = Modifier.width(12.dp))

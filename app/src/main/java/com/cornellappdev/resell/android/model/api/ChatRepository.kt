@@ -5,8 +5,10 @@ import com.cornellappdev.resell.android.model.Chat
 import com.cornellappdev.resell.android.model.ChatMessageCluster
 import com.cornellappdev.resell.android.model.ChatMessageData
 import com.cornellappdev.resell.android.model.MessageType
+import com.cornellappdev.resell.android.model.chats.AvailabilityDocument
 import com.cornellappdev.resell.android.model.chats.BuyerSellerData
 import com.cornellappdev.resell.android.model.chats.ChatDocument
+import com.cornellappdev.resell.android.model.chats.ProductDocument
 import com.cornellappdev.resell.android.model.chats.UserDocument
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.model.core.UserInfoRepository
@@ -167,16 +169,19 @@ class ChatRepository @Inject constructor(
         }
     }
 
-    suspend fun sendTextMessage(
+    private suspend fun sendGenericMessage(
         myEmail: String,
         otherEmail: String,
         myName: String,
         otherName: String,
         myImageUrl: String,
         otherImageUrl: String,
-        text: String,
         selfIsBuyer: Boolean,
         postId: String,
+        imageUrl: String? = null,
+        text: String? = null,
+        availability: AvailabilityDocument? = null,
+        product: ProductDocument? = null,
     ) {
         val currentTimeMillis = System.currentTimeMillis()
         val userInfo = userInfoRepository.getUserInfo()
@@ -200,8 +205,8 @@ class ChatRepository @Inject constructor(
         val chatDocument = ChatDocument(
             _id = currentTimeMillis.toString(),
             createdAt = time,
-            image = "",
-            text = text,
+            image = imageUrl ?: "",
+            text = text ?: "",
             user = userDocument,
             availability = null,
             product = null
@@ -219,12 +224,32 @@ class ChatRepository @Inject constructor(
             id = postId,
         )
 
+        val recentMessage = when {
+            !text.isNullOrEmpty() -> text
+            !imageUrl.isNullOrEmpty() -> "[Image]"
+            availability != null -> "[Availability]"
+            product != null -> ""
+            else -> {
+                ""
+            }
+        }
+
+        val notificationText = when {
+            !text.isNullOrEmpty() -> text
+            !imageUrl.isNullOrEmpty() -> "Sent an Image"
+            availability != null -> "Sent their Availability"
+            product != null -> "Sent Product Details"
+            else -> {
+                ""
+            }
+        }
+
         // The data that will go into the `seller` entry of the buyer. Amazing.
         //  Basically, this belongs the buyer.
         //  SO, this should be information about the seller.
         val sellerData = BuyerSellerData(
             item = item,
-            recentMessage = text,
+            recentMessage = recentMessage,
             viewed = selfIsBuyer,
             name = sellerName,
             image = sellerImageUrl,
@@ -237,7 +262,7 @@ class ChatRepository @Inject constructor(
         // Information about the buyer. Shown to the seller.
         val buyerData = BuyerSellerData(
             item = item,
-            recentMessage = text,
+            recentMessage = recentMessage,
             viewed = !selfIsBuyer,
             name = buyerName,
             image = buyerImageUrl,
@@ -281,7 +306,7 @@ class ChatRepository @Inject constructor(
                         notification = if (otherNotifsEnabled) {
                             FcmNotification(
                                 title = myName,
-                                body = text,
+                                body = notificationText,
                             )
                         } else {
                             null
@@ -295,6 +320,58 @@ class ChatRepository @Inject constructor(
                 authToken = "Bearer $oauth"
             )
         }
+    }
+
+    suspend fun sendTextMessage(
+        myEmail: String,
+        otherEmail: String,
+        myName: String,
+        otherName: String,
+        myImageUrl: String,
+        otherImageUrl: String,
+        text: String,
+        selfIsBuyer: Boolean,
+        postId: String,
+    ) = sendGenericMessage(
+        myEmail = myEmail,
+        otherEmail = otherEmail,
+        myName = myName,
+        otherName = otherName,
+        myImageUrl = myImageUrl,
+        otherImageUrl = otherImageUrl,
+        text = text,
+        selfIsBuyer = selfIsBuyer,
+        postId = postId,
+    )
+
+    suspend fun sendImageMessage(
+        myEmail: String,
+        otherEmail: String,
+        myName: String,
+        otherName: String,
+        myImageUrl: String,
+        otherImageUrl: String,
+        imageBase64: String,
+        selfIsBuyer: Boolean,
+        postId: String,
+    ) {
+        val url = retrofitInstance.userApi.uploadImage(
+            body = ImageBody(
+                imageBase64 = imageBase64
+            )
+        ).image
+
+        sendGenericMessage(
+            myEmail = myEmail,
+            otherEmail = otherEmail,
+            myName = myName,
+            otherName = otherName,
+            myImageUrl = myImageUrl,
+            otherImageUrl = otherImageUrl,
+            imageUrl = url,
+            selfIsBuyer = selfIsBuyer,
+            postId = postId,
+        )
     }
 
     suspend fun sendAvailability(

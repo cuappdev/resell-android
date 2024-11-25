@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.Text
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.SavedStateHandle
@@ -25,6 +26,8 @@ import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonCon
 import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
 import com.cornellappdev.resell.android.ui.theme.Style
 import com.cornellappdev.resell.android.util.UIEvent
+import com.cornellappdev.resell.android.util.loadBitmapFromUri
+import com.cornellappdev.resell.android.util.toNetworkingString
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
 import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepository
 import com.cornellappdev.resell.android.viewmodel.root.RootConfirmationRepository
@@ -316,6 +319,41 @@ class ChatViewModel @Inject constructor(
                     exitButton = true
                 )
             )
+        }
+    }
+
+    fun onImageSelected(uri: Uri) {
+        viewModelScope.launch {
+            val bitmap = loadBitmapFromUri(context, uri)?.asImageBitmap()
+            if (bitmap != null) {
+                viewModelScope.launch {
+                    val myInfo = userInfoRepository.getUserInfo()
+                    val listing = stateValue().listing!!
+                    val navArgs = savedStateHandle.toRoute<ResellRootRoute.CHAT>()
+                    try {
+                        chatRepository.sendImageMessage(
+                            myEmail = myInfo.email,
+                            otherEmail = navArgs.email,
+                            selfIsBuyer = navArgs.isBuyer,
+                            postId = listing.id,
+                            myName = myInfo.name,
+                            otherName = navArgs.name,
+                            myImageUrl = myInfo.imageUrl,
+                            otherImageUrl = navArgs.pfp,
+                            imageBase64 = bitmap.toNetworkingString()
+                        )
+                    } catch (e: Exception) {
+                        Log.e("ChatViewModel", "Error sending message: ", e)
+                        rootConfirmationRepository.showError(
+                            "Something went wrong while sending your image."
+                        )
+                    }
+                }
+            } else {
+                rootConfirmationRepository.showError(
+                    "Could not load image. Please try again."
+                )
+            }
         }
     }
 
