@@ -1,6 +1,7 @@
 package com.cornellappdev.resell.android.model.chats
 
 import com.cornellappdev.resell.android.model.api.Post
+import com.google.firebase.Timestamp
 
 data class BuyerSellerData(
     val item: Post,

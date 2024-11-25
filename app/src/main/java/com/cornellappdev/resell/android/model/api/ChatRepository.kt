@@ -13,6 +13,8 @@ import com.cornellappdev.resell.android.model.core.UserInfoRepository
 import com.cornellappdev.resell.android.model.login.FireStoreRepository
 import com.cornellappdev.resell.android.model.login.GoogleAuthRepository
 import com.cornellappdev.resell.android.model.posts.ResellPostRepository
+import com.cornellappdev.resell.android.util.toIsoString
+import com.google.firebase.Timestamp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -113,7 +115,7 @@ class ChatRepository @Inject constructor(
                     ChatMessageData(
                         id = document._id,
                         content = document.text,
-                        timestampString = document.createdAt,
+                        timestampString = document.createdAt.toString(),
                         messageType = messageType
                     ), document.user._id
                 )
@@ -187,7 +189,7 @@ class ChatRepository @Inject constructor(
         val sellerImageUrl = if (selfIsBuyer) otherImageUrl else myImageUrl
         val buyerImageUrl = if (selfIsBuyer) myImageUrl else otherImageUrl
 
-        val time = getFormattedTime()
+        val time = Timestamp.now()
 
         val userDocument = UserDocument(
             _id = myEmail,
@@ -225,7 +227,7 @@ class ChatRepository @Inject constructor(
             viewed = selfIsBuyer,
             name = sellerName,
             image = sellerImageUrl,
-            recentMessageTime = time,
+            recentMessageTime = time.toIsoString(),
             recentSender = myName,
             confirmedTime = "",
             confirmedViewed = false,
@@ -238,7 +240,7 @@ class ChatRepository @Inject constructor(
             viewed = !selfIsBuyer,
             name = buyerName,
             image = buyerImageUrl,
-            recentMessageTime = time,
+            recentMessageTime = time.toIsoString(),
             recentSender = myName,
             confirmedTime = "",
             confirmedViewed = false,

@@ -5,7 +5,9 @@ import com.cornellappdev.resell.android.model.api.Post
 import com.cornellappdev.resell.android.model.api.User
 import com.cornellappdev.resell.android.model.chats.BuyerSellerData
 import com.cornellappdev.resell.android.model.chats.ChatDocument
+import com.cornellappdev.resell.android.model.chats.ChatDocumentAny
 import com.cornellappdev.resell.android.model.chats.UserDocument
+import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
@@ -249,7 +251,7 @@ class FireStoreRepository @Inject constructor(
 
                 val chatDoc = ChatDocument(
                     _id = it.get("_id")?.toString() ?: "",
-                    createdAt = it.get("createdAt")?.toString() ?: "",
+                    createdAt = it.getTimestamp("createdAt") ?: Timestamp(0, 0),
                     user = userDoc,
                     availability = null,
                     product = null,
@@ -269,12 +271,23 @@ class FireStoreRepository @Inject constructor(
         sellerEmail: String,
         chatDocument: ChatDocument,
     ) {
+        // Make into an empty object if applicable instead of null cuz react native crashes
+        val anyable = ChatDocumentAny(
+            _id = chatDocument._id,
+            createdAt = chatDocument.createdAt,
+            user = chatDocument.user,
+            availability = chatDocument.availability ?: mapOf<String, Any>(),
+            product = chatDocument.product ?: mapOf<String, Any>(),
+            image = chatDocument.image,
+            text = chatDocument.text
+        )
+
         // Reference to the desired collection
         val chatRef = fireStore.collection("chats")
             .document(buyerEmail)
             .collection(sellerEmail)
 
-        chatRef.add(chatDocument).await()
+        chatRef.add(anyable).await()
     }
 
     /**
