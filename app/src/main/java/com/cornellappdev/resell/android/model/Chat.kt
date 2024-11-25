@@ -18,11 +18,15 @@ enum class MeetingProposalState {
     UserProposal, OtherProposal, UserDecline, OtherDecline
 }
 
+/**
+ * @param imageUrl Only used if [messageType] is [MessageType.Image].
+ */
 data class ChatMessageData(
     private val timestampString: String,
     val id: String,
     val content: String,
-    val messageType: MessageType
+    val messageType: MessageType,
+    val imageUrl: String = "",
 )
 
 data class ChatMessageCluster(

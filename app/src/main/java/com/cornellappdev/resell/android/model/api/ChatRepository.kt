@@ -116,7 +116,8 @@ class ChatRepository @Inject constructor(
                         id = document._id,
                         content = document.text,
                         timestampString = document.createdAt.toString(),
-                        messageType = messageType
+                        messageType = messageType,
+                        imageUrl = document.image
                     ), document.user._id
                 )
             }

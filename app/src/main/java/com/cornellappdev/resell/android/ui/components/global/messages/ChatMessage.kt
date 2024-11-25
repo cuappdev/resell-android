@@ -25,6 +25,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -51,7 +52,7 @@ fun ChatMessage(
             messages.forEachIndexed { i, it ->
                 when (it.messageType) {
                     MessageType.Image -> {
-                        messageSender(imageUrl, { MessageImage(it.content) }, messages.size - i - 1)
+                        messageSender(imageUrl, { MessageImage(it.imageUrl) }, messages.size - i - 1)
                     }
 
                     MessageType.Card -> {
@@ -140,13 +141,16 @@ fun MessageChat(text: String, color: Color?) {
 
 @Composable
 fun MessageImage(imageUrl: String?) {
+    // Screen Width
+    val width = LocalConfiguration.current.screenWidthDp.dp
+
     AsyncImage(
         model = imageUrl,
         contentDescription = null,
         modifier = Modifier
             .heightIn(220.dp)
-            .aspectRatio(1f)
-            .clip(RoundedCornerShape(16.dp)),
+            .clip(RoundedCornerShape(16.dp))
+            .widthIn(max = width / 2f),
         placeholder = painterResource(id = R.drawable.ic_launcher_background),
         contentScale = ContentScale.Crop
     )
