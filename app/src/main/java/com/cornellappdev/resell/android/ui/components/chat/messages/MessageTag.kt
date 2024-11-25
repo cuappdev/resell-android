@@ -1,4 +1,4 @@
-package com.cornellappdev.resell.android.ui.components.global.messages
+package com.cornellappdev.resell.android.ui.components.chat.messages
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween

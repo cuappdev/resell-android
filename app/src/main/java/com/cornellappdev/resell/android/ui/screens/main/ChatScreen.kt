@@ -48,8 +48,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.model.Chat
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
-import com.cornellappdev.resell.android.ui.components.global.messages.ChatTag
-import com.cornellappdev.resell.android.ui.components.global.messages.ResellChatScroll
+import com.cornellappdev.resell.android.ui.components.chat.ChatTag
+import com.cornellappdev.resell.android.ui.components.chat.ResellChatScroll
 import com.cornellappdev.resell.android.ui.theme.ResellPurple
 import com.cornellappdev.resell.android.ui.theme.Secondary
 import com.cornellappdev.resell.android.ui.theme.Style

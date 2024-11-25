@@ -1,4 +1,4 @@
-package com.cornellappdev.resell.android.ui.components.global.messages
+package com.cornellappdev.resell.android.ui.components.chat.messages
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.lazy.LazyColumn
