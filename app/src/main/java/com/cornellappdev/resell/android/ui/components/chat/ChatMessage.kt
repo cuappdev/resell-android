@@ -12,7 +12,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -49,9 +48,10 @@ fun ChatMessage(
                         messageSender(
                             imageUrl,
                             {
-                                MessageChat(
-                                    it.content,
-                                    if (imageUrl == null) Color.White else null
+                                ChatChat(
+                                    text = it.content,
+                                    self = imageUrl == null,
+                                    timestamp = it.timestampString
                                 )
                             },
                             messages.size - i - 1
@@ -66,7 +66,11 @@ fun ChatMessage(
                     }
 
                     MessageType.State -> {
-                        MessageMeetingState(it.content, true, false)
+                        MessageMeetingState(
+                            text = it.content,
+                            denied = false,
+                            actionText = null,
+                        )
                     }
                 }
                 if (i != messages.size - 1) Spacer(modifier = Modifier.height(10.dp))

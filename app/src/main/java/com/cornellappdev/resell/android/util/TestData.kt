@@ -6,6 +6,7 @@ import com.cornellappdev.resell.android.model.ChatMessageData
 import com.cornellappdev.resell.android.model.MessageType
 import com.cornellappdev.resell.android.model.classes.Listing
 import com.cornellappdev.resell.android.model.classes.UserInfo
+import com.google.firebase.Timestamp
 
 val richieListings = { count: Int ->
     List(count) {
@@ -83,13 +84,15 @@ val richieMessages = { count: Int ->
         messages = List(count) {
             if (it == 1) {
                 ChatMessageData(
-                    "",
+                    timestamp = Timestamp(0, 0),
                     "https://media.licdn.com/dms/image/D4E03AQGOCNNbxGtcjw/profile-displayphoto-shrink_200_200/0/1704329714345?e=2147483647&v=beta&t=Kq7ex1pKyiifjOpuNIojeZ8f4dXjEAsNSpkJDXBwjxc",
                     "deajdaejk",
                     MessageType.Card
                 )
             } else {
-                ChatMessageData("", "HELP", "feajkdna", MessageType.Message)
+                ChatMessageData(
+                    timestamp = Timestamp(0, 0), "HELP", "feajkdna", MessageType.Message
+                )
             }
         }
     )
@@ -103,20 +106,20 @@ val justinMessages = { count: Int ->
         messages = List(count) {
             if (it == 1) {
                 ChatMessageData(
-                    "",
+                    timestamp = Timestamp(0, 0),
                     "Lia",
                     "feaojfea",
                     MessageType.Availability
                 )
             } else if (it == 2) {
                 ChatMessageData(
-                    "",
+                    timestamp = Timestamp(0, 0),
                     "Lia",
                     "00efa",
                     MessageType.State
                 )
             } else {
-                ChatMessageData("", "HELP", "FEADea", MessageType.Message)
+                ChatMessageData(timestamp = Timestamp(0, 0), "HELP", "FEADea", MessageType.Message)
             }
         }
     )

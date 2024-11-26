@@ -56,6 +56,7 @@ fun MessageImage(
                                     LocalInfiniteLoading.current
                                 )
                             )
+                            .clip(RoundedCornerShape(16.dp))
                             .fillMaxWidth()
                     )
                 }
@@ -65,6 +66,7 @@ fun MessageImage(
                         modifier = Modifier
                             .height(175.dp)
                             .background(Secondary)
+                            .clip(RoundedCornerShape(16.dp))
                             .fillMaxWidth()
                     )
                 }

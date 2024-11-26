@@ -2,6 +2,7 @@ package com.cornellappdev.resell.android.model
 
 import com.cornellappdev.resell.android.util.justinMessages
 import com.cornellappdev.resell.android.util.richieMessages
+import com.google.firebase.Timestamp
 
 /**
  * All the data needed to one chat conversation between two parties.
@@ -22,12 +23,22 @@ enum class MeetingProposalState {
  * @param imageUrl Only used if [messageType] is [MessageType.Image].
  */
 data class ChatMessageData(
-    private val timestampString: String,
+    val timestamp: Timestamp,
     val id: String,
     val content: String,
     val messageType: MessageType,
     val imageUrl: String = "",
-)
+) {
+    /**
+     * Timestamp in the form "(X)X:XX AM/PM"
+     */
+    val timestampString: String
+        get() {
+            val date = timestamp.toDate()
+            val formatter = java.text.SimpleDateFormat("h:mm a", java.util.Locale.US)
+            return formatter.format(date)
+        }
+}
 
 data class ChatMessageCluster(
     val senderId: String,

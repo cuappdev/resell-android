@@ -124,6 +124,9 @@ dependencies {
     kapt(libs.hilt.android.compiler)
     implementation(libs.coil.compose)
     implementation(libs.androidx.activity.ktx)
+    implementation(libs.ui)
+    implementation(libs.ui.tooling.preview)
+    implementation(libs.ui.tooling)
 
     implementation(libs.kotlinx.coroutines.core)
 
@@ -144,8 +147,8 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
-    debugImplementation(libs.androidx.ui.tooling)
-    debugImplementation(libs.androidx.ui.test.manifest)
+    implementation(libs.androidx.ui.tooling)
+    implementation(libs.androidx.ui.test.manifest)
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
     implementation(libs.kotlinx.coroutines.android)

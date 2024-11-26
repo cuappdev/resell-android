@@ -130,7 +130,7 @@ private fun ChatLoadedContent(
         ChatHeader(
             chat = chat,
             onBackPressed = { onBackPressed() },
-            confirmedMeeting = true,
+            confirmedMeeting = false,
             sellerName = chatUiState.sellerName,
             title = chatUiState.title
         )

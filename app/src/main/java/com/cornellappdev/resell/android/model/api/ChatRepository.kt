@@ -15,6 +15,7 @@ import com.cornellappdev.resell.android.model.core.UserInfoRepository
 import com.cornellappdev.resell.android.model.login.FireStoreRepository
 import com.cornellappdev.resell.android.model.login.GoogleAuthRepository
 import com.cornellappdev.resell.android.model.posts.ResellPostRepository
+import com.cornellappdev.resell.android.util.toDateString
 import com.cornellappdev.resell.android.util.toIsoString
 import com.google.firebase.Timestamp
 import kotlinx.coroutines.CoroutineScope
@@ -117,7 +118,7 @@ class ChatRepository @Inject constructor(
                     ChatMessageData(
                         id = document._id,
                         content = document.text,
-                        timestampString = document.createdAt.toString(),
+                        timestamp = document.createdAt,
                         messageType = messageType,
                         imageUrl = document.image
                     ), document.user._id
@@ -160,9 +161,39 @@ class ChatRepository @Inject constructor(
                 )
             }
 
+            // Step 2a: Insert "MONTH DAY, YEAR" states whenever a new day starts.
+            //  A new day can start within a cluster, keep in mind.
+            var lastTimestamp = Timestamp(0, 0)
+
+            val dateStateClusters = messageClusters.map { cluster ->
+                var newCluster = cluster.copy()
+                val newMessages = cluster.messages.toMutableList()
+                cluster.messages.forEach { messageData ->
+                    if (lastTimestamp.toDate().day != messageData.timestamp.toDate().day
+                        || lastTimestamp.toDate().month != messageData.timestamp.toDate().month
+                        || lastTimestamp.toDate().year != messageData.timestamp.toDate().year
+                    ) {
+                        newMessages.add(
+                            newMessages.indexOf(messageData),
+                            ChatMessageData(
+                                id = "",
+                                content = messageData.timestamp.toDateString(),
+                                timestamp = messageData.timestamp,
+                                messageType = MessageType.State,
+                            )
+                        )
+                        newCluster = newCluster.copy(messages = newMessages.toImmutableList())
+                    }
+                    lastTimestamp = messageData.timestamp
+                }
+
+                newCluster
+            }
+
+
             // Step 3: Return the final Chat object.
             val chat = Chat(
-                chatHistory = messageClusters
+                chatHistory = dateStateClusters
             )
 
             _subscribedChatFlow.value = ResellApiResponse.Success(chat)

@@ -24,3 +24,13 @@ fun Timestamp.toIsoString(): String {
 
     return isoFormat.format(date)
 }
+
+/**
+ * Returns the MONTH DAY, YEAR format.
+ */
+fun Timestamp.toDateString(): String {
+    val date = this.toDate()
+    val dateFormat = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
+    dateFormat.timeZone = TimeZone.getTimeZone("UTC") // Ensure the output is in UTC
+    return dateFormat.format(date)
+}

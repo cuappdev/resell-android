@@ -14,72 +14,56 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.ui.theme.ResellPurple
 import com.cornellappdev.resell.android.ui.theme.Style
+import com.cornellappdev.resell.android.util.clickableNoIndication
 
 @Composable
-fun MessageMeetingState(sender: String, denied: Boolean, propsal: Boolean) {
+fun MessageMeetingState(
+    text: String,
+    denied: Boolean,
+    actionText: String?,
+    onActionTextClicked: () -> Unit = {},
+    icon: Painter? = null,
+    modifier: Modifier = Modifier
+) {
     Column(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier
+        modifier = modifier
             .alpha(if (denied) 0.5f else 1f)
             .fillMaxWidth()
     ) {
-        Spacer(modifier = Modifier.height(32.dp))
-        when (propsal) {
-            true -> {
-                Row {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_slash),
-                        contentDescription = "calendar",
-                        modifier = Modifier
-                            .size(16.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = "Lia has cancelled the meeting",
-                        style = Style.body2.copy(fontSize = 14.sp),
-                    )
-                }
-                Spacer(modifier = Modifier.height(8.dp))
-                Row {
-                    Text(
-                        text = "Send Another Proposal",
-                        style = Style.title3.copy(color = ResellPurple)
-                    )
-                }
-                Spacer(modifier = Modifier.height(32.dp))
+        Spacer(modifier = Modifier.height(8.dp))
+        Row {
+            if (icon != null) {
+                Icon(
+                    painter = icon,
+                    contentDescription = "chat state icon",
+                    modifier = Modifier
+                        .size(16.dp)
+                )
             }
-
-            false -> {
-                Row {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_calendar),
-                        contentDescription = "calendar",
-                        modifier = Modifier
-                            .size(17.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = "Lia has confirmed the meeting",
-                        style = Style.body2.copy(fontSize = 14.sp),
-                    )
-                }
-                Spacer(modifier = Modifier.height(8.dp))
-                Row {
-                    Text(
-                        text = "View Details",
-                        style = Style.title3.copy(color = ResellPurple)
-                    )
-                }
-                Spacer(modifier = Modifier.height(32.dp))
-            }
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = text,
+                style = Style.body2.copy(fontSize = 14.sp),
+            )
         }
 
+        if (actionText != null) {
+            Spacer(modifier = Modifier.height(8.dp))
+            Row {
+                Text(
+                    text = actionText,
+                    style = Style.title3.copy(color = ResellPurple),
+                    modifier = Modifier.clickableNoIndication { onActionTextClicked() }
+                )
+            }
+        }
+        Spacer(modifier = Modifier.height(8.dp))
     }
 }
