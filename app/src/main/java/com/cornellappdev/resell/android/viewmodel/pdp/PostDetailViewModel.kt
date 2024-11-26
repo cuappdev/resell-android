@@ -251,33 +251,50 @@ class PostDetailViewModel @Inject constructor(
         val uid = stateValue().uid
         val id = stateValue().postId
 
-        applyMutation {
-            copy(
-                contactButtonState = ResellTextButtonState.SPINNING
-            )
+        viewModelScope.launch {
+            try {
+                val userInfo = profileRepository.getUserById(uid).user.toUserInfo()
+                applyMutation {
+                    copy(
+                        contactButtonState = ResellTextButtonState.SPINNING
+                    )
+                }
+                contactSeller(
+                    id = id,
+                    onSuccess = {
+                        applyMutation {
+                            copy(
+                                contactButtonState = ResellTextButtonState.ENABLED
+                            )
+                        }
+                    },
+                    onError = {
+                        applyMutation {
+                            copy(
+                                contactButtonState = ResellTextButtonState.ENABLED
+                            )
+                        }
+                    },
+                    profileRepository = profileRepository,
+                    postsRepository = postsRepository,
+                    rootConfirmationRepository = rootConfirmationRepository,
+                    rootNavigationRepository = rootNavigationRepository,
+                    isBuyer = true,
+                    email = userInfo.email,
+                    pfp = userInfo.imageUrl,
+                    name = userInfo.name
+                )
+
+            } catch (e: Exception) {
+                Log.e("PostDetailViewModel", "Error fetching user info: ", e)
+                applyMutation {
+                    copy(
+                        contactButtonState = ResellTextButtonState.ENABLED
+                    )
+                }
+                rootConfirmationRepository.showError()
+            }
         }
-        contactSeller(
-            uid = uid,
-            id = id,
-            onSuccess = {
-                applyMutation {
-                    copy(
-                        contactButtonState = ResellTextButtonState.ENABLED
-                    )
-                }
-            },
-            onError = {
-                applyMutation {
-                    copy(
-                        contactButtonState = ResellTextButtonState.ENABLED
-                    )
-                }
-            },
-            profileRepository = profileRepository,
-            postsRepository = postsRepository,
-            rootConfirmationRepository = rootConfirmationRepository,
-            rootNavigationRepository = rootNavigationRepository
-        )
     }
 
     fun onBookmarkClick() {

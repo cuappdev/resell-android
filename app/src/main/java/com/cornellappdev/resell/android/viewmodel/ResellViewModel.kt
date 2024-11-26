@@ -148,9 +148,11 @@ abstract class ResellViewModel<UiState>(initialUiState: UiState) : ViewModel() {
     }
 
     /**
-     * Loads the user data of the seller and the indicated post's information, and navigates to the chat screen.
+     * Loads the user data of the other person and the indicated post's information, and navigates to the chat screen.
      *
-     * @param uid The uid of the seller.
+     * @param name The name of the OTHER user.
+     * @param email The email of the OTHER user.
+     * @param pfp The profile picture of the OTHER user.
      * @param id The id of the post.
      */
     protected fun contactSeller(
@@ -160,12 +162,14 @@ abstract class ResellViewModel<UiState>(initialUiState: UiState) : ViewModel() {
         postsRepository: ResellPostRepository,
         rootNavigationRepository: RootNavigationRepository,
         rootConfirmationRepository: RootConfirmationRepository,
-        uid: String,
-        id: String
+        name: String,
+        email: String,
+        pfp: String,
+        id: String,
+        isBuyer: Boolean
     ) {
         viewModelScope.launch {
             try {
-                val userInfo = profileRepository.getUserById(uid).user.toUserInfo()
                 val post = postsRepository.allPostsFlow.first().asSuccess().let {
                     it.data.first {
                         it.id == id
@@ -173,10 +177,10 @@ abstract class ResellViewModel<UiState>(initialUiState: UiState) : ViewModel() {
                 }.toListing()
                 rootNavigationRepository.navigate(
                     ResellRootRoute.CHAT(
-                        isBuyer = true,
-                        name = userInfo.name,
-                        pfp = userInfo.imageUrl,
-                        email = userInfo.email,
+                        isBuyer = isBuyer,
+                        name = name,
+                        pfp = pfp,
+                        email = email,
                         postJson = Json.encodeToString(post),
                     )
                 )

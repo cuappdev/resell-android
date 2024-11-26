@@ -87,7 +87,8 @@ class ChatRepository @Inject constructor(
         }
     }
 
-    fun subscribeToChat(myEmail: String, otherEmail: String, myId: String, selfIsBuyer: Boolean) {
+    fun subscribeToChat(myEmail: String, otherEmail: String, selfIsBuyer: Boolean) {
+        Log.d("helpme", "subscribeToChat: $myEmail, $otherEmail, $selfIsBuyer")
         fireStoreRepository.subscribeToChat(
             sellerEmail = if (selfIsBuyer) otherEmail else myEmail,
             buyerEmail = if (selfIsBuyer) myEmail else otherEmail
@@ -110,7 +111,7 @@ class ChatRepository @Inject constructor(
                         MessageType.Message
                     }
 
-                if (document.user._id != myId) {
+                if (document.user._id != myEmail) {
                     otherPfp = document.user.avatar
                 }
 
@@ -124,6 +125,8 @@ class ChatRepository @Inject constructor(
                     ), document.user._id
                 )
             }
+
+            Log.d("helpme", "messageData: $messageData")
 
             // Step 2: Cluster by sender.
             val messageClusters = mutableListOf<ChatMessageCluster>()

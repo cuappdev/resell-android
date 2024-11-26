@@ -64,7 +64,6 @@ class MessagesViewModel @Inject constructor(
 
     fun onMessagePressed(historyEntry: BuyerSellerData) {
         val id = historyEntry.item.toListing().id
-        val uid = historyEntry.item.toListing().user.id
 
         contactSeller(
             onSuccess = {},
@@ -73,8 +72,11 @@ class MessagesViewModel @Inject constructor(
             postsRepository = postsRepository,
             rootConfirmationRepository = rootConfirmationRepository,
             rootNavigationRepository = rootNavigationRepository,
-            uid = uid,
-            id = id
+            id = id,
+            isBuyer = stateValue().chatType == ChatType.Purchases,
+            name = historyEntry.name,
+            email = historyEntry.email ?: "",
+            pfp = historyEntry.image
         )
     }
 

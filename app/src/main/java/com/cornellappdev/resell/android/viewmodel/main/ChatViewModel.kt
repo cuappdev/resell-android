@@ -383,8 +383,7 @@ class ChatViewModel @Inject constructor(
             val myId = userInfoRepository.getUserId()!!
 
             chatRepository.subscribeToChat(
-                myEmail, theirEmail, myId,
-                selfIsBuyer = navArgs.isBuyer,
+                myEmail, theirEmail, selfIsBuyer = navArgs.isBuyer,
             )
         }
 

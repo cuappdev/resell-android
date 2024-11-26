@@ -209,6 +209,7 @@ class FireStoreRepository @Inject constructor(
             viewed = viewed,
             item = post,
             confirmedViewed = viewed,
+            email = it.id
         )
     }
 
