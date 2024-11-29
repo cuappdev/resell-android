@@ -44,6 +44,7 @@ fun MessageCard(
     imageUrl: String,
     seller: String,
     title: String,
+    relativeTimestamp: String,
     message: String,
     unread: Boolean,
     modifier: Modifier = Modifier,
@@ -132,13 +133,27 @@ fun MessageCard(
                 }
             }
             Spacer(modifier = Modifier.height(1.dp))
-            Text(
-                style = Style.title4,
-                text = message,
-                color = Color.Gray,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    style = Style.title4,
+                    text = message,
+                    color = Color.Gray,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f, fill = false)
+                )
+
+                Text(
+                    style = Style.title4,
+                    text = " · $relativeTimestamp",
+                    color = Color.Gray,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+
         }
 
         Icon(
@@ -161,7 +176,8 @@ fun MessageCardPreview() = ResellPreview {
         title = "Title",
         message = "Message",
         unread = true,
-        onClick = {}
+        onClick = {},
+        relativeTimestamp = "7 damn years ago boy"
     )
 
     MessageCard(
@@ -170,7 +186,8 @@ fun MessageCardPreview() = ResellPreview {
         title = "Title",
         message = "Message",
         unread = true,
-        onClick = {}
+        onClick = {},
+        relativeTimestamp = "7 damn years ago boy"
     )
 
     MessageCard(
@@ -179,7 +196,8 @@ fun MessageCardPreview() = ResellPreview {
         title = "This item has a long ass title",
         message = "Message",
         unread = true,
-        onClick = {}
+        onClick = {},
+        relativeTimestamp = "7 damn years ago boy"
     )
 
     MessageCard(
@@ -188,6 +206,7 @@ fun MessageCardPreview() = ResellPreview {
         title = "This item has a long ass title",
         message = "Long ass mf message boyyyyy yaaaaa hell yeah",
         unread = true,
-        onClick = {}
+        onClick = {},
+        relativeTimestamp = "7 damn years ago boy"
     )
 }

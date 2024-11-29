@@ -10,6 +10,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.cornellappdev.resell.android.model.Chat
 import com.cornellappdev.resell.android.model.chats.BuyerSellerData
+import com.cornellappdev.resell.android.util.getRelativeTimeSpan
 
 
 @Composable
@@ -35,6 +36,7 @@ fun ResellMessagesScroll(
                 title = item.item.toListing().title,
                 message = item.recentMessage,
                 unread = !item.viewed,
+                relativeTimestamp = getRelativeTimeSpan(item.recentMessageTime)
             ) {
                 onChatPressed(item)
             }

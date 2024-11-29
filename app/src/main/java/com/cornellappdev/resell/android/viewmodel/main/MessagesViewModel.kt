@@ -6,6 +6,7 @@ import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.model.classes.ResellApiState
 import com.cornellappdev.resell.android.model.posts.ResellPostRepository
 import com.cornellappdev.resell.android.model.profile.ProfileRepository
+import com.cornellappdev.resell.android.util.parseIsoDateToDate
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
 import com.cornellappdev.resell.android.viewmodel.main.ChatViewModel.ChatType
 import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepository
@@ -44,6 +45,8 @@ class MessagesViewModel @Inject constructor(
             } else {
                 emptyList()
             }
+        }.sortedByDescending {
+            parseIsoDateToDate(it.recentMessageTime)
         }
 
         val loadedState: ResellApiState =
