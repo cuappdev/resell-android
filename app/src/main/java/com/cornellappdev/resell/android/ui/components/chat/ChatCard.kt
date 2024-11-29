@@ -6,12 +6,18 @@ import androidx.compose.ui.Modifier
 import com.cornellappdev.resell.android.ui.components.global.ResellCard
 
 @Composable
-fun ChatCard(imageUrl: String?) {
+fun ChatCard(
+    imageUrl: String?,
+    title: String,
+    price: String,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
+) {
     ResellCard(
         imageUrl = imageUrl ?: "",
-        title = "Richie",
-        price = "$10.00",
-        modifier = Modifier.padding(),
-        onClick = {}
+        title = title,
+        price = price,
+        modifier = modifier.padding(),
+        onClick = onClick
     )
 }

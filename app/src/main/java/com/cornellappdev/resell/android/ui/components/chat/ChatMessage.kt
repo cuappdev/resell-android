@@ -19,12 +19,14 @@ import coil.compose.AsyncImage
 import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.model.ChatMessageData
 import com.cornellappdev.resell.android.model.MessageType
+import com.cornellappdev.resell.android.model.api.Post
 
 @Composable
 fun ChatMessage(
     imageUrl: String? = null,
     messageSender: @Composable (String?, @Composable () -> Unit, Int?) -> Unit,
     messages: List<ChatMessageData>,
+    onPostClicked: (Post) -> Unit,
 ) {
     Row(
         modifier = Modifier.fillMaxWidth()
@@ -41,7 +43,19 @@ fun ChatMessage(
                     }
 
                     MessageType.Card -> {
-                        messageSender(imageUrl, { ChatCard(it.content) }, messages.size - i - 1)
+                        if (it.post != null) {
+                            messageSender(imageUrl, {
+                                ChatCard(
+                                    imageUrl = it.post.images.getOrNull(0) ?: "",
+                                    title = it.post.title,
+                                    price = it.post.toListing().price,
+                                    modifier = Modifier.width(200.dp),
+                                    onClick = {
+                                        onPostClicked(it.post)
+                                    }
+                                )
+                            }, messages.size - i - 1)
+                        }
                     }
 
                     MessageType.Message ->

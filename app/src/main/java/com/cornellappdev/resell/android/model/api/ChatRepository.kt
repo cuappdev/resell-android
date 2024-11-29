@@ -121,7 +121,8 @@ class ChatRepository @Inject constructor(
                         content = document.text,
                         timestamp = document.createdAt,
                         messageType = messageType,
-                        imageUrl = document.image
+                        imageUrl = document.image,
+                        post = document.product
                     ), document.user._id
                 )
             }
@@ -246,16 +247,27 @@ class ChatRepository @Inject constructor(
             product = null
         )
 
-        fireStoreRepository.sendTextMessage(
-            buyerEmail = buyerEmail,
-            sellerEmail = sellerEmail,
-            chatDocument = chatDocument
-        )
-
         val item = (postRepository.allPostsFlow.value.asSuccessOrNull()?.data?.firstOrNull {
             it.id == postId
         } ?: postRepository.getPostById(postId)).copy(
             id = postId,
+        )
+
+        // Before sending, if it's the first message in the chat, send a product message.
+        val response = subscribedChatFlow.value
+        if (response is ResellApiResponse.Success && response.data.chatHistory.isEmpty()) {
+            fireStoreRepository.sendProductMessage(
+                buyerEmail = buyerEmail,
+                sellerEmail = sellerEmail,
+                otherDocument = chatDocument,
+                post = item
+            )
+        }
+
+        fireStoreRepository.sendTextMessage(
+            buyerEmail = buyerEmail,
+            sellerEmail = sellerEmail,
+            chatDocument = chatDocument
         )
 
         val recentMessage = when {

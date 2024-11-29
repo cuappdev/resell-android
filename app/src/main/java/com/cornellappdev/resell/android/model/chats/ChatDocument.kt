@@ -1,5 +1,6 @@
 package com.cornellappdev.resell.android.model.chats
 
+import com.cornellappdev.resell.android.model.api.Post
 import com.google.firebase.Timestamp
 import com.google.gson.annotations.SerializedName
 
@@ -10,7 +11,7 @@ data class ChatDocument(
     val text: String,
     val user: UserDocument,
     val availability: AvailabilityDocument?,
-    val product: ProductDocument?
+    val product: Post?
 )
 
 /**

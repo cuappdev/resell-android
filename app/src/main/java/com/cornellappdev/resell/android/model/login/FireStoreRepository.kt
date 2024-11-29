@@ -194,7 +194,7 @@ class FireStoreRepository @Inject constructor(
             archive = (raw["archive"] ?: "").toBoolean(),
             location = raw["location"] ?: "",
             created = raw["created"] ?: "",
-            altered = raw["altered_price"] ?: "",
+            altered_price = raw["altered_price"] ?: "",
             images = parseToList(raw["images"] ?: ""),
             categories = parseToList(raw["categories"] ?: ""),
         )
@@ -242,6 +242,9 @@ class FireStoreRepository @Inject constructor(
                 val userMap =
                     (it.get("user") as Map<String, Any>).mapValues { it?.value?.toString() }
 
+                val productMap =
+                    (it.get("product") as Map<String, Any>).mapValues { it?.value?.toString() }
+
                 val userDoc = UserDocument(
                     _id = userMap["_id"] ?: "",
                     avatar = userMap["avatar"] ?: "",
@@ -249,13 +252,31 @@ class FireStoreRepository @Inject constructor(
                 )
 
                 // TODO Availability and Product Documents
+                Log.d("helpme", productMap["images"].toString())
+                val post = productMap["id"]?.let { _ ->
+                    Post(
+                        id = productMap["id"] ?: "",
+                        title = productMap["title"] ?: "",
+                        description = productMap["description"] ?: "",
+                        price = (productMap["price"] ?: "0.0").toDouble(),
+                        user = null,
+                        archive = (productMap["archive"] ?: "").toBoolean(),
+                        location = productMap["location"] ?: "",
+                        created = productMap["created"] ?: "",
+                        altered_price = productMap["altered_price"] ?: "",
+                        images = (it.get("product") as Map<String, Any>).get("images") as? List<String>
+                            ?: listOf(),
+                        categories = (it.get("product") as Map<String, Any>).get("categories") as? List<String>
+                            ?: listOf(),
+                    )
+                }
 
                 val chatDoc = ChatDocument(
                     _id = it.get("_id")?.toString() ?: "",
                     createdAt = it.getTimestamp("createdAt") ?: Timestamp(0, 0),
                     user = userDoc,
                     availability = null,
-                    product = null,
+                    product = post,
                     image = it.get("image")?.toString() ?: "",
                     text = it.get("text")?.toString() ?: "",
                 )
@@ -284,6 +305,39 @@ class FireStoreRepository @Inject constructor(
         )
 
         // Reference to the desired collection
+        val chatRef = fireStore.collection("chats")
+            .document(buyerEmail)
+            .collection(sellerEmail)
+
+        chatRef.add(anyable).await()
+    }
+
+    suspend fun sendProductMessage(
+        buyerEmail: String,
+        sellerEmail: String,
+        otherDocument: ChatDocument,
+        post: Post
+    ) {
+        val currentTimeMillis = System.currentTimeMillis()
+        val chatDocument = otherDocument.copy(
+            _id = currentTimeMillis.toString(),
+            createdAt = Timestamp.now(),
+            image = "",
+            text = "",
+            availability = null,
+            product = post
+        )
+
+        val anyable = ChatDocumentAny(
+            _id = chatDocument._id,
+            createdAt = chatDocument.createdAt,
+            user = chatDocument.user,
+            availability = chatDocument.availability ?: mapOf<String, Any>(),
+            product = chatDocument.product ?: mapOf<String, Any>(),
+            image = chatDocument.image,
+            text = chatDocument.text
+        )
+
         val chatRef = fireStore.collection("chats")
             .document(buyerEmail)
             .collection(sellerEmail)

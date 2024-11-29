@@ -17,6 +17,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.cornellappdev.resell.android.model.Chat
 import com.cornellappdev.resell.android.model.api.ChatRepository
+import com.cornellappdev.resell.android.model.api.Post
 import com.cornellappdev.resell.android.model.classes.Listing
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.model.core.UserInfoRepository
@@ -53,6 +54,7 @@ class ChatViewModel @Inject constructor(
     private val firebaseMessagingRepository: FirebaseMessagingRepository,
     private val fireStoreRepository: FireStoreRepository,
     private val rootDialogRepository: RootDialogRepository,
+    private val rootNavigationRepository: RootNavigationRepository,
     @ApplicationContext private val context: Context
 ) :
     ResellViewModel<ChatViewModel.MessagesUiState>(
@@ -242,6 +244,12 @@ class ChatViewModel @Inject constructor(
         }
     }
 
+    fun onPostClicked(post: Post) {
+        rootNavigationRepository.navigateToPdp(
+            post.toListing()
+        )
+    }
+
     fun onTyped(message: String) = applyMutation { copy(typedMessage = message) }
 
     fun onNegotiatePressed() {
@@ -387,7 +395,6 @@ class ChatViewModel @Inject constructor(
         viewModelScope.launch {
             val myEmail = userInfoRepository.getEmail()!!
             val theirEmail = navArgs.email
-            val myId = userInfoRepository.getUserId()!!
 
             chatRepository.subscribeToChat(
                 myEmail, theirEmail, selfIsBuyer = navArgs.isBuyer,

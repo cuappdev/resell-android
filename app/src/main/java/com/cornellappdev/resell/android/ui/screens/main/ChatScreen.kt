@@ -47,6 +47,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.model.Chat
+import com.cornellappdev.resell.android.model.api.Post
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.ui.components.chat.ChatTag
 import com.cornellappdev.resell.android.ui.components.chat.ResellChatScroll
@@ -101,7 +102,8 @@ fun ChatScreen(
                 showPayWithVenmo = chatUiState.showPayWithVenmo,
                 showNegotiate = chatUiState.showNegotiate,
                 onSendAvailability = chatViewModel::onSendAvailabilityPressed,
-                onImageUpload = chatViewModel::onImageSelected
+                onImageUpload = chatViewModel::onImageSelected,
+                onPostClicked = chatViewModel::onPostClicked
             )
         }
     }
@@ -121,7 +123,8 @@ private fun ChatLoadedContent(
     onSend: (String) -> Unit,
     onTextChange: (String) -> Unit,
     showPayWithVenmo: Boolean,
-    showNegotiate: Boolean
+    showNegotiate: Boolean,
+    onPostClicked: (Post) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -137,7 +140,8 @@ private fun ChatLoadedContent(
         ResellChatScroll(
             chatHistory = chat.chatHistory,
             listState = listState,
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(1f),
+            onPostClicked = onPostClicked
         )
         ChatFooter(
             chatType = chatUiState.chatType,

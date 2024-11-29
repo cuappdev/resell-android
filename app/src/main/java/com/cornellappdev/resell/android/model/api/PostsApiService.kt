@@ -85,14 +85,14 @@ data class Post(
     val archive: Boolean,
     private val created: String,  // Use Long for timestamps
     val price: Double,
-    @SerializedName("altered_price") val altered: String,
+    @SerializedName("altered_price") val altered_price: String,
     val images: List<String>,
     val location: String?,
     val user: User? // Reusing the User class from before
 ) {
 
     private val priceString
-        get() = String.format(Locale.US, "$%.2f", altered?.ifBlank { null }?.toDouble() ?: 0.0)
+        get() = String.format(Locale.US, "$%.2f", altered_price?.ifBlank { null }?.toDouble() ?: 0.0)
 
     val createdDate: Date
         get() = parseIsoDate(created)
