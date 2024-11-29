@@ -296,7 +296,7 @@ class FireStoreRepository @Inject constructor(
         // Make into an empty object if applicable instead of null cuz react native crashes
         val anyable = ChatDocumentAny(
             _id = chatDocument._id,
-            createdAt = chatDocument.createdAt,
+            createdAt = Timestamp.now(),
             user = chatDocument.user,
             availability = chatDocument.availability ?: mapOf<String, Any>(),
             product = chatDocument.product ?: mapOf<String, Any>(),
