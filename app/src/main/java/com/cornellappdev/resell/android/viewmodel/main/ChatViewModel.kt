@@ -71,7 +71,7 @@ class ChatViewModel @Inject constructor(
         val listing: Listing? = null
     ) {
         val showNegotiate
-            get() = chatType == ChatType.Purchases
+            get() = true
 
         val showPayWithVenmo
             get() = chatType == ChatType.Purchases
@@ -251,9 +251,16 @@ class ChatViewModel @Inject constructor(
                 title = "What price do you want to propose?",
                 defaultPrice = stateValue().listing!!.price.replace("$", ""),
                 callback = { price ->
-                    onTyped(
-                        message = "Hi! I'm interested in buying your ${stateValue().listing!!.title}, but would you be open to selling it for $$price?"
-                    )
+                    if (stateValue().chatType == ChatType.Purchases) {
+                        onTyped(
+                            message = "Hi! I'm interested in buying your ${stateValue().listing!!.title}, but would you be open to selling it for $$price?"
+                        )
+                    }
+                    else {
+                        onTyped(
+                            message = "The lowest I can accept for this item would be $$price."
+                        )
+                    }
                 }
             )
         )
