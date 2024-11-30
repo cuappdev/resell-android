@@ -283,7 +283,7 @@ class ChatViewModel @Inject constructor(
             sheet = RootSheet.Availability(
                 title = "When are you free to meet?",
                 buttonString = "Continue",
-                description = "Tap on a cell to add/remove availability",
+                description = "Drag across the grid to add/remove availability",
                 callback = ::availabilityCallback,
                 addAvailability = true
             )
@@ -402,14 +402,25 @@ class ChatViewModel @Inject constructor(
         }
     }
 
-    fun onAvailabilitySelected(availability: AvailabilityDocument) {
-        Log.d("helpme", availability.toString())
-        // TODO Correct messages, interaction state
+    fun onAvailabilitySelected(
+        availability: AvailabilityDocument,
+        isSelf: Boolean,
+    ) {
+        // TODO: Derive correctly
+        val canPropose = true
+
+        val navArgs = savedStateHandle.toRoute<ResellRootRoute.CHAT>()
         rootNavigationSheetRepository.showBottomSheet(
             sheet = RootSheet.Availability(
-                title = "When are you free to meet?",
-                buttonString = "Continue",
-                description = "Tap on a cell to add/remove availability",
+                title = if (isSelf) "Your Availability" else "${navArgs.name}'s Availability",
+                buttonString = if (canPropose) "Propose" else "Continue",
+                description = if (isSelf) {
+                    "You previously proposed this availability"
+                } else if (canPropose) {
+                    "Select a 30-minute block to propose a meeting"
+                } else {
+                    "${navArgs.name} previously proposed this availability"
+                },
                 callback = {},
                 addAvailability = false,
                 initialTimes = availability.availabilities.map {

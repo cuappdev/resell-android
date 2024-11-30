@@ -105,7 +105,12 @@ fun ChatScreen(
                 onSendAvailability = chatViewModel::onSendAvailabilityPressed,
                 onImageUpload = chatViewModel::onImageSelected,
                 onPostClicked = chatViewModel::onPostClicked,
-                onAvailabilityClicked = chatViewModel::onAvailabilitySelected
+                onAvailabilityClicked = { availability, isSelf ->
+                    chatViewModel.onAvailabilitySelected(
+                        availability = availability,
+                        isSelf = isSelf
+                    )
+                }
             )
         }
     }
@@ -119,7 +124,7 @@ private fun ChatLoadedContent(
     onBackPressed: () -> Unit,
     onNegotiatePressed: () -> Unit,
     onSyncCalendarPressed: () -> Unit,
-    onAvailabilityClicked: (AvailabilityDocument) -> Unit,
+    onAvailabilityClicked: (AvailabilityDocument, Boolean) -> Unit,
     onSendAvailability: () -> Unit,
     onImageUpload: (Uri) -> Unit,
     onVenmoPressed: () -> Unit,

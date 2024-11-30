@@ -22,7 +22,7 @@ fun ResellChatScroll(
     listState: LazyListState,
     modifier: Modifier = Modifier,
     onPostClicked: (Post) -> Unit,
-    onAvailabilityClicked: (AvailabilityDocument) -> Unit,
+    onAvailabilityClicked: (AvailabilityDocument, isSelf: Boolean) -> Unit,
 ) {
     LazyColumn(
         state = listState,
@@ -42,7 +42,12 @@ fun ResellChatScroll(
                     },
                     onPostClicked = onPostClicked,
                     senderName = cluster.senderName ?: "",
-                    onAvailabilityClicked = onAvailabilityClicked
+                    onAvailabilityClicked = {
+                        onAvailabilityClicked(
+                            it,
+                            cluster.fromUser
+                        )
+                    }
                 )
                 if (i != chatHistory.size - 1) {
                     Spacer(modifier = Modifier.height(12.dp))
