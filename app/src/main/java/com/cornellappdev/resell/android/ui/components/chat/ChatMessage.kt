@@ -20,6 +20,7 @@ import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.model.ChatMessageData
 import com.cornellappdev.resell.android.model.MessageType
 import com.cornellappdev.resell.android.model.api.Post
+import com.cornellappdev.resell.android.model.chats.AvailabilityDocument
 
 @Composable
 fun ChatMessage(
@@ -27,6 +28,8 @@ fun ChatMessage(
     messageSender: @Composable (String?, @Composable () -> Unit, Int?) -> Unit,
     messages: List<ChatMessageData>,
     onPostClicked: (Post) -> Unit,
+    onAvailabilityClicked: (AvailabilityDocument) -> Unit,
+    senderName: String
 ) {
     Row(
         modifier = Modifier.fillMaxWidth()
@@ -74,7 +77,10 @@ fun ChatMessage(
                     MessageType.Availability -> {
                         messageSender(
                             null,
-                            { ChatAvailability(it.content, 0) },
+                            { ChatAvailability(senderName) {
+                                if (it.availability == null) return@ChatAvailability
+                                onAvailabilityClicked(it.availability)
+                            } },
                             messages.size - i - 1
                         )
                     }

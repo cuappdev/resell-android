@@ -18,15 +18,19 @@ import androidx.navigation.toRoute
 import com.cornellappdev.resell.android.model.Chat
 import com.cornellappdev.resell.android.model.api.ChatRepository
 import com.cornellappdev.resell.android.model.api.Post
+import com.cornellappdev.resell.android.model.chats.AvailabilityBlock
+import com.cornellappdev.resell.android.model.chats.AvailabilityDocument
 import com.cornellappdev.resell.android.model.classes.Listing
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.model.core.UserInfoRepository
 import com.cornellappdev.resell.android.model.login.FireStoreRepository
 import com.cornellappdev.resell.android.model.login.FirebaseMessagingRepository
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonContainer
+import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonState
 import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
 import com.cornellappdev.resell.android.ui.theme.Style
 import com.cornellappdev.resell.android.util.UIEvent
+import com.cornellappdev.resell.android.util.convertToFirestoreTimestamp
 import com.cornellappdev.resell.android.util.loadBitmapFromUri
 import com.cornellappdev.resell.android.util.toNetworkingString
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
@@ -41,6 +45,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import java.time.LocalDateTime
+import java.time.ZoneId
 import javax.inject.Inject
 
 @HiltViewModel
@@ -263,8 +268,7 @@ class ChatViewModel @Inject constructor(
                         onTyped(
                             message = "Hi! I'm interested in buying your ${stateValue().listing!!.title}, but would you be open to selling it for $$price?"
                         )
-                    }
-                    else {
+                    } else {
                         onTyped(
                             message = "The lowest I can accept for this item would be $$price."
                         )
@@ -287,9 +291,35 @@ class ChatViewModel @Inject constructor(
     }
 
     private fun availabilityCallback(availability: List<LocalDateTime>) {
+        val navArgs = savedStateHandle.toRoute<ResellRootRoute.CHAT>()
+        val listing = Json.decodeFromString<Listing>(navArgs.postJson)
+
         viewModelScope.launch {
             try {
-                chatRepository.sendAvailability(availability)
+                val myInfo = userInfoRepository.getUserInfo()
+
+                val asTimeStamp = availability.map {
+                    it.convertToFirestoreTimestamp()
+                }
+
+                chatRepository.sendAvailability(
+                    myEmail = myInfo.email,
+                    otherEmail = navArgs.email,
+                    selfIsBuyer = navArgs.isBuyer,
+                    postId = listing.id,
+                    myName = myInfo.name,
+                    otherName = navArgs.name,
+                    myImageUrl = myInfo.imageUrl,
+                    otherImageUrl = navArgs.pfp,
+                    availability = AvailabilityDocument(
+                        asTimeStamp.mapIndexed { index, it ->
+                            AvailabilityBlock(
+                                startDate = it,
+                                id = index
+                            )
+                        }
+                    )
+                )
                 rootNavigationSheetRepository.hideSheet()
             } catch (e: Exception) {
                 Log.e("ChatViewModel", "Error sending availability: ", e)
@@ -372,6 +402,26 @@ class ChatViewModel @Inject constructor(
         }
     }
 
+    fun onAvailabilitySelected(availability: AvailabilityDocument) {
+        Log.d("helpme", availability.toString())
+        // TODO Correct messages, interaction state
+        rootNavigationSheetRepository.showBottomSheet(
+            sheet = RootSheet.Availability(
+                title = "When are you free to meet?",
+                buttonString = "Continue",
+                description = "Tap on a cell to add/remove availability",
+                callback = {},
+                addAvailability = false,
+                initialTimes = availability.availabilities.map {
+                    val date = it.startDate.toDate()
+                    // Convert Date to LocalDateTime
+                    LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault())
+                },
+                initialButtonState = ResellTextButtonState.DISABLED
+            )
+        )
+    }
+
     init {
         val navArgs = savedStateHandle.toRoute<ResellRootRoute.CHAT>()
         val listing = Json.decodeFromString<Listing>(navArgs.postJson)
@@ -397,7 +447,11 @@ class ChatViewModel @Inject constructor(
             val theirEmail = navArgs.email
 
             chatRepository.subscribeToChat(
-                myEmail, theirEmail, selfIsBuyer = navArgs.isBuyer,
+                myEmail = myEmail,
+                otherEmail = theirEmail,
+                selfIsBuyer = navArgs.isBuyer,
+                myName = userInfoRepository.getFirstName()!!,
+                otherName = navArgs.name
             )
         }
 

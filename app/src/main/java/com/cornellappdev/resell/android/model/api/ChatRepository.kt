@@ -8,7 +8,6 @@ import com.cornellappdev.resell.android.model.MessageType
 import com.cornellappdev.resell.android.model.chats.AvailabilityDocument
 import com.cornellappdev.resell.android.model.chats.BuyerSellerData
 import com.cornellappdev.resell.android.model.chats.ChatDocument
-import com.cornellappdev.resell.android.model.chats.ProductDocument
 import com.cornellappdev.resell.android.model.chats.UserDocument
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.model.core.UserInfoRepository
@@ -20,12 +19,10 @@ import com.cornellappdev.resell.android.util.toIsoString
 import com.google.firebase.Timestamp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import okhttp3.internal.toImmutableList
-import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
@@ -87,8 +84,13 @@ class ChatRepository @Inject constructor(
         }
     }
 
-    fun subscribeToChat(myEmail: String, otherEmail: String, selfIsBuyer: Boolean) {
-        Log.d("helpme", "subscribeToChat: $myEmail, $otherEmail, $selfIsBuyer")
+    fun subscribeToChat(
+        myEmail: String,
+        otherEmail: String,
+        selfIsBuyer: Boolean,
+        myName: String,
+        otherName: String
+    ) {
         fireStoreRepository.subscribeToChat(
             sellerEmail = if (selfIsBuyer) otherEmail else myEmail,
             buyerEmail = if (selfIsBuyer) myEmail else otherEmail
@@ -122,12 +124,11 @@ class ChatRepository @Inject constructor(
                         timestamp = document.createdAt,
                         messageType = messageType,
                         imageUrl = document.image,
-                        post = document.product
+                        post = document.product,
+                        availability = document.availability
                     ), document.user._id
                 )
             }
-
-            Log.d("helpme", "messageData: $messageData")
 
             // Step 2: Cluster by sender.
             val messageClusters = mutableListOf<ChatMessageCluster>()
@@ -143,7 +144,8 @@ class ChatRepository @Inject constructor(
                                 fromUser = currentSender == myEmail,
                                 senderId = currentSender,
                                 messages = currentList.toImmutableList(),
-                                senderImage = otherPfp
+                                senderImage = otherPfp,
+                                senderName = if (currentSender == myEmail) myName else otherName
                             )
                         )
                     }
@@ -160,7 +162,8 @@ class ChatRepository @Inject constructor(
                         fromUser = currentSender == myEmail,
                         senderId = currentSender,
                         messages = currentList.toImmutableList(),
-                        senderImage = otherPfp
+                        senderImage = otherPfp,
+                        senderName = if (currentSender == myEmail) myName else otherName
                     )
                 )
             }
@@ -216,7 +219,6 @@ class ChatRepository @Inject constructor(
         imageUrl: String? = null,
         text: String? = null,
         availability: AvailabilityDocument? = null,
-        product: ProductDocument? = null,
     ) {
         val currentTimeMillis = System.currentTimeMillis()
         val userInfo = userInfoRepository.getUserInfo()
@@ -243,7 +245,7 @@ class ChatRepository @Inject constructor(
             image = imageUrl ?: "",
             text = text ?: "",
             user = userDocument,
-            availability = null,
+            availability = availability,
             product = null
         )
 
@@ -264,7 +266,7 @@ class ChatRepository @Inject constructor(
             )
         }
 
-        fireStoreRepository.sendTextMessage(
+        fireStoreRepository.sendChatMessage(
             buyerEmail = buyerEmail,
             sellerEmail = sellerEmail,
             chatDocument = chatDocument
@@ -274,7 +276,6 @@ class ChatRepository @Inject constructor(
             !text.isNullOrEmpty() -> text
             !imageUrl.isNullOrEmpty() -> "[Image]"
             availability != null -> "[Availability]"
-            product != null -> ""
             else -> {
                 ""
             }
@@ -284,7 +285,6 @@ class ChatRepository @Inject constructor(
             !text.isNullOrEmpty() -> text
             !imageUrl.isNullOrEmpty() -> "Sent an Image"
             availability != null -> "Sent their Availability"
-            product != null -> "Sent Product Details"
             else -> {
                 ""
             }
@@ -421,11 +421,26 @@ class ChatRepository @Inject constructor(
     }
 
     suspend fun sendAvailability(
-        availability: List<LocalDateTime>
-    ) {
-        // TODO
-        delay(500)
-    }
+        myEmail: String,
+        otherEmail: String,
+        myName: String,
+        otherName: String,
+        myImageUrl: String,
+        otherImageUrl: String,
+        selfIsBuyer: Boolean,
+        postId: String,
+        availability: AvailabilityDocument
+    ) = sendGenericMessage(
+        availability = availability,
+        myEmail = myEmail,
+        otherEmail = otherEmail,
+        myName = myName,
+        otherName = otherName,
+        myImageUrl = myImageUrl,
+        otherImageUrl = otherImageUrl,
+        selfIsBuyer = selfIsBuyer,
+        postId = postId
+    )
 
     private fun getFormattedTime(): String {
         // Get the current time in the system's time zone (you can change ZoneId for specific time zones)

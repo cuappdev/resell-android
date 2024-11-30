@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.cornellappdev.resell.android.model.ChatMessageCluster
 import com.cornellappdev.resell.android.model.api.Post
+import com.cornellappdev.resell.android.model.chats.AvailabilityDocument
 import com.cornellappdev.resell.android.util.richieMessages
 
 @Composable
@@ -20,7 +21,8 @@ fun ResellChatScroll(
     chatHistory: List<ChatMessageCluster> = listOf(richieMessages(5), richieMessages(5)),
     listState: LazyListState,
     modifier: Modifier = Modifier,
-    onPostClicked: (Post) -> Unit
+    onPostClicked: (Post) -> Unit,
+    onAvailabilityClicked: (AvailabilityDocument) -> Unit,
 ) {
     LazyColumn(
         state = listState,
@@ -29,16 +31,18 @@ fun ResellChatScroll(
             .padding(horizontal = 12.dp)
             .padding(end = 8.dp),
     ) {
-        itemsIndexed(chatHistory) { i, message ->
+        itemsIndexed(chatHistory) { i, cluster ->
             Column {
                 Spacer(modifier = Modifier.height(8.dp))
                 ChatMessage(
-                    imageUrl = if (message.fromUser) null else message.senderImage,
-                    messages = message.messages,
+                    imageUrl = if (cluster.fromUser) null else cluster.senderImage,
+                    messages = cluster.messages,
                     messageSender = { str, func, i ->
-                        if (message.fromUser) UserMessage(func) else OtherMessage(str, func, i ?: 0)
+                        if (cluster.fromUser) UserMessage(func) else OtherMessage(str, func, i ?: 0)
                     },
-                    onPostClicked = onPostClicked
+                    onPostClicked = onPostClicked,
+                    senderName = cluster.senderName ?: "",
+                    onAvailabilityClicked = onAvailabilityClicked
                 )
                 if (i != chatHistory.size - 1) {
                     Spacer(modifier = Modifier.height(12.dp))

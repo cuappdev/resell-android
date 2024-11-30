@@ -94,7 +94,8 @@ val richieMessages = { count: Int ->
                     timestamp = Timestamp(0, 0), "HELP", "feajkdna", MessageType.Message
                 )
             }
-        }
+        },
+        senderName = "My man"
     )
 }
 
@@ -121,6 +122,7 @@ val justinMessages = { count: Int ->
             } else {
                 ChatMessageData(timestamp = Timestamp(0, 0), "HELP", "FEADea", MessageType.Message)
             }
-        }
+        },
+        senderName = "God"
     )
 }

@@ -48,6 +48,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.model.Chat
 import com.cornellappdev.resell.android.model.api.Post
+import com.cornellappdev.resell.android.model.chats.AvailabilityDocument
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.ui.components.chat.ChatTag
 import com.cornellappdev.resell.android.ui.components.chat.ResellChatScroll
@@ -103,7 +104,8 @@ fun ChatScreen(
                 showNegotiate = chatUiState.showNegotiate,
                 onSendAvailability = chatViewModel::onSendAvailabilityPressed,
                 onImageUpload = chatViewModel::onImageSelected,
-                onPostClicked = chatViewModel::onPostClicked
+                onPostClicked = chatViewModel::onPostClicked,
+                onAvailabilityClicked = chatViewModel::onAvailabilitySelected
             )
         }
     }
@@ -117,6 +119,7 @@ private fun ChatLoadedContent(
     onBackPressed: () -> Unit,
     onNegotiatePressed: () -> Unit,
     onSyncCalendarPressed: () -> Unit,
+    onAvailabilityClicked: (AvailabilityDocument) -> Unit,
     onSendAvailability: () -> Unit,
     onImageUpload: (Uri) -> Unit,
     onVenmoPressed: () -> Unit,
@@ -141,7 +144,8 @@ private fun ChatLoadedContent(
             chatHistory = chat.chatHistory,
             listState = listState,
             modifier = Modifier.weight(1f),
-            onPostClicked = onPostClicked
+            onPostClicked = onPostClicked,
+            onAvailabilityClicked = onAvailabilityClicked
         )
         ChatFooter(
             chatType = chatUiState.chatType,

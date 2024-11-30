@@ -1,6 +1,7 @@
 package com.cornellappdev.resell.android.model.chats
 
 import com.cornellappdev.resell.android.model.api.Post
+import com.cornellappdev.resell.android.ui.theme.ResellPurple
 import com.google.firebase.Timestamp
 import com.google.gson.annotations.SerializedName
 
@@ -36,8 +37,29 @@ data class UserDocument(
 )
 
 data class AvailabilityDocument(
-    val test: String
-)
+    val availabilities: List<AvailabilityBlock>
+) {
+    fun toFirebaseArray(): List<Any> {
+        // Sort each availability, sorted by start date:
+        val sortedAvailabilities = availabilities.sortedBy { it.startDate }
+        return sortedAvailabilities
+    }
+}
+
+data class AvailabilityBlock(
+    val startDate: Timestamp,
+    val color: String = ResellPurple.let {
+        "#${Integer.toHexString(it.hashCode()).substring(2)}"
+    },
+    val id: Int,
+) {
+    val endDate: Timestamp
+        get() {
+            val instant = startDate.toDate().toInstant()
+                .plusSeconds(60 * 30L)
+            return Timestamp(instant.epochSecond, instant.nano)
+        }
+}
 
 data class ProductDocument(
     @SerializedName("_id") val id: String,

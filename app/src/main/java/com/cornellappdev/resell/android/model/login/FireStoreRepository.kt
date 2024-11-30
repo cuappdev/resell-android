@@ -3,6 +3,8 @@ package com.cornellappdev.resell.android.model.login
 import android.util.Log
 import com.cornellappdev.resell.android.model.api.Post
 import com.cornellappdev.resell.android.model.api.User
+import com.cornellappdev.resell.android.model.chats.AvailabilityBlock
+import com.cornellappdev.resell.android.model.chats.AvailabilityDocument
 import com.cornellappdev.resell.android.model.chats.BuyerSellerData
 import com.cornellappdev.resell.android.model.chats.ChatDocument
 import com.cornellappdev.resell.android.model.chats.ChatDocumentAny
@@ -245,14 +247,16 @@ class FireStoreRepository @Inject constructor(
                 val productMap =
                     (it.get("product") as Map<String, Any>).mapValues { it?.value?.toString() }
 
+                val availabilityArray: List<Map<String, Any>>? =
+                    it.get("availability") as? List<Map<String, Any>>
+
                 val userDoc = UserDocument(
                     _id = userMap["_id"] ?: "",
                     avatar = userMap["avatar"] ?: "",
                     name = userMap["name"] ?: "",
                 )
 
-                // TODO Availability and Product Documents
-                Log.d("helpme", productMap["images"].toString())
+                // TODO Availability Documents
                 val post = productMap["id"]?.let { _ ->
                     Post(
                         id = productMap["id"] ?: "",
@@ -271,11 +275,26 @@ class FireStoreRepository @Inject constructor(
                     )
                 }
 
+                val availability = if (availabilityArray.isNullOrEmpty()) {
+                    null
+                } else {
+                    AvailabilityDocument(
+                        availabilities = availabilityArray.map {
+                            AvailabilityBlock(
+                                startDate = it["startDate"] as? Timestamp ?: Timestamp(0, 0),
+                                id = (it["id"] as? String ?: "").toIntOrNull() ?: 0,
+                            )
+                        },
+                    )
+                }
+
+                Log.d("helpme", availability.toString())
+
                 val chatDoc = ChatDocument(
                     _id = it.get("_id")?.toString() ?: "",
                     createdAt = it.getTimestamp("createdAt") ?: Timestamp(0, 0),
                     user = userDoc,
-                    availability = null,
+                    availability = availability,
                     product = post,
                     image = it.get("image")?.toString() ?: "",
                     text = it.get("text")?.toString() ?: "",
@@ -288,7 +307,7 @@ class FireStoreRepository @Inject constructor(
         }
     }
 
-    suspend fun sendTextMessage(
+    suspend fun sendChatMessage(
         buyerEmail: String,
         sellerEmail: String,
         chatDocument: ChatDocument,
@@ -298,7 +317,7 @@ class FireStoreRepository @Inject constructor(
             _id = chatDocument._id,
             createdAt = Timestamp.now(),
             user = chatDocument.user,
-            availability = chatDocument.availability ?: mapOf<String, Any>(),
+            availability = chatDocument.availability?.toFirebaseArray() ?: mapOf<String, Any>(),
             product = chatDocument.product ?: mapOf<String, Any>(),
             image = chatDocument.image,
             text = chatDocument.text
@@ -332,7 +351,7 @@ class FireStoreRepository @Inject constructor(
             _id = chatDocument._id,
             createdAt = chatDocument.createdAt,
             user = chatDocument.user,
-            availability = chatDocument.availability ?: mapOf<String, Any>(),
+            availability = chatDocument.availability?.toFirebaseArray() ?: mapOf<String, Any>(),
             product = chatDocument.product ?: mapOf<String, Any>(),
             image = chatDocument.image,
             text = chatDocument.text

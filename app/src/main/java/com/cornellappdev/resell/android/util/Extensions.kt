@@ -4,6 +4,7 @@ import com.google.firebase.Timestamp
 import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.ZoneOffset
 import java.time.temporal.ChronoUnit
 import java.util.Locale
 import java.util.TimeZone
@@ -33,4 +34,12 @@ fun Timestamp.toDateString(): String {
     val dateFormat = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
     dateFormat.timeZone = TimeZone.getTimeZone("UTC") // Ensure the output is in UTC
     return dateFormat.format(date)
+}
+
+fun LocalDateTime.convertToFirestoreTimestamp(): Timestamp {
+    // Convert LocalDateTime to Instant using UTC-5 offset
+    val instant = this.toInstant(ZoneOffset.ofHours(-5))
+
+    // Create Firestore Timestamp from Instant
+    return Timestamp(instant.epochSecond, instant.nano)
 }

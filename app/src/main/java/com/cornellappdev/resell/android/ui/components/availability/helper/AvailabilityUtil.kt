@@ -56,7 +56,8 @@ fun List<LocalDateTime>.mapToGrid(dates: List<LocalDate>): List<BooleanArray> {
     forEach { date ->
         val column = dates.indexOfFirst { it.day == date.day }
         if (column == -1) return@forEach
-        val row = (date.hour * 60 + date.minute - 9 * 60) / 30
+        val row = (date.hour * 60 + date.minute - gridStartTime.hour * 60) / 30
+        if (row !in 0 until GRID_HEIGHT) return@forEach
         grid[row][column] = true
     }
     return grid

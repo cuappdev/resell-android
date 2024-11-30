@@ -157,19 +157,13 @@ fun SelectableAvailabilityGrid(
     setSelectedAvailabilities: (List<LocalDateTime>) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var grid by remember {
-        mutableStateOf(
-            selectedAvailabilities.mapToGrid(dates)
-        )
-    }
-
+    val grid = selectedAvailabilities.mapToGrid(dates)
 
     AvailabilityGridContainer(dates, modifier) {
         SelectableGrid(
             grid = grid,
             updateGrid = {
                 val newGrid = it(grid)
-                grid = newGrid
                 setSelectedAvailabilities(newGrid.toAvailabilities(dates))
             },
         )

@@ -1,5 +1,6 @@
 package com.cornellappdev.resell.android.ui.components.availability
 
+import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -42,8 +43,13 @@ fun SelectableAvailabilityPager(
         //  Thus, we must add to the correct 3 day period.
         initialSelectedAvailabilities.forEach { availability ->
             val today = LocalDate.now()
-            val dayDifference = availability.toLocalDate().until(today).days
-            val pageIndex = dayDifference % 3
+            val dayDifference = today.until(availability.toLocalDate()).days
+            val pageIndex = Math.floorDiv(dayDifference, 3)
+
+            Log.d(
+                "helpme",
+                "day difference: $dayDifference for $availability, resuling in page index $pageIndex"
+            )
 
             if (selectedDatesByPage[pageIndex] != null) {
                 val list = selectedDatesByPage[pageIndex]!!.toMutableList()
@@ -51,7 +57,13 @@ fun SelectableAvailabilityPager(
                 val copy = selectedDatesByPage.toMutableMap()
                 copy[pageIndex] = list
                 selectedDatesByPage = copy.toMap()
+
+                Log.d("helpme", "non-null hit, new list: ${selectedDatesByPage[pageIndex]}")
+            } else {
+                Log.d("helpme", "null hit")
             }
+
+            Log.d("helpme", "calculating... $availability")
         }
     }
 
@@ -63,7 +75,7 @@ fun SelectableAvailabilityPager(
         subtitle = subtitle,
     ) { dates, page ->
         SelectableAvailabilityGrid(
-            dates,
+            dates = dates,
             selectedAvailabilities = selectedDatesByPage[page]!!,
             setSelectedAvailabilities = { availabilities ->
                 val updatedDates = selectedDatesByPage.mapValues { (index, localDateTimes) ->
