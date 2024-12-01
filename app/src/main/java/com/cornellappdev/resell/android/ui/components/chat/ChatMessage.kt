@@ -102,7 +102,7 @@ fun ChatMessage(
                                 onActionTextClicked = {
                                     onMeetingStateClicked(it.meetingInfo)
                                 },
-                                icon = painterResource(id = R.drawable.ic_calendar),
+                                icon = painterResource(id = it.meetingInfo.icon),
                                 enabled = it.meetingInfo.mostRecent
                             )
                         }

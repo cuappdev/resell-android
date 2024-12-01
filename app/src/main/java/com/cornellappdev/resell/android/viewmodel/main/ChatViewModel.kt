@@ -426,7 +426,11 @@ class ChatViewModel @Inject constructor(
                 } else {
                     "${navArgs.name} previously proposed this availability"
                 },
-                callback = {},
+                callback = {
+                    if (!isSelf && canPropose) {
+
+                    }
+                },
                 initialTimes = availability.availabilities.map {
                     val date = it.startDate.toDate()
                     // Convert Date to LocalDateTime
@@ -533,15 +537,81 @@ class ChatViewModel @Inject constructor(
     }
 
     private fun onMeetingConfirmed(meetingInfo: MeetingInfo) {
-
+        rootNavigationSheetRepository.hideSheet()
+        viewModelScope.launch {
+            try {
+                chatRepository.sendProposalUpdate(
+                    myEmail = userInfoRepository.getUserInfo().email,
+                    otherEmail = savedStateHandle.toRoute<ResellRootRoute.CHAT>().email,
+                    selfIsBuyer = savedStateHandle.toRoute<ResellRootRoute.CHAT>().isBuyer,
+                    postId = stateValue().listing?.id ?: "",
+                    myName = userInfoRepository.getUserInfo().name,
+                    otherName = savedStateHandle.toRoute<ResellRootRoute.CHAT>().name,
+                    myImageUrl = userInfoRepository.getUserInfo().imageUrl,
+                    otherImageUrl = savedStateHandle.toRoute<ResellRootRoute.CHAT>().pfp,
+                    meetingInfo = meetingInfo.copy(
+                        state = "confirmed",
+                        proposer = null,
+                        canceler = null,
+                    )
+                )
+            } catch (e: Exception) {
+                rootConfirmationRepository.showError()
+                Log.e("ChatViewModel", "onMeetingConfirmed: ", e)
+            }
+        }
     }
 
     private fun onMeetingDeclined(meetingInfo: MeetingInfo) {
-
+        rootNavigationSheetRepository.hideSheet()
+        viewModelScope.launch {
+            try {
+                chatRepository.sendProposalUpdate(
+                    myEmail = userInfoRepository.getUserInfo().email,
+                    otherEmail = savedStateHandle.toRoute<ResellRootRoute.CHAT>().email,
+                    selfIsBuyer = savedStateHandle.toRoute<ResellRootRoute.CHAT>().isBuyer,
+                    postId = stateValue().listing?.id ?: "",
+                    myName = userInfoRepository.getUserInfo().name,
+                    otherName = savedStateHandle.toRoute<ResellRootRoute.CHAT>().name,
+                    myImageUrl = userInfoRepository.getUserInfo().imageUrl,
+                    otherImageUrl = savedStateHandle.toRoute<ResellRootRoute.CHAT>().pfp,
+                    meetingInfo = meetingInfo.copy(
+                        state = "declined",
+                        proposer = null,
+                        canceler = null,
+                    )
+                )
+            } catch (e: Exception) {
+                rootConfirmationRepository.showError()
+                Log.e("ChatViewModel", "onMeetingDeclined: ", e)
+            }
+        }
     }
 
     private fun onMeetingCancelled(meetingInfo: MeetingInfo) {
-
+        rootNavigationSheetRepository.hideSheet()
+        viewModelScope.launch {
+            try {
+                chatRepository.sendProposalUpdate(
+                    myEmail = userInfoRepository.getUserInfo().email,
+                    otherEmail = savedStateHandle.toRoute<ResellRootRoute.CHAT>().email,
+                    selfIsBuyer = savedStateHandle.toRoute<ResellRootRoute.CHAT>().isBuyer,
+                    postId = stateValue().listing?.id ?: "",
+                    myName = userInfoRepository.getUserInfo().name,
+                    otherName = savedStateHandle.toRoute<ResellRootRoute.CHAT>().name,
+                    myImageUrl = userInfoRepository.getUserInfo().imageUrl,
+                    otherImageUrl = savedStateHandle.toRoute<ResellRootRoute.CHAT>().pfp,
+                    meetingInfo = meetingInfo.copy(
+                        state = "canceled",
+                        proposer = null,
+                        canceler = userInfoRepository.getEmail(),
+                    )
+                )
+            } catch (e: Exception) {
+                rootConfirmationRepository.showError()
+                Log.e("ChatViewModel", "onMeetingCancelled: ", e)
+            }
+        }
     }
 
     init {

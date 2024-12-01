@@ -1,5 +1,6 @@
 package com.cornellappdev.resell.android.model.chats
 
+import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.model.api.Post
 import com.cornellappdev.resell.android.ui.theme.ResellPurple
 import com.google.firebase.Timestamp
@@ -81,6 +82,13 @@ data class MeetingInfo(
             "canceled" -> null
             else -> ""
         }
+
+    val icon
+        get() = when (state) {
+            "declined", "canceled" -> R.drawable.ic_slash
+            else -> R.drawable.ic_calendar
+        }
+
     fun toFirebaseMap(): Map<String, Any> {
         val map = mutableMapOf<String, Any>()
         if (proposer != null) {
