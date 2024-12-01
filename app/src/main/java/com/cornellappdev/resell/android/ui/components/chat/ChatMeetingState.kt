@@ -24,7 +24,7 @@ import com.cornellappdev.resell.android.util.clickableNoIndication
 @Composable
 fun MessageMeetingState(
     text: String,
-    denied: Boolean,
+    enabled: Boolean,
     actionText: String?,
     onActionTextClicked: () -> Unit = {},
     icon: Painter? = null,
@@ -34,7 +34,6 @@ fun MessageMeetingState(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
-            .alpha(if (denied) 0.5f else 1f)
             .fillMaxWidth()
     ) {
         Spacer(modifier = Modifier.height(8.dp))
@@ -60,7 +59,9 @@ fun MessageMeetingState(
                 Text(
                     text = actionText,
                     style = Style.title3.copy(color = ResellPurple),
-                    modifier = Modifier.clickableNoIndication { onActionTextClicked() }
+                    modifier = Modifier
+                        .clickableNoIndication { if (enabled) onActionTextClicked() }
+                        .alpha(if (enabled) 1f else 0.5f)
                 )
             }
         }

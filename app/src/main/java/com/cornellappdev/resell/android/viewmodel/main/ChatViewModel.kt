@@ -20,6 +20,7 @@ import com.cornellappdev.resell.android.model.api.ChatRepository
 import com.cornellappdev.resell.android.model.api.Post
 import com.cornellappdev.resell.android.model.chats.AvailabilityBlock
 import com.cornellappdev.resell.android.model.chats.AvailabilityDocument
+import com.cornellappdev.resell.android.model.chats.MeetingInfo
 import com.cornellappdev.resell.android.model.classes.Listing
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.model.core.UserInfoRepository
@@ -436,6 +437,10 @@ class ChatViewModel @Inject constructor(
                 }
             )
         )
+    }
+
+    fun onMeetingStateClicked(meetingInfo: MeetingInfo) {
+
     }
 
     init {

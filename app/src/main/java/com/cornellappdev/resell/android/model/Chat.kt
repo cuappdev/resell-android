@@ -2,6 +2,7 @@ package com.cornellappdev.resell.android.model
 
 import com.cornellappdev.resell.android.model.api.Post
 import com.cornellappdev.resell.android.model.chats.AvailabilityDocument
+import com.cornellappdev.resell.android.model.chats.MeetingInfo
 import com.cornellappdev.resell.android.util.justinMessages
 import com.cornellappdev.resell.android.util.richieMessages
 import com.google.firebase.Timestamp
@@ -25,6 +26,7 @@ enum class MeetingProposalState {
  * @param imageUrl Only used if [messageType] is [MessageType.Image].
  * @param post Only used if [messageType] is [MessageType.Card].
  * @param availability Only used if [messageType] is [MessageType.Availability].
+ * @param meetingInfo Only used if [messageType] is [MessageType.State].
  */
 data class ChatMessageData(
     val timestamp: Timestamp,
@@ -34,6 +36,7 @@ data class ChatMessageData(
     val imageUrl: String = "",
     val post: Post? = null,
     val availability: AvailabilityDocument? = null,
+    val meetingInfo: MeetingInfo? = null,
 ) {
     /**
      * Timestamp in the form "(X)X:XX AM/PM"

@@ -49,6 +49,7 @@ import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.model.Chat
 import com.cornellappdev.resell.android.model.api.Post
 import com.cornellappdev.resell.android.model.chats.AvailabilityDocument
+import com.cornellappdev.resell.android.model.chats.MeetingInfo
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.ui.components.chat.ChatTag
 import com.cornellappdev.resell.android.ui.components.chat.ResellChatScroll
@@ -110,7 +111,8 @@ fun ChatScreen(
                         availability = availability,
                         isSelf = isSelf
                     )
-                }
+                },
+                onMeetingStateClicked = chatViewModel::onMeetingStateClicked
             )
         }
     }
@@ -124,6 +126,7 @@ private fun ChatLoadedContent(
     onBackPressed: () -> Unit,
     onNegotiatePressed: () -> Unit,
     onSyncCalendarPressed: () -> Unit,
+    onMeetingStateClicked: (MeetingInfo) -> Unit,
     onAvailabilityClicked: (AvailabilityDocument, Boolean) -> Unit,
     onSendAvailability: () -> Unit,
     onImageUpload: (Uri) -> Unit,
@@ -150,7 +153,8 @@ private fun ChatLoadedContent(
             listState = listState,
             modifier = Modifier.weight(1f),
             onPostClicked = onPostClicked,
-            onAvailabilityClicked = onAvailabilityClicked
+            onAvailabilityClicked = onAvailabilityClicked,
+            onMeetingStateClicked = onMeetingStateClicked
         )
         ChatFooter(
             chatType = chatUiState.chatType,

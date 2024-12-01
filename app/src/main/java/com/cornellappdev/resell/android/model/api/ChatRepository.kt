@@ -102,7 +102,6 @@ class ChatRepository @Inject constructor(
             // Step 1: Creates a list of Pair<ChatMessageData, String>.
             // The String is the sender's id.
             val messageData = it.map { document ->
-                // TODO: Cannot become `State`... dunno what that is.
                 val messageType =
                     if (document.image.isNotEmpty()) {
                         MessageType.Image
@@ -110,6 +109,8 @@ class ChatRepository @Inject constructor(
                         MessageType.Availability
                     } else if (document.product != null) {
                         MessageType.Card
+                    } else if (document.meetingInfo != null) {
+                        MessageType.State
                     } else {
                         MessageType.Message
                     }
@@ -121,12 +122,15 @@ class ChatRepository @Inject constructor(
                 Pair(
                     ChatMessageData(
                         id = document._id,
-                        content = document.text,
+                        content = if (document.meetingInfo != null) {
+                            getMeetingInfoContent(document.meetingInfo, document, myEmail, otherName)
+                        } else document.text,
                         timestamp = document.createdAt,
                         messageType = messageType,
                         imageUrl = document.image,
                         post = document.product,
-                        availability = document.availability
+                        availability = document.availability,
+                        meetingInfo = document.meetingInfo
                     ), document.user._id
                 )
             }
@@ -198,6 +202,16 @@ class ChatRepository @Inject constructor(
                 newCluster
             }
 
+            // Step 2b: Make the final occurrence of `MeetingInfo`'s mostRecent field true.
+            dateStateClusters.map { cluster ->
+                cluster.messages
+            }.flatten()
+                .filter {
+                    it.meetingInfo != null
+                }.sortedByDescending {
+                    it.timestamp
+                }.firstOrNull()?.meetingInfo?.mostRecent = true
+
 
             // Step 3: Return the final Chat object.
             val chat = Chat(
@@ -205,6 +219,49 @@ class ChatRepository @Inject constructor(
             )
 
             _subscribedChatFlow.value = ResellApiResponse.Success(chat)
+        }
+    }
+
+    private fun getMeetingInfoContent(
+        meetingInfo: MeetingInfo,
+        document: ChatDocument,
+        myEmail: String,
+        otherName: String
+    ) = when (meetingInfo.state) {
+        "proposed" -> {
+            if (document.user._id == myEmail) {
+                "You proposed a new meeting"
+            } else {
+                "$otherName proposed a new meeting"
+            }
+        }
+
+        "confirmed" -> {
+            if (document.user._id == myEmail) {
+                "You accepted a new meeting"
+            } else {
+                "$otherName accepted a new meeting"
+            }
+        }
+
+        "declined" -> {
+            if (document.user._id == myEmail) {
+                "You declined the meeting proposal"
+            } else {
+                "$otherName declined the meeting proposal"
+            }
+        }
+
+        "canceled" -> {
+            if (document.user._id == myEmail) {
+                "You canceled the meeting"
+            } else {
+                "$otherName canceled the meeting"
+            }
+        }
+
+        else -> {
+            ""
         }
     }
 

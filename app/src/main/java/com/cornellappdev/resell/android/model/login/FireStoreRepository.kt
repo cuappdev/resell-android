@@ -8,6 +8,7 @@ import com.cornellappdev.resell.android.model.chats.AvailabilityDocument
 import com.cornellappdev.resell.android.model.chats.BuyerSellerData
 import com.cornellappdev.resell.android.model.chats.ChatDocument
 import com.cornellappdev.resell.android.model.chats.ChatDocumentAny
+import com.cornellappdev.resell.android.model.chats.ChatDocumentAnyMeetingInfo
 import com.cornellappdev.resell.android.model.chats.MeetingInfo
 import com.cornellappdev.resell.android.model.chats.UserDocument
 import com.google.firebase.Timestamp
@@ -284,6 +285,7 @@ class FireStoreRepository @Inject constructor(
                         proposeTime = meetingInfoMap["proposeTime"] ?: "",
                         proposer = meetingInfoMap["proposer"],
                         canceler = meetingInfoMap["canceler"],
+                        mostRecent = false,
                     )
                 }
 
@@ -325,8 +327,9 @@ class FireStoreRepository @Inject constructor(
         sellerEmail: String,
         chatDocument: ChatDocument,
     ) {
+
         // Make into an empty object if applicable instead of null cuz react native crashes
-        val anyable = ChatDocumentAny(
+        var anyable: Any = ChatDocumentAny(
             _id = chatDocument._id,
             createdAt = Timestamp.now(),
             user = chatDocument.user,
@@ -335,6 +338,18 @@ class FireStoreRepository @Inject constructor(
             image = chatDocument.image,
             text = chatDocument.text
         )
+
+        // Use meeting info structure instead
+        if (chatDocument.meetingInfo != null) {
+            anyable = ChatDocumentAnyMeetingInfo(
+                _id = chatDocument._id,
+                createdAt = Timestamp.now(),
+                user = chatDocument.user,
+                image = chatDocument.image,
+                text = chatDocument.text,
+                meetingInfo = chatDocument.meetingInfo.toFirebaseMap()
+            )
+        }
 
         // Reference to the desired collection
         val chatRef = fireStore.collection("chats")

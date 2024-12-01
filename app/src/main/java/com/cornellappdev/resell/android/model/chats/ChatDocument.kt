@@ -33,7 +33,23 @@ data class ChatDocumentAny(
     val text: String,
     val user: UserDocument,
     val availability: Any,
-    val product: Any
+    val product: Any,
+)
+
+/**
+ * A copy of [ChatDocument] that can be used to push any datatype for meeting info.
+ *
+ * WARNING: Only use for directly pushing to firebase. Otherwise, use [ChatDocument].
+ */
+data class ChatDocumentAnyMeetingInfo(
+    val _id: String,
+    val createdAt: Timestamp,
+    val image: String,
+    val text: String,
+    val availability: Any = mapOf<String, Any>(),
+    val product: Any = mapOf<String, Any>(),
+    val user: UserDocument,
+    val meetingInfo: Any
 )
 
 data class UserDocument(
@@ -55,7 +71,29 @@ data class MeetingInfo(
     val proposeTime: String,
     val state: String,
     val canceler: String?,
+    var mostRecent: Boolean
 ) {
+    val actionText
+        get() = when (state) {
+            "proposed" -> "View Proposal"
+            "declined" -> "Send Another Proposal"
+            "confirmed" -> "View Details"
+            "canceled" -> null
+            else -> ""
+        }
+    fun toFirebaseMap(): Map<String, Any> {
+        val map = mutableMapOf<String, Any>()
+        if (proposer != null) {
+            map["proposer"] = proposer
+        }
+        map["proposeTime"] = proposeTime
+        map["state"] = state
+        if (canceler != null) {
+            map["canceler"] = canceler
+        }
+        return map
+    }
+
     fun convertToUtcMinusFiveDate(): Date {
         val inputFormat = SimpleDateFormat("MMMM dd yyyy, h:mm a", Locale.ENGLISH)
 

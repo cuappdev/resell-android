@@ -21,6 +21,7 @@ import com.cornellappdev.resell.android.model.ChatMessageData
 import com.cornellappdev.resell.android.model.MessageType
 import com.cornellappdev.resell.android.model.api.Post
 import com.cornellappdev.resell.android.model.chats.AvailabilityDocument
+import com.cornellappdev.resell.android.model.chats.MeetingInfo
 
 @Composable
 fun ChatMessage(
@@ -29,6 +30,7 @@ fun ChatMessage(
     messages: List<ChatMessageData>,
     onPostClicked: (Post) -> Unit,
     onAvailabilityClicked: (AvailabilityDocument) -> Unit,
+    onMeetingStateClicked: (MeetingInfo) -> Unit,
     senderName: String
 ) {
     Row(
@@ -86,11 +88,24 @@ fun ChatMessage(
                     }
 
                     MessageType.State -> {
-                        MessageMeetingState(
-                            text = it.content,
-                            denied = false,
-                            actionText = null,
-                        )
+                        if (it.meetingInfo == null) {
+                            MessageMeetingState(
+                                text = it.content,
+                                enabled = true,
+                                actionText = null,
+                            )
+                        }
+                        else {
+                            MessageMeetingState(
+                                text = it.content,
+                                actionText = it.meetingInfo.actionText,
+                                onActionTextClicked = {
+                                    onMeetingStateClicked(it.meetingInfo)
+                                },
+                                icon = painterResource(id = R.drawable.ic_calendar),
+                                enabled = it.meetingInfo.mostRecent
+                            )
+                        }
                     }
                 }
                 if (i != messages.size - 1) Spacer(modifier = Modifier.height(10.dp))
