@@ -8,6 +8,7 @@ import com.cornellappdev.resell.android.model.MessageType
 import com.cornellappdev.resell.android.model.chats.AvailabilityDocument
 import com.cornellappdev.resell.android.model.chats.BuyerSellerData
 import com.cornellappdev.resell.android.model.chats.ChatDocument
+import com.cornellappdev.resell.android.model.chats.MeetingInfo
 import com.cornellappdev.resell.android.model.chats.UserDocument
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.model.core.UserInfoRepository
@@ -219,6 +220,7 @@ class ChatRepository @Inject constructor(
         imageUrl: String? = null,
         text: String? = null,
         availability: AvailabilityDocument? = null,
+        meetingInfo: MeetingInfo? = null
     ) {
         val currentTimeMillis = System.currentTimeMillis()
         val userInfo = userInfoRepository.getUserInfo()
@@ -246,7 +248,9 @@ class ChatRepository @Inject constructor(
             text = text ?: "",
             user = userDocument,
             availability = availability,
-            product = null
+            // Product handled later
+            product = null,
+            meetingInfo = meetingInfo,
         )
 
         val item = (postRepository.allPostsFlow.value.asSuccessOrNull()?.data?.firstOrNull {
@@ -276,6 +280,7 @@ class ChatRepository @Inject constructor(
             !text.isNullOrEmpty() -> text
             !imageUrl.isNullOrEmpty() -> "[Image]"
             availability != null -> "[Availability]"
+            meetingInfo != null -> "[Meeting Proposal]"
             else -> {
                 ""
             }
@@ -285,6 +290,7 @@ class ChatRepository @Inject constructor(
             !text.isNullOrEmpty() -> text
             !imageUrl.isNullOrEmpty() -> "Sent an Image"
             availability != null -> "Sent their Availability"
+            meetingInfo != null -> "Proposed a Meeting"
             else -> {
                 ""
             }
@@ -432,6 +438,31 @@ class ChatRepository @Inject constructor(
         availability: AvailabilityDocument
     ) = sendGenericMessage(
         availability = availability,
+        myEmail = myEmail,
+        otherEmail = otherEmail,
+        myName = myName,
+        otherName = otherName,
+        myImageUrl = myImageUrl,
+        otherImageUrl = otherImageUrl,
+        selfIsBuyer = selfIsBuyer,
+        postId = postId
+    )
+
+    /**
+     * Depending on
+     */
+    suspend fun sendProposalUpdate(
+        myEmail: String,
+        otherEmail: String,
+        myName: String,
+        otherName: String,
+        myImageUrl: String,
+        otherImageUrl: String,
+        selfIsBuyer: Boolean,
+        postId: String,
+        meetingInfo: MeetingInfo
+    ) = sendGenericMessage(
+        meetingInfo = meetingInfo,
         myEmail = myEmail,
         otherEmail = otherEmail,
         myName = myName,

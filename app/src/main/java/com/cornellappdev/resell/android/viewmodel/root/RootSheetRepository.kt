@@ -1,6 +1,8 @@
 package com.cornellappdev.resell.android.viewmodel.root
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.style.TextAlign
 import com.cornellappdev.resell.android.ui.components.availability.helper.GridSelectionType
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonContainer
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonState
@@ -91,12 +93,19 @@ sealed class RootSheet {
         val content: @Composable () -> Unit
     ) : RootSheet()
 
-    data class MeetingGCalSync(
-        val confirmString: String,
-        val closeString: String,
-        val callback: () -> Unit,
-        val title: String
-    )
+    data class TwoButtonSheet(
+        val primaryText: String,
+        val secondaryText: String = "Close",
+        val primaryContainerType: ResellTextButtonContainer = ResellTextButtonContainer.PRIMARY,
+        val secondaryContainerType: ResellTextButtonContainer = ResellTextButtonContainer.NAKED,
+        val primaryButtonState: ResellTextButtonState = ResellTextButtonState.ENABLED,
+        val secondaryButtonState: ResellTextButtonState = ResellTextButtonState.ENABLED,
+        val primaryCallback: () -> Unit,
+        val secondaryCallback: () -> Unit,
+        val title: String,
+        val description: AnnotatedString,
+        val textAlign: TextAlign = TextAlign.Center
+    ) : RootSheet()
 }
 
 @Module

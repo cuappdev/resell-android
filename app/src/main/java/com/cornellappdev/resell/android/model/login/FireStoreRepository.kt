@@ -8,6 +8,7 @@ import com.cornellappdev.resell.android.model.chats.AvailabilityDocument
 import com.cornellappdev.resell.android.model.chats.BuyerSellerData
 import com.cornellappdev.resell.android.model.chats.ChatDocument
 import com.cornellappdev.resell.android.model.chats.ChatDocumentAny
+import com.cornellappdev.resell.android.model.chats.MeetingInfo
 import com.cornellappdev.resell.android.model.chats.UserDocument
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentSnapshot
@@ -250,6 +251,8 @@ class FireStoreRepository @Inject constructor(
                 val availabilityArray: List<Map<String, Any>>? =
                     it.get("availability") as? List<Map<String, Any>>
 
+                val meetingInfoMap = (it.get("meetingInfo") as? Map<String, Any>)?.mapValues { it?.value?.toString() }
+
                 val userDoc = UserDocument(
                     _id = userMap["_id"] ?: "",
                     avatar = userMap["avatar"] ?: "",
@@ -272,6 +275,15 @@ class FireStoreRepository @Inject constructor(
                             ?: listOf(),
                         categories = (it.get("product") as Map<String, Any>).get("categories") as? List<String>
                             ?: listOf(),
+                    )
+                }
+
+                val meetingInfo = meetingInfoMap?.let {
+                    MeetingInfo(
+                        state = meetingInfoMap["state"] ?: "",
+                        proposeTime = meetingInfoMap["proposeTime"] ?: "",
+                        proposer = meetingInfoMap["proposer"],
+                        canceler = meetingInfoMap["canceler"],
                     )
                 }
 
@@ -298,6 +310,7 @@ class FireStoreRepository @Inject constructor(
                     product = post,
                     image = it.get("image")?.toString() ?: "",
                     text = it.get("text")?.toString() ?: "",
+                    meetingInfo = meetingInfo
                 )
 
                 chatDoc
