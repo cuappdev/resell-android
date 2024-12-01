@@ -32,6 +32,7 @@ data class ChatMessageData(
     val timestamp: Timestamp,
     val id: String,
     val content: String,
+    val senderEmail: String,
     val messageType: MessageType,
     val imageUrl: String = "",
     val post: Post? = null,

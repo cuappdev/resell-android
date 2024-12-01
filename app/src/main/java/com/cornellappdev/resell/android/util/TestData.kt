@@ -87,11 +87,16 @@ val richieMessages = { count: Int ->
                     timestamp = Timestamp(0, 0),
                     "https://media.licdn.com/dms/image/D4E03AQGOCNNbxGtcjw/profile-displayphoto-shrink_200_200/0/1704329714345?e=2147483647&v=beta&t=Kq7ex1pKyiifjOpuNIojeZ8f4dXjEAsNSpkJDXBwjxc",
                     "deajdaejk",
-                    MessageType.Card
+                    messageType = MessageType.Card,
+                    senderEmail = ""
                 )
             } else {
                 ChatMessageData(
-                    timestamp = Timestamp(0, 0), "HELP", "feajkdna", MessageType.Message
+                    timestamp = Timestamp(0, 0),
+                    "HELP",
+                    "feajkdna",
+                    messageType = MessageType.Message,
+                    senderEmail = ""
                 )
             }
         },
@@ -110,17 +115,23 @@ val justinMessages = { count: Int ->
                     timestamp = Timestamp(0, 0),
                     "Lia",
                     "feaojfea",
-                    MessageType.Availability
+                    messageType = MessageType.Availability,
+                    senderEmail = ""
                 )
             } else if (it == 2) {
                 ChatMessageData(
                     timestamp = Timestamp(0, 0),
                     "Lia",
                     "00efa",
-                    MessageType.State
+                    messageType = MessageType.State,
+                    senderEmail = ""
                 )
             } else {
-                ChatMessageData(timestamp = Timestamp(0, 0), "HELP", "FEADea", MessageType.Message)
+                ChatMessageData(
+                    timestamp = Timestamp(0, 0), "HELP", "FEADea",
+                    messageType = MessageType.Message,
+                    senderEmail = ""
+                )
             }
         },
         senderName = "God"

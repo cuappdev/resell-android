@@ -104,7 +104,7 @@ sealed class RootSheet {
         val secondaryCallback: () -> Unit,
         val title: String,
         val description: AnnotatedString,
-        val textAlign: TextAlign = TextAlign.Center
+        val textAlign: TextAlign = TextAlign.Start
     ) : RootSheet()
 }
 

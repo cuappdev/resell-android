@@ -36,7 +36,9 @@ class TwoButtonSheetViewModel @Inject constructor(
                     description = uiEvent.payload.description,
                     primaryContainerType = uiEvent.payload.primaryContainerType,
                     secondaryContainerType = uiEvent.payload.secondaryContainerType,
-                    textAlign = uiEvent.payload.textAlign
+                    textAlign = uiEvent.payload.textAlign,
+                    primaryButtonState = uiEvent.payload.primaryButtonState,
+                    secondaryButtonState = uiEvent.payload.secondaryButtonState
                 )
             }
         }

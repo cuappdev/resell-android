@@ -16,6 +16,7 @@ import com.cornellappdev.resell.android.ui.components.availability.AvailabilityS
 import com.cornellappdev.resell.android.ui.components.global.sheet.ChatMeetingSheet
 import com.cornellappdev.resell.android.ui.components.global.sheet.LoginErrorSheet
 import com.cornellappdev.resell.android.ui.components.global.sheet.PriceProposalSheet
+import com.cornellappdev.resell.android.ui.components.global.sheet.TwoButtonSheet
 import com.cornellappdev.resell.android.ui.components.main.WelcomeSheetContent
 import com.cornellappdev.resell.android.ui.components.settings.LogOutSheetContent
 import com.cornellappdev.resell.android.ui.components.settings.ResellWebView
@@ -84,6 +85,10 @@ fun RootSheetOverlay(
                     WelcomeSheetContent {
                         onDismissRequest()
                     }
+                }
+
+                is RootSheet.TwoButtonSheet -> {
+                    TwoButtonSheet()
                 }
 
                 else -> {}

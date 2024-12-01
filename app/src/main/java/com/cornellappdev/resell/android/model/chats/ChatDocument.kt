@@ -119,7 +119,7 @@ data class MeetingInfo(
         thirtyMinutesLater.add(Calendar.MINUTE, 30)
         val first = SimpleDateFormat("EEEE, MMMM dd · h:mm", Locale.ENGLISH).format(date)
         val second = SimpleDateFormat("h:mm a", Locale.ENGLISH).format(thirtyMinutesLater.time)
-        return "Meeting at $first - $second"
+        return "$first - $second"
     }
 }
 

@@ -24,7 +24,7 @@ fun ResellChatScroll(
     modifier: Modifier = Modifier,
     onPostClicked: (Post) -> Unit,
     onAvailabilityClicked: (AvailabilityDocument, isSelf: Boolean) -> Unit,
-    onMeetingStateClicked: (MeetingInfo) -> Unit
+    onMeetingStateClicked: (MeetingInfo, isSelf: Boolean) -> Unit
 ) {
     LazyColumn(
         state = listState,
@@ -50,7 +50,12 @@ fun ResellChatScroll(
                             cluster.fromUser
                         )
                     },
-                    onMeetingStateClicked = onMeetingStateClicked
+                    onMeetingStateClicked = {
+                        onMeetingStateClicked(
+                            it,
+                            cluster.fromUser
+                        )
+                    }
                 )
                 if (i != chatHistory.size - 1) {
                     Spacer(modifier = Modifier.height(12.dp))

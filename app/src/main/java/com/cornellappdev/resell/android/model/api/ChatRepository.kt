@@ -126,6 +126,7 @@ class ChatRepository @Inject constructor(
                             getMeetingInfoContent(document.meetingInfo, document, myEmail, otherName)
                         } else document.text,
                         timestamp = document.createdAt,
+                        senderEmail = document.user._id,
                         messageType = messageType,
                         imageUrl = document.image,
                         post = document.product,
@@ -192,6 +193,7 @@ class ChatRepository @Inject constructor(
                                 content = messageData.timestamp.toDateString(),
                                 timestamp = messageData.timestamp,
                                 messageType = MessageType.State,
+                                senderEmail = currentSender,
                             )
                         )
                         newCluster = newCluster.copy(messages = newMessages.toImmutableList())

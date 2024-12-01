@@ -126,7 +126,7 @@ private fun ChatLoadedContent(
     onBackPressed: () -> Unit,
     onNegotiatePressed: () -> Unit,
     onSyncCalendarPressed: () -> Unit,
-    onMeetingStateClicked: (MeetingInfo) -> Unit,
+    onMeetingStateClicked: (MeetingInfo, Boolean) -> Unit,
     onAvailabilityClicked: (AvailabilityDocument, Boolean) -> Unit,
     onSendAvailability: () -> Unit,
     onImageUpload: (Uri) -> Unit,

@@ -10,7 +10,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.material3.Text
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
@@ -31,6 +33,7 @@ import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonCon
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonState
 import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
 import com.cornellappdev.resell.android.ui.theme.Style
+import com.cornellappdev.resell.android.ui.theme.Style.heading3
 import com.cornellappdev.resell.android.util.UIEvent
 import com.cornellappdev.resell.android.util.convertToFirestoreTimestamp
 import com.cornellappdev.resell.android.util.loadBitmapFromUri
@@ -439,7 +442,105 @@ class ChatViewModel @Inject constructor(
         )
     }
 
-    fun onMeetingStateClicked(meetingInfo: MeetingInfo) {
+    fun onMeetingStateClicked(meetingInfo: MeetingInfo, isSelf: Boolean) {
+        val name = if (isSelf) "You" else savedStateHandle.toRoute<ResellRootRoute.CHAT>().name
+        val listingName = stateValue().listing?.title ?: ""
+        val otherName = savedStateHandle.toRoute<ResellRootRoute.CHAT>().name
+        viewModelScope.launch {
+            when (meetingInfo.state) {
+                "proposed" -> {
+                    rootNavigationSheetRepository.showBottomSheet(
+                        RootSheet.TwoButtonSheet(
+                            title = "Proposal Details",
+                            description = buildAnnotatedString {
+                                append("$name proposed the following meeting time:\n\n")
+                                withStyle(style = heading3.toSpanStyle()) {
+                                    append("Time:\n")
+                                }
+                                append(meetingInfo.convertToMeetingString())
+                            },
+                            primaryText = "Confirm",
+                            secondaryText = "Decline",
+                            primaryCallback = { onMeetingConfirmed(meetingInfo) },
+                            secondaryCallback = {
+                                onMeetingDeclined(meetingInfo)
+                            },
+                            primaryButtonState = if (isSelf) {
+                                ResellTextButtonState.DISABLED
+                            } else {
+                                ResellTextButtonState.ENABLED
+                            },
+                            secondaryButtonState = if (isSelf) {
+                                ResellTextButtonState.DISABLED
+                            } else {
+                                ResellTextButtonState.ENABLED
+                            },
+                            secondaryContainerType = ResellTextButtonContainer.SECONDARY
+                        )
+                    )
+                }
+
+                "confirmed" -> {
+                    rootNavigationSheetRepository.showBottomSheet(
+                        RootSheet.TwoButtonSheet(
+                            title = "Meeting Details",
+                            description = buildAnnotatedString {
+                                append("Meeting with $otherName for $listingName confirmed for:\n\n")
+                                withStyle(style = heading3.toSpanStyle()) {
+                                    append("Time:\n")
+                                }
+                                append(meetingInfo.convertToMeetingString())
+                            },
+                            primaryText = "Cancel Meeting",
+                            secondaryText = "Close",
+                            primaryContainerType = ResellTextButtonContainer.PRIMARY_RED,
+                            secondaryContainerType = ResellTextButtonContainer.NAKED,
+                            primaryCallback = {
+                                onMeetingCancelled(meetingInfo)
+                            },
+                            secondaryCallback = {
+                                rootNavigationSheetRepository.hideSheet()
+                            },
+                        )
+                    )
+                }
+
+                "declined" -> {
+                    val myEmail = userInfoRepository.getUserInfo().email
+                    val chat = chatRepository.subscribedChatFlow.value.asSuccessOrNull()?.data
+                    if (chat == null) {
+                        return@launch
+                    }
+
+                    val mostRecentAvailability = chat.chatHistory.map {
+                        it.messages
+                    }.flatten().sortedByDescending {
+                        it.timestamp
+                    }.firstOrNull {
+                        it.availability != null && it.senderEmail != myEmail
+                    }
+
+                    mostRecentAvailability?.availability?.let {
+                        onAvailabilitySelected(it, false)
+                    }
+                }
+
+                "canceled" -> {}
+
+                else -> {}
+            }
+        }
+    }
+
+    private fun onMeetingConfirmed(meetingInfo: MeetingInfo) {
+
+    }
+
+    private fun onMeetingDeclined(meetingInfo: MeetingInfo) {
+
+    }
+
+    private fun onMeetingCancelled(meetingInfo: MeetingInfo) {
 
     }
 
