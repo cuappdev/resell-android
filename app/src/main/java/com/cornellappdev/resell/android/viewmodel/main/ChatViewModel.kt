@@ -51,6 +51,7 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import java.time.LocalDateTime
 import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
 @HiltViewModel
@@ -87,6 +88,23 @@ class ChatViewModel @Inject constructor(
 
         val showPayWithVenmo
             get() = chatType == ChatType.Purchases
+
+        val confirmedMeeting: MeetingInfo?
+            get() = currentChat.asSuccessOrNull()?.data?.let { chat ->
+                val mostRecentState = chat.chatHistory.map {
+                    it.messages
+                }.flatten().sortedByDescending {
+                    it.timestamp
+                }.firstOrNull {
+                    it.meetingInfo != null
+                }
+
+                if (mostRecentState != null && mostRecentState.meetingInfo!!.state == "confirmed") {
+                    mostRecentState.meetingInfo
+                } else {
+                    null
+                }
+            }
     }
 
     enum class ChatType {
@@ -412,7 +430,17 @@ class ChatViewModel @Inject constructor(
         isSelf: Boolean,
     ) {
         // TODO: Derive correctly based on if there's already been a confirmed meeting
-        val canPropose = true
+        val chat = chatRepository.subscribedChatFlow.value.asSuccessOrNull()!!.data
+        val mostRecentState = chat.chatHistory.map {
+            it.messages
+        }.flatten().sortedByDescending {
+            it.timestamp
+        }.firstOrNull {
+            it.meetingInfo != null
+        }
+
+        val canPropose =
+            !(mostRecentState != null && mostRecentState.meetingInfo!!.state == "confirmed")
 
         val navArgs = savedStateHandle.toRoute<ResellRootRoute.CHAT>()
         rootNavigationSheetRepository.showBottomSheet(
@@ -427,8 +455,12 @@ class ChatViewModel @Inject constructor(
                     "${navArgs.name} previously proposed this availability"
                 },
                 callback = {
-                    if (!isSelf && canPropose) {
-
+                    if (!isSelf && canPropose && it.isNotEmpty()) {
+                        onMeetingProposal(it.first())
+                    } else {
+                        rootConfirmationRepository.showError(
+                            "Please select a 30-minute block to propose a meeting, and ensure there is no current meeting."
+                        )
                     }
                 },
                 initialTimes = availability.availabilities.map {
@@ -511,10 +543,8 @@ class ChatViewModel @Inject constructor(
 
                 "declined" -> {
                     val myEmail = userInfoRepository.getUserInfo().email
-                    val chat = chatRepository.subscribedChatFlow.value.asSuccessOrNull()?.data
-                    if (chat == null) {
-                        return@launch
-                    }
+                    val chat =
+                        chatRepository.subscribedChatFlow.value.asSuccessOrNull()?.data ?: return@launch
 
                     val mostRecentAvailability = chat.chatHistory.map {
                         it.messages
@@ -532,6 +562,38 @@ class ChatViewModel @Inject constructor(
                 "canceled" -> {}
 
                 else -> {}
+            }
+        }
+    }
+
+    private fun onMeetingProposal(availability: LocalDateTime) {
+        rootNavigationSheetRepository.hideSheet()
+        viewModelScope.launch {
+            try {
+                chatRepository.sendProposalUpdate(
+                    myEmail = userInfoRepository.getUserInfo().email,
+                    otherEmail = savedStateHandle.toRoute<ResellRootRoute.CHAT>().email,
+                    selfIsBuyer = savedStateHandle.toRoute<ResellRootRoute.CHAT>().isBuyer,
+                    postId = stateValue().listing?.id ?: "",
+                    myName = userInfoRepository.getUserInfo().name,
+                    otherName = savedStateHandle.toRoute<ResellRootRoute.CHAT>().name,
+                    myImageUrl = userInfoRepository.getUserInfo().imageUrl,
+                    otherImageUrl = savedStateHandle.toRoute<ResellRootRoute.CHAT>().pfp,
+                    meetingInfo = MeetingInfo(
+                        state = "proposed",
+                        proposer = userInfoRepository.getUserInfo().email,
+                        proposeTime = availability.let {
+                            val formatter = DateTimeFormatter.ofPattern("MMMM dd yyyy, h:mm a")
+                            // Format the LocalDateTime object
+                            it.format(formatter)
+                        },
+                        canceler = null,
+                        mostRecent = false,
+                    )
+                )
+            } catch (e: Exception) {
+                rootConfirmationRepository.showError()
+                Log.e("ChatViewModel", "onMeetingProposal: ", e)
             }
         }
     }

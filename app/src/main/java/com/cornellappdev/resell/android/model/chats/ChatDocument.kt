@@ -102,7 +102,7 @@ data class MeetingInfo(
         return map
     }
 
-    fun convertToUtcMinusFiveDate(): Date {
+    private fun convertToUtcMinusFiveDate(): Date {
         val inputFormat = SimpleDateFormat("MMMM dd yyyy, h:mm a", Locale.ENGLISH)
 
         // Input format UTC-5
@@ -120,6 +120,9 @@ data class MeetingInfo(
         return calendar.time
     }
 
+    /**
+     * Form the meeting time string in the form "EEEE, MMMM dd · h:mm - h:mm a"
+     */
     fun convertToMeetingString(): String {
         val date = convertToUtcMinusFiveDate()
         val thirtyMinutesLater = Calendar.getInstance(TimeZone.getTimeZone("GMT-5"))

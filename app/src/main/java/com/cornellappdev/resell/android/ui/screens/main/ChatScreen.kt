@@ -112,7 +112,8 @@ fun ChatScreen(
                         isSelf = isSelf
                     )
                 },
-                onMeetingStateClicked = chatViewModel::onMeetingStateClicked
+                onMeetingStateClicked = chatViewModel::onMeetingStateClicked,
+                confirmedMeeting = chatUiState.confirmedMeeting
             )
         }
     }
@@ -135,18 +136,24 @@ private fun ChatLoadedContent(
     onTextChange: (String) -> Unit,
     showPayWithVenmo: Boolean,
     showNegotiate: Boolean,
-    onPostClicked: (Post) -> Unit
+    onPostClicked: (Post) -> Unit,
+    confirmedMeeting: MeetingInfo?,
 ) {
     Column(
         modifier = Modifier
             .fillMaxSize()
     ) {
         ChatHeader(
-            chat = chat,
             onBackPressed = { onBackPressed() },
-            confirmedMeeting = false,
+            confirmedMeeting = confirmedMeeting,
             sellerName = chatUiState.sellerName,
-            title = chatUiState.title
+            title = chatUiState.title,
+            onViewPressed = {
+                if (confirmedMeeting != null) {
+                    // For confirmed, doesn't matter who sent it.
+                    onMeetingStateClicked(confirmedMeeting, false)
+                }
+            }
         )
         ResellChatScroll(
             chatHistory = chat.chatHistory,
@@ -178,12 +185,12 @@ private fun ChatLoadedContent(
 
 @Composable
 private fun ChatHeader(
-    chat: Chat,
+    confirmedMeeting: MeetingInfo?,
     onBackPressed: () -> Unit,
     modifier: Modifier = Modifier,
-    confirmedMeeting: Boolean,
     title: String,
-    sellerName: String
+    sellerName: String,
+    onViewPressed: () -> Unit,
 ) {
     Column(
         modifier = modifier
@@ -234,7 +241,7 @@ private fun ChatHeader(
 
         }
         Spacer(Modifier.height(20.dp))
-        if (confirmedMeeting) {
+        if (confirmedMeeting != null) {
             Row(
                 modifier = Modifier
                     .background(ResellPurple)
@@ -256,13 +263,15 @@ private fun ChatHeader(
                         style = Style.title2.copy(color = Color.White)
                     )
                     Text(
-                        text = "October 23, 1:30 PM",
+                        text = confirmedMeeting.convertToMeetingString(),
                         style = Style.body2.copy(color = Color.White)
                     )
                 }
                 Text(
                     text = "View",
-                    style = Style.title2.copy(color = Color.White)
+                    style = Style.title2.copy(color = Color.White),
+                    modifier = Modifier
+                        .clickableNoIndication { onViewPressed() }
                 )
             }
         }
