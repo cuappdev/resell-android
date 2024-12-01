@@ -1,6 +1,5 @@
 package com.cornellappdev.resell.android.ui.components.availability
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.padding
@@ -27,7 +26,9 @@ fun AvailabilitySheet(
                 .padding(bottom = 16.dp)
                 .weight(1f),
             title = uiState.title,
-            subtitle = uiState.subtitle
+            subtitle = uiState.subtitle,
+            gridSelectionType = uiState.gridSelectionType,
+            setProposalTime = availabilitySheetViewModel::setProposalTime
         )
 
         ResellTextButton(

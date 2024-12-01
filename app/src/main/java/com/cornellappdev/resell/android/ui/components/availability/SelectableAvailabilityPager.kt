@@ -12,6 +12,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.cornellappdev.resell.android.ui.components.availability.helper.AvailabilityPagerContainer
+import com.cornellappdev.resell.android.ui.components.availability.helper.GridSelectionType
 import com.cornellappdev.resell.android.ui.components.availability.helper.SelectableAvailabilityGrid
 import com.cornellappdev.resell.android.ui.theme.ResellPreview
 import java.time.LocalDate
@@ -24,6 +25,8 @@ fun SelectableAvailabilityPager(
     initialSelectedAvailabilities: List<LocalDateTime> = emptyList(),
     scrollRange: Pair<Int, Int> = 0 to 6,
     modifier: Modifier = Modifier,
+    gridSelectionType: GridSelectionType,
+    setProposalTime: (LocalDateTime) -> Unit,
     setSelectedAvailabilities: (List<LocalDateTime>) -> Unit,
 ) {
     /** Guaranteed to have non-null mappings for any page in the scroll range. */
@@ -46,24 +49,13 @@ fun SelectableAvailabilityPager(
             val dayDifference = today.until(availability.toLocalDate()).days
             val pageIndex = Math.floorDiv(dayDifference, 3)
 
-            Log.d(
-                "helpme",
-                "day difference: $dayDifference for $availability, resuling in page index $pageIndex"
-            )
-
             if (selectedDatesByPage[pageIndex] != null) {
                 val list = selectedDatesByPage[pageIndex]!!.toMutableList()
                 list.add(availability)
                 val copy = selectedDatesByPage.toMutableMap()
                 copy[pageIndex] = list
                 selectedDatesByPage = copy.toMap()
-
-                Log.d("helpme", "non-null hit, new list: ${selectedDatesByPage[pageIndex]}")
-            } else {
-                Log.d("helpme", "null hit")
             }
-
-            Log.d("helpme", "calculating... $availability")
         }
     }
 
@@ -87,7 +79,10 @@ fun SelectableAvailabilityPager(
                 }
                 selectedDatesByPage = updatedDates
                 setSelectedAvailabilities(updatedDates.values.flatten())
-            })
+            },
+            gridSelectionType = gridSelectionType,
+            onProposalSelected = setProposalTime
+        )
     }
 }
 
@@ -95,11 +90,17 @@ fun SelectableAvailabilityPager(
 @Composable
 private fun SelectableAvailabilityPagerPreview() = ResellPreview {
     var selectedAvailabilities by remember { mutableStateOf(emptyList<LocalDateTime>()) }
+    var proposedAvailabilities: LocalDateTime? by remember { mutableStateOf(null) }
     Column {
         Text("Selected availabilities = $selectedAvailabilities")
+        Text("Proposed availability = $proposedAvailabilities")
         SelectableAvailabilityPager(
             title = "When are you free?",
             subtitle = "Fill it out or else.",
+            gridSelectionType = GridSelectionType.AVAILABILITY,
+            setProposalTime = {
+                proposedAvailabilities = it
+            }
         ) { selectedAvailabilities = it }
     }
 }

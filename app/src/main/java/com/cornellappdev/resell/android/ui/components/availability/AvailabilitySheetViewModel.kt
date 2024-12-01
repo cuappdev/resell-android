@@ -1,5 +1,6 @@
 package com.cornellappdev.resell.android.ui.components.availability
 
+import com.cornellappdev.resell.android.ui.components.availability.helper.GridSelectionType
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonState
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
 import com.cornellappdev.resell.android.viewmodel.root.RootNavigationSheetRepository
@@ -35,7 +36,8 @@ class AvailabilitySheetViewModel @Inject constructor(
         val addAvailability: Boolean,
         val currentPage: Int,
         val initialAvailabilities: List<LocalDateTime>,
-        val textButtonState: ResellTextButtonState = ResellTextButtonState.ENABLED
+        val textButtonState: ResellTextButtonState = ResellTextButtonState.ENABLED,
+        val gridSelectionType: GridSelectionType = GridSelectionType.AVAILABILITY
     )
 
     fun onAvailabilityChanged(availability: List<LocalDateTime>) {
@@ -45,6 +47,10 @@ class AvailabilitySheetViewModel @Inject constructor(
     fun onButtonClick() {
         applyMutation { copy(textButtonState = ResellTextButtonState.SPINNING) }
         stateValue().callback(stateValue().allAvailabilities)
+    }
+
+    fun setProposalTime(time: LocalDateTime) {
+
     }
 
     init {
