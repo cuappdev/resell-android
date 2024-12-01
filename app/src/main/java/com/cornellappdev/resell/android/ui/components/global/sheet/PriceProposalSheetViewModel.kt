@@ -7,6 +7,8 @@ import com.cornellappdev.resell.android.viewmodel.root.RootSheet
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
+const val NUM_DIGITS = 4
+
 @HiltViewModel
 class PriceProposalSheetViewModel @Inject constructor(
     private val rootNavigationSheetRepository: RootNavigationSheetRepository,
@@ -44,7 +46,7 @@ class PriceProposalSheetViewModel @Inject constructor(
 
         val canPressNumber
             get() = enabled &&
-                    (!hasDot && price.length <= 2 || hasDot && price
+                    (!hasDot && price.length <= (NUM_DIGITS - 1) || hasDot && price
                         .substringAfter(
                             delimiter = ".", missingDelimiterValue = ""
                         ).length < 2)
