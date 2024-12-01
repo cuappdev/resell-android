@@ -25,6 +25,7 @@ import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.model.core.UserInfoRepository
 import com.cornellappdev.resell.android.model.login.FireStoreRepository
 import com.cornellappdev.resell.android.model.login.FirebaseMessagingRepository
+import com.cornellappdev.resell.android.ui.components.availability.helper.GridSelectionType
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonContainer
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonState
 import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
@@ -285,7 +286,7 @@ class ChatViewModel @Inject constructor(
                 buttonString = "Continue",
                 description = "Drag across the grid to add/remove availability",
                 callback = ::availabilityCallback,
-                addAvailability = true
+                gridSelectionType = GridSelectionType.AVAILABILITY
             )
         )
     }
@@ -406,7 +407,7 @@ class ChatViewModel @Inject constructor(
         availability: AvailabilityDocument,
         isSelf: Boolean,
     ) {
-        // TODO: Derive correctly
+        // TODO: Derive correctly based on if there's already been a confirmed meeting
         val canPropose = true
 
         val navArgs = savedStateHandle.toRoute<ResellRootRoute.CHAT>()
@@ -422,13 +423,17 @@ class ChatViewModel @Inject constructor(
                     "${navArgs.name} previously proposed this availability"
                 },
                 callback = {},
-                addAvailability = false,
                 initialTimes = availability.availabilities.map {
                     val date = it.startDate.toDate()
                     // Convert Date to LocalDateTime
                     LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault())
                 },
-                initialButtonState = ResellTextButtonState.DISABLED
+                initialButtonState = ResellTextButtonState.DISABLED,
+                gridSelectionType = if (!isSelf && canPropose) {
+                    GridSelectionType.PROPOSAL
+                } else {
+                    GridSelectionType.NONE
+                }
             )
         )
     }

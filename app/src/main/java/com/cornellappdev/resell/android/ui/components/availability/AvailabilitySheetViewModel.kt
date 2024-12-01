@@ -19,10 +19,10 @@ class AvailabilitySheetViewModel @Inject constructor(
         title = "",
         subtitle = "",
         callback = {},
-        addAvailability = false,
         currentPage = 0,
         scrollRange = Pair(0, 6),
         initialAvailabilities = emptyList(),
+        gridSelectionType = GridSelectionType.AVAILABILITY
     )
 ) {
 
@@ -33,11 +33,11 @@ class AvailabilitySheetViewModel @Inject constructor(
         val title: String,
         val subtitle: String,
         val callback: (List<LocalDateTime>) -> Unit,
-        val addAvailability: Boolean,
         val currentPage: Int,
         val initialAvailabilities: List<LocalDateTime>,
         val textButtonState: ResellTextButtonState = ResellTextButtonState.ENABLED,
-        val gridSelectionType: GridSelectionType = GridSelectionType.AVAILABILITY
+        val gridSelectionType: GridSelectionType,
+        val proposedTime: LocalDateTime? = null
     )
 
     fun onAvailabilityChanged(availability: List<LocalDateTime>) {
@@ -46,11 +46,23 @@ class AvailabilitySheetViewModel @Inject constructor(
 
     fun onButtonClick() {
         applyMutation { copy(textButtonState = ResellTextButtonState.SPINNING) }
-        stateValue().callback(stateValue().allAvailabilities)
+
+        if (stateValue().gridSelectionType == GridSelectionType.AVAILABILITY) {
+            stateValue().callback(stateValue().allAvailabilities)
+        } else {
+            stateValue().callback(listOf(stateValue().proposedTime!!))
+        }
     }
 
     fun setProposalTime(time: LocalDateTime) {
-
+        if (stateValue().gridSelectionType == GridSelectionType.PROPOSAL) {
+            applyMutation {
+                copy(
+                    proposedTime = time,
+                    textButtonState = ResellTextButtonState.ENABLED
+                )
+            }
+        }
     }
 
     init {
@@ -66,9 +78,9 @@ class AvailabilitySheetViewModel @Inject constructor(
                     title = uiEvent.payload.title,
                     subtitle = uiEvent.payload.description,
                     callback = uiEvent.payload.callback,
-                    addAvailability = uiEvent.payload.addAvailability,
                     initialAvailabilities = uiEvent.payload.initialTimes,
-                    textButtonState = uiEvent.payload.initialButtonState
+                    textButtonState = uiEvent.payload.initialButtonState,
+                    gridSelectionType = uiEvent.payload.gridSelectionType
                 )
             }
         }

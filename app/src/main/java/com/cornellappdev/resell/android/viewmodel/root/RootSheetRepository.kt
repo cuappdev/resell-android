@@ -1,6 +1,7 @@
 package com.cornellappdev.resell.android.viewmodel.root
 
 import androidx.compose.runtime.Composable
+import com.cornellappdev.resell.android.ui.components.availability.helper.GridSelectionType
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonContainer
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonState
 import com.cornellappdev.resell.android.util.UIEvent
@@ -62,9 +63,6 @@ sealed class RootSheet {
     data object LogOut : RootSheet()
     data object Welcome : RootSheet()
 
-    /**
-     * @param addAvailability True if adding availability, false if proposing a time.
-     */
     data class Availability(
         val buttonString: String,
         val initialTimes: List<LocalDateTime> = listOf(),
@@ -72,7 +70,7 @@ sealed class RootSheet {
         val title: String,
         val description: String,
         val callback: (List<LocalDateTime>) -> Unit,
-        val addAvailability: Boolean,
+        val gridSelectionType: GridSelectionType
     ) : RootSheet()
 
     data class MeetingCancel(

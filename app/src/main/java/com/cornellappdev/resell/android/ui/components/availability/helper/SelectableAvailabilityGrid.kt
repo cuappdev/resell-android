@@ -79,6 +79,10 @@ private fun SelectableGrid(
     Canvas(modifier = modifier
         .fillMaxSize()
         .pointerInput(grid) {
+            if (gridSelectionType == GridSelectionType.NONE) {
+                return@pointerInput
+            }
+
             awaitPointerEventScope {
                 while (true) {
                     val event = awaitPointerEvent()
