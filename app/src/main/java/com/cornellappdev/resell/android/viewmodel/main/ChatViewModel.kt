@@ -3,6 +3,7 @@ package com.cornellappdev.resell.android.viewmodel.main
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.provider.CalendarContract
 import android.util.Log
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.material3.Text
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
@@ -52,6 +54,8 @@ import kotlinx.serialization.json.Json
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import java.util.Calendar
+import java.util.Date
 import javax.inject.Inject
 
 @HiltViewModel
@@ -190,29 +194,28 @@ class ChatViewModel @Inject constructor(
         )
     }
 
-    fun onSyncToCalendarPressed() {
-        rootNavigationSheetRepository.showBottomSheet(
-            RootSheet.MeetingDetails(
-                callback = {
+    private fun onSyncToCalendarPressed(date: Date) {
+        val otherName = savedStateHandle.toRoute<ResellRootRoute.CHAT>().name
+        val listingName = stateValue().listing?.title ?: ""
 
-                },
-                confirmString = "Sync",
-                title = "Sync to Google Calendar?",
-                closeString = "Close",
-                confirmColor = ResellTextButtonContainer.PRIMARY
-            ) {
-                Spacer(Modifier.height(16.dp))
+        // Open intent for google calendar
+        val intent = Intent(Intent.ACTION_INSERT)
+            .setData(CalendarContract.Events.CONTENT_URI)
+            .putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME, date.time)
+            // 30 minutes
+            .putExtra(CalendarContract.EXTRA_EVENT_END_TIME, date.time + 30 * 60 * 1000)
+            .putExtra(CalendarContract.EXTRA_EVENT_ALL_DAY, false)
+            .putExtra(
+                CalendarContract.Events.TITLE, "Meeting with $otherName ${
+                    if (listingName.isNotEmpty()) {
+                        "for $listingName"
+                    } else ""
+                }"
+            )
 
-                Text(
-                    text = "A new meeting has been detected would you like to sync your calendar?",
-                    style = Style.body1,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth()
-                )
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
 
-                Spacer(Modifier.height(32.dp))
-            }
-        )
+        context.startActivity(intent)
     }
 
     fun onNewProposalPressed() {
@@ -425,6 +428,22 @@ class ChatViewModel @Inject constructor(
         }
     }
 
+    private fun mostRecentMeetingStateIs(state: String): MeetingInfo? {
+        val chat = chatRepository.subscribedChatFlow.value.asSuccessOrNull()!!.data
+        val mostRecentState = chat.chatHistory.map {
+            it.messages
+        }.flatten().sortedByDescending {
+            it.timestamp
+        }.firstOrNull {
+            it.meetingInfo != null
+        }
+
+        if (mostRecentState != null && mostRecentState.meetingInfo!!.state == state)
+            return mostRecentState.meetingInfo
+
+        return null
+    }
+
     fun onAvailabilitySelected(
         availability: AvailabilityDocument,
         isSelf: Boolean,
@@ -439,8 +458,7 @@ class ChatViewModel @Inject constructor(
             it.meetingInfo != null
         }
 
-        val canPropose =
-            !(mostRecentState != null && mostRecentState.meetingInfo!!.state == "confirmed")
+        val canPropose = mostRecentMeetingStateIs("confirmed") == null
 
         val navArgs = savedStateHandle.toRoute<ResellRootRoute.CHAT>()
         rootNavigationSheetRepository.showBottomSheet(
@@ -544,7 +562,8 @@ class ChatViewModel @Inject constructor(
                 "declined" -> {
                     val myEmail = userInfoRepository.getUserInfo().email
                     val chat =
-                        chatRepository.subscribedChatFlow.value.asSuccessOrNull()?.data ?: return@launch
+                        chatRepository.subscribedChatFlow.value.asSuccessOrNull()?.data
+                            ?: return@launch
 
                     val mostRecentAvailability = chat.chatHistory.map {
                         it.messages
@@ -715,6 +734,33 @@ class ChatViewModel @Inject constructor(
                     currentChat = response,
                     scrollBottom = UIEvent(Unit)
                 )
+            }
+
+            viewModelScope.launch {
+                val confirmedMeetingInfo = mostRecentMeetingStateIs("confirmed")
+                if (response is ResellApiResponse.Success
+                    && confirmedMeetingInfo != null
+                    && chatRepository.shouldShowGCalSync(
+                        otherEmail = navArgs.email,
+                        meetingDate = confirmedMeetingInfo.convertToUtcMinusFiveDate()
+                    )
+                ) {
+                    rootNavigationSheetRepository.showBottomSheet(
+                        RootSheet.TwoButtonSheet(
+                            title = "Sync to Google Calendar?",
+                            description = AnnotatedString("A new meeting has been detected, would you like to sync to your calendar?"),
+                            primaryText = "Sync",
+                            secondaryText = "Close",
+                            primaryCallback = {
+                                onSyncToCalendarPressed(confirmedMeetingInfo.convertToUtcMinusFiveDate())
+                            },
+                            secondaryCallback = {
+                                rootNavigationSheetRepository.hideSheet()
+                            },
+                            secondaryContainerType = ResellTextButtonContainer.NAKED
+                        )
+                    )
+                }
             }
         }
     }

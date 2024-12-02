@@ -28,6 +28,7 @@ object PreferencesKeys {
     val NET_ID = stringPreferencesKey("net_id")
     val BIO = stringPreferencesKey("bio")
     val EMAIL = stringPreferencesKey("email")
+    val GCAL_SYNC = stringPreferencesKey("gcal_sync")
 }
 
 @Module

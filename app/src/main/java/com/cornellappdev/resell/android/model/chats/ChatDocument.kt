@@ -102,7 +102,7 @@ data class MeetingInfo(
         return map
     }
 
-    private fun convertToUtcMinusFiveDate(): Date {
+    fun convertToUtcMinusFiveDate(): Date {
         val inputFormat = SimpleDateFormat("MMMM dd yyyy, h:mm a", Locale.ENGLISH)
 
         // Input format UTC-5

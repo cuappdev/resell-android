@@ -1,6 +1,9 @@
 package com.cornellappdev.resell.android.model.api
 
 import android.util.Log
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.edit
 import com.cornellappdev.resell.android.model.Chat
 import com.cornellappdev.resell.android.model.ChatMessageCluster
 import com.cornellappdev.resell.android.model.ChatMessageData
@@ -14,6 +17,7 @@ import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.model.core.UserInfoRepository
 import com.cornellappdev.resell.android.model.login.FireStoreRepository
 import com.cornellappdev.resell.android.model.login.GoogleAuthRepository
+import com.cornellappdev.resell.android.model.login.PreferencesKeys
 import com.cornellappdev.resell.android.model.posts.ResellPostRepository
 import com.cornellappdev.resell.android.util.toDateString
 import com.cornellappdev.resell.android.util.toIsoString
@@ -22,11 +26,16 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import okhttp3.internal.toImmutableList
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
+import java.util.Date
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -37,6 +46,7 @@ class ChatRepository @Inject constructor(
     private val postRepository: ResellPostRepository,
     private val retrofitInstance: RetrofitInstance,
     private val googleAuthRepository: GoogleAuthRepository,
+    private val dataStore: DataStore<Preferences>,
 ) {
 
     private val _buyersHistoryFlow =
@@ -123,7 +133,12 @@ class ChatRepository @Inject constructor(
                     ChatMessageData(
                         id = document._id,
                         content = if (document.meetingInfo != null) {
-                            getMeetingInfoContent(document.meetingInfo, document, myEmail, otherName)
+                            getMeetingInfoContent(
+                                document.meetingInfo,
+                                document,
+                                myEmail,
+                                otherName
+                            )
                         } else document.text,
                         timestamp = document.createdAt,
                         senderEmail = document.user._id,
@@ -339,7 +354,7 @@ class ChatRepository @Inject constructor(
             !text.isNullOrEmpty() -> text
             !imageUrl.isNullOrEmpty() -> "[Image]"
             availability != null -> "[Availability]"
-            meetingInfo != null -> "[Meeting Proposal]"
+            meetingInfo != null -> "[Meeting Details]"
             else -> {
                 ""
             }
@@ -349,7 +364,16 @@ class ChatRepository @Inject constructor(
             !text.isNullOrEmpty() -> text
             !imageUrl.isNullOrEmpty() -> "Sent an Image"
             availability != null -> "Sent their Availability"
-            meetingInfo != null -> "Proposed a Meeting"
+            meetingInfo != null -> {
+                when (meetingInfo.state) {
+                    "proposed" -> "Proposed a Meeting"
+                    "confirmed" -> "Accepted a Meeting!"
+                    "declined" -> "Declined a Meeting"
+                    "canceled" -> "Canceled a Meeting"
+                    else -> "Updated Meeting Details"
+                }
+            }
+
             else -> {
                 ""
             }
@@ -541,5 +565,29 @@ class ChatRepository @Inject constructor(
 
         // Format the current time according to the specified pattern
         return currentTime.format(formatter)
+    }
+
+    suspend fun shouldShowGCalSync(
+        otherEmail: String,
+        meetingDate: Date,
+    ): Boolean {
+        val mapString = dataStore.data.map { preferences ->
+            preferences[PreferencesKeys.GCAL_SYNC]
+        }.firstOrNull()
+
+        val map = mapString?.let { Json.decodeFromString<Map<String, String>>(mapString) }
+
+        if (map != null && map[otherEmail] == meetingDate.toString()) {
+            return false
+        }
+
+        // Store new map, indicating that the user has already been notified for this meeting.
+        val newMap = map?.toMutableMap() ?: mutableMapOf()
+        newMap[otherEmail] = meetingDate.toString()
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.GCAL_SYNC] = Json.encodeToString(newMap)
+        }
+
+        return true
     }
 }
