@@ -429,7 +429,7 @@ class ChatViewModel @Inject constructor(
     }
 
     private fun mostRecentMeetingStateIs(state: String): MeetingInfo? {
-        val chat = chatRepository.subscribedChatFlow.value.asSuccessOrNull()!!.data
+        val chat = chatRepository.subscribedChatFlow.value.asSuccessOrNull()?.data ?: return null
         val mostRecentState = chat.chatHistory.map {
             it.messages
         }.flatten().sortedByDescending {
