@@ -68,11 +68,13 @@ class NotificationsLocalRepository @Inject constructor(
         context.dataStore.edit { preferences ->
             preferences[chatKey] = enabled
         }
+        // TODO uhh how do we set this in firestore lmao
     }
 
     suspend fun setListingsNotificationsEnabled(enabled: Boolean) {
         context.dataStore.edit { preferences ->
             preferences[listingsKey] = enabled
         }
+        // TODO uhh how do we set this in firestore lmao
     }
 }
