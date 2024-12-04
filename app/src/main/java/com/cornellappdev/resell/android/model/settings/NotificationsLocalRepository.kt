@@ -4,6 +4,8 @@ import android.content.Context
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.preferencesDataStore
+import com.cornellappdev.resell.android.model.core.UserInfoRepository
+import com.cornellappdev.resell.android.model.login.FireStoreRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -18,7 +20,9 @@ private val Context.dataStore by preferencesDataStore(name = "notifications")
 
 @Singleton
 class NotificationsLocalRepository @Inject constructor(
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
+    private val fireStoreRepository: FireStoreRepository,
+    private val userInfoRepository: UserInfoRepository,
 ) {
 
     private val pauseAllKey = booleanPreferencesKey("pause_all")
@@ -56,6 +60,8 @@ class NotificationsLocalRepository @Inject constructor(
         context.dataStore.edit { preferences ->
             preferences[pauseAllKey] = enabled
         }
+        val myEmail = userInfoRepository.getEmail()!!
+        fireStoreRepository.saveNotificationsEnabled(myEmail, enabled)
     }
 
     suspend fun setChatNotificationsEnabled(enabled: Boolean) {
