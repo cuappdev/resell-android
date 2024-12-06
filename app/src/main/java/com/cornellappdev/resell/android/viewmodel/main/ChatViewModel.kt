@@ -719,6 +719,13 @@ class ChatViewModel @Inject constructor(
             val myEmail = userInfoRepository.getEmail()!!
             val theirEmail = navArgs.email
 
+            // Mark chat as read
+            chatRepository.markChatRead(
+                myEmail = myEmail,
+                otherEmail = theirEmail,
+                chatType = stateValue().chatType
+            )
+
             chatRepository.subscribeToChat(
                 myEmail = myEmail,
                 otherEmail = theirEmail,

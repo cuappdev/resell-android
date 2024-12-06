@@ -11,6 +11,7 @@ import com.cornellappdev.resell.android.model.chats.ChatDocumentAny
 import com.cornellappdev.resell.android.model.chats.ChatDocumentAnyMeetingInfo
 import com.cornellappdev.resell.android.model.chats.MeetingInfo
 import com.cornellappdev.resell.android.model.chats.UserDocument
+import com.cornellappdev.resell.android.viewmodel.main.ChatViewModel
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
@@ -215,6 +216,33 @@ class FireStoreRepository @Inject constructor(
             confirmedViewed = viewed,
             email = it.id
         )
+    }
+
+    suspend fun markChatAsRead(
+        myEmail: String,
+        otherEmail: String,
+        chatType: ChatViewModel.ChatType,
+    ) {
+       when (chatType) {
+           // Self is buying from the other; other is a seller.
+           // Must write to myEmail/sellers/otherEmail/viewed
+           ChatViewModel.ChatType.Purchases -> {
+
+               val docRef = historyCollection.document(myEmail)
+                   .collection("sellers").document(otherEmail)
+
+               docRef.update("viewed", true).await()
+           }
+
+           // Self is selling to the other; other is a buyer.
+           // Must write to myEmail/buyers/otherEmail/viewed
+           ChatViewModel.ChatType.Offers -> {
+               val docRef = historyCollection.document(myEmail)
+                   .collection("buyers").document(otherEmail)
+
+               docRef.update("viewed", true).await()
+           }
+       }
     }
 
     fun subscribeToChat(

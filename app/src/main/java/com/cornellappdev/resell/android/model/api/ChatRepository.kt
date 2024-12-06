@@ -21,6 +21,7 @@ import com.cornellappdev.resell.android.model.login.PreferencesKeys
 import com.cornellappdev.resell.android.model.posts.ResellPostRepository
 import com.cornellappdev.resell.android.util.toDateString
 import com.cornellappdev.resell.android.util.toIsoString
+import com.cornellappdev.resell.android.viewmodel.main.ChatViewModel
 import com.google.firebase.Timestamp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -237,6 +238,18 @@ class ChatRepository @Inject constructor(
 
             _subscribedChatFlow.value = ResellApiResponse.Success(chat)
         }
+    }
+
+    suspend fun markChatRead(
+        myEmail: String,
+        otherEmail: String,
+        chatType: ChatViewModel.ChatType,
+    ) {
+        fireStoreRepository.markChatAsRead(
+            myEmail = myEmail,
+            otherEmail = otherEmail,
+            chatType = chatType
+        )
     }
 
     private fun getMeetingInfoContent(

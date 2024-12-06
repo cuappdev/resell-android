@@ -1,5 +1,6 @@
 package com.cornellappdev.resell.android.viewmodel.main
 
+import androidx.lifecycle.viewModelScope
 import com.cornellappdev.resell.android.model.api.ChatRepository
 import com.cornellappdev.resell.android.model.chats.BuyerSellerData
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
@@ -12,6 +13,8 @@ import com.cornellappdev.resell.android.viewmodel.main.ChatViewModel.ChatType
 import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepository
 import com.cornellappdev.resell.android.viewmodel.root.RootConfirmationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -81,6 +84,12 @@ class MessagesViewModel @Inject constructor(
             email = historyEntry.email ?: "",
             pfp = historyEntry.image
         )
+
+        // Wait a bit then reload; loads the marked as read.
+        viewModelScope.launch {
+            delay(400)
+            onLoad()
+        }
     }
 
     fun onChangeChatType(chatType: ChatType) {
