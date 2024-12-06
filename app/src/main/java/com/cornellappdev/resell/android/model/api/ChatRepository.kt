@@ -467,27 +467,6 @@ class ChatRepository @Inject constructor(
                 ),
                 authToken = "Bearer $oauth"
             )
-
-            // TODO: Test send to self
-            retrofitInstance.notificationsApi.sendNotification(
-                body = FcmBody(
-                    message = FcmMessage(
-                        notification = FcmNotification(
-                            title = myName,
-                            body = notificationText,
-                        ),
-                        token = fireStoreRepository.getUserFCMToken(myEmail)!!,
-                        data = NotificationData.ChatNotification(
-                            name = otherName,
-                            email = otherEmail,
-                            pfp = otherImageUrl,
-                            postJson = Json.encodeToString(item),
-                            isBuyer = selfIsBuyer.toString(),
-                        )
-                    )
-                ),
-                authToken = "Bearer $oauth"
-            )
         }
     }
 

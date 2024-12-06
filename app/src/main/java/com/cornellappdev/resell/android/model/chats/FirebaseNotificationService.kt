@@ -33,7 +33,6 @@ class FirebaseNotificationService : FirebaseMessagingService() {
 
         // Log the incoming message
         Log.d("FCM", "Message received from: ${remoteMessage.from}")
-        Log.d("FCMhelpme", "${remoteMessage.data}")
 
         // Check if the message contains a notification payload
         remoteMessage.notification?.let {

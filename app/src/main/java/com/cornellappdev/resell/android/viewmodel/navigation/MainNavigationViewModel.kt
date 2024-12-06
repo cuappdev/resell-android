@@ -60,7 +60,6 @@ class MainNavigationViewModel @Inject constructor(
 
         asyncCollect(notificationsRepository.notificationData) { event ->
             event?.consume { data ->
-                Log.d("helpme", "Notification data: $data")
                 applyMutation {
                     copy(notificationData = data)
                 }
@@ -92,7 +91,6 @@ class MainNavigationViewModel @Inject constructor(
     }
 
     private fun parseNotification(notificationData: NotificationData) {
-        Log.d("helpme", "Notification data: $notificationData")
         when (notificationData) {
             is NotificationData.ChatNotification -> {
                 val post = Json.decodeFromString<Post>(notificationData.postJson)

@@ -56,7 +56,6 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun handleNotificationIntent(intent: Intent) {
-        Log.d("helpme", "Intent extras: ${intent.extras}")
         intent.extras?.let { extras ->
             val notification = NotificationData.ChatNotification(
                 name = extras.getString("name").orEmpty(),
@@ -65,8 +64,6 @@ class MainActivity : ComponentActivity() {
                 postJson = extras.getString("postJson").orEmpty(),
                 isBuyer = extras.getBoolean("isBuyer").toString()
             )
-
-            Log.d("helpme", "Notification: $notification")
 
             // if any of the extras are missing, don't nav
             if (notification.name.isEmpty() || notification.email.isEmpty() || notification.pfp.isEmpty() || notification.postJson.isEmpty()) {
