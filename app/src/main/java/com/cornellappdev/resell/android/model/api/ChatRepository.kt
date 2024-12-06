@@ -447,25 +447,42 @@ class ChatRepository @Inject constructor(
         )
         Log.d("ChatRepository", "Token: $token")
         val oauth = googleAuthRepository.getOAuthToken()
-        if (token != null) {
+        if (token != null && otherNotifsEnabled) {
             retrofitInstance.notificationsApi.sendNotification(
                 body = FcmBody(
                     message = FcmMessage(
-                        notification = if (otherNotifsEnabled) {
-                            FcmNotification(
-                                title = myName,
-                                body = notificationText,
-                            )
-                        } else {
-                            null
-                        },
+                        notification = FcmNotification(
+                            title = myName,
+                            body = notificationText,
+                        ),
                         token = token,
+                        data = NotificationData.ChatNotification(
+                            name = myName,
+                            email = myEmail,
+                            pfp = myImageUrl,
+                            postJson = Json.encodeToString(item),
+                            isBuyer = (!selfIsBuyer).toString(),
+                        )
+                    )
+                ),
+                authToken = "Bearer $oauth"
+            )
+
+            // TODO: Test send to self
+            retrofitInstance.notificationsApi.sendNotification(
+                body = FcmBody(
+                    message = FcmMessage(
+                        notification = FcmNotification(
+                            title = myName,
+                            body = notificationText,
+                        ),
+                        token = fireStoreRepository.getUserFCMToken(myEmail)!!,
                         data = NotificationData.ChatNotification(
                             name = otherName,
                             email = otherEmail,
                             pfp = otherImageUrl,
                             postJson = Json.encodeToString(item),
-                            isBuyer = selfIsBuyer,
+                            isBuyer = selfIsBuyer.toString(),
                         )
                     )
                 ),

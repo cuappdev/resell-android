@@ -140,6 +140,7 @@ private fun ChatLoadedContent(
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(Color.White)
     ) {
         ChatHeader(
             onBackPressed = { onBackPressed() },

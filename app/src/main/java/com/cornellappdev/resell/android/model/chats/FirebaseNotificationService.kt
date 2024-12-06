@@ -33,20 +33,21 @@ class FirebaseNotificationService : FirebaseMessagingService() {
 
         // Log the incoming message
         Log.d("FCM", "Message received from: ${remoteMessage.from}")
+        Log.d("FCMhelpme", "${remoteMessage.data}")
 
         // Check if the message contains a notification payload
         remoteMessage.notification?.let {
             val title = it.title ?: "Notification Title"
             val body = it.body ?: "Notification Body"
-            sendNotification(title, body)
-        }
 
-        // If there's additional data payload
-        remoteMessage.data.let {
-            if (it.isNotEmpty()) {
-                Log.d("FCM", "Data payload: $it")
-                // Handle the data payload if needed
-            }
+            sendNotification(
+                title, body,
+                name = remoteMessage.data["name"],
+                email = remoteMessage.data["email"],
+                pfp = remoteMessage.data["pfp"],
+                postJson = remoteMessage.data["postJson"],
+                isBuyer = remoteMessage.data["isBuyer"].toBoolean()
+            )
         }
     }
 
@@ -68,13 +69,29 @@ class FirebaseNotificationService : FirebaseMessagingService() {
         }
     }
 
-    private fun sendNotification(title: String, messageBody: String) {
+    private fun sendNotification(
+        title: String,
+        messageBody: String,
+        name: String? = null,
+        email: String? = null,
+        pfp: String? = null,
+        postJson: String? = null,
+        isBuyer: Boolean? = null
+    ) {
         val notificationId = System.currentTimeMillis().toInt()
         val channelId = "default_channel_id"
 
         // Intent to open when the notification is clicked
-        val intent = Intent(this, MainActivity::class.java)
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        val intent = Intent(this, MainActivity::class.java).apply {
+            addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+            // Add your data as extras here
+            putExtra("name", name)
+            putExtra("email", email)
+            putExtra("pfp", pfp)
+            putExtra("postJson", postJson)
+            putExtra("isBuyer", isBuyer)
+        }
+
         val pendingIntent = PendingIntent.getActivity(
             this, 0, intent, PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE
         )

@@ -330,8 +330,6 @@ class FireStoreRepository @Inject constructor(
                     )
                 }
 
-                Log.d("helpme", availability.toString())
-
                 val chatDoc = ChatDocument(
                     _id = it.get("_id")?.toString() ?: "",
                     createdAt = it.getTimestamp("createdAt") ?: Timestamp(0, 0),

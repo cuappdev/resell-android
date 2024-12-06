@@ -3,6 +3,7 @@ package com.cornellappdev.resell.android.viewmodel.navigation
 import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.cornellappdev.resell.android.model.api.NotificationData
+import com.cornellappdev.resell.android.model.api.Post
 import com.cornellappdev.resell.android.model.core.UserInfoRepository
 import com.cornellappdev.resell.android.model.login.FireStoreRepository
 import com.cornellappdev.resell.android.model.login.FirebaseMessagingRepository
@@ -17,6 +18,8 @@ import com.cornellappdev.resell.android.viewmodel.ResellViewModel
 import com.cornellappdev.resell.android.viewmodel.root.RootConfirmationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import retrofit2.HttpException
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -57,6 +60,7 @@ class MainNavigationViewModel @Inject constructor(
 
         asyncCollect(notificationsRepository.notificationData) { event ->
             event?.consume { data ->
+                Log.d("helpme", "Notification data: $data")
                 applyMutation {
                     copy(notificationData = data)
                 }
@@ -88,14 +92,17 @@ class MainNavigationViewModel @Inject constructor(
     }
 
     private fun parseNotification(notificationData: NotificationData) {
+        Log.d("helpme", "Notification data: $notificationData")
         when (notificationData) {
             is NotificationData.ChatNotification -> {
+                val post = Json.decodeFromString<Post>(notificationData.postJson)
+
                 rootNavigationRepository.navigate(ResellRootRoute.CHAT(
                     email = notificationData.email,
                     name = notificationData.name,
                     pfp = notificationData.pfp,
-                    isBuyer = notificationData.isBuyer,
-                    postJson = notificationData.postJson
+                    isBuyer = notificationData.isBuyer == "true",
+                    postJson = Json.encodeToString(post.toListing()),
                 ))
             }
         }

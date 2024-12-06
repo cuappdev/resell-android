@@ -22,7 +22,7 @@ data class FcmBody(
 data class FcmMessage(
     val token: String,
     val notification: FcmNotification?,
-    val data: NotificationData
+    val data: Any?,
 )
 
 /**
@@ -47,7 +47,10 @@ sealed class NotificationData {
         val email: String,
         val pfp: String,
         val postJson: String,
-        val isBuyer: Boolean
+        /**
+         * "true" if the user receiving this is a buyer, "false" if the user is a seller
+         */
+        val isBuyer: String
     ) : NotificationData() {
         override val navigationId: String
             get() = "chat"
