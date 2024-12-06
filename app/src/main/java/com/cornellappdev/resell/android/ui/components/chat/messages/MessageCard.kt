@@ -1,4 +1,4 @@
-package com.cornellappdev.resell.android.ui.components.global.messages
+package com.cornellappdev.resell.android.ui.components.chat.messages
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
@@ -27,12 +28,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
 import com.cornellappdev.resell.android.R
+import com.cornellappdev.resell.android.ui.components.main.ProfilePictureView
 import com.cornellappdev.resell.android.ui.theme.Padding
+import com.cornellappdev.resell.android.ui.theme.ResellPreview
 import com.cornellappdev.resell.android.ui.theme.ResellPurple
 import com.cornellappdev.resell.android.ui.theme.Style
 
@@ -41,6 +44,7 @@ fun MessageCard(
     imageUrl: String,
     seller: String,
     title: String,
+    relativeTimestamp: String,
     message: String,
     unread: Boolean,
     modifier: Modifier = Modifier,
@@ -57,16 +61,12 @@ fun MessageCard(
     ) {
         Box {
             Row {
-                AsyncImage(
-                    model = imageUrl,
-                    contentDescription = null,
+                ProfilePictureView(
+                    imageUrl = imageUrl,
                     modifier = Modifier
                         .fillMaxHeight()
                         .aspectRatio(1f)
-                        .clip(RoundedCornerShape(32.dp)),
-
-                    placeholder = painterResource(id = R.drawable.ic_launcher_background),
-                    contentScale = ContentScale.Crop
+                        .size(32.dp)
                 )
                 Spacer(modifier = Modifier.width(12.dp))
             }
@@ -98,7 +98,8 @@ fun MessageCard(
         Column(
             modifier = Modifier
                 .fillMaxHeight()
-                .weight(1f),
+                .weight(1f)
+                .padding(end = 16.dp),
             verticalArrangement = Arrangement.SpaceEvenly
         ) {
             Row(
@@ -109,6 +110,9 @@ fun MessageCard(
                     style = Style.title1,
                     text = seller,
                     color = Color.Black,
+                    modifier = Modifier.weight(1f, fill = false),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                 )
                 Spacer(modifier = Modifier.width(12.dp))
                 Row(
@@ -122,15 +126,34 @@ fun MessageCard(
                         style = Style.title4,
                         text = title,
                         color = Color.Gray,
+                        modifier = Modifier.widthIn(max = 100.dp),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
                 }
             }
             Spacer(modifier = Modifier.height(1.dp))
-            Text(
-                style = Style.title4,
-                text = message,
-                color = Color.Gray,
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    style = Style.title4,
+                    text = message,
+                    color = Color.Gray,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f, fill = false)
+                )
+
+                Text(
+                    style = Style.title4,
+                    text = " · $relativeTimestamp",
+                    color = Color.Gray,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+
         }
 
         Icon(
@@ -144,4 +167,46 @@ fun MessageCard(
     }
 }
 
+@Preview
+@Composable
+fun MessageCardPreview() = ResellPreview {
+    MessageCard(
+        imageUrl = "",
+        seller = "Seller",
+        title = "Title",
+        message = "Message",
+        unread = true,
+        onClick = {},
+        relativeTimestamp = "7 damn years ago boy"
+    )
 
+    MessageCard(
+        imageUrl = "",
+        seller = "This seller has a long ass name boy",
+        title = "Title",
+        message = "Message",
+        unread = true,
+        onClick = {},
+        relativeTimestamp = "7 damn years ago boy"
+    )
+
+    MessageCard(
+        imageUrl = "",
+        seller = "This seller has a long ass name boy",
+        title = "This item has a long ass title",
+        message = "Message",
+        unread = true,
+        onClick = {},
+        relativeTimestamp = "7 damn years ago boy"
+    )
+
+    MessageCard(
+        imageUrl = "",
+        seller = "Seller",
+        title = "This item has a long ass title",
+        message = "Long ass mf message boyyyyy yaaaaa hell yeah",
+        unread = true,
+        onClick = {},
+        relativeTimestamp = "7 damn years ago boy"
+    )
+}

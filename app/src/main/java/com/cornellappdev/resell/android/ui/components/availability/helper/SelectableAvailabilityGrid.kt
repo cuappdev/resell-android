@@ -14,10 +14,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.toSize
 import com.cornellappdev.resell.android.ui.theme.ResellPreview
@@ -27,6 +29,11 @@ import com.cornellappdev.resell.android.util.toSortedPair
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import kotlin.math.abs
+
+enum class GridSelectionType {
+    NONE, AVAILABILITY, PROPOSAL
+}
 
 /**
  * Requires: grid is non-empty
@@ -35,14 +42,17 @@ import java.time.format.DateTimeFormatter
 private fun SelectableGrid(
     grid: List<BooleanArray>,
     updateGrid: ((List<BooleanArray>) -> List<BooleanArray>) -> Unit,
+    gridSelectionType: GridSelectionType,
     modifier: Modifier = Modifier,
+    onProposalSelected: (Pair<Int, Int>) -> Unit
 ) {
-    var isFirstMove by remember { mutableStateOf(true) }
     var isRemoving by remember { mutableStateOf(false) }
     val (width, height) = grid.first().size to grid.size
     var selectionStart by remember { mutableStateOf<Pair<Int, Int>?>(null) }
     var selectionEnd by remember { mutableStateOf<Pair<Int, Int>?>(null) }
 
+    // Used only in proposal
+    var selectionStartProposal by remember { mutableStateOf<Pair<Int, Int>?>(null) }
 
     fun inSelection(row: Int, col: Int): Boolean = selectionStart?.let { selectionStart ->
         selectionEnd?.let { selectionEnd ->
@@ -69,26 +79,74 @@ private fun SelectableGrid(
     Canvas(modifier = modifier
         .fillMaxSize()
         .pointerInput(grid) {
+            if (gridSelectionType == GridSelectionType.NONE) {
+                return@pointerInput
+            }
+
             awaitPointerEventScope {
                 while (true) {
                     val event = awaitPointerEvent()
                     val position = event.calculateCentroid()
-                    if (event.type == PointerEventType.Move) {
-                        if (isFirstMove) {
-                            val (row, col) = getGridCell(position, size.toSize(), width, height)
-                            selectionStart = row to col
-                            isRemoving = grid[row][col]
-                            isFirstMove = false
+                    val gridCell = getGridCell(position, size.toSize(), width, height)
+
+                    when (gridSelectionType) {
+                        GridSelectionType.AVAILABILITY -> if (event.type == PointerEventType.Press) {
+                            val pressPosition: Offset? =
+                                event.changes.firstOrNull { it.pressed }?.position
+                            if (pressPosition != null) {
+                                val (row, col) = getGridCell(
+                                    pressPosition,
+                                    size.toSize(),
+                                    width,
+                                    height
+                                )
+                                selectionStart = row to col
+                                selectionEnd = row to col
+                                isRemoving = grid[row][col]
+                            }
+                        } else if (event.type == PointerEventType.Move) {
+                            selectionEnd = gridCell
+                        } else if (event.type == PointerEventType.Release) {
+                            updateGrid {
+                                it.changeBySelection(!isRemoving)
+                            }
+                            isRemoving = false
+                            selectionStart = null
+                            selectionEnd = null
                         }
-                        selectionEnd = getGridCell(position, size.toSize(), width, height)
-                    } else if (event.type == PointerEventType.Release) {
-                        updateGrid {
-                            it.changeBySelection(!isRemoving)
+
+                        GridSelectionType.PROPOSAL -> {
+                            if (event.type == PointerEventType.Press) {
+                                val pressPosition: Offset? =
+                                    event.changes.firstOrNull { it.pressed }?.position
+                                if (pressPosition != null) {
+                                    selectionStartProposal = getGridCell(
+                                        pressPosition,
+                                        size.toSize(),
+                                        width,
+                                        height
+                                    )
+                                }
+                            } else if (event.type == PointerEventType.Move) {
+                                if (selectionStartProposal != null && selectionStartProposal != gridCell) {
+                                    selectionStartProposal = null
+                                }
+                            } else if (event.type == PointerEventType.Release) {
+                                if (selectionStartProposal == null) {
+                                    continue
+                                }
+                                onProposalSelected(selectionStartProposal!!)
+                            }
                         }
-                        isRemoving = false
-                        selectionStart = null
-                        selectionEnd = null
-                        isFirstMove = true
+
+                        GridSelectionType.NONE -> {}
+                    }
+
+                    event.changes.forEach {
+                        val offset = it.positionChange()
+                        if (abs(offset.y) > 0f) {
+                            it.consume()
+                        }
                     }
                 }
             }
@@ -109,32 +167,43 @@ private fun SelectableGrid(
         drawSelectedGridCells(grid, rectWidth, rectHeight)
 
         // Draw selection preview
-        selectionStart?.let { selectionStart ->
-            selectionEnd?.let { selectionEnd ->
-                val (minRow, maxRow) = (selectionStart.first to selectionEnd.first).toSortedPair()
-                val (minCol, maxCol) = (selectionStart.second to selectionEnd.second).toSortedPair()
-                val position = Offset(rectWidth * minCol, rectHeight * minRow)
-                drawRect(
-                    size = Size(
-                        (maxCol - minCol + 1) * rectWidth,
-                        (maxRow - minRow + 1) * rectHeight,
-                    ), topLeft = position,
-                    color = gridStroke.changeBrightness(0.8F),
-                    style = Stroke(
-                        width = 8F, pathEffect = PathEffect.dashPathEffect(
-                            floatArrayOf(25F, 25F)
-                        )
+        fun DrawScope.drawSelectionPreview(
+            selectionStart: Pair<Int, Int>,
+            selectionEnd: Pair<Int, Int>
+        ) {
+            val (minRow, maxRow) = (selectionStart.first to selectionEnd.first).toSortedPair()
+            val (minCol, maxCol) = (selectionStart.second to selectionEnd.second).toSortedPair()
+            val position = Offset(rectWidth * minCol, rectHeight * minRow)
+            drawRect(
+                size = Size(
+                    (maxCol - minCol + 1) * rectWidth,
+                    (maxRow - minRow + 1) * rectHeight,
+                ), topLeft = position,
+                color = gridStroke.changeBrightness(0.8F),
+                style = Stroke(
+                    width = 8F, pathEffect = PathEffect.dashPathEffect(
+                        floatArrayOf(25F, 25F)
                     )
                 )
-                drawRect(
-                    size = Size(
-                        (maxCol - minCol + 1) * rectWidth,
-                        (maxRow - minRow + 1) * rectHeight,
-                    ), topLeft = position,
-                    color = fillColor.copy(alpha = .5F).changeBrightness(1.3F),
-                    style = Fill
-                )
-            }
+            )
+            drawRect(
+                size = Size(
+                    (maxCol - minCol + 1) * rectWidth,
+                    (maxRow - minRow + 1) * rectHeight,
+                ), topLeft = position,
+                color = fillColor.copy(alpha = .5F).changeBrightness(1.3F),
+                style = Fill
+            )
+        }
+        if (selectionStart != null && selectionEnd != null) {
+            drawSelectionPreview(
+                selectionStart!!,
+                selectionEnd!!
+            )
+        }
+
+        if (selectionStartProposal != null) {
+            drawSelectionPreview(selectionStartProposal!!, selectionStartProposal!!)
         }
     }
 }
@@ -145,23 +214,24 @@ fun SelectableAvailabilityGrid(
     dates: List<LocalDate>,
     selectedAvailabilities: List<LocalDateTime>,
     setSelectedAvailabilities: (List<LocalDateTime>) -> Unit,
-    modifier: Modifier = Modifier
+    gridSelectionType: GridSelectionType,
+    modifier: Modifier = Modifier,
+    onProposalSelected: (LocalDateTime) -> Unit,
 ) {
-    var grid by remember {
-        mutableStateOf(
-            selectedAvailabilities.mapToGrid(dates)
-        )
-    }
-
+    val grid = selectedAvailabilities.mapToGrid(dates)
 
     AvailabilityGridContainer(dates, modifier) {
         SelectableGrid(
             grid = grid,
             updateGrid = {
                 val newGrid = it(grid)
-                grid = newGrid
                 setSelectedAvailabilities(newGrid.toAvailabilities(dates))
             },
+            gridSelectionType = gridSelectionType,
+            onProposalSelected = {
+                val (row, col) = it
+                onProposalSelected(rowColToLocalDateTime(row, col, dates))
+            }
         )
     }
 }
@@ -171,6 +241,7 @@ fun SelectableAvailabilityGrid(
 @Composable
 private fun AvailabilityGrid_RUNME_Preview() = ResellPreview {
     var selectedAvailabilities by remember { mutableStateOf(emptyList<LocalDateTime>()) }
+    var proposedAvailabilities: LocalDateTime? by remember { mutableStateOf(null) }
     Column {
         Text(
             "Selected availabilities: ${
@@ -180,14 +251,18 @@ private fun AvailabilityGrid_RUNME_Preview() = ResellPreview {
             }",
             style = Style.body1
         )
+        Text("Proposed availabilities: $proposedAvailabilities", style = Style.body1)
         SelectableAvailabilityGrid(
             testDates,
             selectedAvailabilities,
             setSelectedAvailabilities = {
                 selectedAvailabilities = it
             },
-            modifier = Modifier.weight(1F)
+            modifier = Modifier.weight(1F),
+            gridSelectionType = GridSelectionType.PROPOSAL,
+            onProposalSelected = {
+                proposedAvailabilities = it
+            }
         )
     }
 }
-

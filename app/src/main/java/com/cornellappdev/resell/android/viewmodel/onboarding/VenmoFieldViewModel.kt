@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.cornellappdev.resell.android.model.api.CreateUserBody
 import com.cornellappdev.resell.android.model.login.FireStoreRepository
+import com.cornellappdev.resell.android.model.login.FirebaseMessagingRepository
 import com.cornellappdev.resell.android.model.login.GoogleAuthRepository
 import com.cornellappdev.resell.android.model.login.ResellAuthRepository
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonState
@@ -32,6 +33,7 @@ class VenmoFieldViewModel @Inject constructor(
     private val googleAuthRepository: GoogleAuthRepository,
     private val rootConfirmationRepository: RootConfirmationRepository,
     private val fireStoreRepository: FireStoreRepository,
+    private val firebaseMessagingRepository: FirebaseMessagingRepository,
     savedStateHandle: SavedStateHandle
 ) : ResellViewModel<VenmoFieldViewModel.VenmoFieldUiState>(
     initialUiState = VenmoFieldUiState()
@@ -78,18 +80,12 @@ class VenmoFieldViewModel @Inject constructor(
     }
 
     fun onContinueClick() {
-        // TODO
-        viewModelScope.launch {
-
-        }
-
-        // Test
         viewModelScope.launch {
             applyMutation {
                 copy(loading = true)
             }
             delay(500)
-            makeNewUser()
+            makeNewUser(false)
         }
     }
 
@@ -99,14 +95,14 @@ class VenmoFieldViewModel @Inject constructor(
                 copy(skipLoading = true)
             }
             delay(500)
-            makeNewUser()
+            makeNewUser(true)
         }
     }
 
     /**
      * Makes a new user and navigates out if successful.
      */
-    private fun makeNewUser() {
+    private fun makeNewUser(skipped: Boolean) {
         viewModelScope.launch {
             val googleUser = googleAuthRepository.accountOrNull()!!
             try {
@@ -126,6 +122,20 @@ class VenmoFieldViewModel @Inject constructor(
                 fireStoreRepository.saveOnboarded(
                     googleUser.email!!
                 )
+                fireStoreRepository.saveDeviceToken(
+                    googleUser.email!!,
+                    firebaseMessagingRepository.getDeviceFCMToken()!!
+                )
+                fireStoreRepository.saveNotificationsEnabled(
+                    googleUser.email!!,
+                    true
+                )
+                if (!skipped) {
+                    fireStoreRepository.saveVenmo(
+                        googleUser.email!!,
+                        stateValue().handle
+                    )
+                }
 
                 rootNavigationRepository.navigate(ResellRootRoute.MAIN)
                 rootNavigationSheetRepository.showBottomSheet(RootSheet.Welcome)

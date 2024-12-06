@@ -25,17 +25,18 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.cornellappdev.resell.android.ui.components.global.messages.MessageTag
-import com.cornellappdev.resell.android.ui.components.global.messages.ResellMessagesScroll
+import com.cornellappdev.resell.android.ui.components.chat.messages.MessageTag
+import com.cornellappdev.resell.android.ui.components.chat.messages.ResellMessagesScroll
 import com.cornellappdev.resell.android.ui.theme.Padding
 import com.cornellappdev.resell.android.ui.theme.Style
 import com.cornellappdev.resell.android.util.defaultHorizontalPadding
 import com.cornellappdev.resell.android.viewmodel.main.ChatViewModel
+import com.cornellappdev.resell.android.viewmodel.main.MessagesViewModel
 import kotlinx.coroutines.launch
 
 @Composable
 fun MessagesScreen(
-    messagesViewModel: ChatViewModel = hiltViewModel(),
+    messagesViewModel: MessagesViewModel = hiltViewModel(),
 ) {
     val chatUiState = messagesViewModel.collectUiStateValue()
     val coroutineScope = rememberCoroutineScope()
@@ -52,7 +53,9 @@ fun MessagesScreen(
                     listState.animateScrollToItem(0)
                 }
             },
-            onChatTypePressed = messagesViewModel::onChangeChatType
+            onChatTypePressed = messagesViewModel::onChangeChatType,
+            purchasesUnreads = chatUiState.purchasesUnreads,
+            offersUnreads = chatUiState.offersUnreads
         )
         Column(
             modifier = Modifier
@@ -83,6 +86,7 @@ fun MessagesScreen(
                         messagesViewModel.onMessagePressed(it)
                     },
                     listState = listState,
+                    modifier = Modifier.fillMaxSize()
                 )
             }
         }
@@ -94,6 +98,8 @@ private fun MessagesHeader(
     activeChat: ChatViewModel.ChatType,
     onTopPressed: () -> Unit,
     onChatTypePressed: (ChatViewModel.ChatType) -> Unit = {},
+    purchasesUnreads: Int,
+    offersUnreads: Int,
 ) {
     Column {
         Row(
@@ -123,15 +129,15 @@ private fun MessagesHeader(
         ) {
             Spacer(modifier = Modifier.size(Padding.medium))
             MessageTag(
-                text = "Your Orders",
+                text = "Purchases",
                 active = activeChat == ChatViewModel.ChatType.Purchases,
-                unreads = 0,
+                unreads = purchasesUnreads,
                 onClick = { onChatTypePressed(ChatViewModel.ChatType.Purchases) }
             )
             MessageTag(
                 text = "Offers",
                 active = activeChat == ChatViewModel.ChatType.Offers,
-                unreads = 12,
+                unreads = offersUnreads,
                 onClick = { onChatTypePressed(ChatViewModel.ChatType.Offers) }
             )
         }

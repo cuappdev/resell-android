@@ -7,6 +7,8 @@ import com.cornellappdev.resell.android.model.api.RetrofitInstance
 import com.cornellappdev.resell.android.model.classes.UserInfo
 import com.cornellappdev.resell.android.model.login.FireStoreRepository
 import com.cornellappdev.resell.android.model.login.PreferencesKeys
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -24,17 +26,27 @@ class UserInfoRepository @Inject constructor(
      *
      * Requires the user to be signed in.
      */
-    suspend fun getUserInfo(): UserInfo {
-        return UserInfo(
-            username = getUsername()!!,
-            name = getFirstName() + " " + getLastName(),
-            imageUrl = getProfilePicUrl()!!,
-            netId = getNetId()!!,
-            venmoHandle = fireStoreRepository.getVenmoHandle(
-                getEmail()!!
-            )!!,
-            bio = getBio()!!,
-            id = getUserId()!!
+    suspend fun getUserInfo(): UserInfo = coroutineScope {
+        // Load in parallel :-)
+        val usernameDeferred = async { getUsername()!! }
+        val firstNameDeferred = async { getFirstName() }
+        val lastNameDeferred = async { getLastName() }
+        val imageUrlDeferred = async { getProfilePicUrl()!! }
+        val netIdDeferred = async { getNetId()!! }
+        val venmoHandleDeferred = async { fireStoreRepository.getVenmoHandle(getEmail()!!) }
+        val bioDeferred = async { getBio()!! }
+        val userIdDeferred = async { getUserId()!! }
+        val emailDeferred = async { getEmail()!! }
+
+        return@coroutineScope UserInfo(
+            username = usernameDeferred.await(),
+            name = "${firstNameDeferred.await()} ${lastNameDeferred.await()}",
+            imageUrl = imageUrlDeferred.await(),
+            netId = netIdDeferred.await(),
+            venmoHandle = venmoHandleDeferred.await(),
+            bio = bioDeferred.await(),
+            id = userIdDeferred.await(),
+            email = emailDeferred.await()
         )
     }
 

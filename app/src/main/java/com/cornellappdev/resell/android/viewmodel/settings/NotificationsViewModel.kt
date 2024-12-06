@@ -1,7 +1,7 @@
 package com.cornellappdev.resell.android.viewmodel.settings
 
 import androidx.lifecycle.viewModelScope
-import com.cornellappdev.resell.android.model.settings.NotificationsLocalRepository
+import com.cornellappdev.resell.android.model.settings.NotificationsRepository
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -9,7 +9,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class NotificationsViewModel @Inject constructor(
-    private val notificationsLocalRepository: NotificationsLocalRepository,
+    private val notificationsRepository: NotificationsRepository,
 ) :
     ResellViewModel<NotificationsViewModel.NotificationsState>
         (
@@ -17,19 +17,19 @@ class NotificationsViewModel @Inject constructor(
     ) {
 
     init {
-        asyncCollect(notificationsLocalRepository.allNotificationsEnabled) { enabled ->
+        asyncCollect(notificationsRepository.allNotificationsEnabled) { enabled ->
             applyMutation {
                 copy(pauseAllNotifications = !enabled)
             }
         }
 
-        asyncCollect(notificationsLocalRepository.chatNotificationsEnabled) { enabled ->
+        asyncCollect(notificationsRepository.chatNotificationsEnabled) { enabled ->
             applyMutation {
                 copy(chatRoot = enabled)
             }
         }
 
-        asyncCollect(notificationsLocalRepository.listingsNotificationsEnabled) { enabled ->
+        asyncCollect(notificationsRepository.listingsNotificationsEnabled) { enabled ->
             applyMutation {
                 copy(listingsRoot = enabled)
             }
@@ -51,7 +51,7 @@ class NotificationsViewModel @Inject constructor(
 
     fun onTogglePauseAllNotifications(checked: Boolean) {
         viewModelScope.launch {
-            notificationsLocalRepository.setNotificationsEnabled(
+            notificationsRepository.setNotificationsEnabled(
                 !checked
             )
         }
@@ -59,7 +59,7 @@ class NotificationsViewModel @Inject constructor(
 
     fun onToggleChatNotifications(checked: Boolean) {
         viewModelScope.launch {
-            notificationsLocalRepository.setChatNotificationsEnabled(
+            notificationsRepository.setChatNotificationsEnabled(
                 checked
             )
         }
@@ -67,7 +67,7 @@ class NotificationsViewModel @Inject constructor(
 
     fun onToggleNewListingsNotifications(checked: Boolean) {
         viewModelScope.launch {
-            notificationsLocalRepository.setListingsNotificationsEnabled(
+            notificationsRepository.setListingsNotificationsEnabled(
                 checked
             )
         }

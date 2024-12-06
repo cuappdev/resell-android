@@ -17,11 +17,18 @@ import java.time.LocalDateTime
 
 @Composable
 fun ViewOnlyAvailabilityPager(
+    title: String,
+    subtitle: String,
     availabilities: List<LocalDateTime>,
     onSelectAvailability: (LocalDateTime) -> Unit,
 ) {
     val startDate = availabilities.max().toLocalDate()
-    AvailabilityPagerContainer(startDate, scrollRange = 6 to 0) { dates, _ ->
+    AvailabilityPagerContainer(
+        title = title,
+        subtitle = subtitle,
+        startDate = startDate,
+        scrollRange = 6 to 0
+    ) { dates, _ ->
         ViewOnlyAvailabilityGrid(
             dates,
             availabilities,
@@ -43,6 +50,10 @@ private fun ViewOnlyAvailabilityPagerPreview() = ResellPreview {
     }
     Column {
         Text("Selected date: $selectedDate")
-        ViewOnlyAvailabilityPager(availabilities = availabilities) { selectedDate = it }
+        ViewOnlyAvailabilityPager(
+            title = "Please fill this out! :D",
+            subtitle = "Or else he will find you...",
+            availabilities = availabilities
+        ) { selectedDate = it }
     }
 }

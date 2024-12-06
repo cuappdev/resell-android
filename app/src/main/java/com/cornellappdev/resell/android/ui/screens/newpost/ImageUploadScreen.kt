@@ -58,8 +58,6 @@ fun ImageUploadScreen(
     val singlePhotoPicker = singlePhotoPicker {
         if (it != null) {
             imageUploadViewModel.onImageSelected(it)
-        } else {
-            imageUploadViewModel.onImageLoadFail()
         }
     }
 

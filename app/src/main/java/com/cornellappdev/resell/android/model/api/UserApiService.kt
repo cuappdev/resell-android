@@ -21,7 +21,19 @@ interface UserApiService {
 
     @POST("user/softDelete/id/{id}")
     suspend fun softDeleteUser(@Path("id") id: String): UserResponse
+
+    @POST("image")
+    suspend fun uploadImage(@Body body: ImageBody): ImageResponse
 }
+
+data class ImageBody(
+    val imageBase64: String
+)
+
+data class ImageResponse(
+    /** URL */
+    val image: String
+)
 
 data class BlockBody(
     val blocked: String

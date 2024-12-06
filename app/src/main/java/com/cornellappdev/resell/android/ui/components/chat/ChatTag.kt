@@ -1,4 +1,4 @@
-package com.cornellappdev.resell.android.ui.components.global.messages
+package com.cornellappdev.resell.android.ui.components.chat
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border

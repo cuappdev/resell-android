@@ -3,6 +3,7 @@ package com.cornellappdev.resell.android.viewmodel.newpost
 import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.cornellappdev.resell.android.model.core.UserInfoRepository
+import com.cornellappdev.resell.android.model.login.FirebaseMessagingRepository
 import com.cornellappdev.resell.android.model.posts.ResellPostRepository
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonState
 import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
@@ -22,7 +23,8 @@ class PostDetailsEntryViewModel @Inject constructor(
     private val rootNavigationRepository: RootNavigationRepository,
     private val postRepository: ResellPostRepository,
     private val userInfoRepository: UserInfoRepository,
-    private val rootConfirmationRepository: RootConfirmationRepository
+    private val rootConfirmationRepository: RootConfirmationRepository,
+    private val firebaseMessagingRepository: FirebaseMessagingRepository,
 ) : ResellViewModel<PostDetailsEntryViewModel.PostEntryUiState>(
     initialUiState = PostEntryUiState()
 ) {
@@ -88,7 +90,6 @@ class PostDetailsEntryViewModel @Inject constructor(
                     copy(loadingPost = true)
                 }
 
-                Log.d("helpme", stateValue().price.toDouble().toString())
                 postRepository.uploadPost(
                     title = stateValue().title,
                     description = stateValue().description,
@@ -101,6 +102,7 @@ class PostDetailsEntryViewModel @Inject constructor(
                     copy(loadingPost = false)
                 }
                 rootNavigationRepository.navigate(ResellRootRoute.MAIN)
+                firebaseMessagingRepository.requestNotificationsPermission()
                 rootConfirmationRepository.showSuccess(
                     message = "Your listing has been posted successfully!"
                 )
