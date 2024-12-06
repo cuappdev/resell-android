@@ -2,12 +2,14 @@ package com.cornellappdev.resell.android.viewmodel.navigation
 
 import android.util.Log
 import androidx.lifecycle.viewModelScope
+import com.cornellappdev.resell.android.model.api.NotificationData
 import com.cornellappdev.resell.android.model.core.UserInfoRepository
 import com.cornellappdev.resell.android.model.login.FireStoreRepository
 import com.cornellappdev.resell.android.model.login.FirebaseMessagingRepository
 import com.cornellappdev.resell.android.model.login.GoogleAuthRepository
 import com.cornellappdev.resell.android.model.login.ResellAuthRepository
 import com.cornellappdev.resell.android.model.posts.ResellPostRepository
+import com.cornellappdev.resell.android.model.settings.NotificationsRepository
 import com.cornellappdev.resell.android.ui.screens.main.ResellMainScreen
 import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
 import com.cornellappdev.resell.android.util.UIEvent
@@ -29,6 +31,7 @@ class MainNavigationViewModel @Inject constructor(
     private val resellPostRepository: ResellPostRepository,
     private val fireStoreRepository: FireStoreRepository,
     private val firebaseMessagingRepository: FirebaseMessagingRepository,
+    private val notificationsRepository: NotificationsRepository,
     mainNavigationRepository: MainNavigationRepository,
 ) : ResellViewModel<MainNavigationViewModel.MainNavigationUiState>(
     initialUiState = MainNavigationUiState(
@@ -39,7 +42,8 @@ class MainNavigationViewModel @Inject constructor(
     data class MainNavigationUiState(
         val newPostExpanded: Boolean,
         val navEvent: UIEvent<ResellMainScreen>? = null,
-        val bottomBarEnabled: Boolean = false
+        val bottomBarEnabled: Boolean = false,
+        val notificationData: NotificationData? = null
     )
 
     init {
@@ -48,6 +52,18 @@ class MainNavigationViewModel @Inject constructor(
                 copy(
                     navEvent = route
                 )
+            }
+        }
+
+        asyncCollect(notificationsRepository.notificationData) { event ->
+            event?.consume { data ->
+                applyMutation {
+                    copy(notificationData = data)
+                }
+
+                if (stateValue().bottomBarEnabled) {
+                    parseNotification(data)
+                }
             }
         }
 
@@ -62,8 +78,26 @@ class MainNavigationViewModel @Inject constructor(
                 copy(bottomBarEnabled = true)
             }
 
+            if (stateValue().notificationData != null) {
+                parseNotification(stateValue().notificationData!!)
+            }
+
             // User was locked onto the main screen, so we can fetch posts now and it will load.
             resellPostRepository.fetchPosts()
+        }
+    }
+
+    private fun parseNotification(notificationData: NotificationData) {
+        when (notificationData) {
+            is NotificationData.ChatNotification -> {
+                rootNavigationRepository.navigate(ResellRootRoute.CHAT(
+                    email = notificationData.email,
+                    name = notificationData.name,
+                    pfp = notificationData.pfp,
+                    isBuyer = notificationData.isBuyer,
+                    postJson = notificationData.postJson
+                ))
+            }
         }
     }
 

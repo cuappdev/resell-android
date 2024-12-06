@@ -1,5 +1,6 @@
 package com.cornellappdev.resell.android.model.api
 
+import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
 import retrofit2.http.Body
 import retrofit2.http.Header
 import retrofit2.http.POST
@@ -24,13 +25,33 @@ data class FcmMessage(
     val data: NotificationData
 )
 
+/**
+ * The title and body of the notification that will be displayed as a banner.
+ */
 data class FcmNotification(
     val title: String,
     val body: String
 )
 
-data class NotificationData(
-    val navigationId: String,
-    // TODO: No idea what this class is
-//    val chat: BuyerSellerData
-)
+/**
+ * Custom data we pass to the notification.
+ */
+sealed class NotificationData {
+    open val navigationId: String
+        get() {
+            return  ""
+        }
+
+    data class ChatNotification(
+        val name: String,
+        val email: String,
+        val pfp: String,
+        val postJson: String,
+        val isBuyer: Boolean
+    ) : NotificationData() {
+        override val navigationId: String
+            get() = "chat"
+    }
+
+    // TODO: Add other notifications as needed
+}

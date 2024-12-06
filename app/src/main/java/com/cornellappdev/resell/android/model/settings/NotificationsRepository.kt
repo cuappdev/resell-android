@@ -4,13 +4,17 @@ import android.content.Context
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.preferencesDataStore
+import com.cornellappdev.resell.android.model.api.NotificationData
 import com.cornellappdev.resell.android.model.core.UserInfoRepository
 import com.cornellappdev.resell.android.model.login.FireStoreRepository
+import com.cornellappdev.resell.android.util.UIEvent
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
@@ -19,7 +23,7 @@ import javax.inject.Singleton
 private val Context.dataStore by preferencesDataStore(name = "notifications")
 
 @Singleton
-class NotificationsLocalRepository @Inject constructor(
+class NotificationsRepository @Inject constructor(
     @ApplicationContext private val context: Context,
     private val fireStoreRepository: FireStoreRepository,
     private val userInfoRepository: UserInfoRepository,
@@ -56,6 +60,10 @@ class NotificationsLocalRepository @Inject constructor(
             initialValue = true
         )
 
+    private val _notificationData: MutableStateFlow<UIEvent<NotificationData>?> =
+        MutableStateFlow(null)
+    val notificationData = _notificationData.asStateFlow()
+
     suspend fun setNotificationsEnabled(enabled: Boolean) {
         context.dataStore.edit { preferences ->
             preferences[pauseAllKey] = enabled
@@ -76,5 +84,12 @@ class NotificationsLocalRepository @Inject constructor(
             preferences[listingsKey] = enabled
         }
         // TODO uhh how do we set this in firestore lmao
+    }
+
+    /**
+     * Sends the notification data to the ViewModel down [notificationData].
+     */
+    fun actOnNotification(data: NotificationData) {
+        _notificationData.value = UIEvent(data)
     }
 }
