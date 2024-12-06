@@ -460,8 +460,12 @@ class ChatRepository @Inject constructor(
                             null
                         },
                         token = token,
-                        data = NotificationData(
-                            navigationId = "chat"
+                        data = NotificationData.ChatNotification(
+                            name = otherName,
+                            email = otherEmail,
+                            pfp = otherImageUrl,
+                            postJson = Json.encodeToString(item),
+                            isBuyer = selfIsBuyer,
                         )
                     )
                 ),

@@ -1,6 +1,7 @@
 package com.cornellappdev.resell.android
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
@@ -11,6 +12,8 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.cornellappdev.resell.android.model.api.NotificationData
+import com.cornellappdev.resell.android.model.settings.NotificationsRepository
 import com.cornellappdev.resell.android.ui.screens.root.RootNavigation
 import com.cornellappdev.resell.android.ui.theme.ResellTheme
 import com.cornellappdev.resell.android.util.LocalFireStore
@@ -26,17 +29,46 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var rootConfirmationRepository: RootConfirmationRepository
 
+    @Inject
+    lateinit var notificationsRepository: NotificationsRepository
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         FirebaseApp.initializeApp(this)
         val firestore = FirebaseFirestore.getInstance()
         enableEdgeToEdge()
+
+        handleNotificationIntent(intent)
+
         setContent {
             ResellTheme {
                 CompositionLocalProvider(LocalFireStore provides firestore) {
                     RootNavigation()
                 }
             }
+        }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        handleNotificationIntent(intent)
+    }
+
+    private fun handleNotificationIntent(intent: Intent) {
+        intent.extras?.let { extras ->
+            val notification = NotificationData.ChatNotification(
+                name = extras.getString("name").orEmpty(),
+                email = extras.getString("email").orEmpty(),
+                pfp = extras.getString("pfp").orEmpty(),
+                postJson = extras.getString("postJson").orEmpty(),
+                isBuyer = extras.getBoolean("isBuyer", false)
+            )
+            // if any of the extras are missing, don't nav
+            if (notification.name.isEmpty() || notification.email.isEmpty() || notification.pfp.isEmpty() || notification.postJson.isEmpty()) {
+                return
+            }
+
+            notificationsRepository.actOnNotification(notification)
         }
     }
 
@@ -67,8 +99,7 @@ class MainActivity : ComponentActivity() {
                 )
             ) {
                 onShowUi()
-            }
-            else {
+            } else {
                 requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
             }
         }
