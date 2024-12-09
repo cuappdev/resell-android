@@ -223,26 +223,26 @@ class FireStoreRepository @Inject constructor(
         otherEmail: String,
         chatType: ChatViewModel.ChatType,
     ) {
-       when (chatType) {
-           // Self is buying from the other; other is a seller.
-           // Must write to myEmail/sellers/otherEmail/viewed
-           ChatViewModel.ChatType.Purchases -> {
+        when (chatType) {
+            // Self is buying from the other; other is a seller.
+            // Must write to myEmail/sellers/otherEmail/viewed
+            ChatViewModel.ChatType.Purchases -> {
 
-               val docRef = historyCollection.document(myEmail)
-                   .collection("sellers").document(otherEmail)
+                val docRef = historyCollection.document(myEmail)
+                    .collection("sellers").document(otherEmail)
 
-               docRef.update("viewed", true).await()
-           }
+                docRef.update("viewed", true).await()
+            }
 
-           // Self is selling to the other; other is a buyer.
-           // Must write to myEmail/buyers/otherEmail/viewed
-           ChatViewModel.ChatType.Offers -> {
-               val docRef = historyCollection.document(myEmail)
-                   .collection("buyers").document(otherEmail)
+            // Self is selling to the other; other is a buyer.
+            // Must write to myEmail/buyers/otherEmail/viewed
+            ChatViewModel.ChatType.Offers -> {
+                val docRef = historyCollection.document(myEmail)
+                    .collection("buyers").document(otherEmail)
 
-               docRef.update("viewed", true).await()
-           }
-       }
+                docRef.update("viewed", true).await()
+            }
+        }
     }
 
     fun subscribeToChat(
@@ -277,16 +277,43 @@ class FireStoreRepository @Inject constructor(
                 val productMap =
                     (it.get("product") as Map<String, Any>).mapValues { it?.value?.toString() }
 
+                val productUserMap =
+                    if (productMap["user"] != null) {
+                        val doc = it.get("product") as Map<String, Any>
+                        val postUserMap = doc.get("user") as Map<String, Any>
+                        postUserMap.mapValues { it?.value?.toString() }
+                    } else {
+                        null
+                    }
+
                 val availabilityArray: List<Map<String, Any>>? =
                     it.get("availability") as? List<Map<String, Any>>
 
-                val meetingInfoMap = (it.get("meetingInfo") as? Map<String, Any>)?.mapValues { it?.value?.toString() }
+                val meetingInfoMap =
+                    (it.get("meetingInfo") as? Map<String, Any>)?.mapValues { it?.value?.toString() }
 
                 val userDoc = UserDocument(
                     _id = userMap["_id"] ?: "",
                     avatar = userMap["avatar"] ?: "",
                     name = userMap["name"] ?: "",
                 )
+
+                val postUser = if (productUserMap != null) {
+                    User(
+                        id = productUserMap["id"] ?: "",
+                        username = productUserMap["username"] ?: "",
+                        netid = productUserMap["netid"] ?: "",
+                        givenName = productUserMap["givenName"] ?: "",
+                        familyName = productUserMap["familyName"] ?: "",
+                        email = productUserMap["email"] ?: "",
+                        photoUrl = productUserMap["photoUrl"] ?: "",
+                        bio = productUserMap["bio"] ?: "",
+                        admin = productUserMap["admin"]?.toBoolean() ?: false,
+                        googleId = productUserMap["googleId"] ?: "",
+                    )
+                } else {
+                    null
+                }
 
                 // TODO Availability Documents
                 val post = productMap["id"]?.let { _ ->
@@ -295,7 +322,7 @@ class FireStoreRepository @Inject constructor(
                         title = productMap["title"] ?: "",
                         description = productMap["description"] ?: "",
                         price = (productMap["price"] ?: "0.0").toDouble(),
-                        user = null,
+                        user = postUser,
                         archive = (productMap["archive"] ?: "").toBoolean(),
                         location = productMap["location"] ?: "",
                         created = productMap["created"] ?: "",
