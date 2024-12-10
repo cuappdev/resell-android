@@ -59,7 +59,8 @@ class MainNavigationViewModel @Inject constructor(
         }
 
         asyncCollect(notificationsRepository.notificationData) { event ->
-            event?.consume { data ->
+            if (event != null) {
+                val data = event.payload
                 applyMutation {
                     copy(notificationData = data)
                 }
