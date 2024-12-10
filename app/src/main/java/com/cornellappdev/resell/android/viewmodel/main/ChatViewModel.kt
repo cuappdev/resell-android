@@ -20,6 +20,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.cornellappdev.resell.android.model.Chat
+import com.cornellappdev.resell.android.model.ChatMessageData
 import com.cornellappdev.resell.android.model.api.ChatRepository
 import com.cornellappdev.resell.android.model.api.Post
 import com.cornellappdev.resell.android.model.chats.AvailabilityBlock
@@ -54,7 +55,6 @@ import kotlinx.serialization.json.Json
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
-import java.util.Calendar
 import java.util.Date
 import javax.inject.Inject
 
@@ -81,17 +81,21 @@ class ChatViewModel @Inject constructor(
     data class MessagesUiState(
         val chatType: ChatType,
         val currentChat: ResellApiResponse<Chat>,
-        val sellerName: String = "Unknown",
+        val otherName: String = "Unknown",
         val title: String = "Unknown",
         val typedMessage: String = "",
         val scrollBottom: UIEvent<Unit>? = null,
-        val listing: Listing? = null
+        val listing: Listing? = null,
+        val mostRecentOtherAvailability: AvailabilityDocument? = null,
     ) {
         val showNegotiate
             get() = true
 
         val showPayWithVenmo
             get() = chatType == ChatType.Purchases
+
+        val showViewAvailability
+            get() = mostRecentOtherAvailability != null
 
         val confirmedMeeting: MeetingInfo?
             get() = currentChat.asSuccessOrNull()?.data?.let { chat ->
@@ -119,84 +123,11 @@ class ChatViewModel @Inject constructor(
         navController.popBackStack()
     }
 
-    fun onMeetingDetailsPressed() {
-        rootNavigationSheetRepository.showBottomSheet(
-            RootSheet.MeetingDetails(
-                callback = {
-
-                },
-                confirmString = "Cancel Meeting",
-                title = "Meeting Details",
-                closeString = "Close",
-                confirmColor = ResellTextButtonContainer.PRIMARY_RED
-            ) {
-                Spacer(Modifier.height(16.dp))
-
-                Text(
-                    text = "Meeting with Lia for Blue Pants confirmed for",
-                    style = Style.title4
-                )
-
-                Spacer(Modifier.height(16.dp))
-
-                Text(
-                    text = "Time",
-                    style = Style.title3
-                )
-                Text(
-                    text = "Friday, October 23 - 1:30-2:00 PM",
-                    style = Style.title4
-                )
-
-                Spacer(Modifier.height(16.dp))
-
-                Text(
-                    text = "For safety, make sure to meet up in a public space on campus",
-                    style = Style.title4
-                )
-
-                Spacer(Modifier.height(32.dp))
-            }
-        )
-    }
-
-    fun onProposalDetailsPressed() {
-        rootNavigationSheetRepository.showBottomSheet(
-            RootSheet.MeetingDetails(
-                callback = {
-
-                },
-                confirmString = "Edit Proposal",
-                title = "Proposal Details",
-                closeString = "Cancel",
-                confirmColor = ResellTextButtonContainer.PRIMARY
-            ) {
-                Spacer(Modifier.height(16.dp))
-
-                Text(
-                    text = "You have proposed the following meeting:",
-                    style = Style.body1
-                )
-
-                Spacer(Modifier.height(16.dp))
-
-                Text(
-                    text = "Time",
-                    style = Style.title3
-                )
-                Text(
-                    text = "Friday, October 23 - 1:30-2:00 PM",
-                    style = Style.body1
-                )
-
-                Spacer(Modifier.height(32.dp))
-            }
-        )
-    }
-
     private fun onSyncToCalendarPressed(date: Date) {
         val otherName = savedStateHandle.toRoute<ResellRootRoute.CHAT>().name
         val listingName = stateValue().listing?.title ?: ""
+
+        rootNavigationSheetRepository.hideSheet()
 
         // Open intent for google calendar
         val intent = Intent(Intent.ACTION_INSERT)
@@ -302,6 +233,15 @@ class ChatViewModel @Inject constructor(
                 }
             )
         )
+    }
+
+    fun onViewOtherAvailabilityPressed() {
+        stateValue().mostRecentOtherAvailability?.let { availability ->
+            onAvailabilitySelected(
+                availability = availability,
+                isSelf = false,
+            )
+        }
     }
 
     fun onSendAvailabilityPressed() {
@@ -428,16 +368,29 @@ class ChatViewModel @Inject constructor(
         }
     }
 
-    private fun mostRecentMeetingStateIs(state: String): MeetingInfo? {
+    /**
+     * Returns the most recent [ChatMessageData] that matches the given [predicate], or null if
+     * no chat matching the predicate is found.
+     */
+    private fun getFirstChatOrNull(predicate: (ChatMessageData) -> Boolean): ChatMessageData? {
         val chat = chatRepository.subscribedChatFlow.value.asSuccessOrNull()?.data ?: return null
         val mostRecentState = chat.chatHistory.map {
             it.messages
         }.flatten().sortedByDescending {
             it.timestamp
         }.firstOrNull {
+            predicate(it)
+        }
+
+        return mostRecentState
+    }
+
+    private fun mostRecentMeetingStateIs(state: String): MeetingInfo? {
+        val mostRecentState = getFirstChatOrNull {
             it.meetingInfo != null
         }
 
+        // If the most recent state is the one we're looking for, return it.
         if (mostRecentState != null && mostRecentState.meetingInfo!!.state == state)
             return mostRecentState.meetingInfo
 
@@ -709,7 +662,7 @@ class ChatViewModel @Inject constructor(
 
         applyMutation {
             copy(
-                sellerName = navArgs.name,
+                otherName = navArgs.name,
                 title = listing.title,
                 chatType = if (navArgs.isBuyer) ChatType.Purchases else ChatType.Offers,
             )
@@ -767,6 +720,22 @@ class ChatViewModel @Inject constructor(
                             secondaryContainerType = ResellTextButtonContainer.NAKED
                         )
                     )
+                }
+            }
+
+            // If chat has an availability message from the other user, show that tab.
+            viewModelScope.launch {
+                if (response is ResellApiResponse.Success) {
+                    val myEmail = userInfoRepository.getEmail()!!
+                    val data = getFirstChatOrNull {
+                        it.availability != null && it.senderEmail != myEmail
+                    }
+
+                    applyMutation {
+                        copy(
+                            mostRecentOtherAvailability = data?.availability
+                        )
+                    }
                 }
             }
         }

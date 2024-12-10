@@ -6,6 +6,7 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -25,6 +26,7 @@ import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
@@ -112,7 +114,8 @@ fun ChatScreen(
                     )
                 },
                 onMeetingStateClicked = chatViewModel::onMeetingStateClicked,
-                confirmedMeeting = chatUiState.confirmedMeeting
+                confirmedMeeting = chatUiState.confirmedMeeting,
+                onViewAvailabilityPressed = chatViewModel::onViewOtherAvailabilityPressed
             )
         }
     }
@@ -127,6 +130,7 @@ private fun ChatLoadedContent(
     onNegotiatePressed: () -> Unit,
     onMeetingStateClicked: (MeetingInfo, Boolean) -> Unit,
     onAvailabilityClicked: (AvailabilityDocument, Boolean) -> Unit,
+    onViewAvailabilityPressed: () -> Unit,
     onSendAvailability: () -> Unit,
     onImageUpload: (Uri) -> Unit,
     onVenmoPressed: () -> Unit,
@@ -145,7 +149,7 @@ private fun ChatLoadedContent(
         ChatHeader(
             onBackPressed = { onBackPressed() },
             confirmedMeeting = confirmedMeeting,
-            sellerName = chatUiState.sellerName,
+            otherName = chatUiState.otherName,
             title = chatUiState.title,
             onViewPressed = {
                 if (confirmedMeeting != null) {
@@ -177,7 +181,12 @@ private fun ChatLoadedContent(
             showPayWithVenmo = showPayWithVenmo,
             showNegotiate = showNegotiate,
             onSendAvailability = onSendAvailability,
-            onImageUpload = onImageUpload
+            onImageUpload = onImageUpload,
+            otherName = chatUiState.otherName,
+            showViewAvailability = chatUiState.showViewAvailability,
+            onViewAvailabilityPressed = {
+                onViewAvailabilityPressed()
+            }
         )
     }
 }
@@ -188,7 +197,7 @@ private fun ChatHeader(
     onBackPressed: () -> Unit,
     modifier: Modifier = Modifier,
     title: String,
-    sellerName: String,
+    otherName: String,
     onViewPressed: () -> Unit,
 ) {
     Column(
@@ -231,7 +240,7 @@ private fun ChatHeader(
                 )
 
                 Text(
-                    text = sellerName,
+                    text = otherName,
                     modifier = Modifier.padding(top = 4.dp),
                     style = Style.body2,
                     color = Secondary
@@ -289,6 +298,9 @@ private fun ChatFooter(
     onTextChange: (String) -> Unit,
     showPayWithVenmo: Boolean,
     showNegotiate: Boolean,
+    showViewAvailability: Boolean,
+    otherName: String,
+    onViewAvailabilityPressed: () -> Unit,
     onSendAvailability: () -> Unit,
     onImageUpload: (Uri) -> Unit
 ) {
@@ -313,9 +325,19 @@ private fun ChatFooter(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(Color.White)
-                .padding(start = 12.dp, end = 12.dp, top = 8.dp, bottom = 8.dp)
-
+                .padding(vertical = 8.dp)
+                .horizontalScroll(rememberScrollState()),
         ) {
+            Spacer(modifier = Modifier.width(12.dp))
+            if (showViewAvailability) {
+                ChatTag(
+                    text = "View ${otherName}'s Availability",
+                    active = true,
+                    onClick = { onViewAvailabilityPressed() }
+                )
+                Spacer(modifier = Modifier.width(12.dp))
+            }
+
             if (showNegotiate) {
                 ChatTag(
                     text = "Negotiate",
@@ -340,6 +362,7 @@ private fun ChatFooter(
                     onClick = { onVenmoPressed() },
                     venmo = true
                 )
+                Spacer(modifier = Modifier.width(12.dp))
             }
         }
         Row(

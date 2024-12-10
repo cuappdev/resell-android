@@ -7,9 +7,11 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
@@ -22,6 +24,7 @@ import com.cornellappdev.resell.android.model.MessageType
 import com.cornellappdev.resell.android.model.api.Post
 import com.cornellappdev.resell.android.model.chats.AvailabilityDocument
 import com.cornellappdev.resell.android.model.chats.MeetingInfo
+import com.cornellappdev.resell.android.ui.components.main.ProfilePictureView
 
 @Composable
 fun ChatMessage(
@@ -42,7 +45,7 @@ fun ChatMessage(
                     MessageType.Image -> {
                         messageSender(
                             imageUrl,
-                            { MessageImage(it.imageUrl) },
+                            { ChatImage(it.imageUrl) },
                             messages.size - i - 1
                         )
                     }
@@ -89,14 +92,14 @@ fun ChatMessage(
 
                     MessageType.State -> {
                         if (it.meetingInfo == null) {
-                            MessageMeetingState(
+                            ChatMeetingState(
                                 text = it.content,
                                 enabled = true,
                                 actionText = null,
                             )
                         }
                         else {
-                            MessageMeetingState(
+                            ChatMeetingState(
                                 text = it.content,
                                 actionText = it.meetingInfo.actionText,
                                 onActionTextClicked = {
@@ -126,17 +129,14 @@ fun UserMessage(content: @Composable () -> Unit) {
 
 @Composable
 fun OtherMessage(imageUrl: String?, content: @Composable () -> Unit, pos: Int = 0) {
-    Row {
+    Row(
+        verticalAlignment = Alignment.Bottom
+    ) {
         if (imageUrl != null && pos == 0) {
-            AsyncImage(
-                model = imageUrl,
-                contentDescription = null,
+            ProfilePictureView(
+                imageUrl = imageUrl,
                 modifier = Modifier
-                    .height(32.dp)
-                    .aspectRatio(1f)
-                    .clip(RoundedCornerShape(32.dp)),
-                placeholder = painterResource(id = R.drawable.ic_launcher_background),
-                contentScale = ContentScale.Crop
+                    .size(32.dp)
             )
         } else {
             Spacer(modifier = Modifier.width(32.dp))

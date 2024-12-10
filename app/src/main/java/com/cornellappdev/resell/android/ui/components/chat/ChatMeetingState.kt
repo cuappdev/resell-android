@@ -22,7 +22,7 @@ import com.cornellappdev.resell.android.ui.theme.Style
 import com.cornellappdev.resell.android.util.clickableNoIndication
 
 @Composable
-fun MessageMeetingState(
+fun ChatMeetingState(
     text: String,
     enabled: Boolean,
     actionText: String?,

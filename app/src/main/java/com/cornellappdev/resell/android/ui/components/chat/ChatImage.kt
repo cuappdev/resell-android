@@ -29,7 +29,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
 @Composable
-fun MessageImage(
+fun ChatImage(
     imageUrl: String,
     messageImageViewModel: MessageImageViewModel = hiltViewModel()
 ) {
