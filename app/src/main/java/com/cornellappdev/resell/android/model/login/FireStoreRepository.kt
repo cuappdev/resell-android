@@ -277,10 +277,10 @@ class FireStoreRepository @Inject constructor(
                     (it.get("user") as Map<String, Any>).mapValues { it?.value?.toString() }
 
                 val productMap =
-                    (it.get("product") as Map<String, Any>).mapValues { it?.value?.toString() }
+                    (it.get("product") as? Map<String, Any>)?.mapValues { it?.value?.toString() }
 
                 val productUserMap =
-                    if (productMap["user"] != null) {
+                    if (productMap?.get("user") != null) {
                         val doc = it.get("product") as Map<String, Any>
                         val postUserMap = doc.get("user") as Map<String, Any>
                         postUserMap.mapValues { it?.value?.toString() }
@@ -318,7 +318,7 @@ class FireStoreRepository @Inject constructor(
                 }
 
                 // TODO Availability Documents
-                val post = productMap["id"]?.let { _ ->
+                val post = productMap?.get("id")?.let { _ ->
                     Post(
                         id = productMap["id"] ?: "",
                         title = productMap["title"] ?: "",

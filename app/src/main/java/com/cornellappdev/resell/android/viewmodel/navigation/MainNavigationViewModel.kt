@@ -95,13 +95,15 @@ class MainNavigationViewModel @Inject constructor(
             is NotificationData.ChatNotification -> {
                 val post = Json.decodeFromString<Post>(notificationData.postJson)
 
-                rootNavigationRepository.navigate(ResellRootRoute.CHAT(
-                    email = notificationData.email,
-                    name = notificationData.name,
-                    pfp = notificationData.pfp,
-                    isBuyer = notificationData.isBuyer == "true",
-                    postJson = Json.encodeToString(post.toListing()),
-                ))
+                rootNavigationRepository.navigate(
+                    ResellRootRoute.CHAT(
+                        email = notificationData.email,
+                        name = notificationData.name,
+                        pfp = notificationData.pfp,
+                        isBuyer = notificationData.isBuyer == "true",
+                        postJson = Json.encodeToString(post.toListing()),
+                    )
+                )
             }
         }
     }

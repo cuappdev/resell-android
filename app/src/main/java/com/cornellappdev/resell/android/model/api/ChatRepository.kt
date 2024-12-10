@@ -367,7 +367,15 @@ class ChatRepository @Inject constructor(
             !text.isNullOrEmpty() -> text
             !imageUrl.isNullOrEmpty() -> "[Image]"
             availability != null -> "[Availability]"
-            meetingInfo != null -> "[Meeting Details]"
+            meetingInfo != null -> {
+                when (meetingInfo.state) {
+                    "proposed" -> "[Meeting Proposal]"
+                    "confirmed" -> "[Meeting Accepted!]"
+                    "declined" -> "[Meeting Declined]"
+                    "canceled" -> "[Meeting Canceled]"
+                    else -> "[Meeting Details]"
+                }
+            }
             else -> {
                 ""
             }
