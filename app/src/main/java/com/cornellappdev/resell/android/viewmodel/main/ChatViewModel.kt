@@ -401,16 +401,6 @@ class ChatViewModel @Inject constructor(
         availability: AvailabilityDocument,
         isSelf: Boolean,
     ) {
-        // TODO: Derive correctly based on if there's already been a confirmed meeting
-        val chat = chatRepository.subscribedChatFlow.value.asSuccessOrNull()!!.data
-        val mostRecentState = chat.chatHistory.map {
-            it.messages
-        }.flatten().sortedByDescending {
-            it.timestamp
-        }.firstOrNull {
-            it.meetingInfo != null
-        }
-
         val canPropose = mostRecentMeetingStateIs("confirmed") == null
 
         val navArgs = savedStateHandle.toRoute<ResellRootRoute.CHAT>()
