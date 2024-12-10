@@ -1,7 +1,11 @@
 package com.cornellappdev.resell.android.viewmodel.root
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.style.TextAlign
+import com.cornellappdev.resell.android.ui.components.availability.helper.GridSelectionType
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonContainer
+import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonState
 import com.cornellappdev.resell.android.util.UIEvent
 import dagger.Module
 import dagger.Provides
@@ -10,6 +14,7 @@ import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import java.time.LocalDateTime
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -60,6 +65,16 @@ sealed class RootSheet {
     data object LogOut : RootSheet()
     data object Welcome : RootSheet()
 
+    data class Availability(
+        val buttonString: String,
+        val initialTimes: List<LocalDateTime> = listOf(),
+        val initialButtonState: ResellTextButtonState = ResellTextButtonState.ENABLED,
+        val title: String,
+        val description: String,
+        val callback: (List<LocalDateTime>) -> Unit,
+        val gridSelectionType: GridSelectionType
+    ) : RootSheet()
+
     data class MeetingCancel(
         val confirmString: String,
         val closeString: String,
@@ -78,12 +93,19 @@ sealed class RootSheet {
         val content: @Composable () -> Unit
     ) : RootSheet()
 
-    data class MeetingGCalSync(
-        val confirmString: String,
-        val closeString: String,
-        val callback: () -> Unit,
-        val title: String
-    )
+    data class TwoButtonSheet(
+        val primaryText: String,
+        val secondaryText: String = "Close",
+        val primaryContainerType: ResellTextButtonContainer = ResellTextButtonContainer.PRIMARY,
+        val secondaryContainerType: ResellTextButtonContainer = ResellTextButtonContainer.NAKED,
+        val primaryButtonState: ResellTextButtonState = ResellTextButtonState.ENABLED,
+        val secondaryButtonState: ResellTextButtonState = ResellTextButtonState.ENABLED,
+        val primaryCallback: () -> Unit,
+        val secondaryCallback: () -> Unit,
+        val title: String,
+        val description: AnnotatedString,
+        val textAlign: TextAlign = TextAlign.Start
+    ) : RootSheet()
 }
 
 @Module

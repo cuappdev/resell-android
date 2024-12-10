@@ -1,18 +1,17 @@
 package com.cornellappdev.resell.android.model
 
+import com.cornellappdev.resell.android.model.api.Post
+import com.cornellappdev.resell.android.model.chats.AvailabilityDocument
+import com.cornellappdev.resell.android.model.chats.MeetingInfo
 import com.cornellappdev.resell.android.util.justinMessages
 import com.cornellappdev.resell.android.util.richieMessages
-import com.cornellappdev.resell.android.viewmodel.main.ChatViewModel.ChatType
+import com.google.firebase.Timestamp
 
+/**
+ * All the data needed to one chat conversation between two parties.
+ */
 data class Chat(
-    val seller: String = "Unknown",
-    val title: String = "Unknown",
-    val chatId: Int,
-    val chatType: ChatType = ChatType.Purchases,
     val chatHistory: List<ChatMessageCluster> = listOf(richieMessages(5), justinMessages(3)),
-    val draftMessage: String = "",
-    val draftImages: List<String> = listOf()
-
 )
 
 enum class MessageType {
@@ -23,17 +22,38 @@ enum class MeetingProposalState {
     UserProposal, OtherProposal, UserDecline, OtherDecline
 }
 
+/**
+ * @param imageUrl Only used if [messageType] is [MessageType.Image].
+ * @param post Only used if [messageType] is [MessageType.Card].
+ * @param availability Only used if [messageType] is [MessageType.Availability].
+ * @param meetingInfo Only used if [messageType] is [MessageType.State].
+ */
 data class ChatMessageData(
-    val id: Int,
+    val timestamp: Timestamp,
+    val id: String,
     val content: String,
-    val timestamp: Long,
-    val messageType: MessageType
-)
+    val senderEmail: String,
+    val messageType: MessageType,
+    val imageUrl: String = "",
+    val post: Post? = null,
+    val availability: AvailabilityDocument? = null,
+    val meetingInfo: MeetingInfo? = null,
+) {
+    /**
+     * Timestamp in the form "(X)X:XX AM/PM"
+     */
+    val timestampString: String
+        get() {
+            val date = timestamp.toDate()
+            val formatter = java.text.SimpleDateFormat("h:mm a", java.util.Locale.US)
+            return formatter.format(date)
+        }
+}
 
 data class ChatMessageCluster(
-    val senderId: Int = 0,
+    val senderId: String,
     val senderImage: String?,
+    val senderName: String?,
     val fromUser: Boolean = false,
     val messages: List<ChatMessageData>
 )
-

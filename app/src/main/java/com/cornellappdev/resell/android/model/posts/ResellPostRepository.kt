@@ -59,7 +59,7 @@ class ResellPostRepository @Inject constructor(
                 _allPostsFlow.value =
                     ResellApiResponse.Success(retrofitInstance.postsApi.getPosts().posts
                         .sortedByDescending {
-                            it.created
+                            it.createdDate
                         })
             } catch (e: Exception) {
                 Log.e("ResellPostRepository", "Error fetching posts: ", e)
@@ -88,10 +88,7 @@ class ResellPostRepository @Inject constructor(
                     it.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.US) else it.toString() }
                 },
                 userId = userId
-            ).let {
-                Log.d("helpme", it.toString())
-                it
-            }
+            )
         )
     }
 
@@ -144,5 +141,9 @@ class ResellPostRepository @Inject constructor(
 
     suspend fun isPostSaved(id: String): Boolean {
         return retrofitInstance.postsApi.isPostSaved(id).isSaved
+    }
+
+    suspend fun getPostById(id: String): Post {
+        return retrofitInstance.postsApi.getPost(id)
     }
 }

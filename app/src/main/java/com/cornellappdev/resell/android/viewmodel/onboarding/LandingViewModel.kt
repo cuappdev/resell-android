@@ -6,12 +6,16 @@ import android.util.Log
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.result.ActivityResult
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.style.TextAlign
 import androidx.lifecycle.viewModelScope
 import com.cornellappdev.resell.android.model.login.FireStoreRepository
 import com.cornellappdev.resell.android.model.login.FirebaseAuthRepository
 import com.cornellappdev.resell.android.model.login.GoogleAuthRepository
+import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonContainer
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonState
 import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
+import com.cornellappdev.resell.android.util.UIEvent
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
 import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepository
 import com.cornellappdev.resell.android.viewmodel.root.RootConfirmationRepository
@@ -40,13 +44,14 @@ class LandingViewModel @Inject constructor(
     data class LandingUiState(
         val showButton: Boolean = false,
         val buttonState: ResellTextButtonState = ResellTextButtonState.ENABLED,
+        val retryLogin: UIEvent<Unit>? = null,
     )
 
     /**
-     * If user is logged in with a valid, finished Resell account, navigate to main.
+     * If user is logged in with a valid, finished Resell account, attempts an auto login.
      * Otherwise does nothing.
      */
-    fun navigateIfLoggedIn() {
+    fun attemptAutoLogin() {
         if (googleAuthRepository.accountOrNull() != null) {
             onSignInCompleted(
                 idToken = googleAuthRepository.accountOrNull()!!.idToken!!,
@@ -76,7 +81,25 @@ class LandingViewModel @Inject constructor(
 
         if (showSheet) {
             rootNavigationSheetRepository.showBottomSheet(
-                RootSheet.LoginFailed
+                RootSheet.TwoButtonSheet(
+                    title = "Login Failed",
+                    description = AnnotatedString("Login failed. Please try again."),
+                    primaryText = "Try Again",
+                    primaryCallback = {
+                        applyMutation {
+                            copy(
+                                retryLogin = UIEvent(Unit)
+                            )
+                        }
+                        rootNavigationSheetRepository.hideSheet()
+                    },
+                    secondaryText = "Okay",
+                    secondaryCallback = {
+                        rootNavigationSheetRepository.hideSheet()
+                    },
+                    secondaryContainerType = ResellTextButtonContainer.NAKED,
+                    textAlign = TextAlign.Center
+                )
             )
         }
 
@@ -93,15 +116,38 @@ class LandingViewModel @Inject constructor(
             // No longer logged in.
             googleAuthRepository.signOut()
             rootNavigationSheetRepository.showBottomSheet(
-                RootSheet.LoginCornellEmail
+                RootSheet.TwoButtonSheet(
+                    title = "Login Failed",
+                    description = AnnotatedString("Please log in with a Cornell email."),
+                    primaryText = "Try Again",
+                    primaryCallback = {
+                        applyMutation {
+                            copy(
+                                retryLogin = UIEvent(Unit)
+                            )
+                        }
+                        rootNavigationSheetRepository.hideSheet()
+                    },
+                    secondaryText = "Okay",
+                    secondaryCallback = {
+                        rootNavigationSheetRepository.hideSheet()
+                    },
+                    secondaryContainerType = ResellTextButtonContainer.NAKED,
+                    textAlign = TextAlign.Center
+                )
             )
 
             return
         }
 
+        applyMutation {
+            copy(buttonState = ResellTextButtonState.DISABLED)
+        }
+
         viewModelScope.launch {
             try {
-                firebaseAuthRepository.firebaseAuthWithGoogle(idToken)
+                val newId = googleAuthRepository.silentSignIn()
+                firebaseAuthRepository.firebaseAuthWithGoogle(newId)
 
                 fireStoreRepository.getUserOnboarded(
                     email = email,
@@ -110,10 +156,6 @@ class LandingViewModel @Inject constructor(
                     },
                     onSuccess = { onboarded ->
                         viewModelScope.launch {
-                            applyMutation {
-                                copy(buttonState = ResellTextButtonState.DISABLED)
-                            }
-
                             if (onboarded) {
                                 rootNavigationRepository.navigate(ResellRootRoute.MAIN)
                             } else {
@@ -129,6 +171,10 @@ class LandingViewModel @Inject constructor(
                     "Your Google Account session has expired. Please sign in again!",
                 )
             }
+
+            applyMutation {
+                copy(buttonState = ResellTextButtonState.ENABLED)
+            }
         }
     }
 
@@ -143,7 +189,7 @@ class LandingViewModel @Inject constructor(
     }
 
     fun getSignInClient(): GoogleSignInClient {
-        val gso = googleAuthRepository.googleSignInClient
+        val gso = googleAuthRepository.googleSignInOptions
         val client = GoogleSignIn.getClient(context, gso)
 
         return client
