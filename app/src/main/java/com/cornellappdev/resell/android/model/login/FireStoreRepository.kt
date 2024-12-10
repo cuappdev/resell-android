@@ -223,25 +223,27 @@ class FireStoreRepository @Inject constructor(
         otherEmail: String,
         chatType: ChatViewModel.ChatType,
     ) {
-        when (chatType) {
+        val docRef = when (chatType) {
             // Self is buying from the other; other is a seller.
             // Must write to myEmail/sellers/otherEmail/viewed
             ChatViewModel.ChatType.Purchases -> {
-
-                val docRef = historyCollection.document(myEmail)
+                historyCollection.document(myEmail)
                     .collection("sellers").document(otherEmail)
-
-                docRef.update("viewed", true).await()
             }
 
             // Self is selling to the other; other is a buyer.
             // Must write to myEmail/buyers/otherEmail/viewed
             ChatViewModel.ChatType.Offers -> {
-                val docRef = historyCollection.document(myEmail)
+                historyCollection.document(myEmail)
                     .collection("buyers").document(otherEmail)
-
-                docRef.update("viewed", true).await()
             }
+        }
+        val doc = docRef.get().await()
+
+        if (doc.exists()) {
+            docRef.update("viewed", true)
+        } else {
+            Log.e("FirestoreError", "Document does not exist!")
         }
     }
 
