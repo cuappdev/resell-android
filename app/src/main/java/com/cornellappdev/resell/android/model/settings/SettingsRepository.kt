@@ -52,7 +52,9 @@ class SettingsRepository @Inject constructor(
         retrofitInstance.settingsApi.sendFeedback(
             Feedback(
                 description = description,
-                imagesBase64 = images.map { it.toNetworkingString() },
+                imagesBase64 = images.map { it.toNetworkingString(
+                    quality = 25
+                ) },
                 userId = userInfoRepository.getUserId()!!
             )
         )

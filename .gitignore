@@ -35,3 +35,4 @@ app/google-services.json
 
 # Secrets
 secrets.properties
+app/src/main/assets/resell-service.json

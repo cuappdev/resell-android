@@ -98,7 +98,7 @@ fun ResellTextButton(
         if (state == ResellTextButtonState.SPINNING
             || spinningDelayedState == ResellTextButtonState.SPINNING
         ) {
-            delay(200)
+            delay(100)
         }
         spinningDelayedState = state
     }

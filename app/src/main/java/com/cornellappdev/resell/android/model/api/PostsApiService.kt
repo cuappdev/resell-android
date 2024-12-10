@@ -4,17 +4,23 @@ import android.util.Log
 import com.cornellappdev.resell.android.model.classes.Listing
 import com.cornellappdev.resell.android.util.richieUserInfo
 import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.Serializable
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
+import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import java.util.TimeZone
 
 interface PostsApiService {
     @GET("post")
     suspend fun getPosts(): PostsResponse
+
+    @GET("post/id/{id}")
+    suspend fun getPost(@Path("id") id: String): Post
 
     @GET("post/similar/postId/{id}")
     suspend fun getSimilarPosts(@Path("id") id: String): PostsResponse
@@ -70,22 +76,26 @@ data class PostResponse(
     val post: Post
 )
 
+@Serializable
 data class Post(
     val id: String,
     val title: String,
     val description: String,
     val categories: List<String>,
     val archive: Boolean,
-    val created: Date,  // Use Long for timestamps
+    private val created: String,  // Use Long for timestamps
     val price: Double,
-    @SerializedName("altered_price") val altered: String,
+    @SerializedName("altered_price") val altered_price: String,
     val images: List<String>,
-    val location: String,
+    val location: String?,
     val user: User? // Reusing the User class from before
 ) {
 
     private val priceString
-        get() = String.format(Locale.US, "$%.2f", altered.toDouble())
+        get() = String.format(Locale.US, "$%.2f", altered_price?.ifBlank { null }?.toDouble() ?: 0.0)
+
+    val createdDate: Date
+        get() = parseIsoDate(created)
 
     fun toListing(): Listing {
         return Listing(
@@ -100,6 +110,15 @@ data class Post(
             },
         )
     }
+}
+
+private fun parseIsoDate(dateString: String): Date {
+    // Define the date format that matches the input string
+    val dateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
+    // Set the timezone to UTC because ISO 8601 uses UTC time
+    dateFormat.timeZone = TimeZone.getTimeZone("UTC")
+    // Parse the string into a Date object
+    return dateFormat.parse(dateString) ?: throw IllegalArgumentException("Invalid date format")
 }
 
 data class NewPostBody(

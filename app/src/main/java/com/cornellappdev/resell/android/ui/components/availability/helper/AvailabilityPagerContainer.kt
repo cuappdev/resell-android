@@ -1,6 +1,6 @@
 package com.cornellappdev.resell.android.ui.components.availability.helper
 
-import androidx.compose.foundation.clickable
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,14 +15,17 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.ui.theme.Secondary
 import com.cornellappdev.resell.android.ui.theme.Style
+import com.cornellappdev.resell.android.util.clickableNoIndication
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 
@@ -37,16 +40,29 @@ import java.time.LocalDate
  */
 @Composable
 fun AvailabilityPagerContainer(
+    title: String,
+    subtitle: String,
     startDate: LocalDate,
     scrollRange: Pair<Int, Int>,
-    availabilityGrid: @Composable (dates: List<LocalDate>, page: Int) -> Unit
+    modifier: Modifier = Modifier,
+    availabilityGrid: @Composable (dates: List<LocalDate>, page: Int) -> Unit,
 ) {
     val state =
         rememberPagerState(initialPage = scrollRange.first) { scrollRange.first + scrollRange.second + 1 }
     val coroutineScope = rememberCoroutineScope()
     val iconSize = 24.dp
 
-    Column {
+    val alphaLeft by animateFloatAsState(
+        targetValue = if (state.currentPage == scrollRange.first) 0f else 1f,
+        label = "alpha left arrow"
+    )
+
+    val alphaRight by animateFloatAsState(
+        targetValue = if (state.currentPage == scrollRange.first + scrollRange.second) 0f else 1f,
+        label = "alpha right arrow"
+    )
+
+    Column(modifier = modifier) {
         Row(
             horizontalArrangement = Arrangement.SpaceAround,
             verticalAlignment = Alignment.CenterVertically,
@@ -54,36 +70,38 @@ fun AvailabilityPagerContainer(
         ) {
             Icon(
                 painter = painterResource(R.drawable.ic_chevron_left),
-                "Scroll left",
+                contentDescription = "Scroll left",
                 modifier = Modifier
-                    .clickable {
+                    .clickableNoIndication {
                         coroutineScope.launch {
                             state.animateScrollToPage(state.currentPage - 1)
                         }
                     }
                     .size(iconSize)
+                    .alpha(alphaLeft)
             )
             Column(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text("When are you free to meet?", style = Style.heading3)
+                Text(text = title, style = Style.heading3)
                 Text(
-                    "Click and drag cells to select meeting times",
+                    text = subtitle,
                     style = Style.body2,
                     color = Secondary
                 )
             }
             Icon(
                 painter = painterResource(R.drawable.ic_chevron_right),
-                "Scroll right",
+                contentDescription = "Scroll right",
                 modifier = Modifier
-                    .clickable {
+                    .clickableNoIndication {
                         coroutineScope.launch {
                             state.animateScrollToPage(state.currentPage + 1)
                         }
                     }
                     .size(iconSize)
+                    .alpha(alphaRight)
             )
         }
         Spacer(modifier = Modifier.height(24.dp))

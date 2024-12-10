@@ -1,11 +1,15 @@
 package com.cornellappdev.resell.android.util
 
 import android.graphics.Bitmap
+import android.text.format.DateUtils
 import android.util.Base64
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.toPixelMap
 import java.io.ByteArrayOutputStream
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
+import java.util.Date
 
 /**
  * Returns if the bottom left is more black than white.
@@ -83,10 +87,26 @@ fun String.isLeqMoney(other: String): Boolean {
     }
 }
 
-fun ImageBitmap.toNetworkingString(): String {
+fun ImageBitmap.toNetworkingString(quality: Int = 50): String {
     val bitmap = this.asAndroidBitmap()
     val outputStream = ByteArrayOutputStream()
-    bitmap.compress(Bitmap.CompressFormat.JPEG, 50, outputStream)
+    bitmap.compress(Bitmap.CompressFormat.JPEG, quality, outputStream)
     val byteArray = outputStream.toByteArray()
     return "data:image/jpeg;base64," + Base64.encodeToString(byteArray, Base64.DEFAULT)
+}
+
+fun parseIsoDateToDate(isoString: String): Date {
+    val zonedDateTime = ZonedDateTime.parse(isoString, DateTimeFormatter.ISO_DATE_TIME)
+    return Date.from(zonedDateTime.toInstant())
+}
+
+fun getRelativeTimeSpan(isoString: String): String {
+    val date = parseIsoDateToDate(isoString)
+    val currentTimeMillis = System.currentTimeMillis()
+    val timestampMillis = date.time
+    return DateUtils.getRelativeTimeSpanString(
+        timestampMillis,
+        currentTimeMillis,
+        DateUtils.MINUTE_IN_MILLIS
+    ).toString()
 }

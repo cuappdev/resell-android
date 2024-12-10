@@ -95,7 +95,8 @@ data class User(
         // TODO Refactor UserInfo because we don't have all these fields
         venmoHandle = "TODO",
         bio = bio,
-        id = id
+        id = id,
+        email = email
     )
 }
 

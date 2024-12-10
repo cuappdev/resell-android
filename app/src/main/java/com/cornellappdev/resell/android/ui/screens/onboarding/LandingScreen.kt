@@ -54,9 +54,16 @@ fun LandingScreen(
     }
 
     LaunchedEffect(Unit) {
-        landingViewModel.navigateIfLoggedIn()
+        landingViewModel.attemptAutoLogin()
         delay(1000)
         landingViewModel.showButton()
+    }
+
+    LaunchedEffect(state.retryLogin) {
+        state.retryLogin?.consume {
+            resultLauncher.launch(landingViewModel.getSignInClient().signInIntent)
+            landingViewModel.onSignInClick()
+        }
     }
 
     BlobbedContent(
