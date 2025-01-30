@@ -37,7 +37,7 @@ fun RootSheetOverlay(
         ModalBottomSheet(
             onDismissRequest = onDismissRequest,
             sheetState = sheetState,
-            windowInsets = WindowInsets(0.dp),
+            contentWindowInsets = { WindowInsets(0.dp) },
             containerColor = Color.White,
         ) {
 
