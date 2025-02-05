@@ -1,15 +1,19 @@
 package com.cornellappdev.resell.android.viewmodel.newpost
 
+import android.util.Log
 import androidx.lifecycle.viewModelScope
+import com.cornellappdev.resell.android.model.core.UserInfoRepository
+import com.cornellappdev.resell.android.model.login.FirebaseMessagingRepository
+import com.cornellappdev.resell.android.model.posts.ResellPostRepository
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonState
 import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
 import com.cornellappdev.resell.android.viewmodel.main.HomeViewModel
 import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepository
+import com.cornellappdev.resell.android.viewmodel.root.RootConfirmationRepository
 import com.cornellappdev.resell.android.viewmodel.root.RootNavigationSheetRepository
 import com.cornellappdev.resell.android.viewmodel.root.RootSheet
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -17,6 +21,10 @@ import javax.inject.Inject
 class PostDetailsEntryViewModel @Inject constructor(
     private val rootNavigationSheetRepository: RootNavigationSheetRepository,
     private val rootNavigationRepository: RootNavigationRepository,
+    private val postRepository: ResellPostRepository,
+    private val userInfoRepository: UserInfoRepository,
+    private val rootConfirmationRepository: RootConfirmationRepository,
+    private val firebaseMessagingRepository: FirebaseMessagingRepository,
 ) : ResellViewModel<PostDetailsEntryViewModel.PostEntryUiState>(
     initialUiState = PostEntryUiState()
 ) {
@@ -77,14 +85,34 @@ class PostDetailsEntryViewModel @Inject constructor(
     fun onConfirmPost() {
         // TODO: Placeholder
         viewModelScope.launch {
-            applyMutation {
-                copy(loadingPost = true)
+            try {
+                applyMutation {
+                    copy(loadingPost = true)
+                }
+
+                postRepository.uploadPost(
+                    title = stateValue().title,
+                    description = stateValue().description,
+                    originalPrice = stateValue().price.toDouble(),
+                    images = postRepository.getRecentBitmaps()!!,
+                    categories = listOf(stateValue().activeFilter.name),
+                    userId = userInfoRepository.getUserId() ?: "lol"
+                )
+                applyMutation {
+                    copy(loadingPost = false)
+                }
+                rootNavigationRepository.navigate(ResellRootRoute.MAIN)
+                firebaseMessagingRepository.requestNotificationsPermission()
+                rootConfirmationRepository.showSuccess(
+                    message = "Your listing has been posted successfully!"
+                )
+            } catch (e: Exception) {
+                Log.e("ProfileRepository", "Error creating listing: ", e)
+                applyMutation {
+                    copy(loadingPost = false)
+                }
+                rootConfirmationRepository.showError()
             }
-            delay(2000)
-            applyMutation {
-                copy(loadingPost = false)
-            }
-            rootNavigationRepository.navigate(ResellRootRoute.MAIN)
         }
     }
 }

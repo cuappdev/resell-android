@@ -11,6 +11,7 @@ if (secretsPropertiesFile.exists()) {
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
+    id("kotlin-parcelize")
     id("kotlin-kapt")
     id("com.google.dagger.hilt.android")
     id("org.jetbrains.kotlin.plugin.serialization")
@@ -20,6 +21,10 @@ plugins {
 android {
     namespace = "com.cornellappdev.resell.android"
     compileSdk = 35
+
+    packaging {
+        resources.excludes.add("META-INF/DEPENDENCIES")
+    }
 
     defaultConfig {
         applicationId = "com.cornellappdev.resell.android"
@@ -32,10 +37,30 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+
+        buildConfigField(
+            "String",
+            "FCM_URL", "\"${secrets.getProperty("FCM_URL")}\""
+        )
+
+        buildConfigField(
+            "String",
+            "NOTIFICATIONS_KEY", "\"${secrets.getProperty("FIREBASE_NOTIFICATIONS_KEY")}\""
+        )
+    }
+
+    signingConfigs {
+        create("release") {
+            keyAlias = "resell"
+            keyPassword = secrets.getProperty("KEY_PASS")
+            storeFile = file("/../resell-keystore.jks")
+            storePassword = secrets.getProperty("KEY_PASS")
+        }
     }
 
     buildTypes {
         release {
+            signingConfig = signingConfigs.getByName("release")
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
@@ -55,10 +80,9 @@ android {
                 "String",
                 "GOOGLE_AUTH_CLIENT_ID", "\"${secrets.getProperty("GOOGLE_AUTH_CLIENT_ID_LOCAL")}\""
             )
-            // TODO: Make sure this sets back to Dev lmao
             buildConfigField(
                 "String",
-                "BASE_API_URL", "\"${secrets.getProperty("API_URL_PROD")}\""
+                "BASE_API_URL", "\"${secrets.getProperty("API_URL_DEV")}\""
             )
         }
     }
@@ -99,9 +123,16 @@ dependencies {
     implementation(libs.androidx.compose.material)
     kapt(libs.hilt.android.compiler)
     implementation(libs.coil.compose)
+    implementation(libs.androidx.activity.ktx)
+    implementation(libs.ui)
+    implementation(libs.ui.tooling.preview)
+    implementation(libs.ui.tooling)
+
+    implementation(libs.kotlinx.coroutines.core)
 
     // Google Play Services Auth
     implementation(libs.gms.play.services.auth)
+    implementation(libs.google.auth.library.oauth2.http)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -116,8 +147,8 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
-    debugImplementation(libs.androidx.ui.tooling)
-    debugImplementation(libs.androidx.ui.test.manifest)
+    implementation(libs.androidx.ui.tooling)
+    implementation(libs.androidx.ui.test.manifest)
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
     implementation(libs.kotlinx.coroutines.android)

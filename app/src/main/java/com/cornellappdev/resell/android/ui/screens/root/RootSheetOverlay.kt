@@ -12,9 +12,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
+import com.cornellappdev.resell.android.ui.components.availability.AvailabilitySheet
 import com.cornellappdev.resell.android.ui.components.global.sheet.ChatMeetingSheet
 import com.cornellappdev.resell.android.ui.components.global.sheet.LoginErrorSheet
 import com.cornellappdev.resell.android.ui.components.global.sheet.PriceProposalSheet
+import com.cornellappdev.resell.android.ui.components.global.sheet.TwoButtonSheet
 import com.cornellappdev.resell.android.ui.components.main.WelcomeSheetContent
 import com.cornellappdev.resell.android.ui.components.settings.LogOutSheetContent
 import com.cornellappdev.resell.android.ui.components.settings.ResellWebView
@@ -69,6 +71,10 @@ fun RootSheetOverlay(
                     ChatMeetingSheet()
                 }
 
+                is RootSheet.Availability -> {
+                    AvailabilitySheet()
+                }
+
                 RootSheet.LogOut -> {
                     LogOutSheetContent {
                         onDismissRequest()
@@ -79,6 +85,10 @@ fun RootSheetOverlay(
                     WelcomeSheetContent {
                         onDismissRequest()
                     }
+                }
+
+                is RootSheet.TwoButtonSheet -> {
+                    TwoButtonSheet()
                 }
 
                 else -> {}

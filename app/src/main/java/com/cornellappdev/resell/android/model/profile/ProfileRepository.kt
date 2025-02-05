@@ -4,10 +4,12 @@ import android.util.Log
 import com.cornellappdev.resell.android.model.api.PostRequestBody
 import com.cornellappdev.resell.android.model.api.RequestResponse
 import com.cornellappdev.resell.android.model.api.RetrofitInstance
+import com.cornellappdev.resell.android.model.api.UserResponse
 import com.cornellappdev.resell.android.model.classes.Listing
 import com.cornellappdev.resell.android.model.classes.RequestListing
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.model.classes.UserInfo
+import com.cornellappdev.resell.android.model.core.UserInfoRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,6 +21,7 @@ import javax.inject.Singleton
 @Singleton
 class ProfileRepository @Inject constructor(
     private val retrofitInstance: RetrofitInstance,
+    private val userInfoRepository: UserInfoRepository
 ) {
 
     private val _internalUser: MutableStateFlow<ResellApiResponse<UserInfo>> =
@@ -169,5 +172,21 @@ class ProfileRepository @Inject constructor(
 
     suspend fun getRequestById(id: String): RequestResponse {
         return retrofitInstance.requestsApi.getRequest(id)
+    }
+
+    fun softDelete(onSuccess: () -> Unit, onError: () -> Unit) {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val user = retrofitInstance.userApi.softDeleteUser(userInfoRepository.getUserId()!!)
+                onSuccess()
+            } catch (e: Exception) {
+                Log.e("ProfileRepository", "Error soft deleting user: ", e)
+                onError()
+            }
+        }
+    }
+
+    suspend fun getUserById(id: String): UserResponse {
+        return retrofitInstance.userApi.getUser(id)
     }
 }

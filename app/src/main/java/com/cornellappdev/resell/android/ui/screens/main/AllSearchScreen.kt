@@ -16,6 +16,7 @@ fun AllSearchScreen(
         onExit = allSearchViewModel::onExit,
         onListingPressed = allSearchViewModel::onListingPressed,
         listings = uiState.listings,
-        placeholder = "Search listings..."
+        placeholder = "Search listings...",
+        focusKeyboard = uiState.focusKeyboard
     )
 }

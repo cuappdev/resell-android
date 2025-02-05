@@ -9,9 +9,11 @@ import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.model.profile.SearchRepository
 import com.cornellappdev.resell.android.ui.screens.externalprofile.ExternalProfileRoute
 import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
+import com.cornellappdev.resell.android.util.UIEvent
 import com.cornellappdev.resell.android.viewmodel.externalprofile.ExternalNavigationRepository
 import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -32,7 +34,8 @@ abstract class SearchViewModel(
         val query: String,
         val listings: ResellApiResponse<List<Listing>>,
         val uid: String?,
-        val username: String
+        val username: String,
+        val focusKeyboard: UIEvent<Unit>? = null
     ) {
         val placeholderText
             get() = "Search ${username}..."
@@ -79,6 +82,17 @@ abstract class SearchViewModel(
     }
 
     abstract fun onExit()
+
+    init {
+        viewModelScope.launch {
+            delay(350L)
+            applyMutation {
+                copy(
+                    focusKeyboard = UIEvent(Unit)
+                )
+            }
+        }
+    }
 }
 
 @HiltViewModel

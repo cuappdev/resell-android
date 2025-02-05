@@ -2,10 +2,15 @@ package com.cornellappdev.resell.android.viewmodel.navigation
 
 import android.util.Log
 import androidx.lifecycle.viewModelScope
+import com.cornellappdev.resell.android.model.api.NotificationData
+import com.cornellappdev.resell.android.model.api.Post
 import com.cornellappdev.resell.android.model.core.UserInfoRepository
+import com.cornellappdev.resell.android.model.login.FireStoreRepository
+import com.cornellappdev.resell.android.model.login.FirebaseMessagingRepository
 import com.cornellappdev.resell.android.model.login.GoogleAuthRepository
 import com.cornellappdev.resell.android.model.login.ResellAuthRepository
 import com.cornellappdev.resell.android.model.posts.ResellPostRepository
+import com.cornellappdev.resell.android.model.settings.NotificationsRepository
 import com.cornellappdev.resell.android.ui.screens.main.ResellMainScreen
 import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
 import com.cornellappdev.resell.android.util.UIEvent
@@ -13,6 +18,8 @@ import com.cornellappdev.resell.android.viewmodel.ResellViewModel
 import com.cornellappdev.resell.android.viewmodel.root.RootConfirmationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import retrofit2.HttpException
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -25,6 +32,9 @@ class MainNavigationViewModel @Inject constructor(
     private val googleAuthRepository: GoogleAuthRepository,
     private val rootConfirmationRepository: RootConfirmationRepository,
     private val resellPostRepository: ResellPostRepository,
+    private val fireStoreRepository: FireStoreRepository,
+    private val firebaseMessagingRepository: FirebaseMessagingRepository,
+    private val notificationsRepository: NotificationsRepository,
     mainNavigationRepository: MainNavigationRepository,
 ) : ResellViewModel<MainNavigationViewModel.MainNavigationUiState>(
     initialUiState = MainNavigationUiState(
@@ -35,7 +45,8 @@ class MainNavigationViewModel @Inject constructor(
     data class MainNavigationUiState(
         val newPostExpanded: Boolean,
         val navEvent: UIEvent<ResellMainScreen>? = null,
-        val bottomBarEnabled: Boolean = false
+        val bottomBarEnabled: Boolean = false,
+        val notificationData: NotificationData? = null
     )
 
     init {
@@ -47,17 +58,54 @@ class MainNavigationViewModel @Inject constructor(
             }
         }
 
+        asyncCollect(notificationsRepository.notificationData) { event ->
+            if (event != null) {
+                val data = event.payload
+                applyMutation {
+                    copy(notificationData = data)
+                }
+
+                if (stateValue().bottomBarEnabled) {
+                    parseNotification(data)
+                }
+            }
+        }
+
         // Start networking if applicable
         viewModelScope.launch {
             validateAccessToken()
+
+            addFCMToken()
 
             // Enable bottom bar
             applyMutation {
                 copy(bottomBarEnabled = true)
             }
 
+            if (stateValue().notificationData != null) {
+                parseNotification(stateValue().notificationData!!)
+            }
+
             // User was locked onto the main screen, so we can fetch posts now and it will load.
             resellPostRepository.fetchPosts()
+        }
+    }
+
+    private fun parseNotification(notificationData: NotificationData) {
+        when (notificationData) {
+            is NotificationData.ChatNotification -> {
+                val post = Json.decodeFromString<Post>(notificationData.postJson)
+
+                rootNavigationRepository.navigate(
+                    ResellRootRoute.CHAT(
+                        email = notificationData.email,
+                        name = notificationData.name,
+                        pfp = notificationData.pfp,
+                        isBuyer = notificationData.isBuyer == "true",
+                        postJson = Json.encodeToString(post.toListing()),
+                    )
+                )
+            }
         }
     }
 
@@ -78,7 +126,13 @@ class MainNavigationViewModel @Inject constructor(
                     id = googleAuthRepository.accountOrNull()!!.id!!
                 )
                 userInfoRepository.storeUserId(user.id)
+                userInfoRepository.storeBio(user.bio)
+                userInfoRepository.storeNetId(user.netid)
+                userInfoRepository.storeEmail(user.email)
                 userInfoRepository.storeUsername(user.username)
+                userInfoRepository.storeFirstName(user.givenName)
+                userInfoRepository.storeLastName(user.familyName)
+                userInfoRepository.storeProfilePicUrl(user.photoUrl)
                 userInfoRepository.storeIdToken(googleAuthRepository.accountOrNull()!!.idToken!!)
 
                 Log.d(
@@ -91,11 +145,6 @@ class MainNavigationViewModel @Inject constructor(
                 // a DEV user logs in with an onboarded PROD user.
                 rootNavigationRepository.navigate(ResellRootRoute.ONBOARDING)
             }
-
-//            resellAuthRepository.loginToResell(
-//                idToken = userInfoRepository.getUserId()!!,
-//                user = userInfoRepository.getUsername()!!,
-//            )
 
             Log.d("MainNavigationViewModel", "Logged in!")
 
@@ -110,6 +159,33 @@ class MainNavigationViewModel @Inject constructor(
                 message = "Something went wrong authenticating. Please try again."
             )
             Log.e("MainNavigationViewModel", "Error authenticating: ", e)
+        }
+    }
+
+    /**
+     * Attempts to publish the current user's FCM token, if it isn't already added.
+     *
+     * Catches edge cases in testing where we did not add the FCM token.
+     */
+    private suspend fun addFCMToken() {
+        try {
+            // Extra step: add FCM token if not already added
+            val email = userInfoRepository.getEmail()!!
+            val fcmToken = fireStoreRepository.getUserFCMToken(email)
+            if (fcmToken == null || fcmToken != firebaseMessagingRepository.getDeviceFCMToken()) {
+                fireStoreRepository.saveDeviceToken(
+                    email,
+                    firebaseMessagingRepository.getDeviceFCMToken()!!
+                )
+                Log.d("MainNavigationViewModel", "FCM token added successfully.")
+            } else {
+                Log.d(
+                    "MainNavigationViewModel",
+                    "FCM token already added: $fcmToken\n(This should match to: ${firebaseMessagingRepository.getDeviceFCMToken()})"
+                )
+            }
+        } catch (e: Exception) {
+            Log.e("MainNavigationViewModel", "Error adding FCM token: ", e)
         }
     }
 

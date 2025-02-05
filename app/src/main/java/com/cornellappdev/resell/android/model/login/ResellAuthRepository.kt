@@ -22,16 +22,6 @@ class ResellAuthRepository @Inject constructor(
         return users.user
     }
 
-    // TODO may be redundant
-    suspend fun loginToResell(idToken: String, user: String) =
-        retrofitInstance.loginApi.login(
-            LoginBody(
-                idToken = idToken,
-                user = user,
-                deviceToken = firebaseMessagingRepository.getDeviceFCMToken()!!
-            )
-        )
-
     suspend fun createUser(createUserBody: CreateUserBody) =
         retrofitInstance.loginApi.createUser(createUserBody)
 

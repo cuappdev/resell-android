@@ -10,6 +10,7 @@ import com.cornellappdev.resell.android.model.core.UserInfoRepository
 import com.cornellappdev.resell.android.model.login.GoogleAuthRepository
 import com.cornellappdev.resell.android.model.profile.ProfileRepository
 import com.cornellappdev.resell.android.model.settings.BlockedUsersRepository
+import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonContainer
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonState
 import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
@@ -24,11 +25,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
-    private val loginRepository: GoogleAuthRepository,
     private val rootNavigationRepository: RootNavigationRepository,
-    private val rootOptionsMenuRepository: RootOptionsMenuRepository,
     private val rootDialogRepository: RootDialogRepository,
-    private val blockedUsersRepository: BlockedUsersRepository,
     private val rootConfirmationRepository: RootConfirmationRepository,
     private val profileRepository: ProfileRepository,
     private val userInfoRepository: UserInfoRepository
@@ -92,13 +90,6 @@ class ProfileViewModel @Inject constructor(
         rootNavigationRepository.navigate(ResellRootRoute.SETTINGS)
     }
 
-    fun onSearchPressed() {
-        // TODO: Implement
-
-        // TODO: showing this for testing
-
-    }
-
     fun onRequestPressed(request: RequestListing) {
         rootNavigationRepository.navigate(
             ResellRootRoute.REQUEST_MATCHES(
@@ -115,6 +106,7 @@ class ProfileViewModel @Inject constructor(
                 description = "Are you sure you want to delete this request?",
                 primaryButtonText = "Delete",
                 secondaryButtonText = "Cancel",
+                primaryButtonContainer = ResellTextButtonContainer.PRIMARY_RED,
                 onPrimaryButtonClick = {
                     viewModelScope.launch {
                         deleteRequest(request)
@@ -139,8 +131,7 @@ class ProfileViewModel @Inject constructor(
                 message = "Your request has been deleted successfully!",
             )
             onReloadListings()
-        }
-        catch (e: Exception) {
+        } catch (e: Exception) {
             rootDialogRepository.dismissDialog()
             rootConfirmationRepository.showError()
         }

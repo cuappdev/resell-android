@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -84,7 +83,8 @@ fun RootOptionsMenuOverlay(
                     OptionRow(
                         text = option.title,
                         icon = painterResource(option.icon),
-                        onClick = { rootOptionsMenuViewModel.onOptionClicked(option) }
+                        onClick = { rootOptionsMenuViewModel.onOptionClicked(option) },
+                        contentColor = option.color
                     )
 
                     if (option != uiState.options.last()) {
@@ -105,7 +105,8 @@ fun RootOptionsMenuOverlay(
 private fun OptionRow(
     text: String,
     icon: Painter,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    contentColor: Color,
 ) {
     Row(
         modifier = Modifier
@@ -122,14 +123,16 @@ private fun OptionRow(
     ) {
         Text(
             text = text,
-            style = Style.overlay
+            style = Style.overlay,
+            color = contentColor
         )
 
         Icon(
             painter = icon,
             contentDescription = null,
             modifier = Modifier
-                .size(20.dp)
+                .size(20.dp),
+            tint = contentColor
         )
 
     }

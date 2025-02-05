@@ -1,5 +1,7 @@
 package com.cornellappdev.resell.android.ui.screens.root
 
+import android.Manifest
+import android.os.Build
 import androidx.compose.animation.core.InfiniteRepeatableSpec
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.keyframes
@@ -18,10 +20,12 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.cornellappdev.resell.android.MainActivity
 import com.cornellappdev.resell.android.ui.screens.externalprofile.ExternalProfileNavigation
 import com.cornellappdev.resell.android.ui.screens.main.AllSearchScreen
 import com.cornellappdev.resell.android.ui.screens.main.ChatScreen
@@ -37,7 +41,6 @@ import com.cornellappdev.resell.android.ui.screens.reporting.ReportNavigation
 import com.cornellappdev.resell.android.ui.screens.settings.SettingsNavigation
 import com.cornellappdev.resell.android.util.LocalInfiniteLoading
 import com.cornellappdev.resell.android.util.LocalRootNavigator
-import com.cornellappdev.resell.android.viewmodel.main.ChatViewModel
 import com.cornellappdev.resell.android.viewmodel.root.RootNavigationViewModel
 import com.cornellappdev.resell.android.viewmodel.root.RootSheet
 import kotlinx.coroutines.launch
@@ -56,12 +59,13 @@ fun RootNavigation(
     var lastSheetValue: RootSheet by remember {
         mutableStateOf(RootSheet.LoginCornellEmail)
     }
-    val chatViewModel: ChatViewModel = hiltViewModel()
     val coroutineScope = rememberCoroutineScope()
     var showBottomSheet by remember { mutableStateOf(false) }
 
     // Create an infinite transition for animation
     val transition = rememberInfiniteTransition()
+
+    val context = LocalContext.current as? MainActivity
 
     // Animate a value from 0 to 1 infinitely
     val animatedValue = transition.animateFloat(
@@ -79,9 +83,9 @@ fun RootNavigation(
     ).value
 
     LaunchedEffect(uiState.sheetEvent) {
-        uiState.sheetEvent?.consumeSuspend {
+        uiState.sheetEvent?.consumeSuspend { sheet ->
             // Show bottom sheet.
-            lastSheetValue = uiState.sheetEvent.payload
+            lastSheetValue = sheet
             showBottomSheet = true
             sheetState.show()
         }
@@ -107,6 +111,27 @@ fun RootNavigation(
     LaunchedEffect(uiState.popBackStack) {
         uiState.popBackStack?.consumeSuspend {
             navController.popBackStack()
+        }
+    }
+
+    LaunchedEffect(uiState.requestNotificationPermissions) {
+        uiState.requestNotificationPermissions?.consumeSuspend {
+            if (context == null) return@consumeSuspend
+
+            context.askNotificationPermission(
+                onAlreadyGranted = rootNavigationViewModel::onPermissionsAlreadyGranted,
+                onShowUi = rootNavigationViewModel::onShowRationaleUi,
+            )
+        }
+    }
+
+    LaunchedEffect(uiState.directlyRequestNotificationPermissions) {
+        uiState.directlyRequestNotificationPermissions?.consumeSuspend {
+            if (context == null) return@consumeSuspend
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                context.requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
         }
     }
 
@@ -151,7 +176,7 @@ fun RootNavigation(
             }
 
             composable<ResellRootRoute.CHAT> {
-                ChatScreen(chatViewModel)
+                ChatScreen()
             }
 
             composable<ResellRootRoute.REPORT> {
@@ -230,7 +255,15 @@ sealed class ResellRootRoute {
     ) : ResellRootRoute()
 
     @Serializable
-    data object CHAT : ResellRootRoute()
+    data class CHAT(
+        /** Real name.*/
+        val name: String,
+        val email: String,
+        val pfp: String,
+        // TODO There should be some way to fix this automatically but I can't figure it out.
+        val postJson: String,
+        val isBuyer: Boolean
+    ) : ResellRootRoute()
 
     @Serializable
     data class REPORT(

@@ -11,6 +11,7 @@ import com.cornellappdev.resell.android.model.messages.NotificationType
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 import kotlin.random.Random
+import com.google.firebase.Timestamp
 
 val richieListings = { count: Int ->
     List(count) {
@@ -69,13 +70,13 @@ val richieUserInfo = UserInfo(
     username = "richie",
     venmoHandle = "richie",
     bio = "bio bio bio",
-    id = "richie"
+    id = "richie",
+    email = "richie@sun.com"
 )
 
 val justinChats = { count: Int ->
     List(count) {
         Chat(
-            chatId = -1
         )
     }
 }
@@ -106,47 +107,62 @@ val richieNotifications = { count: Int ->
 
 val richieMessages = { count: Int ->
     ChatMessageCluster(
-        senderId = count,
+        senderId = count.toString(),
         senderImage = "https://media.licdn.com/dms/image/D4E03AQGOCNNbxGtcjw/profile-displayphoto-shrink_200_200/0/1704329714345?e=2147483647&v=beta&t=Kq7ex1pKyiifjOpuNIojeZ8f4dXjEAsNSpkJDXBwjxc",
         fromUser = false,
         messages = List(count) {
             if (it == 1) {
                 ChatMessageData(
-                    0,
+                    timestamp = Timestamp(0, 0),
                     "https://media.licdn.com/dms/image/D4E03AQGOCNNbxGtcjw/profile-displayphoto-shrink_200_200/0/1704329714345?e=2147483647&v=beta&t=Kq7ex1pKyiifjOpuNIojeZ8f4dXjEAsNSpkJDXBwjxc",
-                    0.toLong(),
-                    MessageType.Card
+                    "deajdaejk",
+                    messageType = MessageType.Card,
+                    senderEmail = ""
                 )
             } else {
-                ChatMessageData(0, "HELP", 0.toLong(), MessageType.Message)
+                ChatMessageData(
+                    timestamp = Timestamp(0, 0),
+                    "HELP",
+                    "feajkdna",
+                    messageType = MessageType.Message,
+                    senderEmail = ""
+                )
             }
-        }
+        },
+        senderName = "My man"
     )
 }
 
 val justinMessages = { count: Int ->
     ChatMessageCluster(
-        senderId = count,
+        senderId = count.toString(),
         senderImage = "https://media.licdn.com/dms/image/D4E03AQGOCNNbxGtcjw/profile-displayphoto-shrink_200_200/0/1704329714345?e=2147483647&v=beta&t=Kq7ex1pKyiifjOpuNIojeZ8f4dXjEAsNSpkJDXBwjxc",
         fromUser = true,
         messages = List(count) {
             if (it == 1) {
                 ChatMessageData(
-                    0,
+                    timestamp = Timestamp(0, 0),
                     "Lia",
-                    0.toLong(),
-                    MessageType.Availability
+                    "feaojfea",
+                    messageType = MessageType.Availability,
+                    senderEmail = ""
                 )
             } else if (it == 2) {
                 ChatMessageData(
-                    0,
+                    timestamp = Timestamp(0, 0),
                     "Lia",
-                    0.toLong(),
-                    MessageType.State
+                    "00efa",
+                    messageType = MessageType.State,
+                    senderEmail = ""
                 )
             } else {
-                ChatMessageData(0, "HELP", 0.toLong(), MessageType.Message)
+                ChatMessageData(
+                    timestamp = Timestamp(0, 0), "HELP", "FEADea",
+                    messageType = MessageType.Message,
+                    senderEmail = ""
+                )
             }
-        }
+        },
+        senderName = "God"
     )
 }

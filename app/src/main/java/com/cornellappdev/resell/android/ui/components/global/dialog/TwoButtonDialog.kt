@@ -94,7 +94,8 @@ fun TwoButtonDialog(
                 text = secondaryButtonText,
                 onClick = onSecondaryButtonClick,
                 containerType = secondaryButtonContainer,
-                state = secondaryButtonState
+                state = secondaryButtonState,
+                modifier = Modifier.fillMaxWidth()
             )
         } else {
             Spacer(
