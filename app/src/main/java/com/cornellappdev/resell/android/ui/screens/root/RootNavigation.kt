@@ -183,8 +183,9 @@ fun RootNavigation(
                 ReportNavigation()
             }
 
-            composable <ResellRootRoute.NOTIFICATIONS>{
+            composable <ResellRootRoute.NOTIFICATIONS> {
                 NotificationsHubScreen()
+            }
                 
             composable<ResellRootRoute.EXTERNAL_PROFILE> {
                 ExternalProfileNavigation()
