@@ -1,22 +1,28 @@
 package com.cornellappdev.resell.android.viewmodel.newpost
 
+import android.util.Log
 import androidx.lifecycle.viewModelScope
+import com.cornellappdev.resell.android.model.core.UserInfoRepository
+import com.cornellappdev.resell.android.model.profile.ProfileRepository
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonState
 import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
 import com.cornellappdev.resell.android.util.isLeqMoney
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
 import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepository
+import com.cornellappdev.resell.android.viewmodel.root.RootConfirmationRepository
 import com.cornellappdev.resell.android.viewmodel.root.RootNavigationSheetRepository
 import com.cornellappdev.resell.android.viewmodel.root.RootSheet
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class RequestDetailsEntryViewModel @Inject constructor(
     private val rootNavigationRepository: RootNavigationRepository,
-    private val rootNavigationSheetRepository: RootNavigationSheetRepository
+    private val rootNavigationSheetRepository: RootNavigationSheetRepository,
+    private val rootConfirmationRepository: RootConfirmationRepository,
+    private val profileRepository: ProfileRepository,
+    private val userInfoRepository: UserInfoRepository
 ) : ResellViewModel<RequestDetailsEntryViewModel.RequestDetailsEntryViewState>(
     initialUiState = RequestDetailsEntryViewState()
 ) {
@@ -28,9 +34,12 @@ class RequestDetailsEntryViewModel @Inject constructor(
         val maxPrice: String = "",
         val loadingPost: Boolean = false,
     ) {
+        private val priceValid
+            get() = minPrice.isNotEmpty() && maxPrice.isNotEmpty() &&
+                    minPrice.isLeqMoney(maxPrice) || minPrice.isEmpty() || maxPrice.isEmpty()
+
         private val canConfirm
-            get() = title.isNotBlank() && minPrice.isNotBlank() && maxPrice.isNotBlank()
-                    && minPrice.isLeqMoney(maxPrice)
+            get() = title.isNotBlank() && priceValid
 
         val buttonState: ResellTextButtonState
             get() = if (loadingPost) {
@@ -87,14 +96,31 @@ class RequestDetailsEntryViewModel @Inject constructor(
     fun onConfirmPost() {
         // TODO: Placeholder
         viewModelScope.launch {
-            applyMutation {
-                copy(loadingPost = true)
+            try {
+                applyMutation {
+                    copy(loadingPost = true)
+                }
+
+                profileRepository.createRequestListing(
+                    title = stateValue().title,
+                    description = stateValue().description,
+                    userId = userInfoRepository.getUserId() ?: "lol"
+                )
+
+                applyMutation {
+                    copy(loadingPost = false)
+                }
+                rootConfirmationRepository.showSuccess(
+                    message = "Your request has been submitted successfully!"
+                )
+                rootNavigationRepository.navigate(ResellRootRoute.MAIN)
+            } catch (e: Exception) {
+                Log.e("ProfileRepository", "Error creating listing: ", e)
+                applyMutation {
+                    copy(loadingPost = false)
+                }
+                rootConfirmationRepository.showError()
             }
-            delay(2000)
-            applyMutation {
-                copy(loadingPost = false)
-            }
-            rootNavigationRepository.navigate(ResellRootRoute.MAIN)
         }
     }
 }

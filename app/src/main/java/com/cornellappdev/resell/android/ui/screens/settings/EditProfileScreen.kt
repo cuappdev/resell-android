@@ -151,6 +151,7 @@ private fun Content(
 
             Spacer(modifier = Modifier.height(40.dp))
 
+            // TODO Because of chat's window soft input this goes off screen
             ResellTextEntry(
                 inlineLabel = true,
                 label = "Bio",

@@ -33,44 +33,24 @@ class BlockedUsersViewModel @Inject constructor(
 
     fun onUnblock(id: String) {
         val name = stateValue().blockedUsers.firstOrNull { it.id == id }?.name ?: "User"
-        dialogRepository.showDialog(
-            RootDialogContent.TwoButtonDialog(
-                title = "Unblock $name?",
-                description = "They will be able to message you and view your posts.",
-                primaryButtonText = "Unblock",
-                secondaryButtonText = "Cancel",
-                onPrimaryButtonClick = {
-                    viewModelScope.launch {
-                        dialogRepository.setPrimaryButtonState(ResellTextButtonState.SPINNING)
-                        blockedUsersRepository.onUnblockUser(
-                            userId = id,
-                            onError = {
-                                // TODO
-                                dialogRepository.dismissDialog()
-                                confirmationRepository.showError()
-                            },
-                            onSuccess = {
-                                // TODO
-                                dialogRepository.dismissDialog()
-                                confirmationRepository.showSuccess(
-                                    message = "$name has been unblocked.",
-                                )
-                            }
-                        )
-                    }
-                },
-                onSecondaryButtonClick = {
-                    dialogRepository.dismissDialog()
-                },
-                exitButton = true,
-                primaryButtonContainer = ResellTextButtonContainer.SECONDARY_RED
-            )
+        showUnblockDialog(
+            dialogRepository = dialogRepository,
+            rootConfirmationRepository = confirmationRepository,
+            blockedUsersRepository = blockedUsersRepository,
+            userId = id,
+            name = name
         )
     }
 
     init {
-        blockedUsersRepository.fetchBlockedUsers { blockedUsers ->
-            applyMutation { copy(blockedUsers = blockedUsers) }
+        blockedUsersRepository.fetchBlockedUsers()
+
+        asyncCollect(blockedUsersRepository.blockedUsers) { response ->
+            response.ifSuccess {
+                applyMutation {
+                    copy(blockedUsers = it.map { UiBlockedUser(it.id, it.name, it.imageUrl) })
+                }
+            }
         }
     }
 }

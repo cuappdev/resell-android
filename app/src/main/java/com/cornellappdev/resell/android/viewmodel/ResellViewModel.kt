@@ -1,19 +1,29 @@
 package com.cornellappdev.resell.android.viewmodel
 
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.cornellappdev.resell.android.model.posts.ResellPostRepository
+import com.cornellappdev.resell.android.model.profile.ProfileRepository
 import com.cornellappdev.resell.android.model.settings.BlockedUsersRepository
+import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonContainer
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonState
+import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
+import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepository
 import com.cornellappdev.resell.android.viewmodel.root.RootConfirmationRepository
 import com.cornellappdev.resell.android.viewmodel.root.RootDialogContent
 import com.cornellappdev.resell.android.viewmodel.root.RootDialogRepository
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 
 abstract class ResellViewModel<UiState>(initialUiState: UiState) : ViewModel() {
 
@@ -56,7 +66,8 @@ abstract class ResellViewModel<UiState>(initialUiState: UiState) : ViewModel() {
         rootConfirmationRepository: RootConfirmationRepository,
         blockedUsersRepository: BlockedUsersRepository,
         onBlockSuccess: () -> Unit = {},
-        onBlockError: () -> Unit = {}
+        onBlockError: () -> Unit = {},
+        userId: String
     ) {
         rootDialogRepository.showDialog(
             RootDialogContent.TwoButtonDialog(
@@ -66,7 +77,7 @@ abstract class ResellViewModel<UiState>(initialUiState: UiState) : ViewModel() {
                 onPrimaryButtonClick = {
                     rootDialogRepository.setPrimaryButtonState(ResellTextButtonState.SPINNING)
                     blockedUsersRepository.onBlockUser(
-                        userId = "userId",
+                        userId = userId,
                         onError = {
                             rootDialogRepository.dismissDialog()
                             rootConfirmationRepository.showError()
@@ -77,6 +88,7 @@ abstract class ResellViewModel<UiState>(initialUiState: UiState) : ViewModel() {
                             rootConfirmationRepository.showSuccess(
                                 message = "User has been blocked!"
                             )
+                            blockedUsersRepository.fetchBlockedUsers()
                             onBlockSuccess()
                         }
                     )
@@ -88,5 +100,98 @@ abstract class ResellViewModel<UiState>(initialUiState: UiState) : ViewModel() {
                 exitButton = true
             )
         )
+    }
+
+    protected fun showUnblockDialog(
+        dialogRepository: RootDialogRepository,
+        rootConfirmationRepository: RootConfirmationRepository,
+        blockedUsersRepository: BlockedUsersRepository,
+        onUnblockSuccess: () -> Unit = {},
+        onUnblockError: () -> Unit = {},
+        userId: String,
+        name: String,
+    ) {
+        dialogRepository.showDialog(
+            RootDialogContent.TwoButtonDialog(
+                title = "Unblock $name?",
+                description = "They will be able to message you and view your posts.",
+                primaryButtonText = "Unblock",
+                secondaryButtonText = "Cancel",
+                onPrimaryButtonClick = {
+                    viewModelScope.launch {
+                        dialogRepository.setPrimaryButtonState(ResellTextButtonState.SPINNING)
+                        blockedUsersRepository.onUnblockUser(
+                            userId = userId,
+                            onError = {
+                                dialogRepository.dismissDialog()
+                                rootConfirmationRepository.showError()
+                                onUnblockError()
+                            },
+                            onSuccess = {
+                                dialogRepository.dismissDialog()
+                                rootConfirmationRepository.showSuccess(
+                                    message = "$name has been unblocked.",
+                                )
+                                blockedUsersRepository.fetchBlockedUsers()
+                                onUnblockSuccess()
+                            }
+                        )
+                    }
+                },
+                onSecondaryButtonClick = {
+                    dialogRepository.dismissDialog()
+                },
+                exitButton = true,
+                primaryButtonContainer = ResellTextButtonContainer.SECONDARY_RED
+            )
+        )
+    }
+
+    /**
+     * Loads the user data of the other person and the indicated post's information, and navigates to the chat screen.
+     *
+     * @param name The name of the OTHER user.
+     * @param email The email of the OTHER user.
+     * @param pfp The profile picture of the OTHER user.
+     * @param id The id of the post.
+     */
+    protected fun contactSeller(
+        onSuccess: () -> Unit,
+        onError: () -> Unit,
+        profileRepository: ProfileRepository,
+        postsRepository: ResellPostRepository,
+        rootNavigationRepository: RootNavigationRepository,
+        rootConfirmationRepository: RootConfirmationRepository,
+        name: String,
+        email: String,
+        pfp: String,
+        id: String,
+        isBuyer: Boolean
+    ) {
+        viewModelScope.launch {
+            try {
+                val post = postsRepository.allPostsFlow.first().asSuccess().let {
+                    it.data.first {
+                        it.id == id
+                    }
+                }.toListing()
+                rootNavigationRepository.navigate(
+                    ResellRootRoute.CHAT(
+                        isBuyer = isBuyer,
+                        name = name,
+                        pfp = pfp,
+                        email = email,
+                        postJson = Json.encodeToString(post),
+                    )
+                )
+
+                delay(500)
+                onSuccess()
+            } catch (e: Exception) {
+                Log.e("PostDetailViewModel", "Error navigating to chat: ", e)
+                onError()
+                rootConfirmationRepository.showError()
+            }
+        }
     }
 }

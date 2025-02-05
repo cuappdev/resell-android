@@ -49,15 +49,6 @@ class RetrofitInstance @Inject constructor() {
         .addInterceptor(authInterceptor)
         .build()
 
-    val coreApi: CoreApiService by lazy {
-        Retrofit.Builder()
-            .baseUrl(BuildConfig.BASE_API_URL)
-            .client(okHttpClient)
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-            .create(CoreApiService::class.java)
-    }
-
     val loginApi: LoginApiService by lazy {
         Retrofit.Builder()
             .baseUrl(BuildConfig.BASE_API_URL)
@@ -76,6 +67,15 @@ class RetrofitInstance @Inject constructor() {
             .create(PostsApiService::class.java)
     }
 
+    val requestsApi: RequestsApiService by lazy {
+        Retrofit.Builder()
+            .baseUrl(BuildConfig.BASE_API_URL)
+            .client(okHttpClient)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(RequestsApiService::class.java)
+    }
+
     val userApi: UserApiService by lazy {
         Retrofit.Builder()
             .baseUrl(BuildConfig.BASE_API_URL)
@@ -83,5 +83,23 @@ class RetrofitInstance @Inject constructor() {
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(UserApiService::class.java)
+    }
+
+    val settingsApi: SettingsApiService by lazy {
+        Retrofit.Builder()
+            .baseUrl(BuildConfig.BASE_API_URL)
+            .client(okHttpClient)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(SettingsApiService::class.java)
+    }
+
+    val notificationsApi: FcmApiService by lazy {
+        Retrofit.Builder()
+            .baseUrl(BuildConfig.FCM_URL)
+            .client(okHttpClient)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(FcmApiService::class.java)
     }
 }

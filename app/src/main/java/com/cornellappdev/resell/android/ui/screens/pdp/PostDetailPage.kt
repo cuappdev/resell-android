@@ -53,6 +53,7 @@ import coil.compose.AsyncImage
 import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButton
+import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonState
 import com.cornellappdev.resell.android.ui.components.main.ProfilePictureView
 import com.cornellappdev.resell.android.ui.components.newpost.WhichPage
 import com.cornellappdev.resell.android.ui.components.pdp.BookmarkFAB
@@ -109,7 +110,9 @@ fun PostDetailPage(
         onSimilarClick = {
             postDetailViewModel.onSimilarPressed(it)
         },
-        onUserClick = postDetailViewModel::onUserClick
+        onUserClick = postDetailViewModel::onUserClick,
+        contactButtonState = uiState.contactButtonState,
+        showContact = uiState.showContact
     )
 }
 
@@ -122,6 +125,7 @@ private fun Content(
     similarImageUrls: ResellApiResponse<List<String>> = ResellApiResponse.Pending,
     onContactClick: () -> Unit = {},
     onEllipseClick: () -> Unit = {},
+    contactButtonState: ResellTextButtonState = ResellTextButtonState.ENABLED,
     userPfp: String = "",
     username: String = "",
     title: String = "",
@@ -131,6 +135,7 @@ private fun Content(
     onBookmarkClick: () -> Unit = {},
     onSimilarClick: (Int) -> Unit = {},
     onUserClick: () -> Unit = {},
+    showContact: Boolean = false,
 ) {
     var sheetHeightFromBottom by remember { mutableStateOf(0.dp) }
     val pagerState = rememberPagerState(pageCount = { images.size })
@@ -197,14 +202,17 @@ private fun Content(
                 .height(64.dp)
         )
 
-        ResellTextButton(
-            text = "Contact Seller",
-            onClick = onContactClick,
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .padding(bottom = 46.dp)
-                .navigationBarsPadding()
-        )
+        if (showContact) {
+            ResellTextButton(
+                text = "Contact Seller",
+                onClick = onContactClick,
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = 46.dp)
+                    .navigationBarsPadding(),
+                state = contactButtonState
+            )
+        }
 
         WhichPage(
             pagerState = pagerState,
@@ -380,7 +388,7 @@ private fun BottomSheetContent(
 
         Spacer(Modifier.height(28.dp))
 
-        similarImageUrls.composableIfSuccess {
+        similarImageUrls.ComposableIfSuccess {
             Text(
                 text = "Similar Items",
                 style = Style.body2,

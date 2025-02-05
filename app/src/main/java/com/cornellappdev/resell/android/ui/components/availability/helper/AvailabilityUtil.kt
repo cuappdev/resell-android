@@ -31,17 +31,20 @@ fun List<BooleanArray>.toAvailabilities(dates: List<LocalDate>): List<LocalDateT
             if (!filled) {
                 null
             } else {
-                val day = LocalDateTime.of(dates.getOrNull(col), LocalTime.now())
-                    ?: return@mapIndexed null
-                day
-                    .withHour(gridStartTime.hour)
-                    .withMinute(gridStartTime.minute)
-                    .withSecond(gridStartTime.second)
-                    .withNano(gridStartTime.nano)
-                    .plusMinutes(30L * row)
+                rowColToLocalDateTime(row, col, dates)
             }
         }.filterNotNull()
     }
+
+fun rowColToLocalDateTime(row: Int, col: Int, dates: List<LocalDate>): LocalDateTime {
+    val day = LocalDateTime.of(dates.getOrNull(col), LocalTime.now())
+    return day
+        .withHour(gridStartTime.hour)
+        .withMinute(gridStartTime.minute)
+        .withSecond(gridStartTime.second)
+        .withNano(gridStartTime.nano)
+        .plusMinutes(30L * row)
+}
 
 fun getTimeForRow(row: Int): LocalTime {
     return gridStartTime.plusHours(1L * row)
@@ -56,7 +59,8 @@ fun List<LocalDateTime>.mapToGrid(dates: List<LocalDate>): List<BooleanArray> {
     forEach { date ->
         val column = dates.indexOfFirst { it.day == date.day }
         if (column == -1) return@forEach
-        val row = (date.hour * 60 + date.minute - 9 * 60) / 30
+        val row = (date.hour * 60 + date.minute - gridStartTime.hour * 60) / 30
+        if (row !in 0 until GRID_HEIGHT) return@forEach
         grid[row][column] = true
     }
     return grid

@@ -1,5 +1,6 @@
 package com.cornellappdev.resell.android.viewmodel.root
 
+import com.cornellappdev.resell.android.model.login.FirebaseMessagingRepository
 import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
 import com.cornellappdev.resell.android.util.UIEvent
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
@@ -11,6 +12,9 @@ import javax.inject.Inject
 class RootNavigationViewModel @Inject constructor(
     rootNavigationSheetRepository: RootNavigationSheetRepository,
     rootNavigationRepository: RootNavigationRepository,
+    firebaseMessagingRepository: FirebaseMessagingRepository,
+    private val rootConfirmationRepository: RootConfirmationRepository,
+    private val rootDialogRepository: RootDialogRepository,
 ) : ResellViewModel<RootNavigationViewModel.RootNavigationUiState>(
     initialUiState = RootNavigationUiState()
 ) {
@@ -24,7 +28,9 @@ class RootNavigationViewModel @Inject constructor(
         val sheetEvent: UIEvent<RootSheet>? = null,
         val hideEvent: UIEvent<Unit>? = null,
         val navEvent: UIEvent<ResellRootRoute>? = null,
-        val popBackStack: UIEvent<Unit>? = null
+        val popBackStack: UIEvent<Unit>? = null,
+        val requestNotificationPermissions: UIEvent<Unit>? = null,
+        val directlyRequestNotificationPermissions: UIEvent<Unit>? = null
     )
 
     init {
@@ -51,5 +57,36 @@ class RootNavigationViewModel @Inject constructor(
                 copy(popBackStack = pop)
             }
         }
+
+        asyncCollect(firebaseMessagingRepository.requestNotificationsEventFlow) { event ->
+            applyMutation {
+                copy(requestNotificationPermissions = event)
+            }
+        }
+    }
+
+    fun onPermissionsAlreadyGranted() {
+
+    }
+
+    fun onShowRationaleUi() {
+        rootDialogRepository.showDialog(
+            event = RootDialogContent.TwoButtonDialog(
+                title = "Notifications Required",
+                description = "You must grant notifications to get notified of new messages about your orders.",
+                primaryButtonText = "Grant Permissions",
+                secondaryButtonText = null,
+                onPrimaryButtonClick = {
+                    applyMutation {
+                        copy(
+                            directlyRequestNotificationPermissions = UIEvent(Unit)
+                        )
+                    }
+                    rootDialogRepository.dismissDialog()
+                },
+                onSecondaryButtonClick = {},
+                exitButton = false,
+            )
+        )
     }
 }

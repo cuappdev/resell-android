@@ -95,12 +95,13 @@ data class User(
         // TODO Refactor UserInfo because we don't have all these fields
         venmoHandle = "TODO",
         bio = bio,
-        id = id
+        id = id,
+        email = email
     )
 }
 
 data class UsersResponse(
-    val users: List<GoogleUser>
+    val users: List<User>
 )
 
 data class GoogleUser(

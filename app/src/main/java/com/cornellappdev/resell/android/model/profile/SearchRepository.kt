@@ -18,10 +18,8 @@ class SearchRepository @Inject constructor(
                 keywords = keywords
             )
         )
-        return search.posts.filter {
+        return search.posts.map { it.toListing() }.filter {
             it.user.id == uid || uid == null
-        }.map {
-            it.toListing()
         }
     }
 }

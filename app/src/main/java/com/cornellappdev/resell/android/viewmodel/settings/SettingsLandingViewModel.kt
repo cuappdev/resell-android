@@ -3,6 +3,7 @@ package com.cornellappdev.resell.android.viewmodel.settings
 import androidx.lifecycle.viewModelScope
 import com.cornellappdev.resell.android.model.core.UserInfoRepository
 import com.cornellappdev.resell.android.model.login.GoogleAuthRepository
+import com.cornellappdev.resell.android.model.profile.ProfileRepository
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonContainer
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonState
 import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
@@ -10,6 +11,7 @@ import com.cornellappdev.resell.android.ui.screens.settings.SettingsRoute
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
 import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepository
 import com.cornellappdev.resell.android.viewmodel.navigation.SettingsNavigationRepository
+import com.cornellappdev.resell.android.viewmodel.root.RootConfirmationRepository
 import com.cornellappdev.resell.android.viewmodel.root.RootDialogContent
 import com.cornellappdev.resell.android.viewmodel.root.RootDialogRepository
 import com.cornellappdev.resell.android.viewmodel.root.RootNavigationSheetRepository
@@ -27,6 +29,8 @@ class SettingsLandingViewModel @Inject constructor(
     private val userInfoRepository: UserInfoRepository,
     private val googleAuthRepository: GoogleAuthRepository,
     private val rootNavigationRepository: RootNavigationRepository,
+    private val profileRepository: ProfileRepository,
+    private val rootConfirmationRepository: RootConfirmationRepository
 ) : ResellViewModel<Unit>(
     initialUiState = Unit
 ) {
@@ -74,14 +78,21 @@ class SettingsLandingViewModel @Inject constructor(
             dialogRepository.showDialog(
                 RootDialogContent.CorrectAnswerDialog(
                     title = "Delete Account",
-                    description = "Once deleted, your account cannot be recovered. Enter your username to proceed with deletion.",
+                    description = "Once deleted, your account cannot be recovered. " +
+                            "Enter your username to proceed with deletion.",
                     correctAnswer = userInfoRepository.getUserInfo().username,
                     primaryButtonText = "Delete Account",
                     onPrimaryButtonClick = {
                         dialogRepository.setPrimaryButtonState(ResellTextButtonState.SPINNING)
-
-                        // TODO Networking
-                        onDeleteAccountSuccess()
+                        profileRepository.softDelete(
+                            onSuccess = {
+                                onDeleteAccountSuccess()
+                            },
+                            onError = {
+                                dialogRepository.setPrimaryButtonState(ResellTextButtonState.ENABLED)
+                                rootConfirmationRepository.showError()
+                            }
+                        )
                     },
                     secondaryButtonText = "Cancel",
                     onSecondaryButtonClick = {
@@ -95,7 +106,6 @@ class SettingsLandingViewModel @Inject constructor(
     }
 
     private fun onDeleteAccountSuccess() {
-        // TODO
         viewModelScope.launch {
             delay(1000)
             dialogRepository.dismissDialog()
