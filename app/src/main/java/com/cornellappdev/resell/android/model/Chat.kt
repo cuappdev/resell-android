@@ -1,4 +1,4 @@
-package com.cornellappdev.resell.android.model.messages
+package com.cornellappdev.resell.android.model
 
 import com.cornellappdev.resell.android.model.api.Post
 import com.cornellappdev.resell.android.model.chats.AvailabilityDocument

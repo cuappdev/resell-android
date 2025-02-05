@@ -30,8 +30,8 @@ import com.cornellappdev.resell.android.ui.screens.externalprofile.ExternalProfi
 import com.cornellappdev.resell.android.ui.screens.main.AllSearchScreen
 import com.cornellappdev.resell.android.ui.screens.main.ChatScreen
 import com.cornellappdev.resell.android.ui.screens.main.MainTabNavigation
-import com.cornellappdev.resell.android.ui.screens.main.RequestMatchesScreen
 import com.cornellappdev.resell.android.ui.screens.main.NotificationsHubScreen
+import com.cornellappdev.resell.android.ui.screens.main.RequestMatchesScreen
 import com.cornellappdev.resell.android.ui.screens.newpost.NewPostNavigation
 import com.cornellappdev.resell.android.ui.screens.newpost.RequestDetailsEntryScreen
 import com.cornellappdev.resell.android.ui.screens.onboarding.LandingScreen
@@ -183,8 +183,9 @@ fun RootNavigation(
                 ReportNavigation()
             }
 
-            composable <ResellRootRoute.NOTIFICATIONS>{
+            composable<ResellRootRoute.NOTIFICATIONS> {
                 NotificationsHubScreen()
+            }
 
             composable<ResellRootRoute.EXTERNAL_PROFILE> {
                 ExternalProfileNavigation()
