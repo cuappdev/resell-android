@@ -94,6 +94,7 @@ class GoogleAuthRepository @Inject constructor(
                     )
                 }
             } catch (e: ApiException) {
+                Log.e("GoogleAuthRepository", "Google sign in failed", e)
                 e.printStackTrace()
                 onError()
             }
