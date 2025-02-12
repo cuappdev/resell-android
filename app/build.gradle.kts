@@ -51,10 +51,10 @@ android {
 
     signingConfigs {
         create("release") {
-            keyAlias = "resell"
+            keyAlias = secrets.getProperty("KEY_ALIAS")
             keyPassword = secrets.getProperty("KEY_PASS")
             storeFile = file("/../resell-keystore.jks")
-            storePassword = secrets.getProperty("KEY_PASS")
+            storePassword = secrets.getProperty("KEY_STORE_PASS")
         }
     }
 
