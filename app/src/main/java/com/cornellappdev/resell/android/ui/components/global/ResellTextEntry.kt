@@ -22,6 +22,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
@@ -33,14 +35,15 @@ import com.cornellappdev.resell.android.ui.theme.Wash
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ResellTextEntry(
+    modifier: Modifier = Modifier,
     label: String? = null,
     text: String,
     onTextChange: (String) -> Unit,
-    modifier: Modifier = Modifier,
     inlineLabel: Boolean = true,
     singleLine: Boolean = true,
     maxLines: Int = 1,
     placeholder: String = "",
+    textFontStyle: TextStyle = Style.body1,
     multiLineHeight: Dp = 85.dp,
     leadingIcon: @Composable (() -> Unit)? = null,
 ) {
@@ -65,7 +68,7 @@ fun ResellTextEntry(
             interactionSource = interactionSource,
             singleLine = singleLine,
             maxLines = maxLines,
-            textStyle = Style.body1,
+            textStyle = textFontStyle,
         ) { innerTextField ->
             TextFieldDefaults.DecorationBox(
                 value = text,
@@ -93,7 +96,7 @@ fun ResellTextEntry(
                 placeholder = {
                     Text(
                         text = placeholder,
-                        style = Style.body1,
+                        style = textFontStyle,
                         color = AppDev,
                     )
                 },
