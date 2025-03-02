@@ -160,7 +160,7 @@ private fun AnimatedClampedAsyncImage(image: ResellApiResponse<ImageBitmap>) {
 
 @Preview
 @Composable
-private fun PreviewListingCard() = ResellPreview(
+private fun ResellCardPreview() = ResellPreview(
     backgroundColor = Color.Transparent
 ) {
     ResellCardContent(
