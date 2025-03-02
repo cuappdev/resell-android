@@ -17,7 +17,6 @@ import com.cornellappdev.resell.android.ui.screens.root.RootNavigation
 import com.cornellappdev.resell.android.ui.theme.ResellTheme
 import com.cornellappdev.resell.android.viewmodel.root.RootConfirmationRepository
 import com.google.firebase.FirebaseApp
-import com.google.firebase.firestore.FirebaseFirestore
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 

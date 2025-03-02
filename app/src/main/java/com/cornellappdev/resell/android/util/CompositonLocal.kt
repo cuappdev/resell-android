@@ -3,8 +3,6 @@ package com.cornellappdev.resell.android.util
 import android.content.Context
 import android.content.Intent
 import androidx.compose.runtime.compositionLocalOf
-import androidx.navigation.NavHostController
-import com.google.firebase.firestore.FirebaseFirestore
 
 val LocalInfiniteLoading = compositionLocalOf<Float> { error("No infinite loading provided") }
 
