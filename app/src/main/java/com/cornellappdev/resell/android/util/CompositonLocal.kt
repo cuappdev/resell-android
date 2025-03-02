@@ -6,15 +6,6 @@ import androidx.compose.runtime.compositionLocalOf
 import androidx.navigation.NavHostController
 import com.google.firebase.firestore.FirebaseFirestore
 
-val LocalRootNavigator = compositionLocalOf<NavHostController> { error("No navigator provided") }
-val LocalMainNavigator = compositionLocalOf<NavHostController> { error("No navigator provided") }
-val LocalNewPostNavigator = compositionLocalOf<NavHostController> { error("No navigator provided") }
-val LocalOnboardingNavigator =
-    compositionLocalOf<NavHostController> { error("No navigator provided") }
-val LocalSettingsNavigator =
-    compositionLocalOf<NavHostController> { error("No navigator provided") }
-val LocalReportNavigator = compositionLocalOf<NavHostController> { error("No navigator provided") }
-val LocalFireStore = compositionLocalOf<FirebaseFirestore> { error("No FireStore provided") }
 val LocalInfiniteLoading = compositionLocalOf<Float> { error("No infinite loading provided") }
 
 fun closeApp(context: Context) {

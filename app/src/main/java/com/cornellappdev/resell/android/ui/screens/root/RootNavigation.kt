@@ -2,6 +2,7 @@ package com.cornellappdev.resell.android.ui.screens.root
 
 import android.Manifest
 import android.os.Build
+import androidx.activity.compose.LocalActivity
 import androidx.compose.animation.core.InfiniteRepeatableSpec
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.keyframes
@@ -20,7 +21,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -39,7 +39,6 @@ import com.cornellappdev.resell.android.ui.screens.pdp.PostDetailPage
 import com.cornellappdev.resell.android.ui.screens.reporting.ReportNavigation
 import com.cornellappdev.resell.android.ui.screens.settings.SettingsNavigation
 import com.cornellappdev.resell.android.util.LocalInfiniteLoading
-import com.cornellappdev.resell.android.util.LocalRootNavigator
 import com.cornellappdev.resell.android.viewmodel.root.RootNavigationViewModel
 import com.cornellappdev.resell.android.viewmodel.root.RootSheet
 import kotlinx.coroutines.launch
@@ -64,7 +63,7 @@ fun RootNavigation(
     // Create an infinite transition for animation
     val transition = rememberInfiniteTransition()
 
-    val context = LocalContext.current as? MainActivity
+    val context = LocalActivity.current as? MainActivity
 
     // Animate a value from 0 to 1 infinitely
     val animatedValue = transition.animateFloat(
@@ -136,11 +135,10 @@ fun RootNavigation(
 
 
     CompositionLocalProvider(
-        LocalRootNavigator provides navController,
         LocalInfiniteLoading provides animatedValue
     ) {
         NavHost(
-            navController = LocalRootNavigator.current,
+            navController = navController,
             startDestination = ResellRootRoute.LANDING,
             modifier = Modifier
                 .fillMaxSize()

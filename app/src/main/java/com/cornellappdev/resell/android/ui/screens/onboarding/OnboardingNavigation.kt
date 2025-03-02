@@ -2,14 +2,12 @@ package com.cornellappdev.resell.android.ui.screens.onboarding
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.cornellappdev.resell.android.util.LocalOnboardingNavigator
 import com.cornellappdev.resell.android.viewmodel.navigation.OnboardingNavigationViewModel
 import kotlinx.serialization.Serializable
 
@@ -26,19 +24,17 @@ fun OnboardingNavigation(
         }
     }
 
-    CompositionLocalProvider(LocalOnboardingNavigator provides onboardingNav) {
-        NavHost(
-            navController = LocalOnboardingNavigator.current,
-            startDestination = ResellOnboardingScreen.Setup,
-            modifier = Modifier.fillMaxSize()
-        ) {
-            composable<ResellOnboardingScreen.Setup> {
-                SetupScreen()
-            }
+    NavHost(
+        navController = onboardingNav,
+        startDestination = ResellOnboardingScreen.Setup,
+        modifier = Modifier.fillMaxSize()
+    ) {
+        composable<ResellOnboardingScreen.Setup> {
+            SetupScreen()
+        }
 
-            composable<ResellOnboardingScreen.Venmo> {
-                VenmoFieldScreen()
-            }
+        composable<ResellOnboardingScreen.Venmo> {
+            VenmoFieldScreen()
         }
     }
 }
