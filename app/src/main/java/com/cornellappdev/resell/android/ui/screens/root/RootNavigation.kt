@@ -2,16 +2,12 @@ package com.cornellappdev.resell.android.ui.screens.root
 
 import android.Manifest
 import android.os.Build
-import androidx.compose.animation.core.InfiniteRepeatableSpec
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.keyframes
-import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -20,7 +16,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -38,8 +33,6 @@ import com.cornellappdev.resell.android.ui.screens.onboarding.OnboardingNavigati
 import com.cornellappdev.resell.android.ui.screens.pdp.PostDetailPage
 import com.cornellappdev.resell.android.ui.screens.reporting.ReportNavigation
 import com.cornellappdev.resell.android.ui.screens.settings.SettingsNavigation
-import com.cornellappdev.resell.android.util.LocalInfiniteLoading
-import com.cornellappdev.resell.android.util.LocalRootNavigator
 import com.cornellappdev.resell.android.viewmodel.root.RootNavigationViewModel
 import com.cornellappdev.resell.android.viewmodel.root.RootSheet
 import kotlinx.coroutines.launch
@@ -61,25 +54,7 @@ fun RootNavigation(
     val coroutineScope = rememberCoroutineScope()
     var showBottomSheet by remember { mutableStateOf(false) }
 
-    // Create an infinite transition for animation
-    val transition = rememberInfiniteTransition()
-
-    val context = LocalContext.current as? MainActivity
-
-    // Animate a value from 0 to 1 infinitely
-    val animatedValue = transition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1f,
-        animationSpec = InfiniteRepeatableSpec(
-            animation = keyframes {
-                durationMillis = 2000
-                0f at 0
-                1f at 1000
-                0f at 2000
-            }
-        ),
-        label = "infinite loading"
-    ).value
+    val context = LocalActivity.current as? MainActivity
 
     LaunchedEffect(uiState.sheetEvent) {
         uiState.sheetEvent?.consumeSuspend { sheet ->
@@ -134,85 +109,79 @@ fun RootNavigation(
         }
     }
 
-
-    CompositionLocalProvider(
-        LocalRootNavigator provides navController,
-        LocalInfiniteLoading provides animatedValue
+    NavHost(
+        navController = navController,
+        startDestination = ResellRootRoute.LANDING,
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.White)
     ) {
-        NavHost(
-            navController = LocalRootNavigator.current,
-            startDestination = ResellRootRoute.LANDING,
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color.White)
-        ) {
-            composable<ResellRootRoute.LANDING> {
-                LandingScreen()
-            }
-
-            composable<ResellRootRoute.MAIN> {
-                MainTabNavigation()
-            }
-
-            composable<ResellRootRoute.ONBOARDING> {
-                OnboardingNavigation()
-            }
-
-            composable<ResellRootRoute.SETTINGS> {
-                SettingsNavigation()
-            }
-
-            composable<ResellRootRoute.NEW_POST> {
-                NewPostNavigation()
-            }
-
-            composable<ResellRootRoute.NEW_REQUEST> {
-                RequestDetailsEntryScreen()
-            }
-
-            composable<ResellRootRoute.PDP> {
-                PostDetailPage()
-            }
-
-            composable<ResellRootRoute.CHAT> {
-                ChatScreen()
-            }
-
-            composable<ResellRootRoute.REPORT> {
-                ReportNavigation()
-            }
-
-            composable<ResellRootRoute.EXTERNAL_PROFILE> {
-                ExternalProfileNavigation()
-            }
-
-            composable<ResellRootRoute.SEARCH> {
-                AllSearchScreen()
-            }
-
-            composable<ResellRootRoute.REQUEST_MATCHES> {
-                RequestMatchesScreen()
-            }
+        composable<ResellRootRoute.LANDING> {
+            LandingScreen()
         }
 
-        RootConfirmationOverlay()
+        composable<ResellRootRoute.MAIN> {
+            MainTabNavigation()
+        }
 
-        RootSheetOverlay(
-            sheetState = sheetState,
-            onDismissRequest = {
-                coroutineScope.launch {
-                    sheetState.hide()
-                    showBottomSheet = false
-                }
-            },
-            sheetType = lastSheetValue,
-            showBottomSheet = showBottomSheet,
-        )
+        composable<ResellRootRoute.ONBOARDING> {
+            OnboardingNavigation()
+        }
 
-        RootOptionsMenuOverlay()
+        composable<ResellRootRoute.SETTINGS> {
+            SettingsNavigation()
+        }
 
-        RootDialogOverlay()
+        composable<ResellRootRoute.NEW_POST> {
+            NewPostNavigation()
+        }
+
+        composable<ResellRootRoute.NEW_REQUEST> {
+            RequestDetailsEntryScreen()
+        }
+
+        composable<ResellRootRoute.PDP> {
+            PostDetailPage()
+        }
+
+        composable<ResellRootRoute.CHAT> {
+            ChatScreen()
+        }
+
+        composable<ResellRootRoute.REPORT> {
+            ReportNavigation()
+        }
+
+        composable<ResellRootRoute.EXTERNAL_PROFILE> {
+            ExternalProfileNavigation()
+        }
+
+        composable<ResellRootRoute.SEARCH> {
+            AllSearchScreen()
+        }
+
+        composable<ResellRootRoute.REQUEST_MATCHES> {
+            RequestMatchesScreen()
+        }
     }
+
+    RootConfirmationOverlay()
+
+    RootSheetOverlay(
+        sheetState = sheetState,
+        onDismissRequest = {
+            coroutineScope.launch {
+                sheetState.hide()
+                showBottomSheet = false
+            }
+        },
+        sheetType = lastSheetValue,
+        showBottomSheet = showBottomSheet,
+    )
+
+    RootOptionsMenuOverlay()
+
+    RootDialogOverlay()
 }
 
 

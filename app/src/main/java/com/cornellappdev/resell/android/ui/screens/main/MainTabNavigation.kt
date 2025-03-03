@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -33,7 +32,6 @@ import com.cornellappdev.resell.android.ui.components.main.PostFloatingActionBut
 import com.cornellappdev.resell.android.ui.components.main.ShadeOverlay
 import com.cornellappdev.resell.android.ui.components.nav.NavBar
 import com.cornellappdev.resell.android.ui.screens.main.ResellMainScreen.Home.toResellMainScreen
-import com.cornellappdev.resell.android.util.LocalMainNavigator
 import com.cornellappdev.resell.android.util.closeApp
 import com.cornellappdev.resell.android.viewmodel.navigation.MainNavigationViewModel
 import kotlinx.serialization.Serializable
@@ -58,77 +56,75 @@ fun MainTabNavigation(
         closeApp(context)
     }
 
-    CompositionLocalProvider(LocalMainNavigator provides mainNav) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color.White)
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.White)
+    ) {
+        NavHost(
+            navController = mainNav,
+            startDestination = ResellMainScreen.Home,
+            modifier = Modifier.fillMaxSize()
         ) {
-            NavHost(
-                navController = LocalMainNavigator.current,
-                startDestination = ResellMainScreen.Home,
-                modifier = Modifier.fillMaxSize()
-            ) {
-                composable<ResellMainScreen.Home> {
-                    HomeScreen()
-                }
-
-                composable<ResellMainScreen.Bookmarks> {
-                    SavedScreen()
-                }
-
-                composable<ResellMainScreen.Messages> {
-                    MessagesScreen()
-                }
-
-                composable<ResellMainScreen.User> {
-                    ProfileScreen()
-                }
+            composable<ResellMainScreen.Home> {
+                HomeScreen()
             }
 
-            NavBar(
-                onHomeClick = {
-                    mainNav.navigate(ResellMainScreen.Home)
-                },
-                onBookmarksClick = {
-                    mainNav.navigate(ResellMainScreen.Bookmarks)
-                },
-                onMessagesClick = {
-                    mainNav.navigate(ResellMainScreen.Messages)
-                },
-                onUserClick = {
-                    mainNav.navigate(ResellMainScreen.User)
-                },
-                selectedTab = navDestination?.destination?.route?.toResellMainScreen()
-                    ?: ResellMainScreen.Home,
-                modifier = Modifier.align(Alignment.BottomCenter),
-                enabled = uiState.bottomBarEnabled
-            )
+            composable<ResellMainScreen.Bookmarks> {
+                SavedScreen()
+            }
 
-            ShadeOverlay(
-                onTapped = {
-                    mainNavigationViewModel.onShadeTapped()
-                },
-                visible = uiState.newPostExpanded
-            )
+            composable<ResellMainScreen.Messages> {
+                MessagesScreen()
+            }
 
-            FloatingActionContent(
-                expanded = uiState.newPostExpanded,
-                onRequestClick = {
-                    mainNavigationViewModel.onNewRequestClick()
-                },
-                onPostClick = {
-                    mainNavigationViewModel.onNewPostClick()
-                },
-                onExpandClick = {
-                    mainNavigationViewModel.onNewPostExpandClick()
-                },
-                visible = listOf(
-                    ResellMainScreen.Home,
-                    ResellMainScreen.User,
-                ).contains(navDestination?.destination?.route?.toResellMainScreen())
-            )
+            composable<ResellMainScreen.User> {
+                ProfileScreen()
+            }
         }
+
+        NavBar(
+            onHomeClick = {
+                mainNav.navigate(ResellMainScreen.Home)
+            },
+            onBookmarksClick = {
+                mainNav.navigate(ResellMainScreen.Bookmarks)
+            },
+            onMessagesClick = {
+                mainNav.navigate(ResellMainScreen.Messages)
+            },
+            onUserClick = {
+                mainNav.navigate(ResellMainScreen.User)
+            },
+            selectedTab = navDestination?.destination?.route?.toResellMainScreen()
+                ?: ResellMainScreen.Home,
+            modifier = Modifier.align(Alignment.BottomCenter),
+            enabled = uiState.bottomBarEnabled
+        )
+
+        ShadeOverlay(
+            onTapped = {
+                mainNavigationViewModel.onShadeTapped()
+            },
+            visible = uiState.newPostExpanded
+        )
+
+        FloatingActionContent(
+            expanded = uiState.newPostExpanded,
+            onRequestClick = {
+                mainNavigationViewModel.onNewRequestClick()
+            },
+            onPostClick = {
+                mainNavigationViewModel.onNewPostClick()
+            },
+            onExpandClick = {
+                mainNavigationViewModel.onNewPostExpandClick()
+            },
+            visible = listOf(
+                ResellMainScreen.Home,
+                ResellMainScreen.User,
+            ).contains(navDestination?.destination?.route?.toResellMainScreen())
+        )
     }
 }
 

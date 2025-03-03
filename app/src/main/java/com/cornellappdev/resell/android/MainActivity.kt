@@ -5,22 +5,18 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.cornellappdev.resell.android.model.api.NotificationData
 import com.cornellappdev.resell.android.model.settings.NotificationsRepository
 import com.cornellappdev.resell.android.ui.screens.root.RootNavigation
 import com.cornellappdev.resell.android.ui.theme.ResellTheme
-import com.cornellappdev.resell.android.util.LocalFireStore
 import com.cornellappdev.resell.android.viewmodel.root.RootConfirmationRepository
 import com.google.firebase.FirebaseApp
-import com.google.firebase.firestore.FirebaseFirestore
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -36,16 +32,13 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         FirebaseApp.initializeApp(this)
-        val firestore = FirebaseFirestore.getInstance()
         enableEdgeToEdge()
 
         handleNotificationIntent(intent)
 
         setContent {
             ResellTheme {
-                CompositionLocalProvider(LocalFireStore provides firestore) {
-                    RootNavigation()
-                }
+                RootNavigation()
             }
         }
     }
