@@ -3,10 +3,6 @@ package com.cornellappdev.resell.android.ui.screens.root
 import android.Manifest
 import android.os.Build
 import androidx.activity.compose.LocalActivity
-import androidx.compose.animation.core.InfiniteRepeatableSpec
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.keyframes
-import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -58,25 +54,7 @@ fun RootNavigation(
     val coroutineScope = rememberCoroutineScope()
     var showBottomSheet by remember { mutableStateOf(false) }
 
-    // Create an infinite transition for animation
-    val transition = rememberInfiniteTransition()
-
     val context = LocalActivity.current as? MainActivity
-
-    // Animate a value from 0 to 1 infinitely
-    val animatedValue = transition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1f,
-        animationSpec = InfiniteRepeatableSpec(
-            animation = keyframes {
-                durationMillis = 2000
-                0f at 0
-                1f at 1000
-                0f at 2000
-            }
-        ),
-        label = "infinite loading"
-    ).value
 
     LaunchedEffect(uiState.sheetEvent) {
         uiState.sheetEvent?.consumeSuspend { sheet ->
@@ -130,7 +108,6 @@ fun RootNavigation(
             }
         }
     }
-
 
     NavHost(
         navController = navController,
