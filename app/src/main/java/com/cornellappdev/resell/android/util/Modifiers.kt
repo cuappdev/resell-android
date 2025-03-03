@@ -1,5 +1,6 @@
 package com.cornellappdev.resell.android.util
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.padding
@@ -20,3 +21,9 @@ fun Modifier.clickableNoIndication(onClick: () -> Unit) = this.clickable(
     interactionSource = remember { MutableInteractionSource() },
     onClick = onClick,
 )
+
+@Composable
+fun Modifier.shimmer(): Modifier {
+    val infiniteShimmer = LocalInfiniteShimmer.current
+    return this.background(infiniteShimmer)
+}
