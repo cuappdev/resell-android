@@ -3,6 +3,7 @@ activityKtx = "1.10.0"
 agp = "8.8.0"
 animation = "1.7.8"
 coilCompose = "2.7.0"
+composeShimmer = "1.0.0"
 converterGson = "2.9.0"
 datastorePreferences = "1.1.1"
 firebaseBom = "33.3.0"
@@ -54,6 +55,7 @@ androidx-material-navigation = { module = "androidx.compose.material:material-na
 androidx-material-z = { module = "androidx.compose.material:material-*", version.ref = "materialZ" }
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
 coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose" }
+compose-shimmer = { module = "com.valentinilk.shimmer:compose-shimmer", version.ref = "composeShimmer" }
 converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "converterGson" }
 firebase-auth-ktx = { module = "com.google.firebase:firebase-auth-ktx" }
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }

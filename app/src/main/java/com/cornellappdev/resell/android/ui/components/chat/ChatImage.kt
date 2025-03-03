@@ -20,11 +20,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.resell.android.model.CoilRepository
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.ui.theme.Secondary
-import com.cornellappdev.resell.android.ui.theme.Stroke
-import com.cornellappdev.resell.android.ui.theme.Wash
-import com.cornellappdev.resell.android.ui.theme.interpolateColorHSV
-import com.cornellappdev.resell.android.util.LocalInfiniteLoading
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
+import com.valentinilk.shimmer.ShimmerBounds
+import com.valentinilk.shimmer.rememberShimmer
+import com.valentinilk.shimmer.shimmer
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
@@ -48,14 +47,12 @@ fun ChatImage(
                 ResellApiResponse.Pending -> {
                     Box(
                         modifier = Modifier
-                            .height(175.dp)
-                            .background(
-                                interpolateColorHSV(
-                                    Wash,
-                                    Stroke,
-                                    LocalInfiniteLoading.current
+                            .shimmer(
+                                customShimmer = rememberShimmer(
+                                    shimmerBounds = ShimmerBounds.Window
                                 )
                             )
+                            .height(175.dp)
                             .clip(RoundedCornerShape(16.dp))
                             .fillMaxWidth()
                     )

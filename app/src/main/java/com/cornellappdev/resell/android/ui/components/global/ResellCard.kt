@@ -26,7 +26,6 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.times
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -37,10 +36,10 @@ import com.cornellappdev.resell.android.ui.theme.ResellPreview
 import com.cornellappdev.resell.android.ui.theme.Secondary
 import com.cornellappdev.resell.android.ui.theme.Stroke
 import com.cornellappdev.resell.android.ui.theme.Style
-import com.cornellappdev.resell.android.ui.theme.Wash
-import com.cornellappdev.resell.android.ui.theme.interpolateColorHSV
-import com.cornellappdev.resell.android.util.LocalInfiniteLoading
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
+import com.valentinilk.shimmer.ShimmerBounds
+import com.valentinilk.shimmer.rememberShimmer
+import com.valentinilk.shimmer.shimmer
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
@@ -115,21 +114,21 @@ private fun ResellCardContent(
 
 @Composable
 private fun AnimatedClampedAsyncImage(image: ResellApiResponse<ImageBitmap>) {
+    val shimmer = rememberShimmer(
+        shimmerBounds = ShimmerBounds.Window
+    )
     Box(modifier = Modifier.heightIn(min = 130.dp, max = 220.dp)) {
         AnimatedContent(targetState = image, label = "image loading") { response ->
             when (response) {
                 ResellApiResponse.Pending -> {
                     Box(
                         modifier = Modifier
+                            .shimmer(shimmer)
                             .height(175.dp)
-                            .background(
-                                interpolateColorHSV(
-                                    Wash,
-                                    Stroke,
-                                    LocalInfiniteLoading.current
-                                )
-                            )
                             .fillMaxWidth()
+                            .background(
+                                Secondary
+                            )
                     )
                 }
 

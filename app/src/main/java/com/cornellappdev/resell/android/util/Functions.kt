@@ -1,5 +1,7 @@
 package com.cornellappdev.resell.android.util
 
+import android.content.Context
+import android.content.Intent
 import android.graphics.Bitmap
 import android.text.format.DateUtils
 import android.util.Base64
@@ -109,4 +111,11 @@ fun getRelativeTimeSpan(isoString: String): String {
         currentTimeMillis,
         DateUtils.MINUTE_IN_MILLIS
     ).toString()
+}
+
+fun closeApp(context: Context) {
+    val intent = Intent(Intent.ACTION_MAIN)
+    intent.addCategory(Intent.CATEGORY_HOME)
+    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+    context.startActivity(intent)
 }
