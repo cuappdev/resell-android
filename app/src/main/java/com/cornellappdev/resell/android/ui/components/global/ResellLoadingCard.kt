@@ -38,7 +38,7 @@ fun ResellLoadingCard(
             .widthIn(max = maxWidth)
             .fillMaxWidth()
             .clip(RoundedCornerShape(size = 8.dp))
-            .background(Color.White)
+            .background(color = Color.White)
             .border(width = 1.dp, color = Stroke, shape = RoundedCornerShape(8.dp))
     ) {
         Box(
@@ -54,22 +54,22 @@ fun ResellLoadingCard(
                 .padding(8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            LoadingText(Modifier.weight(1f))
-            Spacer(Modifier.width(6.dp))
-            LoadingText(Modifier.width(45.dp))
+            LoadingText(modifier = Modifier.weight(1f))
+            Spacer(modifier = Modifier.width(6.dp))
+            LoadingText(modifier = Modifier.width(45.dp))
         }
     }
 }
 
 @Composable
 private fun LoadingText(modifier: Modifier) {
-    Column(
+    Box(
         modifier = modifier
             .height(17.dp)
             .clip(RoundedCornerShape(size = 100.dp))
             .shimmer()
             .border(width = 3.dp, color = Color.White, shape = RoundedCornerShape(100.dp))
-    ) { }
+    )
 }
 
 @Preview
