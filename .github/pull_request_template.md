@@ -16,4 +16,3 @@
   <summary>Screen Shot Name</summary>
   <!-- Insert file link here. Newlines above and below your link are necessary for this to work. -->
 </details>
-
