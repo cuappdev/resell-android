@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.times
 import com.cornellappdev.resell.android.ui.theme.Stroke
 import com.cornellappdev.resell.android.ui.theme.Wash
+import com.cornellappdev.resell.android.util.shimmer
 
 @Composable
 fun ResellLoadingCard(
@@ -51,6 +52,7 @@ fun ResellLoadingCard(
                 .background(
                     Wash
                 )
+//                .shimmer()
         )
 
         Row(
@@ -74,6 +76,7 @@ private fun LoadingText(width: Float, scale: Dp) {
             .fillMaxWidth()
             .clip(RoundedCornerShape(size = 100.dp))
             .background(Wash)
+//            .shimmer()
             .border(width = 3.dp, color = Color.White, shape = RoundedCornerShape(100.dp))
             .fillMaxHeight()
     ) { }
@@ -82,12 +85,12 @@ private fun LoadingText(width: Float, scale: Dp) {
 
 @Preview
 @Composable
-fun PreviewResellSmallLoadingCard() {
+private fun PreviewResellSmallLoadingCard() {
     ResellLoadingCard(modifier = Modifier, small = true)
 }
 
 @Preview
 @Composable
-fun PreviewResellBigLoadingCard() {
+private fun PreviewResellBigLoadingCard() {
     ResellLoadingCard(modifier = Modifier, small = false)
 }
