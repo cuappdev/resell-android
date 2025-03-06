@@ -14,11 +14,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.cornellappdev.resell.android.ui.theme.Padding
+import com.cornellappdev.resell.android.ui.theme.ResellPreview
 
 @Composable
 fun ResellLoadingListingsScroll(
-    listState: LazyStaggeredGridState = rememberLazyStaggeredGridState(),
     modifier: Modifier = Modifier,
+    listState: LazyStaggeredGridState = rememberLazyStaggeredGridState(),
     paddedTop: Dp = 0.dp,
     header: @Composable () -> Unit = {},
 ) {
@@ -47,6 +48,6 @@ fun ResellLoadingListingsScroll(
 
 @Preview
 @Composable
-fun PreviewResellLoadingListingsScroll() {
+fun PreviewResellLoadingListingsScroll() = ResellPreview {
     ResellLoadingListingsScroll()
 }
