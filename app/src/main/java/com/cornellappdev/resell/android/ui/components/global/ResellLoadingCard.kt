@@ -27,8 +27,8 @@ import com.cornellappdev.resell.android.util.shimmer
 
 @Composable
 fun ResellLoadingCard(
-    modifier: Modifier = Modifier,
-    small: Boolean
+    small: Boolean,
+    modifier: Modifier = Modifier
 ) {
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
     val maxWidth = 0.5f * screenWidth
