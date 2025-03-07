@@ -75,11 +75,11 @@ private fun LoadingText(modifier: Modifier) {
 @Preview
 @Composable
 private fun PreviewResellSmallLoadingCard() = ResellPreview {
-    ResellLoadingCard(modifier = Modifier, small = true)
+    ResellLoadingCard(small = true, modifier = Modifier)
 }
 
 @Preview
 @Composable
 private fun PreviewResellBigLoadingCard() = ResellPreview {
-    ResellLoadingCard(modifier = Modifier, small = false)
+    ResellLoadingCard(small = false, modifier = Modifier)
 }
