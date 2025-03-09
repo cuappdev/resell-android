@@ -27,8 +27,8 @@ import com.cornellappdev.resell.android.util.shimmer
 
 @Composable
 fun ResellLoadingCard(
-    modifier: Modifier = Modifier,
-    small: Boolean
+    small: Boolean,
+    modifier: Modifier = Modifier
 ) {
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
     val maxWidth = 0.5f * screenWidth
@@ -75,11 +75,11 @@ private fun LoadingText(modifier: Modifier) {
 @Preview
 @Composable
 private fun PreviewResellSmallLoadingCard() = ResellPreview {
-    ResellLoadingCard(modifier = Modifier, small = true)
+    ResellLoadingCard(small = true, modifier = Modifier)
 }
 
 @Preview
 @Composable
 private fun PreviewResellBigLoadingCard() = ResellPreview {
-    ResellLoadingCard(modifier = Modifier, small = false)
+    ResellLoadingCard(small = false, modifier = Modifier)
 }
