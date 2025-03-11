@@ -1,53 +1,52 @@
 package com.cornellappdev.resell.android.ui.components.global
 
-import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
-import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
 import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.cornellappdev.resell.android.ui.theme.Padding
 import com.cornellappdev.resell.android.ui.theme.ResellPreview
 
 @Composable
 fun ResellLoadingListingsScroll(
     modifier: Modifier = Modifier,
+    numCards: Int = 5,
     listState: LazyStaggeredGridState = rememberLazyStaggeredGridState(),
-    paddedTop: Dp = 0.dp,
-    header: @Composable () -> Unit = {},
 ) {
     LazyVerticalStaggeredGrid(
-        state = listState,
         columns = StaggeredGridCells.Fixed(2),
-        contentPadding = PaddingValues(
-            bottom = 100.dp,
-            top = paddedTop,
-        ),
-        verticalItemSpacing = Padding.medium,
         modifier = modifier.fillMaxWidth(),
+        state = listState,
+        verticalItemSpacing = 24.dp,
+        horizontalArrangement = Arrangement.spacedBy(20.dp)
     ) {
-        item(span = StaggeredGridItemSpan.FullLine) {
-            header()
+        if (numCards >= 1) {
+            item {
+                ResellLoadingCard(small = true)
+            }
         }
-        val cardModifier = Modifier.padding(horizontal = Padding.medium / 2f)
-        item {
-            ResellLoadingCard(cardModifier, small = true)
-        }
-        items(4) {
-            ResellLoadingCard(cardModifier, small = false)
+        if (numCards >= 1) {
+            items(numCards - 1) {
+                ResellLoadingCard(small = false)
+            }
         }
     }
 }
 
 @Preview
 @Composable
-fun PreviewResellLoadingListingsScroll() = ResellPreview {
-    ResellLoadingListingsScroll()
+private fun PreviewHomeLoadingScroll() = ResellPreview {
+    ResellLoadingListingsScroll(numCards = 5)
+}
+
+
+@Preview
+@Composable
+private fun PreviewSearchLoadingScroll() = ResellPreview {
+    ResellLoadingListingsScroll(numCards = 2)
 }
