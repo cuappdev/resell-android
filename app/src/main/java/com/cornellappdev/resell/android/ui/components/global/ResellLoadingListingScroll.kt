@@ -29,8 +29,6 @@ fun ResellLoadingListingsScroll(
             item {
                 ResellLoadingCard(small = true)
             }
-        }
-        if (numCards >= 1) {
             items(numCards - 1) {
                 ResellLoadingCard(small = false)
             }
