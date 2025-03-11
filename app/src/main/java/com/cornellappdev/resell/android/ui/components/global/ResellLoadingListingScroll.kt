@@ -13,7 +13,7 @@ import androidx.compose.ui.unit.dp
 import com.cornellappdev.resell.android.ui.theme.ResellPreview
 
 @Composable
-fun ResellLoadingListingsScroll(
+fun ResellLoadingListingScroll(
     modifier: Modifier = Modifier,
     numCards: Int = 5,
     listState: LazyStaggeredGridState = rememberLazyStaggeredGridState(),
@@ -39,12 +39,12 @@ fun ResellLoadingListingsScroll(
 @Preview
 @Composable
 private fun PreviewHomeLoadingScroll() = ResellPreview {
-    ResellLoadingListingsScroll(numCards = 5)
+    ResellLoadingListingScroll(numCards = 5)
 }
 
 
 @Preview
 @Composable
 private fun PreviewSearchLoadingScroll() = ResellPreview {
-    ResellLoadingListingsScroll(numCards = 2)
+    ResellLoadingListingScroll(numCards = 2)
 }
