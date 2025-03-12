@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.windowInsetsPadding
@@ -74,7 +75,7 @@ fun HomeScreen(
             }
 
             is ResellApiState.Loading -> {
-                ResellLoadingListingScroll()
+                ResellLoadingListingScroll(modifier = Modifier.padding(horizontal = 6.dp))
             }
 
             is ResellApiState.Error -> {}
