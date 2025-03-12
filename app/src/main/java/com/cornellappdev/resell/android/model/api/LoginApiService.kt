@@ -1,7 +1,6 @@
 package com.cornellappdev.resell.android.model.api
 
 import com.cornellappdev.resell.android.model.classes.UserInfo
-import com.google.gson.annotations.SerializedName
 import kotlinx.serialization.Serializable
 import retrofit2.http.Body
 import retrofit2.http.POST

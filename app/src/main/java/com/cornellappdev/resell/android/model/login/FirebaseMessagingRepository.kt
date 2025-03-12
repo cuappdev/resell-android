@@ -1,10 +1,7 @@
 package com.cornellappdev.resell.android.model.login
 
-import android.content.Context
 import com.cornellappdev.resell.android.util.UIEvent
-import com.cornellappdev.resell.android.viewmodel.root.RootConfirmationRepository
 import com.google.firebase.messaging.FirebaseMessaging
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.tasks.await

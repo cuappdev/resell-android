@@ -3,7 +3,6 @@ package com.cornellappdev.resell.android.model.core
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
-import com.cornellappdev.resell.android.model.api.RetrofitInstance
 import com.cornellappdev.resell.android.model.api.User
 import com.cornellappdev.resell.android.model.classes.UserInfo
 import com.cornellappdev.resell.android.model.login.FireStoreRepository
