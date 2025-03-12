@@ -2,6 +2,7 @@ package com.cornellappdev.resell.android.model.api
 
 import android.util.Log
 import com.cornellappdev.resell.android.BuildConfig
+import com.cornellappdev.resell.android.model.core.UserInfoRepository
 import com.cornellappdev.resell.android.model.login.FirebaseAuthRepository
 import kotlinx.coroutines.runBlocking
 import okhttp3.Authenticator
@@ -14,22 +15,21 @@ import javax.inject.Singleton
 
 @Singleton
 class RetrofitInstance @Inject constructor(
-    private val firebaseAuthRepository: FirebaseAuthRepository
+    private val firebaseAuthRepository: FirebaseAuthRepository,
+    private val userInfoRepository: UserInfoRepository,
 ) {
-    private var accessToken: String? = null
-
-    /**
-     * Updates the retrofit instance's access token.
-     */
-    fun updateAccessToken(token: String) {
-        accessToken = token
-    }
+    private var cachedToken: String? = null
 
     /**
      * Provides the firebase access token to the interceptor.
      */
     private val authInterceptor = Interceptor { chain ->
-        val token = accessToken
+        // If the token is cached, use it. Otherwise, fetch it.
+        val token = cachedToken ?: runBlocking {
+            cachedToken = userInfoRepository.getAccessToken()
+            cachedToken
+        }
+
         val requestBuilder = chain.request().newBuilder()
 
         // Add the authorization header only if the token is available
@@ -53,7 +53,9 @@ class RetrofitInstance @Inject constructor(
     }
 
     private val authenticator = Authenticator { _, response ->
+        // Ping firebase for a refresh.
         val accessToken = runBlocking { firebaseAuthRepository.getFirebaseAccessToken() }
+        cachedToken = accessToken
         if (accessToken != null) {
             response.request.newBuilder()
                 .header("Authorization", "Bearer $accessToken")

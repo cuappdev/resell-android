@@ -4,10 +4,12 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import com.cornellappdev.resell.android.model.api.RetrofitInstance
+import com.cornellappdev.resell.android.model.api.User
 import com.cornellappdev.resell.android.model.classes.UserInfo
 import com.cornellappdev.resell.android.model.login.FireStoreRepository
 import com.cornellappdev.resell.android.model.login.PreferencesKeys
 import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
@@ -17,9 +19,10 @@ import javax.inject.Singleton
 @Singleton
 class UserInfoRepository @Inject constructor(
     private val dataStore: DataStore<Preferences>,
-    private val retrofitInstance: RetrofitInstance,
     private val fireStoreRepository: FireStoreRepository,
 ) {
+
+    private var accessToken: String? = null
 
     /**
      * If the user is signed in, returns the user's information. Otherwise, throws an exception.
@@ -50,6 +53,29 @@ class UserInfoRepository @Inject constructor(
         )
     }
 
+    suspend fun storeUserFromUserObject(user: User) = coroutineScope {
+        // Launch async calls for each of the repository methods
+        val storeUserId = async { storeUserId(user.id) }
+        val storeBio = async { storeBio(user.bio) }
+        val storeNetId = async { storeNetId(user.netid) }
+        val storeEmail = async { storeEmail(user.email) }
+        val storeUsername = async { storeUsername(user.username) }
+        val storeFirstName = async { storeFirstName(user.givenName) }
+        val storeLastName = async { storeLastName(user.familyName) }
+        val storeProfilePicUrl = async { storeProfilePicUrl(user.photoUrl) }
+
+        awaitAll(
+            storeUserId,
+            storeBio,
+            storeNetId,
+            storeEmail,
+            storeUsername,
+            storeFirstName,
+            storeLastName,
+            storeProfilePicUrl
+        )
+    }
+
     suspend fun storeUserId(id: String) {
         dataStore.edit { preferences ->
             preferences[PreferencesKeys.USER_ID] = id
@@ -71,12 +97,6 @@ class UserInfoRepository @Inject constructor(
     suspend fun storeBio(bio: String) {
         dataStore.edit { preferences ->
             preferences[PreferencesKeys.BIO] = bio
-        }
-    }
-
-    suspend fun storeIdToken(idToken: String) {
-        dataStore.edit { preferences ->
-            preferences[PreferencesKeys.ID_TOKEN] = idToken
         }
     }
 
@@ -105,13 +125,19 @@ class UserInfoRepository @Inject constructor(
     }
 
     /**
-     * Stores the FIREBASE access token.
+     * Stores the FIREBASE access token to userInfoRepository.
      */
     suspend fun storeAccessToken(token: String) {
-        retrofitInstance.updateAccessToken(token)
+        accessToken = token
         dataStore.edit { preferences ->
             preferences[PreferencesKeys.ACCESS_TOKEN] = token
         }
+    }
+
+    suspend fun getAccessToken(): String? {
+        return dataStore.data.map { preferences ->
+            preferences[PreferencesKeys.ACCESS_TOKEN]
+        }.firstOrNull()
     }
 
     suspend fun getUserId(): String? {
@@ -123,12 +149,6 @@ class UserInfoRepository @Inject constructor(
     suspend fun getUsername(): String? {
         return dataStore.data.map { preferences ->
             preferences[PreferencesKeys.USERNAME]
-        }.firstOrNull()
-    }
-
-    suspend fun getIdToken(): String? {
-        return dataStore.data.map { preferences ->
-            preferences[PreferencesKeys.ID_TOKEN]
         }.firstOrNull()
     }
 
@@ -147,12 +167,6 @@ class UserInfoRepository @Inject constructor(
     suspend fun getProfilePicUrl(): String? {
         return dataStore.data.map { preferences ->
             preferences[PreferencesKeys.PROFILE_PIC_URL]
-        }.firstOrNull()
-    }
-
-    suspend fun getAccessToken(): String? {
-        return dataStore.data.map { preferences ->
-            preferences[PreferencesKeys.ACCESS_TOKEN]
         }.firstOrNull()
     }
 

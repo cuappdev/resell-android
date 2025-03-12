@@ -24,7 +24,22 @@ interface UserApiService {
 
     @POST("image")
     suspend fun uploadImage(@Body body: ImageBody): ImageResponse
+
+    @POST("user/create")
+    suspend fun createUser(@Body createUserBody: CreateUserBody): UserResponse
 }
+
+data class CreateUserBody(
+    val fcmToken: String,
+    val username: String,
+    val netid: String,
+    val givenName: String,
+    val familyName: String,
+    val photoUrl: String,
+    val email: String,
+    val googleId: String,
+    val bio: String
+)
 
 data class ImageBody(
     val imageBase64: String

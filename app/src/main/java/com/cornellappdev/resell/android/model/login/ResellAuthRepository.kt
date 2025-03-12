@@ -13,7 +13,7 @@ class ResellAuthRepository @Inject constructor(
     private val firebaseMessagingRepository: FirebaseMessagingRepository,
 ) {
     suspend fun createUser(createUserBody: CreateUserBody) =
-        retrofitInstance.loginApi.createUser(createUserBody)
+        retrofitInstance.userApi.createUser(createUserBody)
 
     /**
      * Hits the Resell backend's (POST /authorize) to perform an initial authorization.

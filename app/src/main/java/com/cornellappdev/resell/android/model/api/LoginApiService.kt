@@ -4,16 +4,9 @@ import com.cornellappdev.resell.android.model.classes.UserInfo
 import com.google.gson.annotations.SerializedName
 import kotlinx.serialization.Serializable
 import retrofit2.http.Body
-import retrofit2.http.GET
-import retrofit2.http.Header
 import retrofit2.http.POST
-import retrofit2.http.Path
 
 interface LoginApiService {
-    // TODO: Replace with user/create. Then delete this.
-    @POST("auth")
-    suspend fun createUser(@Body createUserBody: CreateUserBody): UserResponse
-
     @POST("authorize")
     suspend fun authorize(@Body authorizeBody: AuthorizeBody): UserResponse?
 }
@@ -44,16 +37,6 @@ data class SingleSessionResponse(
     @SerializedName("session") val session: UserSession
 )
 
-data class CreateUserBody(
-    val username: String,
-    val netid: String,
-    val givenName: String,
-    val familyName: String,
-    val photoUrl: String,
-    val email: String,
-    val googleId: String,
-    val bio: String
-)
 
 data class UserResponse(
     val user: User
