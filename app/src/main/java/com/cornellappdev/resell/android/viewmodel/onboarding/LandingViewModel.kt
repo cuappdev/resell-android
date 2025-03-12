@@ -10,7 +10,6 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.lifecycle.viewModelScope
 import com.cornellappdev.resell.android.model.core.UserInfoRepository
-import com.cornellappdev.resell.android.model.login.FireStoreRepository
 import com.cornellappdev.resell.android.model.login.FirebaseAuthRepository
 import com.cornellappdev.resell.android.model.login.GoogleAuthRepository
 import com.cornellappdev.resell.android.model.login.ResellAuthRepository

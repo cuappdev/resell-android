@@ -1,13 +1,9 @@
 package com.cornellappdev.resell.android.model.login
 
-import android.util.Log
 import com.cornellappdev.resell.android.model.api.AuthorizeBody
 import com.cornellappdev.resell.android.model.api.CreateUserBody
-import com.cornellappdev.resell.android.model.api.LoginBody
 import com.cornellappdev.resell.android.model.api.RetrofitInstance
 import com.cornellappdev.resell.android.model.api.User
-import com.cornellappdev.resell.android.model.api.UserResponse
-import com.cornellappdev.resell.android.model.core.UserInfoRepository
 import javax.inject.Inject
 import javax.inject.Singleton
 

@@ -10,25 +10,7 @@ import retrofit2.http.POST
 import retrofit2.http.Path
 
 interface LoginApiService {
-    @GET("user/googleId/{id}")
-    suspend fun getGoogleUser(@Path("id") id: String): UserResponse
-
-    @POST("auth/login")
-    suspend fun login(
-        @Body loginBody: LoginBody
-    ): UserSession
-
-    @POST("auth/logout")
-    suspend fun logout(): LogoutResponse
-
-    @GET("auth/sessions/{id}")
-    suspend fun getSession(@Path("id") id: String): SessionResponse<UserSession>
-
-    @GET("auth/refresh")
-    suspend fun refreshSession(
-        @Header("Authorization") refreshToken: String
-    ): SingleSessionResponse
-
+    // TODO: Replace with user/create. Then delete this.
     @POST("auth")
     suspend fun createUser(@Body createUserBody: CreateUserBody): UserResponse
 

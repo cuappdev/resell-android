@@ -14,8 +14,6 @@ import javax.inject.Singleton
 @Singleton
 class FirebaseMessagingRepository @Inject constructor(
     private val firebaseMessaging: FirebaseMessaging,
-    private val rootConfirmationRepository: RootConfirmationRepository,
-    @ApplicationContext private val context: Context,
 ) {
     private val _requestNotificationsEventFlow = MutableStateFlow<UIEvent<Unit>?>(null)
     val requestNotificationsEventFlow = _requestNotificationsEventFlow.asStateFlow()

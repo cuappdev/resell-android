@@ -1,7 +1,6 @@
 package com.cornellappdev.resell.android.model.login
 
 import android.util.Log
-import com.cornellappdev.resell.android.model.api.RetrofitInstance
 import com.cornellappdev.resell.android.model.core.UserInfoRepository
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
