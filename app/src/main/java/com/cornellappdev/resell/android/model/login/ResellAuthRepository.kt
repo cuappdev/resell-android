@@ -2,6 +2,7 @@ package com.cornellappdev.resell.android.model.login
 
 import com.cornellappdev.resell.android.model.api.AuthorizeBody
 import com.cornellappdev.resell.android.model.api.CreateUserBody
+import com.cornellappdev.resell.android.model.api.LogoutBody
 import com.cornellappdev.resell.android.model.api.RetrofitInstance
 import com.cornellappdev.resell.android.model.api.User
 import javax.inject.Inject
@@ -11,6 +12,7 @@ import javax.inject.Singleton
 class ResellAuthRepository @Inject constructor(
     private val retrofitInstance: RetrofitInstance,
     private val firebaseMessagingRepository: FirebaseMessagingRepository,
+    private val googleAuthRepository: GoogleAuthRepository,
 ) {
     suspend fun createUser(createUserBody: CreateUserBody) =
         retrofitInstance.userApi.createUser(createUserBody)
@@ -31,5 +33,19 @@ class ResellAuthRepository @Inject constructor(
         )
 
         return response?.user
+    }
+
+    /**
+     * Sends a logout request to the Resell backend, and signs the user out of Google.
+     *
+     * If you don't need to send a logout request, use [GoogleAuthRepository.signOut].
+     */
+    suspend fun logOut() {
+        googleAuthRepository.signOut()
+        retrofitInstance.userApi.logoutUser(
+            body = LogoutBody(
+                fcmToken = firebaseMessagingRepository.getDeviceFCMToken()
+            )
+        )
     }
 }

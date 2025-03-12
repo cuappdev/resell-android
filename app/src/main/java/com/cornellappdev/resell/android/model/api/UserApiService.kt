@@ -1,6 +1,7 @@
 package com.cornellappdev.resell.android.model.api
 
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
@@ -19,15 +20,22 @@ interface UserApiService {
     @GET("user/blocked/id/{id}")
     suspend fun getBlockedUsers(@Path("id") id: String): UsersResponse
 
-    @POST("user/softDelete/id/{id}")
-    suspend fun softDeleteUser(@Path("id") id: String): UserResponse
+    @DELETE("user")
+    suspend fun deleteUser(): UserResponse
 
     @POST("image")
     suspend fun uploadImage(@Body body: ImageBody): ImageResponse
 
+    @POST("user/logout")
+    suspend fun logoutUser(@Body body: LogoutBody)
+
     @POST("user/create")
     suspend fun createUser(@Body createUserBody: CreateUserBody): UserResponse
 }
+
+data class LogoutBody(
+    val fcmToken: String
+)
 
 data class CreateUserBody(
     val fcmToken: String,

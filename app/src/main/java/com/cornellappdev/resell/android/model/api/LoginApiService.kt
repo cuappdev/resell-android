@@ -11,33 +11,6 @@ interface LoginApiService {
     suspend fun authorize(@Body authorizeBody: AuthorizeBody): UserResponse?
 }
 
-data class LoginBody(
-    @SerializedName("idToken") val idToken: String,
-    @SerializedName("user") val user: String,
-    @SerializedName("deviceToken") val deviceToken: String
-)
-
-data class UserSession(
-    @SerializedName("userId") val userId: String,
-    @SerializedName("accessToken") val accessToken: String,
-    @SerializedName("active") val active: Boolean,
-    @SerializedName("expiresAt") val expiresAt: Long,
-    @SerializedName("refreshToken") val refreshToken: String
-)
-
-data class SessionResponse<T>(
-    @SerializedName("sessions") val sessions: List<T>
-)
-
-data class LogoutResponse(
-    @SerializedName("logoutSuccess") val logoutSuccess: Boolean
-)
-
-data class SingleSessionResponse(
-    @SerializedName("session") val session: UserSession
-)
-
-
 data class UserResponse(
     val user: User
 )
@@ -70,19 +43,6 @@ data class User(
 
 data class UsersResponse(
     val users: List<User>
-)
-
-data class GoogleUser(
-    val id: String,
-    val username: String,
-    val firstName: String,
-    val lastName: String,
-    val admin: Boolean,
-    val profilePictureUrl: String,
-    val venmoHandle: String,
-    val email: String,
-    val googleId: String,
-    val bio: String
 )
 
 data class AuthorizeBody(
