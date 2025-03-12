@@ -1,6 +1,6 @@
 package com.cornellappdev.resell.android.ui.components.global
 
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
@@ -11,7 +11,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
+import com.cornellappdev.resell.android.ui.theme.Padding
 import com.cornellappdev.resell.android.ui.theme.ResellPreview
 import kotlin.random.Random
 
@@ -35,11 +35,13 @@ fun ResellLoadingListingScroll(
         columns = StaggeredGridCells.Fixed(2),
         modifier = modifier,
         state = listState,
-        verticalItemSpacing = 24.dp,
-        horizontalArrangement = Arrangement.spacedBy(20.dp)
+        verticalItemSpacing = Padding.medium,
     ) {
         items(numCards) { idx ->
-            ResellLoadingCard(small = randomList[idx % randomList.size])
+            ResellLoadingCard(
+                small = randomList[idx % randomList.size],
+                modifier = Modifier.padding(horizontal = Padding.medium / 2f)
+            )
         }
     }
 }
