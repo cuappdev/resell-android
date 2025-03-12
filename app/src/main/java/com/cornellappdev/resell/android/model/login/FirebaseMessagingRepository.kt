@@ -20,14 +20,14 @@ class FirebaseMessagingRepository @Inject constructor(
     private val _requestNotificationsEventFlow = MutableStateFlow<UIEvent<Unit>?>(null)
     val requestNotificationsEventFlow = _requestNotificationsEventFlow.asStateFlow()
 
-    suspend fun getDeviceFCMToken(): String? {
+    suspend fun getDeviceFCMToken(): String {
         return try {
             // Get the FCM token
             firebaseMessaging.token.await()
         } catch (e: Exception) {
             // Handle any exceptions that occur
             e.printStackTrace()
-            null
+            throw e
         }
     }
 

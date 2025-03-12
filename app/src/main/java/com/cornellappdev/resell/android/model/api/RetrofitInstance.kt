@@ -2,6 +2,9 @@ package com.cornellappdev.resell.android.model.api
 
 import android.util.Log
 import com.cornellappdev.resell.android.BuildConfig
+import com.cornellappdev.resell.android.model.login.FirebaseAuthRepository
+import kotlinx.coroutines.runBlocking
+import okhttp3.Authenticator
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
@@ -10,7 +13,9 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class RetrofitInstance @Inject constructor() {
+class RetrofitInstance @Inject constructor(
+    private val firebaseAuthRepository: FirebaseAuthRepository
+) {
     private var accessToken: String? = null
 
     /**
@@ -20,6 +25,9 @@ class RetrofitInstance @Inject constructor() {
         accessToken = token
     }
 
+    /**
+     * Provides the firebase access token to the interceptor.
+     */
     private val authInterceptor = Interceptor { chain ->
         val token = accessToken
         val requestBuilder = chain.request().newBuilder()
@@ -28,7 +36,7 @@ class RetrofitInstance @Inject constructor() {
         if (token != null) {
             requestBuilder.addHeader("Content-Type", "application/json")
             if (chain.request().headers["Authorization"] == null) {
-                requestBuilder.addHeader("Authorization", "$token")
+                requestBuilder.addHeader("Authorization", "Bearer $token")
             }
             Log.d(
                 "RetrofitInstance",
@@ -44,9 +52,22 @@ class RetrofitInstance @Inject constructor() {
         chain.proceed(requestBuilder.build())
     }
 
+    private val authenticator = Authenticator { _, response ->
+        val accessToken = runBlocking { firebaseAuthRepository.getFirebaseAccessToken() }
+        if (accessToken != null) {
+            response.request.newBuilder()
+                .header("Authorization", "Bearer $accessToken")
+                .build()
+        } else {
+            Log.e("RetrofitInstance", "No access token found, even on refresh.")
+            null
+        }
+    }
+
     // Build OkHttpClient with the dynamic auth interceptor
     private val okHttpClient = OkHttpClient.Builder()
         .addInterceptor(authInterceptor)
+        .authenticator(authenticator)
         .build()
 
     val loginApi: LoginApiService by lazy {

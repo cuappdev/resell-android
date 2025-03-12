@@ -104,6 +104,9 @@ class UserInfoRepository @Inject constructor(
         }
     }
 
+    /**
+     * Stores the FIREBASE access token.
+     */
     suspend fun storeAccessToken(token: String) {
         retrofitInstance.updateAccessToken(token)
         dataStore.edit { preferences ->

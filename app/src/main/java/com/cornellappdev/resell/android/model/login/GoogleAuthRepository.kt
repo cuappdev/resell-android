@@ -102,7 +102,7 @@ class GoogleAuthRepository @Inject constructor(
     }
 
     /**
-     * Performs a silent sign in and returns the id token.
+     * Performs a silent sign in and returns the (Google OAuth) id token.
      */
     suspend fun silentSignIn(): String {
         val account = googleSignInClient.silentSignIn().await()

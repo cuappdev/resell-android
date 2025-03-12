@@ -31,6 +31,9 @@ interface LoginApiService {
 
     @POST("auth")
     suspend fun createUser(@Body createUserBody: CreateUserBody): UserResponse
+
+    @POST("authorize")
+    suspend fun authorize(@Body authorizeBody: AuthorizeBody): UserResponse?
 }
 
 data class LoginBody(
@@ -115,4 +118,8 @@ data class GoogleUser(
     val email: String,
     val googleId: String,
     val bio: String
+)
+
+data class AuthorizeBody(
+    val fcmToken: String,
 )
