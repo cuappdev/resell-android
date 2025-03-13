@@ -24,6 +24,7 @@ import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.model.classes.Listing
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.ui.components.global.ResellListingsScroll
+import com.cornellappdev.resell.android.ui.components.global.ResellLoadingListingScroll
 import com.cornellappdev.resell.android.ui.components.global.ResellTextEntry
 import com.cornellappdev.resell.android.util.UIEvent
 import com.cornellappdev.resell.android.util.clickableNoIndication
@@ -74,7 +75,9 @@ fun SearchScreen(
             }
 
             is ResellApiResponse.Pending -> {
-
+                ResellLoadingListingScroll(
+                    modifier = Modifier.padding(top = 12.dp)
+                )
             }
         }
     }
