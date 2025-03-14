@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
+import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
 import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -18,7 +19,7 @@ import kotlin.random.Random
 @Composable
 fun ResellLoadingListingScroll(
     modifier: Modifier = Modifier,
-    numCards: Int = Int.MAX_VALUE,
+    numCards: Int = Int.MAX_VALUE - 1,
     listState: LazyStaggeredGridState = rememberLazyStaggeredGridState(),
 ) {
     val randomList by remember {
@@ -37,6 +38,9 @@ fun ResellLoadingListingScroll(
         state = listState,
         verticalItemSpacing = Padding.medium,
     ) {
+        // For consistency with ResellListingScroll
+        item(span = StaggeredGridItemSpan.FullLine) {}
+
         items(numCards) { idx ->
             ResellLoadingCard(
                 small = randomList[idx % randomList.size],

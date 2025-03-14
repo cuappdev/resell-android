@@ -74,9 +74,7 @@ fun HomeScreen(
             }
 
             is ResellApiState.Loading -> {
-                ResellLoadingListingScroll(
-                    modifier = Modifier.fillMaxWidth()
-                )
+                ResellLoadingListingScroll()
             }
 
             is ResellApiState.Error -> {}
