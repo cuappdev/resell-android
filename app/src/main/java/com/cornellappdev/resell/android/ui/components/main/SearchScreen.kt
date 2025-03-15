@@ -3,6 +3,7 @@ package com.cornellappdev.resell.android.ui.components.main
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -24,6 +25,7 @@ import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.model.classes.Listing
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.ui.components.global.ResellListingsScroll
+import com.cornellappdev.resell.android.ui.components.global.ResellLoadingListingScroll
 import com.cornellappdev.resell.android.ui.components.global.ResellTextEntry
 import com.cornellappdev.resell.android.util.UIEvent
 import com.cornellappdev.resell.android.util.clickableNoIndication
@@ -59,13 +61,12 @@ fun SearchScreen(
             placeholder = placeholder,
             focusRequester = focusRequester
         )
-
+        Spacer(modifier = Modifier.padding(vertical = 12.dp))
         when (listings) {
             is ResellApiResponse.Success -> {
                 ResellListingsScroll(
                     listings = listings.data,
-                    onListingPressed = onListingPressed,
-                    paddedTop = 12.dp
+                    onListingPressed = onListingPressed
                 )
             }
 
@@ -74,7 +75,7 @@ fun SearchScreen(
             }
 
             is ResellApiResponse.Pending -> {
-
+                ResellLoadingListingScroll()
             }
         }
     }
