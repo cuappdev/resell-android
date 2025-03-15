@@ -14,13 +14,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.cornellappdev.resell.android.ui.theme.Padding
 import com.cornellappdev.resell.android.ui.theme.ResellPreview
+import kotlin.math.min
 import kotlin.random.Random
 
 @Composable
 fun ResellLoadingListingScroll(
     modifier: Modifier = Modifier,
+    // -1 to avoid overflow in the grid
     numCards: Int = Int.MAX_VALUE - 1,
     listState: LazyStaggeredGridState = rememberLazyStaggeredGridState(),
+    header: @Composable () -> Unit = {},
 ) {
     val randomList by remember {
         mutableStateOf(List(50) { i ->
@@ -38,10 +41,10 @@ fun ResellLoadingListingScroll(
         state = listState,
         verticalItemSpacing = Padding.medium,
     ) {
-        // For consistency with ResellListingScroll
-        item(span = StaggeredGridItemSpan.FullLine) {}
+        item(span = StaggeredGridItemSpan.FullLine) { header() }
 
-        items(numCards) { idx ->
+        // LazyVerticalStaggeredGrid takes at most Int.MAX_VALUE items
+        items(min(numCards, Int.MAX_VALUE - 1)) { idx ->
             ResellLoadingCard(
                 small = randomList[idx % randomList.size],
                 modifier = Modifier.padding(horizontal = Padding.medium / 2f)
