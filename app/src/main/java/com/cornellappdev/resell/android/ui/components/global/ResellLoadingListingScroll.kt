@@ -44,7 +44,7 @@ fun ResellLoadingListingScroll(
         item(span = StaggeredGridItemSpan.FullLine) { header() }
 
         // LazyVerticalStaggeredGrid takes at most Int.MAX_VALUE items
-        items(min(numCards, Int.MAX_VALUE - 1)) { idx ->
+        items(numCards.coerceIn(0, Int.MAX_VALUE - 1)) { idx ->
             ResellLoadingCard(
                 small = randomList[idx % randomList.size],
                 modifier = Modifier.padding(horizontal = Padding.medium / 2f)
