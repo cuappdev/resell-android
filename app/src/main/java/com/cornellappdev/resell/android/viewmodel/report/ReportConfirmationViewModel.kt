@@ -3,6 +3,7 @@ package com.cornellappdev.resell.android.viewmodel.report
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
+import com.cornellappdev.resell.android.model.api.Report
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.model.profile.ProfileRepository
 import com.cornellappdev.resell.android.model.settings.BlockedUsersRepository
@@ -27,33 +28,33 @@ class ReportConfirmationViewModel @Inject constructor(
 ) :
     ResellViewModel<ReportConfirmationViewModel.ConfirmationUiState>(
         initialUiState = ConfirmationUiState(
-            reportPost = true,
+            reportType = ReportType.POST,
             userId = ""
         )
     ) {
 
 
     data class ConfirmationUiState(
-        private val reportPost: Boolean,
+        private val reportType: ReportType,
         val userId: String,
         val accountName: ResellApiResponse<String> = ResellApiResponse.Pending
     ) {
         val headerTitle: String
-            get() = if (reportPost) {
-                "Report Post"
-            } else {
-                "Report Account"
+            get() = when(reportType) {
+                ReportType.POST -> "Report Post"
+                ReportType.USER -> "Report Account"
+                ReportType.POST_TRANSACTION -> "Report Transaction"
             }
 
         val title: String
-            get() = if (reportPost) {
-                "Thank you for reporting this post"
-            } else {
-                "Thank you for reporting this account"
+            get() = when(reportType) {
+                ReportType.POST -> "Thank you for reporting this post"
+                ReportType.USER -> "Thank you for reporting this account"
+                ReportType.POST_TRANSACTION -> "Thank you for reporting this transaction"
             }
 
         val body: String
-            get() = "Your report is valued in keeping Resell a safe community. We will be carefully reviewing the ${if (reportPost) "post" else "account"} and taking any necessary action."
+            get() = "Your report is valued in keeping Resell a safe community. We will be carefully reviewing the information and taking any necessary action." //TODO CHECK W DESIGN
 
         val blockText: String
             get() = if (accountName is ResellApiResponse.Success) "Block ${accountName.data}?" else "Block Account?"
@@ -101,7 +102,7 @@ class ReportConfirmationViewModel @Inject constructor(
 
         applyMutation {
             copy(
-                reportPost = navArgs.reportPost,
+                reportType = navArgs.reportType,
                 userId = navArgs.userId
             )
         }

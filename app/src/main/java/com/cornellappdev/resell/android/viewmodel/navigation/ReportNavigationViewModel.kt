@@ -38,7 +38,7 @@ class ReportNavigationViewModel @Inject constructor(
         applyMutation {
             copy(
                 initialPage = ReportScreen.Reason(
-                    reportPost = navArgs.reportPost,
+                    reportType = navArgs.reportType,
                     postId = navArgs.postId,
                     userId = navArgs.userId
                 )
