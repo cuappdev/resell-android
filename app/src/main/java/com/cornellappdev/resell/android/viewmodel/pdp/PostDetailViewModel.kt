@@ -22,6 +22,7 @@ import com.cornellappdev.resell.android.util.UIEvent
 import com.cornellappdev.resell.android.util.richieUrl
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
 import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepository
+import com.cornellappdev.resell.android.viewmodel.report.ReportType
 import com.cornellappdev.resell.android.viewmodel.root.OptionType
 import com.cornellappdev.resell.android.viewmodel.root.RootConfirmationRepository
 import com.cornellappdev.resell.android.viewmodel.root.RootDialogContent
@@ -182,7 +183,7 @@ class PostDetailViewModel @Inject constructor(
                     OptionType.REPORT -> {
                         rootNavigationRepository.navigate(
                             ResellRootRoute.REPORT(
-                                reportPost = true,
+                                reportType = ReportType.POST,
                                 postId = stateValue().postId,
                                 userId = stateValue().uid,
                             )
