@@ -24,7 +24,7 @@ abstract class SearchViewModel(
         SearchViewModel.SearchUiState>(
     initialUiState = SearchUiState(
         query = "",
-        listings = ResellApiResponse.Pending,
+        listings = ResellApiResponse.Success(listOf()),
         uid = null,
         username = ""
     )
@@ -52,10 +52,14 @@ abstract class SearchViewModel(
                 )
             }
             try {
-                val response = searchRepository.searchPostByUser(stateValue().uid, query)
-                // By this time, the query may have changed. If so, ignore.
-                if (stateValue().query == query) {
-                    applyMutation { copy(listings = ResellApiResponse.Success(response)) }
+                if (query == "") {
+                    applyMutation { copy(listings = ResellApiResponse.Success(listOf())) }
+                } else {
+                    val response = searchRepository.searchPostByUser(stateValue().uid, query)
+                    // By this time, the query may have changed. If so, ignore.
+                    if (stateValue().query == query) {
+                        applyMutation { copy(listings = ResellApiResponse.Success(response)) }
+                    }
                 }
             } catch (e: Exception) {
                 Log.e("SearchViewModel", e.toString())
