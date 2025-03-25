@@ -24,7 +24,7 @@ abstract class SearchViewModel(
         SearchViewModel.SearchUiState>(
     initialUiState = SearchUiState(
         query = "",
-        listings = ResellApiResponse.Success(listOf()),
+        listings = ResellApiResponse.Success(emptyList()),
         uid = null,
         username = ""
     )
@@ -43,28 +43,28 @@ abstract class SearchViewModel(
 
     fun onQueryChanged(query: String) {
         applyMutation { copy(query = query) }
-
-        // Try to fetch listings from backend
-        viewModelScope.launch {
-            applyMutation {
-                copy(
-                    listings = ResellApiResponse.Pending
-                )
-            }
-            try {
-                if (query == "") {
-                    applyMutation { copy(listings = ResellApiResponse.Success(listOf())) }
-                } else {
+        if (query.isEmpty() || query.isBlank()) {
+            applyMutation { copy(listings = ResellApiResponse.Success(emptyList())) }
+        } else {
+            // Try to fetch listings from backend
+            viewModelScope.launch {
+                applyMutation {
+                    copy(
+                        listings = ResellApiResponse.Pending
+                    )
+                }
+                try {
                     val response = searchRepository.searchPostByUser(stateValue().uid, query)
                     // By this time, the query may have changed. If so, ignore.
                     if (stateValue().query == query) {
                         applyMutation { copy(listings = ResellApiResponse.Success(response)) }
                     }
+                } catch (e: Exception) {
+                    Log.e("SearchViewModel", e.toString())
+                    applyMutation { copy(listings = ResellApiResponse.Error) }
                 }
-            } catch (e: Exception) {
-                Log.e("SearchViewModel", e.toString())
-                applyMutation { copy(listings = ResellApiResponse.Error) }
             }
+
         }
     }
 
