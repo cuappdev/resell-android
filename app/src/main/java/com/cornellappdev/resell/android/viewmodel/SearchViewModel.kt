@@ -64,7 +64,6 @@ abstract class SearchViewModel(
                     applyMutation { copy(listings = ResellApiResponse.Error) }
                 }
             }
-
         }
     }
 
