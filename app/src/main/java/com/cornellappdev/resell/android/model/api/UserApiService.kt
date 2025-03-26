@@ -34,7 +34,7 @@ interface UserApiService {
 }
 
 data class LogoutBody(
-    val fcmToken: String
+    val token: String
 )
 
 data class CreateUserBody(

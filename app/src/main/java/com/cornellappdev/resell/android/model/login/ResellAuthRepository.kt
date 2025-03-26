@@ -44,7 +44,7 @@ class ResellAuthRepository @Inject constructor(
         googleAuthRepository.signOut()
         retrofitInstance.userApi.logoutUser(
             body = LogoutBody(
-                fcmToken = firebaseMessagingRepository.getDeviceFCMToken()
+                token = firebaseMessagingRepository.getDeviceFCMToken()
             )
         )
     }
