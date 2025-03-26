@@ -8,6 +8,7 @@ import kotlinx.coroutines.runBlocking
 import okhttp3.Authenticator
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Inject
@@ -19,6 +20,10 @@ class RetrofitInstance @Inject constructor(
     private val userInfoRepository: UserInfoRepository,
 ) {
     private var cachedToken: String? = null
+
+    val logging = HttpLoggingInterceptor().apply {
+        level = HttpLoggingInterceptor.Level.BODY // Logs JSON responses
+    }
 
     /**
      * Provides the firebase access token to the interceptor.
@@ -67,7 +72,11 @@ class RetrofitInstance @Inject constructor(
     }
 
     // Build OkHttpClient with the dynamic auth interceptor
-    private val okHttpClient = OkHttpClient.Builder()
+    private val okHttpClient = OkHttpClient.Builder().apply {
+        if (BuildConfig.DEBUG) {
+            addInterceptor(logging)
+        }
+    }
         .addInterceptor(authInterceptor)
         .authenticator(authenticator)
         .build()

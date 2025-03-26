@@ -32,7 +32,7 @@ class ResellAuthRepository @Inject constructor(
             )
         )
 
-        return response?.user
+        return response
     }
 
     /**

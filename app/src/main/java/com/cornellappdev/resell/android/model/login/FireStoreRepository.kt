@@ -196,14 +196,13 @@ class FireStoreRepository @Inject constructor(
             id = raw["id"] ?: "",
             title = raw["title"] ?: "",
             description = raw["description"] ?: "",
-            price = (raw["price"] ?: "0.0").toDouble(),
             user = user,
             archive = (raw["archive"] ?: "").toBoolean(),
             location = raw["location"] ?: "",
             created = raw["created"] ?: "",
-            altered_price = raw["altered_price"] ?: "",
+            alteredPrice = raw["altered_price"] ?: "",
             images = parseToList(raw["images"] ?: ""),
-            categories = parseToList(raw["categories"] ?: ""),
+            category = parseToList(raw["categories"] ?: "")[0],
         )
 
         return BuyerSellerData(
@@ -327,16 +326,15 @@ class FireStoreRepository @Inject constructor(
                         id = productMap["id"] ?: "",
                         title = productMap["title"] ?: "",
                         description = productMap["description"] ?: "",
-                        price = (productMap["price"] ?: "0.0").toDouble(),
                         user = postUser,
                         archive = (productMap["archive"] ?: "").toBoolean(),
                         location = productMap["location"] ?: "",
                         created = productMap["created"] ?: "",
-                        altered_price = productMap["altered_price"] ?: "",
+                        alteredPrice = productMap["altered_price"] ?: "",
                         images = (it.get("product") as Map<String, Any>).get("images") as? List<String>
                             ?: listOf(),
-                        categories = (it.get("product") as Map<String, Any>).get("categories") as? List<String>
-                            ?: listOf(),
+                        category = ((it.get("product") as Map<String, Any>).get("categories") as? List<String>
+                            ?: listOf())[0],
                     )
                 }
 

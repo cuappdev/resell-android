@@ -8,7 +8,7 @@ import retrofit2.http.POST
 
 interface LoginApiService {
     @POST("auth")
-    suspend fun authorize(@Body authorizeBody: AuthorizeBody): UserResponse?
+    suspend fun authorize(@Body authorizeBody: AuthorizeBody): User?
 }
 
 data class UserResponse(
@@ -39,7 +39,7 @@ data class User(
         venmoHandle = "TODO",
         bio = bio,
         id = id,
-        email = email
+        email = email,
     )
 }
 
