@@ -1,12 +1,13 @@
 package com.cornellappdev.resell.android.model.api
 
 import com.cornellappdev.resell.android.model.classes.UserInfo
+import com.google.gson.annotations.SerializedName
 import kotlinx.serialization.Serializable
 import retrofit2.http.Body
 import retrofit2.http.POST
 
 interface LoginApiService {
-    @POST("authorize")
+    @POST("auth")
     suspend fun authorize(@Body authorizeBody: AuthorizeBody): UserResponse?
 }
 
@@ -16,16 +17,18 @@ data class UserResponse(
 
 @Serializable
 data class User(
-    val id: String,
+    @SerializedName("firebaseUid") val id: String,
     val username: String,
     val netid: String,
     val givenName: String,
     val familyName: String,
-    val admin: Boolean,
     val photoUrl: String,
+    val venmoHandle: String,
     val bio: String,
+    val admin: Boolean,
     val email: String,
-    val googleId: String
+    val googleId: String,
+    val isActive: Boolean
 ) {
     fun toUserInfo() = UserInfo(
         username = username,
@@ -45,5 +48,5 @@ data class UsersResponse(
 )
 
 data class AuthorizeBody(
-    val fcmToken: String,
+    val token: String,
 )

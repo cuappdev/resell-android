@@ -187,7 +187,9 @@ class FireStoreRepository @Inject constructor(
             admin = userMap["admin"]?.toBoolean() ?: false,
             photoUrl = userMap["photoUrl"] ?: "",
             bio = userMap["bio"] ?: "",
-            googleId = userMap["googleId"] ?: ""
+            googleId = userMap["googleId"] ?: "",
+            venmoHandle = "",
+            isActive = true
         )
 
         val post = Post(
@@ -312,6 +314,8 @@ class FireStoreRepository @Inject constructor(
                         bio = productUserMap["bio"] ?: "",
                         admin = productUserMap["admin"]?.toBoolean() ?: false,
                         googleId = productUserMap["googleId"] ?: "",
+                        venmoHandle = "",
+                        isActive = true
                     )
                 } else {
                     null

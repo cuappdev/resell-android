@@ -46,7 +46,8 @@ data class CreateUserBody(
     val photoUrl: String,
     val email: String,
     val googleId: String,
-    val bio: String
+    val bio: String,
+    val venmoHandle: String
 )
 
 data class ImageBody(

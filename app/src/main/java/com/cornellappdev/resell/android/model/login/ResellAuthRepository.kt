@@ -28,7 +28,7 @@ class ResellAuthRepository @Inject constructor(
 
         val response = retrofitInstance.loginApi.authorize(
             AuthorizeBody(
-                fcmToken = fcmToken
+                token = fcmToken
             )
         )
 

@@ -1,6 +1,7 @@
 package com.cornellappdev.resell.android.viewmodel.onboarding
 
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
@@ -120,7 +121,8 @@ class VenmoFieldViewModel @Inject constructor(
                         photoUrl = googleUser.photoUrl.toString(),
                         googleId = googleUser.id!!,
                         bio = stateValue().bio,
-                        fcmToken = firebaseMessagingRepository.getDeviceFCMToken()
+                        fcmToken = firebaseMessagingRepository.getDeviceFCMToken(),
+                        venmoHandle = if (skipped) "" else stateValue().handle
                     )
                 )
 
@@ -129,10 +131,10 @@ class VenmoFieldViewModel @Inject constructor(
                 rootNavigationSheetRepository.showBottomSheet(RootSheet.Welcome)
             } catch (e: Exception) {
                 rootConfirmationRepository.showError()
+                Log.e("VenmoFieldViewModel", "Error creating user: ", e)
                 applyMutation {
                     copy(loading = false, skipLoading = false)
                 }
-                e.printStackTrace()
             }
         }
     }
