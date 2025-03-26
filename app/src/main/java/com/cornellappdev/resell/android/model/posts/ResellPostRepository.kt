@@ -2,13 +2,11 @@ package com.cornellappdev.resell.android.model.posts
 
 import android.util.Log
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.text.capitalize
 import com.cornellappdev.resell.android.model.api.NewPostBody
 import com.cornellappdev.resell.android.model.api.Post
 import com.cornellappdev.resell.android.model.api.PostResponse
 import com.cornellappdev.resell.android.model.api.RetrofitInstance
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
-import com.cornellappdev.resell.android.model.core.UserInfoRepository
 import com.cornellappdev.resell.android.util.toNetworkingString
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -57,10 +55,11 @@ class ResellPostRepository @Inject constructor(
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 _allPostsFlow.value =
-                    ResellApiResponse.Success(retrofitInstance.postsApi.getPosts().posts
-                        .sortedByDescending {
-                            it.createdDate
-                        })
+                    ResellApiResponse.Success(
+                        retrofitInstance.postsApi.getPosts().posts
+                            .sortedByDescending {
+                                it.createdDate
+                            })
             } catch (e: Exception) {
                 Log.e("ResellPostRepository", "Error fetching posts: ", e)
                 _allPostsFlow.value = ResellApiResponse.Error
@@ -73,7 +72,7 @@ class ResellPostRepository @Inject constructor(
         description: String,
         images: List<ImageBitmap>,
         originalPrice: Double,
-        categories: List<String>,
+        category: String,
         userId: String,
     ): PostResponse {
         val base64s = images.map { it.toNetworkingString() }
@@ -84,10 +83,12 @@ class ResellPostRepository @Inject constructor(
                 description = description,
                 imagesBase64 = base64s,
                 originalPrice = originalPrice,
-                categories = categories.map {
-                    it.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.US) else it.toString() }
+                category = category.replaceFirstChar {
+                    if (it.isLowerCase()) it.titlecase(Locale.US) else it.toString()
                 },
-                userId = userId
+                userId = userId,
+                // TODO: New designs incoming to allow a change here?
+                condition = "NEW"
             )
         )
     }

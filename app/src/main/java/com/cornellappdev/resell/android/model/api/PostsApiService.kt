@@ -91,7 +91,7 @@ data class Post(
 ) {
 
     private val priceString
-        get() = String.format(Locale.US, "$%.2f", alteredPrice?.ifBlank { null }?.toDouble() ?: 0.0)
+        get() = String.format(Locale.US, "$%.2f", alteredPrice.ifBlank { null }?.toDouble() ?: 0.0)
 
     val createdDate: Date
         get() = parseIsoDate(created)
@@ -123,7 +123,8 @@ private fun parseIsoDate(dateString: String): Date {
 data class NewPostBody(
     val title: String,
     val description: String,
-    val categories: List<String>,
+    val category: String,
+    val condition: String,
     @SerializedName("original_price") val originalPrice: Double,
     val imagesBase64: List<String>,
     val userId: String
