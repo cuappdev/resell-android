@@ -45,26 +45,27 @@ abstract class SearchViewModel(
         applyMutation { copy(query = query) }
         if (query.isEmpty() || query.isBlank()) {
             applyMutation { copy(listings = ResellApiResponse.Success(emptyList())) }
-        } else {
-            // Try to fetch listings from backend
-            viewModelScope.launch {
-                applyMutation {
-                    copy(
-                        listings = ResellApiResponse.Pending
-                    )
+            return
+        }
+        // Try to fetch listings from backend
+        viewModelScope.launch {
+            applyMutation {
+                copy(
+                    listings = ResellApiResponse.Pending
+                )
+            }
+            try {
+                val response = searchRepository.searchPostByUser(stateValue().uid, query)
+                // By this time, the query may have changed. If so, ignore.
+                if (stateValue().query == query) {
+                    applyMutation { copy(listings = ResellApiResponse.Success(response)) }
                 }
-                try {
-                    val response = searchRepository.searchPostByUser(stateValue().uid, query)
-                    // By this time, the query may have changed. If so, ignore.
-                    if (stateValue().query == query) {
-                        applyMutation { copy(listings = ResellApiResponse.Success(response)) }
-                    }
-                } catch (e: Exception) {
-                    Log.e("SearchViewModel", e.toString())
-                    applyMutation { copy(listings = ResellApiResponse.Error) }
-                }
+            } catch (e: Exception) {
+                Log.e("SearchViewModel", e.toString())
+                applyMutation { copy(listings = ResellApiResponse.Error) }
             }
         }
+
     }
 
     fun onListingPressed(listing: Listing) {
