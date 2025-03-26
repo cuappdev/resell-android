@@ -8,7 +8,9 @@ import kotlinx.coroutines.runBlocking
 import okhttp3.Authenticator
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
+import okhttp3.ResponseBody
 import okhttp3.logging.HttpLoggingInterceptor
+import org.json.JSONObject
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Inject
@@ -54,7 +56,28 @@ class RetrofitInstance @Inject constructor(
             )
         }
 
-        chain.proceed(requestBuilder.build())
+        val response = chain.proceed(requestBuilder.build())
+        val responseBody = response.body?.string() // Read the response body
+
+        if (!response.isSuccessful) {
+            // Log the error response body for debugging
+            Log.e("OkHttpErrorResponse", "Error response body: $responseBody")
+
+            // Get the `errors` response
+            try {
+                val jsonObject = JSONObject(responseBody)
+                val errors = jsonObject.optJSONArray("errors")
+                if (errors != null) {
+                    Log.e("OkHttpErrorResponse", "Errors: $errors")
+                }
+            } catch (e: Exception) {
+                Log.e("OkHttpErrorResponse", "Error parsing the error response", e)
+            }
+        }
+
+        response.newBuilder()
+            .body(ResponseBody.create(response.body?.contentType(), responseBody ?: ""))
+            .build()
     }
 
     private val authenticator = Authenticator { _, response ->
