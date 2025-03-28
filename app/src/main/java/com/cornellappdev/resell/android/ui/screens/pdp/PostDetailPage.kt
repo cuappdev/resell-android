@@ -327,16 +327,14 @@ private fun BottomSheetContent(
                 .defaultHorizontalPadding()
                 .onGloballyPositioned { layoutCoordinates ->
                     val textPosition = layoutCoordinates.positionInRoot().y
-                    val textHeight = layoutCoordinates.size.height
-
                     val screenHeightPx = with(density) { screenHeight.toPx() }
 
                     // Calculate distance from bottom in px and convert to dp
-                    val distanceFromBottomPx = screenHeightPx - (textPosition + textHeight)
+                    val distanceFromBottomPx = screenHeightPx - textPosition
                     val textDistanceFromBottom = with(density) { distanceFromBottomPx.toDp() }
 
                     // Tell the parent that the height has changed.
-                    onHeightChanged(textDistanceFromBottom + 170.dp)
+                    onHeightChanged(textDistanceFromBottom + 115.dp)
                 },
             verticalAlignment = Alignment.CenterVertically
         ) {
