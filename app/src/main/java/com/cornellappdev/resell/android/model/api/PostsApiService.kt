@@ -10,6 +10,7 @@ import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
+import retrofit2.http.Query
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -17,7 +18,10 @@ import java.util.TimeZone
 
 interface PostsApiService {
     @GET("post")
-    suspend fun getPosts(): PostsResponse
+    suspend fun getPosts(
+        @Query("page") page: Int = 1,
+        @Query("limit") size: Int = 10
+    ): PostsResponse
 
     @GET("post/id/{id}")
     suspend fun getPost(@Path("id") id: String): Post

@@ -1,5 +1,6 @@
 package com.cornellappdev.resell.android.viewmodel.main
 
+import androidx.lifecycle.viewModelScope
 import com.cornellappdev.resell.android.model.classes.Listing
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.model.classes.ResellApiState
@@ -9,6 +10,7 @@ import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
 import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -20,16 +22,20 @@ class HomeViewModel @Inject constructor(
         initialUiState = HomeUiState(
             listings = listOf(),
             activeFilter = HomeFilter.RECENT,
-            loadedState = ResellApiState.Loading
+            loadedState = ResellApiState.Loading,
+            page = 1,
+            bottomLoading = false
         )
     ) {
 
     data class HomeUiState(
         val loadedState: ResellApiState,
-        private val listings: List<Listing>,
+        val listings: List<Listing>,
         val activeFilter: HomeFilter,
+        val page: Int,
+        val bottomLoading: Boolean
     ) {
-        // TODO This should change to an endpoint, but backend is simple.
+        // TODO Need to use endpoint now
         val filteredListings: List<Listing>
             get() = listings.filter {
                 activeFilter == HomeFilter.RECENT ||
@@ -89,5 +95,30 @@ class HomeViewModel @Inject constructor(
 
     fun onSearchPressed() {
         rootNavigationRepository.navigate(ResellRootRoute.SEARCH)
+    }
+
+    fun onHitBottom() {
+        if (stateValue().bottomLoading) {
+            return
+        }
+
+        viewModelScope.launch {
+            applyMutation {
+                copy(
+                    page = page + 1,
+                    bottomLoading = true
+                )
+            }
+
+            val newPage = resellPostRepository.getPostsByPage(stateValue().page).map {
+                it.toListing()
+            }
+            applyMutation {
+                copy(
+                    listings = stateValue().listings + newPage,
+                    bottomLoading = false
+                )
+            }
+        }
     }
 }
