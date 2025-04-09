@@ -70,7 +70,7 @@ fun HomeScreen(
         when (homeUiState.loadedState) {
             is ResellApiState.Success -> {
                 ResellListingsScroll(
-                    listings = homeUiState.filteredListings,
+                    listings = homeUiState.listings,
                     onListingPressed = {
                         homeViewModel.onListingPressed(it)
                     },
@@ -79,7 +79,10 @@ fun HomeScreen(
                         homeViewModel.onHitBottom()
                     },
                     footer = {
-                        AnimatedVisibility(visible = homeUiState.bottomLoading) {
+                        AnimatedVisibility(
+                            visible = homeUiState.bottomLoading,
+                            modifier = Modifier.padding(bottom = 50.dp)
+                        ) {
                             Row(
                                 horizontalArrangement = Arrangement.Center
                             ) {

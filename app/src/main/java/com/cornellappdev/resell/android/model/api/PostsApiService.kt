@@ -68,7 +68,7 @@ data class SearchRequest(
 )
 
 data class CategoryRequest(
-    val category: String
+    val categories: List<String>
 )
 
 

@@ -2,20 +2,17 @@ package com.cornellappdev.resell.android.model.posts
 
 import android.util.Log
 import androidx.compose.ui.graphics.ImageBitmap
+import com.cornellappdev.resell.android.model.api.CategoryRequest
 import com.cornellappdev.resell.android.model.api.NewPostBody
 import com.cornellappdev.resell.android.model.api.Post
 import com.cornellappdev.resell.android.model.api.PostResponse
 import com.cornellappdev.resell.android.model.api.RetrofitInstance
-import com.cornellappdev.resell.android.model.classes.Listing
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.util.toNetworkingString
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.util.Locale
 import javax.inject.Inject
@@ -61,6 +58,10 @@ class ResellPostRepository @Inject constructor(
 
     suspend fun getPostsByPage(page: Int): List<Post> {
         return retrofitInstance.postsApi.getPosts(page = page).posts
+    }
+
+    suspend fun getPostByFilter(category: String): List<Post> {
+        return retrofitInstance.postsApi.getFilteredPosts(CategoryRequest(listOf(category))).posts
     }
 
     suspend fun uploadPost(
