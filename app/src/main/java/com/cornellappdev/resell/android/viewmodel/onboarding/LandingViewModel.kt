@@ -161,11 +161,7 @@ class LandingViewModel @Inject constructor(
                     return@launch
                 }
 
-                Log.d("helpme", "access token gotten: $accessToken")
-
                 val user = resellAuthRepository.authenticate()
-
-                Log.d("helpme", "authenticate succeed")
 
                 if (user == null) {
                     rootNavigationRepository.navigate(ResellRootRoute.ONBOARDING)
