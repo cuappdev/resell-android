@@ -60,7 +60,7 @@ class HomeViewModel @Inject constructor(
         )
     }
 
-    fun onRecentPressed() {
+    private fun onRecentPressed() {
         applyMutation {
             copy(
                 activeFilter = HomeFilter.RECENT,
