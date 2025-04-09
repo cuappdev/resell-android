@@ -10,11 +10,15 @@ import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
 import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.cornellappdev.resell.android.model.classes.Listing
 import com.cornellappdev.resell.android.ui.theme.Padding
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 
 
 @Composable
@@ -26,10 +30,28 @@ fun ResellListingsScroll(
     paddedTop: Dp = 0.dp,
     emptyState: @Composable () -> Unit = { },
     header: @Composable () -> Unit = {},
+    onScrollBottom: () -> Unit = {},
+    footer: @Composable () -> Unit = {},
 ) {
     if (listings.isEmpty()) {
         emptyState()
         return
+    }
+
+    // Check if last visible item is the last in the list
+    LaunchedEffect(listState) {
+        snapshotFlow { listState.layoutInfo }
+            .map { layoutInfo ->
+                // -1 to account for the header and footer
+                val lastVisibleItemIndex = layoutInfo.visibleItemsInfo.lastOrNull()?.index?.minus(2)
+                lastVisibleItemIndex == listings.lastIndex
+            }
+            .distinctUntilChanged()
+            .collect { isAtBottom ->
+                if (isAtBottom) {
+                    onScrollBottom()
+                }
+            }
     }
 
     LazyVerticalStaggeredGrid(
@@ -55,6 +77,10 @@ fun ResellListingsScroll(
             ) {
                 onListingPressed(item)
             }
+        }
+
+        item(span = StaggeredGridItemSpan.FullLine) {
+            footer()
         }
     }
 }

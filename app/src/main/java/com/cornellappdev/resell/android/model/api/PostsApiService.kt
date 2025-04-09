@@ -10,6 +10,7 @@ import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
+import retrofit2.http.Query
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -17,7 +18,10 @@ import java.util.TimeZone
 
 interface PostsApiService {
     @GET("post")
-    suspend fun getPosts(): PostsResponse
+    suspend fun getPosts(
+        @Query("page") page: Int = 1,
+        @Query("limit") size: Int = 10
+    ): PostsResponse
 
     @GET("post/id/{id}")
     suspend fun getPost(@Path("id") id: String): Post
@@ -64,7 +68,7 @@ data class SearchRequest(
 )
 
 data class CategoryRequest(
-    val category: String
+    val categories: List<String>
 )
 
 
@@ -81,18 +85,17 @@ data class Post(
     val id: String,
     val title: String,
     val description: String,
-    val categories: List<String>,
+    val category: String,
     val archive: Boolean,
-    private val created: String,  // Use Long for timestamps
-    val price: Double,
-    @SerializedName("altered_price") val altered_price: String,
+    private val created: String,
+    @SerializedName("altered_price") val alteredPrice: String,
     val images: List<String>,
     val location: String?,
     val user: User? // Reusing the User class from before
 ) {
 
     private val priceString
-        get() = String.format(Locale.US, "$%.2f", altered_price?.ifBlank { null }?.toDouble() ?: 0.0)
+        get() = String.format(Locale.US, "$%.2f", alteredPrice.ifBlank { null }?.toDouble() ?: 0.0)
 
     val createdDate: Date
         get() = parseIsoDate(created)
@@ -103,7 +106,7 @@ data class Post(
             title = title,
             images = images,
             price = priceString,
-            categories = categories,
+            categories = listOf(category),
             description = description,
             user = user?.toUserInfo() ?: richieUserInfo.apply {
                 Log.e("PostsApiService", "User is null")
@@ -124,7 +127,8 @@ private fun parseIsoDate(dateString: String): Date {
 data class NewPostBody(
     val title: String,
     val description: String,
-    val categories: List<String>,
+    val category: String,
+    val condition: String,
     @SerializedName("original_price") val originalPrice: Double,
     val imagesBase64: List<String>,
     val userId: String

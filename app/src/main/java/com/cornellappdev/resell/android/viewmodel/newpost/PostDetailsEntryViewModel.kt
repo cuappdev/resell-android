@@ -95,7 +95,7 @@ class PostDetailsEntryViewModel @Inject constructor(
                     description = stateValue().description,
                     originalPrice = stateValue().price.toDouble(),
                     images = postRepository.getRecentBitmaps()!!,
-                    categories = listOf(stateValue().activeFilter.name),
+                    category = stateValue().activeFilter.name,
                     userId = userInfoRepository.getUserId() ?: "lol"
                 )
                 applyMutation {

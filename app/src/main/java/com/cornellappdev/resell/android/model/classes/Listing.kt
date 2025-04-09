@@ -19,7 +19,7 @@ data class Listing(
     val user: UserInfo
 ) : Parcelable {
     val image
-        get() = images[0]
+        get() = images.getOrElse(0) { "" }
 }
 
 /**
