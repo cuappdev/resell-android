@@ -29,6 +29,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import com.cornellappdev.resell.android.ui.theme.AppDev
 import com.cornellappdev.resell.android.ui.theme.Primary
@@ -209,44 +211,16 @@ private fun ResellTextButtonPreview(
     }
 }
 
-@Preview
-@Composable
-private fun ResellPrimaryTextButtonPreview() {
-    ResellTextButtonPreview()
-}
+private class ResellTextButtonContainerPreviewProvider(
+    override val values: Sequence<ResellTextButtonContainer> = sequenceOf(
+        *ResellTextButtonContainer.entries.toTypedArray()
+    )
+) : PreviewParameterProvider<ResellTextButtonContainer>
 
 @Preview
 @Composable
-private fun ResellSecondaryTextButtonPreview() {
-    ResellTextButtonPreview(containerType = ResellTextButtonContainer.SECONDARY)
-}
-
-@Preview
-@Composable
-private fun ResellPrimaryRedTextButtonPreview() {
-    ResellTextButtonPreview(containerType = ResellTextButtonContainer.PRIMARY_RED)
-}
-
-@Preview
-@Composable
-private fun ResellSecondaryRedTextButtonPreview() {
-    ResellTextButtonPreview(containerType = ResellTextButtonContainer.SECONDARY_RED)
-}
-
-@Preview
-@Composable
-private fun ResellSecondaryNakedButtonPreview() {
-    ResellTextButtonPreview(containerType = ResellTextButtonContainer.NAKED)
-}
-
-@Preview
-@Composable
-private fun ResellSecondaryNakedRedTextButtonPreview() {
-    ResellTextButtonPreview(containerType = ResellTextButtonContainer.NAKED_RED)
-}
-
-@Preview
-@Composable
-private fun ResellPrimaryNakedButtonPreview() {
-    ResellTextButtonPreview(containerType = ResellTextButtonContainer.NAKED_PRIMARY)
+private fun ResellButtonPreview(
+    @PreviewParameter(ResellTextButtonContainerPreviewProvider::class) container: ResellTextButtonContainer
+) {
+    ResellTextButtonPreview(container)
 }
