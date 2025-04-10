@@ -129,8 +129,8 @@ class ChatRepository @Inject constructor(
                         ChatHeaderData(
                             recentMessage = it.lastMessage,
                             updatedAt = it.updatedAt.toDateString(),
-                            // TODO:
-                            read = false,
+                            // TODO: Add actual read/unread logic
+                            read = true,
                             name = item?.title ?: "",
                             imageUrl = user?.photoUrl ?: "",
                         )
@@ -142,7 +142,7 @@ class ChatRepository @Inject constructor(
         }
     }
 
-    suspend fun getListingAndUserData(
+    private suspend fun getListingAndUserData(
         rawData: List<RawChatHeaderData>,
         myId: String
     ): Pair<List<Post>, List<UserResponse>> = coroutineScope {
