@@ -8,15 +8,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.cornellappdev.resell.android.model.Chat
-import com.cornellappdev.resell.android.model.chats.BuyerSellerData
+import com.cornellappdev.resell.android.model.chats.ChatHeaderData
 import com.cornellappdev.resell.android.util.getRelativeTimeSpan
 
 
 @Composable
 fun ResellMessagesScroll(
-    chats: List<BuyerSellerData>,
-    onChatPressed: (BuyerSellerData) -> Unit,
+    chats: List<ChatHeaderData>,
+    onChatPressed: (ChatHeaderData) -> Unit,
     listState: LazyListState,
     modifier: Modifier = Modifier,
     paddedTop: Dp = 0.dp,

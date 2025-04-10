@@ -5,15 +5,14 @@ import com.cornellappdev.resell.android.model.api.Post
 import com.cornellappdev.resell.android.model.api.User
 import com.cornellappdev.resell.android.model.chats.AvailabilityBlock
 import com.cornellappdev.resell.android.model.chats.AvailabilityDocument
-import com.cornellappdev.resell.android.model.chats.BuyerSellerData
 import com.cornellappdev.resell.android.model.chats.ChatDocument
 import com.cornellappdev.resell.android.model.chats.ChatDocumentAny
 import com.cornellappdev.resell.android.model.chats.ChatDocumentAnyMeetingInfo
 import com.cornellappdev.resell.android.model.chats.MeetingInfo
+import com.cornellappdev.resell.android.model.chats.RawChatHeaderData
 import com.cornellappdev.resell.android.model.chats.UserDocument
 import com.cornellappdev.resell.android.viewmodel.main.ChatViewModel
 import com.google.firebase.Timestamp
-import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.Query
@@ -28,6 +27,8 @@ class FireStoreRepository @Inject constructor(
 
     private val historyCollection = fireStore.collection("history")
     private val chatsCollection = fireStore.collection("chats")
+
+    private val refactoredChatsCollection = fireStore.collection("chats_refactored")
 
     private var lastSubscription: ListenerRegistration? = null
 
@@ -135,88 +136,6 @@ class FireStoreRepository @Inject constructor(
             Log.e("FireStoreRepository", "Error saving notifications enabled: ", e)
             throw e
         }
-    }
-
-    suspend fun getBuyerHistory(email: String): List<BuyerSellerData> {
-        val buyers = historyCollection.document(email)
-            .collection("buyers").get().await()
-
-        return buyers.documents.mapNotNull {
-            makeBuyerSellerData(it)
-        }
-    }
-
-    suspend fun getSellerHistory(email: String): List<BuyerSellerData> {
-        val sellers = historyCollection.document(email)
-            .collection("sellers").get().await()
-
-        return sellers.documents.mapNotNull {
-            makeBuyerSellerData(it)
-        }
-    }
-
-    private fun makeBuyerSellerData(it: DocumentSnapshot): BuyerSellerData {
-        // Please don't look at this. This is the worst file I've ever written in my life.
-        val confirmedTime = it.get("confirmedTime")?.toString() ?: ""
-        val imageUrl = it.get("image")?.toString() ?: ""
-        val name = it.get("name")?.toString() ?: ""
-        val recentMessage = it.get("recentMessage")?.toString() ?: ""
-        val recentMessageTime = it.get("recentMessageTime")?.toString() ?: ""
-        val recentSender = it.get("recentSender")?.toString() ?: ""
-        val viewed = it.getBoolean("viewed") ?: false
-
-        val raw = (it.get("item") as Map<*, *>).mapValues { it?.value?.toString() }
-        val userMap =
-            ((it.get("item") as Map<*, *>)["user"] as Map<*, *>).mapValues { it?.value?.toString() }
-
-        fun parseToList(input: String): List<String> {
-            return input
-                .removePrefix("[") // Remove the leading '['
-                .removeSuffix("]") // Remove the trailing ']'
-                .split(", ")        // Split by ", "
-                .map { it.trim() }  // Trim whitespace just in case
-        }
-
-        val user = User(
-            id = userMap["id"] ?: "",
-            familyName = userMap["familyName"] ?: "",
-            email = userMap["email"] ?: "",
-            givenName = userMap["givenName"] ?: "",
-            username = userMap["username"] ?: "",
-            netid = userMap["netid"] ?: "",
-            admin = userMap["admin"]?.toBoolean() ?: false,
-            photoUrl = userMap["photoUrl"] ?: "",
-            bio = userMap["bio"] ?: "",
-            googleId = userMap["googleId"] ?: "",
-            venmoHandle = "",
-            isActive = true
-        )
-
-        val post = Post(
-            id = raw["id"] ?: "",
-            title = raw["title"] ?: "",
-            description = raw["description"] ?: "",
-            user = user,
-            archive = (raw["archive"] ?: "").toBoolean(),
-            location = raw["location"] ?: "",
-            created = raw["created"] ?: "",
-            alteredPrice = raw["altered_price"] ?: "",
-            images = parseToList(raw["images"] ?: ""),
-            category = parseToList(raw["categories"] ?: "")[0],
-        )
-
-        return BuyerSellerData(
-            confirmedTime = confirmedTime,
-            image = imageUrl,
-            name = name,
-            recentMessage = recentMessage,
-            recentMessageTime = recentMessageTime,
-            recentSender = recentSender,
-            viewed = viewed,
-            item = post,
-            confirmedViewed = viewed,
-            email = it.id
-        )
     }
 
     suspend fun markChatAsRead(
@@ -449,36 +368,6 @@ class FireStoreRepository @Inject constructor(
         chatRef.add(anyable).await()
     }
 
-    /**
-     * Call for the seller to update their `buyer` history.
-     */
-    suspend fun updateBuyerHistory(
-        sellerEmail: String,
-        buyerEmail: String,
-        data: BuyerSellerData
-    ) {
-        val docRef = historyCollection.document(sellerEmail)
-            .collection("buyers")
-            .document(buyerEmail)
-
-        docRef.set(data).await()
-    }
-
-    /**
-     * Call for the buyer to update their `seller` history.
-     */
-    suspend fun updateSellerHistory(
-        buyerEmail: String,
-        sellerEmail: String,
-        data: BuyerSellerData
-    ) {
-        val docRef = historyCollection.document(buyerEmail)
-            .collection("sellers")
-            .document(sellerEmail)
-
-        docRef.set(data).await()
-    }
-
     suspend fun updateItems(
         email: String,
         postId: String,
@@ -487,6 +376,60 @@ class FireStoreRepository @Inject constructor(
         val docRef = historyCollection.document(email).collection("items").document(postId)
 
         docRef.set(post).await()
+    }
+
+    fun subscribeToBuyerHistory(
+        myId: String,
+        onSnapshotUpdate: (List<RawChatHeaderData>) -> Unit
+    ) {
+        refactoredChatsCollection.whereEqualTo("buyerID", myId)
+            .addSnapshotListener { snapshot, _ ->
+                val data = snapshot?.documents?.mapNotNull { documentSnapshot ->
+                    val listingId = documentSnapshot.get("listingID") as? String
+                    val sellerId = documentSnapshot.get("sellerID") as? String
+                    val buyerId = documentSnapshot.get("buyerID") as? String
+                    val updatedAt = documentSnapshot.get("updatedAt") as? Timestamp
+                    val lastMessage = documentSnapshot.get("lastMessage") as? String
+                    val userIds = documentSnapshot.get("userIds") as? List<*>
+
+                    RawChatHeaderData(
+                        listingID = listingId ?: "",
+                        sellerID = sellerId ?: "",
+                        buyerID = buyerId ?: "",
+                        updatedAt = updatedAt ?: Timestamp(0, 0),
+                        lastMessage = lastMessage ?: "",
+                        userIDs = userIds?.map { it.toString() } ?: emptyList()
+                    )
+                }
+                onSnapshotUpdate(data ?: emptyList())
+            }
+    }
+
+    fun subscribeToSellerHistory(
+        myId: String,
+        onSnapshotUpdate: (List<RawChatHeaderData>) -> Unit
+    ) {
+        refactoredChatsCollection.whereEqualTo("sellerID", myId)
+            .addSnapshotListener { snapshot, _ ->
+                val data = snapshot?.documents?.mapNotNull { documentSnapshot ->
+                    val listingId = documentSnapshot.get("listingID") as? String
+                    val sellerId = documentSnapshot.get("sellerID") as? String
+                    val buyerId = documentSnapshot.get("buyerID") as? String
+                    val updatedAt = documentSnapshot.get("updatedAt") as? Timestamp
+                    val lastMessage = documentSnapshot.get("lastMessage") as? String
+                    val userIds = documentSnapshot.get("userIds") as? List<*>
+
+                    RawChatHeaderData(
+                        listingID = listingId ?: "",
+                        sellerID = sellerId ?: "",
+                        buyerID = buyerId ?: "",
+                        updatedAt = updatedAt ?: Timestamp(0, 0),
+                        lastMessage = lastMessage ?: "",
+                        userIDs = userIds?.map { it.toString() } ?: emptyList()
+                    )
+                }
+                onSnapshotUpdate(data ?: emptyList())
+            }
     }
 }
 

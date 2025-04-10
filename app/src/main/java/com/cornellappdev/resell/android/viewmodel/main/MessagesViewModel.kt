@@ -2,7 +2,7 @@ package com.cornellappdev.resell.android.viewmodel.main
 
 import androidx.lifecycle.viewModelScope
 import com.cornellappdev.resell.android.model.api.ChatRepository
-import com.cornellappdev.resell.android.model.chats.BuyerSellerData
+import com.cornellappdev.resell.android.model.chats.ChatHeaderData
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.model.classes.ResellApiState
 import com.cornellappdev.resell.android.model.posts.ResellPostRepository
@@ -34,9 +34,9 @@ class MessagesViewModel @Inject constructor(
     ) {
     data class MessagesUiState(
         /** People who are buying things you are selling. */
-        val buyerChats: ResellApiResponse<List<BuyerSellerData>>,
+        val buyerChats: ResellApiResponse<List<ChatHeaderData>>,
         /** People who are selling things you are buying. */
-        val sellerChats: ResellApiResponse<List<BuyerSellerData>>,
+        val sellerChats: ResellApiResponse<List<ChatHeaderData>>,
         val chatType: ChatType,
     ) {
         val filteredChats = when (chatType) {
@@ -68,7 +68,7 @@ class MessagesViewModel @Inject constructor(
             get() = buyerChats.asSuccessOrNull()?.data?.filter { !it.viewed }?.size ?: 0
     }
 
-    fun onMessagePressed(historyEntry: BuyerSellerData) {
+    fun onMessagePressed(historyEntry: ChatHeaderData) {
         val id = historyEntry.item.toListing().id
 
         contactSeller(

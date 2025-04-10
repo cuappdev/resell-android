@@ -9,9 +9,10 @@ import com.cornellappdev.resell.android.model.ChatMessageCluster
 import com.cornellappdev.resell.android.model.ChatMessageData
 import com.cornellappdev.resell.android.model.MessageType
 import com.cornellappdev.resell.android.model.chats.AvailabilityDocument
-import com.cornellappdev.resell.android.model.chats.BuyerSellerData
 import com.cornellappdev.resell.android.model.chats.ChatDocument
+import com.cornellappdev.resell.android.model.chats.ChatHeaderData
 import com.cornellappdev.resell.android.model.chats.MeetingInfo
+import com.cornellappdev.resell.android.model.chats.RawChatHeaderData
 import com.cornellappdev.resell.android.model.chats.UserDocument
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.model.core.UserInfoRepository
@@ -19,12 +20,16 @@ import com.cornellappdev.resell.android.model.login.FireStoreRepository
 import com.cornellappdev.resell.android.model.login.GoogleAuthRepository
 import com.cornellappdev.resell.android.model.login.PreferencesKeys
 import com.cornellappdev.resell.android.model.posts.ResellPostRepository
+import com.cornellappdev.resell.android.model.profile.ProfileRepository
 import com.cornellappdev.resell.android.util.toDateString
 import com.cornellappdev.resell.android.util.toIsoString
 import com.cornellappdev.resell.android.viewmodel.main.ChatViewModel
 import com.google.firebase.Timestamp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.firstOrNull
@@ -48,14 +53,15 @@ class ChatRepository @Inject constructor(
     private val retrofitInstance: RetrofitInstance,
     private val googleAuthRepository: GoogleAuthRepository,
     private val dataStore: DataStore<Preferences>,
+    private val profileRepository: ProfileRepository,
 ) {
 
     private val _buyersHistoryFlow =
-        MutableStateFlow<ResellApiResponse<List<BuyerSellerData>>>(ResellApiResponse.Pending)
+        MutableStateFlow<ResellApiResponse<List<ChatHeaderData>>>(ResellApiResponse.Pending)
     val buyersHistoryFlow = _buyersHistoryFlow.asStateFlow()
 
     private val _sellersHistoryFlow =
-        MutableStateFlow<ResellApiResponse<List<BuyerSellerData>>>(ResellApiResponse.Pending)
+        MutableStateFlow<ResellApiResponse<List<ChatHeaderData>>>(ResellApiResponse.Pending)
     val sellersHistoryFlow = _sellersHistoryFlow.asStateFlow()
 
     private val _subscribedChatFlow =
@@ -63,37 +69,111 @@ class ChatRepository @Inject constructor(
     val subscribedChatFlow = _subscribedChatFlow.asStateFlow()
 
     /**
-     * Starts loading the chat history and sends it down [sellersHistoryFlow].
+     * Starts the subscription to the chat history for the buyer.
+     *
+     * Whenever an update would occur, it will be sent down [buyersHistoryFlow].
      */
-    fun fetchSellersHistory() {
-        _sellersHistoryFlow.value = ResellApiResponse.Pending
+    fun subscribeToBuyerHistory() {
+        _buyersHistoryFlow.value = ResellApiResponse.Pending
         CoroutineScope(Dispatchers.IO).launch {
-            try {
-                val sellerData =
-                    fireStoreRepository.getSellerHistory(userInfoRepository.getEmail()!!)
-                _sellersHistoryFlow.value = ResellApiResponse.Success(sellerData)
-            } catch (e: Exception) {
-                _sellersHistoryFlow.value = ResellApiResponse.Error
-                Log.e("ChatRepository", "Error fetching buyer history: ", e)
+            val myId = userInfoRepository.getUserId() ?: ""
+            fireStoreRepository.subscribeToBuyerHistory(myId = myId) { rawData ->
+                CoroutineScope(Dispatchers.IO).launch {
+                    val (listings, users) = getListingAndUserData(rawData, myId)
+                    val chatHeaders = rawData.map {
+                        val user = users.firstOrNull { user ->
+                            user.user.id != myId
+                        }?.user
+
+                        val item = listings.firstOrNull { post ->
+                            post.id == it.listingID
+                        }?.toListing()
+
+                        ChatHeaderData(
+                            recentMessage = it.lastMessage,
+                            updatedAt = it.updatedAt.toDateString(),
+                            // TODO:
+                            read = false,
+                            name = item?.title ?: "",
+                            imageUrl = user?.photoUrl ?: "",
+                        )
+                    }
+
+                    _buyersHistoryFlow.value = ResellApiResponse.Success(chatHeaders)
+                }
             }
         }
     }
 
     /**
-     * Starts loading the chat history and sends it down [buyersHistoryFlow].
+     * Starts the subscription to the chat history for the seller.
+     *
+     * Whenever an update would occur, it will be sent down [sellersHistoryFlow].
      */
-    fun fetchBuyersHistory() {
-        _buyersHistoryFlow.value = ResellApiResponse.Pending
+    fun subscribeToSellerHistory() {
+        _sellersHistoryFlow.value = ResellApiResponse.Pending
         CoroutineScope(Dispatchers.IO).launch {
-            try {
-                val buyerData =
-                    fireStoreRepository.getBuyerHistory(userInfoRepository.getEmail()!!)
-                _buyersHistoryFlow.value = ResellApiResponse.Success(buyerData)
-            } catch (e: Exception) {
-                _buyersHistoryFlow.value = ResellApiResponse.Error
-                Log.e("ChatRepository", "Error fetching buyer history: ", e)
+            val myId = userInfoRepository.getUserId() ?: ""
+            fireStoreRepository.subscribeToSellerHistory(myId = myId) { rawData ->
+                CoroutineScope(Dispatchers.IO).launch {
+                    val (listings, users) = getListingAndUserData(rawData, myId)
+                    val chatHeaders = rawData.map {
+                        val user = users.firstOrNull { user ->
+                            user.user.id != myId
+                        }?.user
+
+                        val item = listings.firstOrNull { post ->
+                            post.id == it.listingID
+                        }?.toListing()
+
+                        ChatHeaderData(
+                            recentMessage = it.lastMessage,
+                            updatedAt = it.updatedAt.toDateString(),
+                            // TODO:
+                            read = false,
+                            name = item?.title ?: "",
+                            imageUrl = user?.photoUrl ?: "",
+                        )
+                    }
+
+                    _sellersHistoryFlow.value = ResellApiResponse.Success(chatHeaders)
+                }
             }
         }
+    }
+
+    suspend fun getListingAndUserData(
+        rawData: List<RawChatHeaderData>,
+        myId: String
+    ): Pair<List<Post>, List<UserResponse>> = coroutineScope {
+        val listingIds = rawData.map {
+            it.listingID
+        }
+        val otherUserIds = rawData.map {
+            it.userIDs.first {
+                it != myId
+            }
+        }
+
+        val deferredListings = listingIds.map { id ->
+            async {
+                postRepository.getPostById(id)
+            }
+        }
+
+        val deferredUsers = otherUserIds.map { id ->
+            async {
+                profileRepository.getUserById(id)
+            }
+        }
+
+        val allDeferred = deferredListings + deferredUsers
+
+        val data = allDeferred.awaitAll()
+        val listings = data.filterIsInstance<Post>()
+        val userResponses = data.filterIsInstance<UserResponse>()
+
+        return@coroutineScope Pair(listings, userResponses)
     }
 
     fun subscribeToChat(
@@ -362,120 +442,6 @@ class ChatRepository @Inject constructor(
             sellerEmail = sellerEmail,
             chatDocument = chatDocument
         )
-
-        val recentMessage = when {
-            !text.isNullOrEmpty() -> text
-            !imageUrl.isNullOrEmpty() -> "[Image]"
-            availability != null -> "[Availability]"
-            meetingInfo != null -> {
-                when (meetingInfo.state) {
-                    "proposed" -> "[Meeting Proposal]"
-                    "confirmed" -> "[Meeting Accepted!]"
-                    "declined" -> "[Meeting Declined]"
-                    "canceled" -> "[Meeting Canceled]"
-                    else -> "[Meeting Details]"
-                }
-            }
-            else -> {
-                ""
-            }
-        }
-
-        val notificationText = when {
-            !text.isNullOrEmpty() -> text
-            !imageUrl.isNullOrEmpty() -> "Sent an Image"
-            availability != null -> "Sent their Availability"
-            meetingInfo != null -> {
-                when (meetingInfo.state) {
-                    "proposed" -> "Proposed a Meeting"
-                    "confirmed" -> "Accepted a Meeting!"
-                    "declined" -> "Declined a Meeting"
-                    "canceled" -> "Canceled a Meeting"
-                    else -> "Updated Meeting Details"
-                }
-            }
-
-            else -> {
-                ""
-            }
-        }
-
-        // The data that will go into the `seller` entry of the buyer. Amazing.
-        //  Basically, this belongs the buyer.
-        //  SO, this should be information about the seller.
-        val sellerData = BuyerSellerData(
-            item = item,
-            recentMessage = recentMessage,
-            viewed = selfIsBuyer,
-            name = sellerName,
-            image = sellerImageUrl,
-            recentMessageTime = time.toIsoString(),
-            recentSender = myName,
-            confirmedTime = "",
-            confirmedViewed = false,
-        )
-
-        // Information about the buyer. Shown to the seller.
-        val buyerData = BuyerSellerData(
-            item = item,
-            recentMessage = recentMessage,
-            viewed = !selfIsBuyer,
-            name = buyerName,
-            image = buyerImageUrl,
-            recentMessageTime = time.toIsoString(),
-            recentSender = myName,
-            confirmedTime = "",
-            confirmedViewed = false,
-        )
-
-        fireStoreRepository.updateBuyerHistory(
-            buyerEmail = buyerEmail,
-            sellerEmail = sellerEmail,
-            data = buyerData
-        )
-
-        fireStoreRepository.updateSellerHistory(
-            buyerEmail = buyerEmail,
-            sellerEmail = sellerEmail,
-            data = sellerData
-        )
-
-        fireStoreRepository.updateItems(
-            email = buyerEmail,
-            postId = postId,
-            post = item
-        )
-
-        val otherNotifsEnabled = fireStoreRepository.getNotificationsEnabled(
-            otherEmail
-        )
-
-        val token = fireStoreRepository.getUserFCMToken(
-            email = otherEmail,
-        )
-        Log.d("ChatRepository", "Token: $token")
-        val oauth = googleAuthRepository.getOAuthToken()
-        if (token != null && otherNotifsEnabled) {
-            retrofitInstance.notificationsApi.sendNotification(
-                body = FcmBody(
-                    message = FcmMessage(
-                        notification = FcmNotification(
-                            title = myName,
-                            body = notificationText,
-                        ),
-                        token = token,
-                        data = NotificationData.ChatNotification(
-                            name = myName,
-                            email = myEmail,
-                            pfp = myImageUrl,
-                            postJson = Json.encodeToString(item),
-                            isBuyer = (!selfIsBuyer).toString(),
-                        )
-                    )
-                ),
-                authToken = "Bearer $oauth"
-            )
-        }
     }
 
     suspend fun sendTextMessage(
