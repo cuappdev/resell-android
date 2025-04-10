@@ -17,11 +17,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.ui.components.global.ResellTabBar
 import com.cornellappdev.resell.android.ui.components.main.ProfilePictureView
 import com.cornellappdev.resell.android.ui.theme.IconInactive
+import com.cornellappdev.resell.android.ui.theme.ResellPreview
 import com.cornellappdev.resell.android.ui.theme.Secondary
 import com.cornellappdev.resell.android.ui.theme.Style
 import com.cornellappdev.resell.android.util.clickableNoIndication
@@ -134,4 +136,17 @@ fun ProfileHeader(
             }
         }
     }
+}
+
+@Preview
+@Composable
+fun ProfileHeaderPreview() = ResellPreview {
+    ProfileHeader(
+        imageUrl = "",
+        shopName = "Hello",
+        vendorName = "world",
+        bio = "Help me please",
+        selectedTab = null,
+        onTabSelected = {}
+    )
 }
