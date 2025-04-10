@@ -34,6 +34,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import com.cornellappdev.resell.android.ui.theme.AppDev
 import com.cornellappdev.resell.android.ui.theme.Primary
+import com.cornellappdev.resell.android.ui.theme.ResellPreview
 import com.cornellappdev.resell.android.ui.theme.ResellPurple
 import com.cornellappdev.resell.android.ui.theme.Style
 import com.cornellappdev.resell.android.ui.theme.Warning
@@ -221,6 +222,6 @@ private class ResellTextButtonContainerPreviewProvider(
 @Composable
 private fun ResellButtonPreview(
     @PreviewParameter(ResellTextButtonContainerPreviewProvider::class) container: ResellTextButtonContainer
-) {
+) = ResellPreview {
     ResellTextButtonPreview(container)
 }
