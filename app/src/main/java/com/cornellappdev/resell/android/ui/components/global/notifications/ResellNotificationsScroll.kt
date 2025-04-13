@@ -1,6 +1,5 @@
 package com.cornellappdev.resell.android.ui.components.global.notifications
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height

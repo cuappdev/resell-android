@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -21,7 +20,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -40,8 +38,6 @@ import com.cornellappdev.resell.android.ui.screens.onboarding.OnboardingNavigati
 import com.cornellappdev.resell.android.ui.screens.pdp.PostDetailPage
 import com.cornellappdev.resell.android.ui.screens.reporting.ReportNavigation
 import com.cornellappdev.resell.android.ui.screens.settings.SettingsNavigation
-//import com.cornellappdev.resell.android.util.LocalInfiniteLoading
-//import com.cornellappdev.resell.android.util.LocalRootNavigator
 import com.cornellappdev.resell.android.viewmodel.root.RootNavigationViewModel
 import com.cornellappdev.resell.android.viewmodel.root.RootSheet
 import kotlinx.coroutines.launch
