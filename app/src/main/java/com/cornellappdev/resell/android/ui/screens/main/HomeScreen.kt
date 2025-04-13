@@ -96,7 +96,7 @@ private fun HomeHeader(
     onFilterPressed: (HomeViewModel.HomeFilter) -> Unit = {},
     onNotificationPressed: () -> Unit = {},
     onTopPressed: () -> Unit,
-    onSearchPressed: () -> Unit,
+    onSearchPressed: () -> Unit, 
 ) {
     Column {
         Row(
