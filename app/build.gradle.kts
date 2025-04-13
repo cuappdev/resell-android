@@ -30,8 +30,8 @@ android {
         applicationId = "com.cornellappdev.resell.android"
         minSdk = 28
         targetSdk = 35
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 22
+        versionName = "2.0 - Refactor [Beta]"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -51,10 +51,16 @@ android {
 
     signingConfigs {
         create("release") {
-            keyAlias = "resell"
+            keyAlias = secrets.getProperty("KEY_ALIAS")
             keyPassword = secrets.getProperty("KEY_PASS")
             storeFile = file("/../resell-keystore.jks")
-            storePassword = secrets.getProperty("KEY_PASS")
+            storePassword = secrets.getProperty("KEY_STORE_PASS")
+        }
+        create("release-mock") {
+            keyAlias = secrets.getProperty("KEY_MOCK_ALIAS")
+            keyPassword = secrets.getProperty("KEY_MOCK_PASS")
+            storeFile = file("/../resell-mock-keystore.jks")
+            storePassword = secrets.getProperty("KEY_MOCK_STORE_PASS")
         }
     }
 
@@ -75,6 +81,24 @@ android {
                 "BASE_API_URL", "\"${secrets.getProperty("API_URL_PROD")}\""
             )
         }
+
+        create("releaseMock") {
+            signingConfig = signingConfigs.getByName("release-mock")
+            isMinifyEnabled = false
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+            buildConfigField(
+                "String",
+                "GOOGLE_AUTH_CLIENT_ID", "\"${secrets.getProperty("GOOGLE_AUTH_CLIENT_ID")}\""
+            )
+            buildConfigField(
+                "String",
+                "BASE_API_URL", "\"${secrets.getProperty("API_URL_PROD")}\""
+            )
+        }
+
         debug {
             buildConfigField(
                 "String",

@@ -1,13 +1,11 @@
 package com.cornellappdev.resell.android.ui.screens.settings
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.cornellappdev.resell.android.util.LocalSettingsNavigator
 import com.cornellappdev.resell.android.viewmodel.navigation.SettingsNavigationViewModel
 import kotlinx.serialization.Serializable
 
@@ -30,26 +28,24 @@ fun SettingsNavigation(
         }
     }
 
-    CompositionLocalProvider(LocalSettingsNavigator provides navController) {
-        NavHost(
-            navController = LocalSettingsNavigator.current,
-            startDestination = SettingsRoute.SettingsLanding
-        ) {
-            composable<SettingsRoute.SettingsLanding> {
-                SettingsLandingScreen()
-            }
-            composable<SettingsRoute.EditProfile> {
-                EditProfileScreen()
-            }
-            composable<SettingsRoute.Notifications> {
-                NotificationSettings()
-            }
-            composable<SettingsRoute.Feedback> {
-                SendFeedbackScreen()
-            }
-            composable<SettingsRoute.BlockedUsers> {
-                BlockedUsersScreen()
-            }
+    NavHost(
+        navController = navController,
+        startDestination = SettingsRoute.SettingsLanding
+    ) {
+        composable<SettingsRoute.SettingsLanding> {
+            SettingsLandingScreen()
+        }
+        composable<SettingsRoute.EditProfile> {
+            EditProfileScreen()
+        }
+        composable<SettingsRoute.Notifications> {
+            NotificationSettings()
+        }
+        composable<SettingsRoute.Feedback> {
+            SendFeedbackScreen()
+        }
+        composable<SettingsRoute.BlockedUsers> {
+            BlockedUsersScreen()
         }
     }
 }

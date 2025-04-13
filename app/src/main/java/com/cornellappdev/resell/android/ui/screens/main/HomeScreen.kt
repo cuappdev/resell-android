@@ -36,6 +36,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.model.classes.ResellApiState
 import com.cornellappdev.resell.android.ui.components.global.ResellListingsScroll
+import com.cornellappdev.resell.android.ui.components.global.ResellLoadingListingScroll
 import com.cornellappdev.resell.android.ui.components.global.ResellTag
 import com.cornellappdev.resell.android.ui.theme.Padding
 import com.cornellappdev.resell.android.ui.theme.Primary
@@ -80,7 +81,9 @@ fun HomeScreen(
                 )
             }
 
-            is ResellApiState.Loading -> {}
+            is ResellApiState.Loading -> {
+                ResellLoadingListingScroll()
+            }
 
             is ResellApiState.Error -> {}
         }

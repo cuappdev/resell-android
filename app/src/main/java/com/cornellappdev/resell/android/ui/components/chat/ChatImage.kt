@@ -20,10 +20,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.resell.android.model.CoilRepository
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.ui.theme.Secondary
-import com.cornellappdev.resell.android.ui.theme.Stroke
-import com.cornellappdev.resell.android.ui.theme.Wash
-import com.cornellappdev.resell.android.ui.theme.interpolateColorHSV
-import com.cornellappdev.resell.android.util.LocalInfiniteLoading
+import com.cornellappdev.resell.android.util.shimmer
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -49,13 +46,7 @@ fun ChatImage(
                     Box(
                         modifier = Modifier
                             .height(175.dp)
-                            .background(
-                                interpolateColorHSV(
-                                    Wash,
-                                    Stroke,
-                                    LocalInfiniteLoading.current
-                                )
-                            )
+                            .shimmer()
                             .clip(RoundedCornerShape(16.dp))
                             .fillMaxWidth()
                     )

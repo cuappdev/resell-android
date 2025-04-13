@@ -2,14 +2,12 @@ package com.cornellappdev.resell.android.ui.screens.reporting
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.cornellappdev.resell.android.util.LocalReportNavigator
 import com.cornellappdev.resell.android.viewmodel.navigation.ReportNavigationViewModel
 import kotlinx.serialization.Serializable
 
@@ -18,35 +16,33 @@ fun ReportNavigation(
     reportNavigationViewModel: ReportNavigationViewModel = hiltViewModel()
 ) {
     val uiState = reportNavigationViewModel.collectUiStateValue()
-    val onboardingNav = rememberNavController()
+    val navController = rememberNavController()
 
     LaunchedEffect(uiState.route) {
         uiState.route?.consumeSuspend {
-            onboardingNav.navigate(it)
+            navController.navigate(it)
         }
     }
 
-    CompositionLocalProvider(LocalReportNavigator provides onboardingNav) {
-        NavHost(
-            navController = LocalReportNavigator.current,
-            startDestination = uiState.initialPage ?: ReportScreen.Reason(
-                reportPost = true,
-                postId = "",
-                userId = ""
-            ),
-            modifier = Modifier.fillMaxSize()
-        ) {
-            composable<ReportScreen.Reason> {
-                ReportReasonScreen()
-            }
+    NavHost(
+        navController = navController,
+        startDestination = uiState.initialPage ?: ReportScreen.Reason(
+            reportPost = true,
+            postId = "",
+            userId = ""
+        ),
+        modifier = Modifier.fillMaxSize()
+    ) {
+        composable<ReportScreen.Reason> {
+            ReportReasonScreen()
+        }
 
-            composable<ReportScreen.Details> {
-                ReportDetailsScreen()
-            }
+        composable<ReportScreen.Details> {
+            ReportDetailsScreen()
+        }
 
-            composable<ReportScreen.Confirmation> {
-                ReportConfirmationScreen()
-            }
+        composable<ReportScreen.Confirmation> {
+            ReportConfirmationScreen()
         }
     }
 }
