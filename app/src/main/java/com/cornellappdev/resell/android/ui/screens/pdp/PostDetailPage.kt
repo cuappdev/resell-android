@@ -334,7 +334,7 @@ private fun BottomSheetContent(
                     val textDistanceFromBottom = with(density) { distanceFromBottomPx.toDp() }
 
                     // Tell the parent that the height has changed.
-                    onHeightChanged(textDistanceFromBottom + 150.dp)
+                    onHeightChanged(textDistanceFromBottom + 120.dp)
                 },
             verticalAlignment = Alignment.CenterVertically
         ) {
