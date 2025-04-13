@@ -54,7 +54,8 @@ fun NotificationsHubScreen(
                 coroutineScope.launch {
                     listState.animateScrollToItem(0)
                 }
-            }
+            },
+            onBackPressed = notificationsHubViewModel::onBackPressed
         )
 
         Column(
@@ -81,7 +82,10 @@ fun NotificationsHubScreen(
                         )
                     } else {
                         ResellNotificationsScroll(
-                            notificationsHubUiState,
+                            unreadNotifications = notificationsHubUiState.unreadNotifications,
+                            weekNotifications = notificationsHubUiState.weekNotifications,
+                            monthNotifications = notificationsHubUiState.monthNotifications,
+                            otherNotifications = notificationsHubUiState.otherNotifications,
                             onNotificationPressed = {
                                 notificationsHubViewModel.onNotificationPressed()
                             },
@@ -106,11 +110,13 @@ private fun NotificationsHubHeader(
     notificationType: NotificationType?,
     onFilterPressed: (NotificationType?) -> Unit = {},
     onTopPressed: () -> Unit,
+    onBackPressed: () -> Unit,
 ) {
     Column(
         modifier = Modifier
             .padding(top = 16.dp)
             .statusBarsPadding()
+            .clickableNoIndication { onTopPressed() }
     ) {
         Box(
             modifier = Modifier.fillMaxWidth(),
@@ -122,7 +128,7 @@ private fun NotificationsHubHeader(
                     .padding(top = 20.dp, start = 12.dp)
                     .size(24.dp)
                     .align(Alignment.CenterStart)
-                    .clickableNoIndication { }
+                    .clickableNoIndication { onBackPressed() }
             )
             Column(
                 modifier = Modifier.align(Alignment.Center),

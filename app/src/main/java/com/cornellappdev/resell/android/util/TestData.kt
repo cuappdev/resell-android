@@ -2,7 +2,6 @@ package com.cornellappdev.resell.android.util
 
 import com.cornellappdev.resell.android.model.classes.Listing
 import com.cornellappdev.resell.android.model.classes.UserInfo
-import com.google.firebase.Timestamp
 import com.cornellappdev.resell.android.model.Chat
 import com.cornellappdev.resell.android.model.ChatMessageCluster
 import com.cornellappdev.resell.android.model.ChatMessageData
@@ -12,6 +11,7 @@ import com.cornellappdev.resell.android.model.messages.NotificationType
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 import kotlin.random.Random
+import com.google.firebase.Timestamp
 
 val richieListings = { count: Int ->
     List(count) {

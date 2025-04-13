@@ -1,6 +1,6 @@
 package com.cornellappdev.resell.android.model
 
-import com.cornellappdev.resell.android.model.api.Post
+import  com.cornellappdev.resell.android.model.api.Post
 import com.cornellappdev.resell.android.model.chats.AvailabilityDocument
 import com.cornellappdev.resell.android.model.chats.MeetingInfo
 import com.cornellappdev.resell.android.util.justinMessages
