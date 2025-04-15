@@ -9,9 +9,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.lifecycle.viewModelScope
-import com.cornellappdev.resell.android.model.login.FireStoreRepository
+import com.cornellappdev.resell.android.model.core.UserInfoRepository
 import com.cornellappdev.resell.android.model.login.FirebaseAuthRepository
 import com.cornellappdev.resell.android.model.login.GoogleAuthRepository
+import com.cornellappdev.resell.android.model.login.ResellAuthRepository
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonContainer
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonState
 import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
@@ -33,9 +34,10 @@ class LandingViewModel @Inject constructor(
     private val googleAuthRepository: GoogleAuthRepository,
     private val rootNavigationRepository: RootNavigationRepository,
     private val rootNavigationSheetRepository: RootNavigationSheetRepository,
-    private val fireStoreRepository: FireStoreRepository,
     private val firebaseAuthRepository: FirebaseAuthRepository,
     private val rootConfirmationRepository: RootConfirmationRepository,
+    private val userInfoRepository: UserInfoRepository,
+    private val resellAuthRepository: ResellAuthRepository,
     @ApplicationContext private val context: Context
 ) : ResellViewModel<LandingViewModel.LandingUiState>(
     initialUiState = LandingUiState()
@@ -144,26 +146,29 @@ class LandingViewModel @Inject constructor(
             copy(buttonState = ResellTextButtonState.DISABLED)
         }
 
+        // Attempt to log in.
         viewModelScope.launch {
             try {
                 val newId = googleAuthRepository.silentSignIn()
-                firebaseAuthRepository.firebaseAuthWithGoogle(newId)
 
-                fireStoreRepository.getUserOnboarded(
-                    email = email,
-                    onError = {
-                        onSignInFailed(showSheet = true)
-                    },
-                    onSuccess = { onboarded ->
-                        viewModelScope.launch {
-                            if (onboarded) {
-                                rootNavigationRepository.navigate(ResellRootRoute.MAIN)
-                            } else {
-                                rootNavigationRepository.navigate(ResellRootRoute.ONBOARDING)
-                            }
-                        }
-                    }
-                )
+                firebaseAuthRepository.firebaseSignIn(newId)
+                val accessToken = firebaseAuthRepository.getFirebaseAccessToken()
+                if (accessToken == null) {
+                    onSignInFailed(showSheet = true)
+                    rootConfirmationRepository.showError(
+                        "Error connecting to our server. Please try again later."
+                    )
+                    return@launch
+                }
+
+                val user = resellAuthRepository.authenticate()
+
+                if (user == null) {
+                    rootNavigationRepository.navigate(ResellRootRoute.ONBOARDING)
+                } else {
+                    userInfoRepository.storeUserFromUserObject(user)
+                    rootNavigationRepository.navigate(ResellRootRoute.MAIN)
+                }
             } catch (e: Exception) {
                 Log.e("LandingViewModel", "Error getting user: ", e)
                 onSignInFailed(showSheet = false)

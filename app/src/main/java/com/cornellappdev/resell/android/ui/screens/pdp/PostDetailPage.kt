@@ -387,20 +387,23 @@ private fun BottomSheetContent(
         Spacer(Modifier.height(28.dp))
 
         similarImageUrls.ComposableIfSuccess {
-            Text(
-                text = "Similar Items",
-                style = Style.body2,
-                modifier = Modifier.defaultHorizontalPadding()
-            )
 
-            Spacer(Modifier.height(8.dp))
+            if (it.isNotEmpty()) {
+                Text(
+                    text = "Similar Items",
+                    style = Style.body2,
+                    modifier = Modifier.defaultHorizontalPadding()
+                )
 
-            SimilarItemsRow(
-                images = it,
-                onListingClick = { ind ->
-                    onSimilarClick(ind)
-                }
-            )
+                Spacer(Modifier.height(8.dp))
+
+                SimilarItemsRow(
+                    images = it,
+                    onListingClick = { ind ->
+                        onSimilarClick(ind)
+                    }
+                )
+            }
         }
     }
 }

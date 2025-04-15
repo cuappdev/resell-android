@@ -1,14 +1,15 @@
 package com.cornellappdev.resell.android.viewmodel.main
 
+import android.util.Log
+import androidx.lifecycle.viewModelScope
 import com.cornellappdev.resell.android.model.classes.Listing
-import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.model.classes.ResellApiState
-import com.cornellappdev.resell.android.model.classes.toResellApiState
 import com.cornellappdev.resell.android.model.posts.ResellPostRepository
 import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
 import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -20,44 +21,22 @@ class HomeViewModel @Inject constructor(
         initialUiState = HomeUiState(
             listings = listOf(),
             activeFilter = HomeFilter.RECENT,
-            loadedState = ResellApiState.Loading
+            loadedState = ResellApiState.Loading,
+            page = 1,
+            bottomLoading = false
         )
     ) {
 
     data class HomeUiState(
         val loadedState: ResellApiState,
-        private val listings: List<Listing>,
+        val listings: List<Listing>,
         val activeFilter: HomeFilter,
-    ) {
-        // TODO This should change to an endpoint, but backend is simple.
-        val filteredListings: List<Listing>
-            get() = listings.filter {
-                activeFilter == HomeFilter.RECENT ||
-                        it.categories.map { it.lowercase() }.any {
-                            it.contains(activeFilter.name.lowercase())
-                        }
-            }
-    }
+        val page: Int,
+        val bottomLoading: Boolean
+    )
 
     init {
-        asyncCollect(resellPostRepository.allPostsFlow) { response ->
-            val posts = when (response) {
-                is ResellApiResponse.Success -> {
-                    response.data
-                }
-
-                else -> {
-                    listOf()
-                }
-            }
-
-            applyMutation {
-                copy(
-                    listings = posts.map { it.toListing() },
-                    loadedState = response.toResellApiState()
-                )
-            }
-        }
+        onRecentPressed()
     }
 
     enum class HomeFilter {
@@ -81,13 +60,92 @@ class HomeViewModel @Inject constructor(
         )
     }
 
-    fun onToggleFilter(filter: HomeFilter) {
+    private fun onRecentPressed() {
         applyMutation {
-            copy(activeFilter = filter)
+            copy(
+                activeFilter = HomeFilter.RECENT,
+                page = 1,
+                loadedState = ResellApiState.Loading
+            )
+        }
+        viewModelScope.launch {
+            try {
+                val posts = resellPostRepository.getPostsByPage(1)
+                applyMutation {
+                    copy(
+                        listings = posts.map { it.toListing() },
+                        loadedState = ResellApiState.Success
+                    )
+                }
+            } catch (e: Exception) {
+                Log.e("HomeViewModel", "Error fetching posts: ", e)
+                applyMutation {
+                    copy(
+                        loadedState = ResellApiState.Error
+                    )
+                }
+            }
+        }
+    }
+
+    fun onToggleFilter(filter: HomeFilter) {
+        if (filter == HomeFilter.RECENT) {
+            onRecentPressed()
+            return
+        }
+
+        applyMutation {
+            copy(
+                activeFilter = filter,
+                loadedState = ResellApiState.Loading,
+            )
+        }
+        viewModelScope.launch {
+            try {
+                val posts = resellPostRepository.getPostByFilter(filter.name)
+                applyMutation {
+                    copy(
+                        listings = posts.map { it.toListing() },
+                        loadedState = ResellApiState.Success
+                    )
+                }
+            } catch (e: Exception) {
+                Log.e("HomeViewModel", "Error fetching posts: ", e)
+                applyMutation {
+                    copy(
+                        loadedState = ResellApiState.Error
+                    )
+                }
+            }
         }
     }
 
     fun onSearchPressed() {
         rootNavigationRepository.navigate(ResellRootRoute.SEARCH)
+    }
+
+    fun onHitBottom() {
+        if (stateValue().bottomLoading || stateValue().activeFilter != HomeFilter.RECENT) {
+            return
+        }
+
+        viewModelScope.launch {
+            applyMutation {
+                copy(
+                    page = page + 1,
+                    bottomLoading = true
+                )
+            }
+
+            val newPage = resellPostRepository.getPostsByPage(stateValue().page).map {
+                it.toListing()
+            }
+            applyMutation {
+                copy(
+                    listings = stateValue().listings + newPage,
+                    bottomLoading = false
+                )
+            }
+        }
     }
 }

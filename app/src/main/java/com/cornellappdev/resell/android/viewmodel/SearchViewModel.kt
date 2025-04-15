@@ -24,7 +24,7 @@ abstract class SearchViewModel(
         SearchViewModel.SearchUiState>(
     initialUiState = SearchUiState(
         query = "",
-        listings = ResellApiResponse.Pending,
+        listings = ResellApiResponse.Success(emptyList()),
         uid = null,
         username = ""
     )
@@ -43,7 +43,10 @@ abstract class SearchViewModel(
 
     fun onQueryChanged(query: String) {
         applyMutation { copy(query = query) }
-
+        if (query.isEmpty() || query.isBlank()) {
+            applyMutation { copy(listings = ResellApiResponse.Success(emptyList())) }
+            return
+        }
         // Try to fetch listings from backend
         viewModelScope.launch {
             applyMutation {
@@ -62,6 +65,7 @@ abstract class SearchViewModel(
                 applyMutation { copy(listings = ResellApiResponse.Error) }
             }
         }
+
     }
 
     fun onListingPressed(listing: Listing) {
