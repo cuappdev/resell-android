@@ -17,11 +17,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.ui.components.global.ResellTabBar
 import com.cornellappdev.resell.android.ui.components.main.ProfilePictureView
 import com.cornellappdev.resell.android.ui.theme.IconInactive
+import com.cornellappdev.resell.android.ui.theme.ResellPreview
 import com.cornellappdev.resell.android.ui.theme.Secondary
 import com.cornellappdev.resell.android.ui.theme.Style
 import com.cornellappdev.resell.android.util.clickableNoIndication
@@ -55,7 +60,6 @@ fun ProfileHeader(
                     .align(Alignment.TopCenter),
                 imageUrl = imageUrl,
             )
-
 
             if (leftIcon != null) {
                 Icon(
@@ -108,6 +112,7 @@ fun ProfileHeader(
                 maxLines = 3,
                 style = Style.body2,
                 textAlign = TextAlign.Center,
+                overflow = TextOverflow.Ellipsis,
             )
         }
 
@@ -134,4 +139,26 @@ fun ProfileHeader(
             }
         }
     }
+}
+
+class BioPreviewProvider(
+    override val values: Sequence<String> = sequenceOf(
+        "This is a short bio.",
+        "This is an insanely super duper very very extremely so long super duper long omg I don't think I've ever seen something this long it is just so long I cannot begin to fathom how long it is bio.This is an insanely super duper very very extremely so long super duper long omg I don't think I've ever seen something this long it is just so long I cannot begin to fathom how long it is bio.This is an insanely super duper very very extremely so long super duper long omg I don't think I've ever seen something this long it is just so long I cannot begin to fathom how long it is bio.This is an insanely super duper very very extremely so long super duper long omg I don't think I've ever seen something this long it is just so long I cannot begin to fathom how long it is bio.This is an insanely super duper very very extremely so long super duper long omg I don't think I've ever seen something this long it is just so long I cannot begin to fathom how long it is bio.This is an insanely super duper very very extremely so long super duper long omg I don't think I've ever seen something this long it is just so long I cannot begin to fathom how long it is bio.This is an insanely super duper very very extremely so long super duper long omg I don't think I've ever seen something this long it is just so long I cannot begin to fathom how long it is bio.This is an insanely super duper very very extremely so long super duper long omg I don't think I've ever seen something this long it is just so long I cannot begin to fathom how long it is bio.This is an insanely super duper very very extremely so long super duper long omg I don't think I've ever seen something this long it is just so long I cannot begin to fathom how long it is bio.This is an insanely super duper very very extremely so long super duper long omg I don't think I've ever seen something this long it is just so long I cannot begin to fathom how long it is bio.This is an insanely super duper very very extremely so long super duper long omg I don't think I've ever seen something this long it is just so long I cannot begin to fathom how long it is bio.This is an insanely super duper very very extremely so long super duper long omg I don't think I've ever seen something this long it is just so long I cannot begin to fathom how long it is bio.This is an insanely super duper very very extremely so long super duper long omg I don't think I've ever seen something this long it is just so long I cannot begin to fathom how long it is bio.This is an insanely super duper very very extremely so long super duper long omg I don't think I've ever seen something this long it is just so long I cannot begin to fathom how long it is bio.This is an insanely super duper very very extremely so long super duper long omg I don't think I've ever seen something this long it is just so long I cannot begin to fathom how long it is bio.This is an insanely super duper very very extremely so long super duper long omg I don't think I've ever seen something this long it is just so long I cannot begin to fathom how long it is bio.This is an insanely super duper very very extremely so long super duper long omg I don't think I've ever seen something this long it is just so long I cannot begin to fathom how long it is bio."
+    )
+) : PreviewParameterProvider<String>
+
+@Preview
+@Composable
+fun ProfileHeaderBiosPreview(
+    @PreviewParameter(BioPreviewProvider::class) bio: String
+) = ResellPreview {
+    ProfileHeader(
+        imageUrl = "",
+        shopName = "Hello",
+        vendorName = "world",
+        bio = bio,
+        selectedTab = null,
+        onTabSelected = {}
+    )
 }
