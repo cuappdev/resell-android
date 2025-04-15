@@ -163,24 +163,18 @@ abstract class ResellViewModel<UiState>(initialUiState: UiState) : ViewModel() {
         rootNavigationRepository: RootNavigationRepository,
         rootConfirmationRepository: RootConfirmationRepository,
         name: String,
-        email: String,
         pfp: String,
-        id: String,
+        listingId: String,
         isBuyer: Boolean
     ) {
         viewModelScope.launch {
             try {
-                val post = postsRepository.allPostsFlow.first().asSuccess().let {
-                    it.data.first {
-                        it.id == id
-                    }
-                }.toListing()
+                val post = postsRepository.getPostById(listingId).toListing()
                 rootNavigationRepository.navigate(
                     ResellRootRoute.CHAT(
                         isBuyer = isBuyer,
                         name = name,
                         pfp = pfp,
-                        email = email,
                         postJson = Json.encodeToString(post),
                     )
                 )

@@ -49,7 +49,7 @@ class MessagesViewModel @Inject constructor(
                 emptyList()
             }
         }.sortedByDescending {
-            parseIsoDateToDate(it.recentMessageTime)
+            parseIsoDateToDate(it.updatedAt)
         }
 
         val loadedState: ResellApiState =
@@ -62,15 +62,13 @@ class MessagesViewModel @Inject constructor(
             }
 
         val purchasesUnreads: Int
-            get() = sellerChats.asSuccessOrNull()?.data?.filter { !it.viewed }?.size ?: 0
+            get() = sellerChats.asSuccessOrNull()?.data?.filter { !it.read }?.size ?: 0
 
         val offersUnreads: Int
-            get() = buyerChats.asSuccessOrNull()?.data?.filter { !it.viewed }?.size ?: 0
+            get() = buyerChats.asSuccessOrNull()?.data?.filter { !it.read }?.size ?: 0
     }
 
     fun onMessagePressed(historyEntry: ChatHeaderData) {
-        val id = historyEntry.item.toListing().id
-
         contactSeller(
             onSuccess = {},
             onError = {},
@@ -78,11 +76,10 @@ class MessagesViewModel @Inject constructor(
             postsRepository = postsRepository,
             rootConfirmationRepository = rootConfirmationRepository,
             rootNavigationRepository = rootNavigationRepository,
-            id = id,
+            listingId = historyEntry.listingId,
             isBuyer = stateValue().chatType == ChatType.Purchases,
             name = historyEntry.name,
-            email = historyEntry.email ?: "",
-            pfp = historyEntry.image
+            pfp = historyEntry.imageUrl
         )
 
         // Wait a bit then reload; loads the marked as read.
@@ -99,8 +96,8 @@ class MessagesViewModel @Inject constructor(
     }
 
     fun onLoad() {
-        chatRepository.fetchBuyersHistory()
-        chatRepository.fetchSellersHistory()
+        chatRepository.subscribeToBuyerHistory()
+        chatRepository.subscribeToSellerHistory()
     }
 
     init {

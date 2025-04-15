@@ -30,12 +30,12 @@ fun ResellMessagesScroll(
     ) {
         items(items = chats) { item ->
             MessageCard(
-                imageUrl = item.image,
+                imageUrl = item.imageUrl,
                 seller = item.name,
-                title = item.item.toListing().title,
+                title = item.listingName,
                 message = item.recentMessage,
-                unread = !item.viewed,
-                relativeTimestamp = getRelativeTimeSpan(item.recentMessageTime)
+                unread = !item.read,
+                relativeTimestamp = getRelativeTimeSpan(item.updatedAt)
             ) {
                 onChatPressed(item)
             }

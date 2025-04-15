@@ -261,8 +261,6 @@ class FireStoreRepository @Inject constructor(
                     MeetingInfo(
                         state = meetingInfoMap["state"] ?: "",
                         proposeTime = meetingInfoMap["proposeTime"] ?: "",
-                        proposer = meetingInfoMap["proposer"],
-                        canceler = meetingInfoMap["canceler"],
                         mostRecent = false,
                     )
                 }
@@ -385,6 +383,7 @@ class FireStoreRepository @Inject constructor(
         refactoredChatsCollection.whereEqualTo("buyerID", myId)
             .addSnapshotListener { snapshot, _ ->
                 val data = snapshot?.documents?.mapNotNull { documentSnapshot ->
+                    val chatId = documentSnapshot.id
                     val listingId = documentSnapshot.get("listingID") as? String
                     val sellerId = documentSnapshot.get("sellerID") as? String
                     val buyerId = documentSnapshot.get("buyerID") as? String
@@ -398,7 +397,8 @@ class FireStoreRepository @Inject constructor(
                         buyerID = buyerId ?: "",
                         updatedAt = updatedAt ?: Timestamp(0, 0),
                         lastMessage = lastMessage ?: "",
-                        userIDs = userIds?.map { it.toString() } ?: emptyList()
+                        userIDs = userIds?.map { it.toString() } ?: emptyList(),
+                        chatID = chatId
                     )
                 }
                 onSnapshotUpdate(data ?: emptyList())
@@ -412,6 +412,7 @@ class FireStoreRepository @Inject constructor(
         refactoredChatsCollection.whereEqualTo("sellerID", myId)
             .addSnapshotListener { snapshot, _ ->
                 val data = snapshot?.documents?.mapNotNull { documentSnapshot ->
+                    val chatId = documentSnapshot.id
                     val listingId = documentSnapshot.get("listingID") as? String
                     val sellerId = documentSnapshot.get("sellerID") as? String
                     val buyerId = documentSnapshot.get("buyerID") as? String
@@ -425,7 +426,8 @@ class FireStoreRepository @Inject constructor(
                         buyerID = buyerId ?: "",
                         updatedAt = updatedAt ?: Timestamp(0, 0),
                         lastMessage = lastMessage ?: "",
-                        userIDs = userIds?.map { it.toString() } ?: emptyList()
+                        userIDs = userIds?.map { it.toString() } ?: emptyList(),
+                        chatID = chatId
                     )
                 }
                 onSnapshotUpdate(data ?: emptyList())

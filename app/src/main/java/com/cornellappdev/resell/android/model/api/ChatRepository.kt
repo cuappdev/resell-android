@@ -1,6 +1,5 @@
 package com.cornellappdev.resell.android.model.api
 
-import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
@@ -13,7 +12,6 @@ import com.cornellappdev.resell.android.model.chats.ChatDocument
 import com.cornellappdev.resell.android.model.chats.ChatHeaderData
 import com.cornellappdev.resell.android.model.chats.MeetingInfo
 import com.cornellappdev.resell.android.model.chats.RawChatHeaderData
-import com.cornellappdev.resell.android.model.chats.UserDocument
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.model.core.UserInfoRepository
 import com.cornellappdev.resell.android.model.login.FireStoreRepository
@@ -22,7 +20,6 @@ import com.cornellappdev.resell.android.model.login.PreferencesKeys
 import com.cornellappdev.resell.android.model.posts.ResellPostRepository
 import com.cornellappdev.resell.android.model.profile.ProfileRepository
 import com.cornellappdev.resell.android.util.toDateString
-import com.cornellappdev.resell.android.util.toIsoString
 import com.cornellappdev.resell.android.viewmodel.main.ChatViewModel
 import com.google.firebase.Timestamp
 import kotlinx.coroutines.CoroutineScope
@@ -96,6 +93,9 @@ class ChatRepository @Inject constructor(
                             read = false,
                             name = item?.title ?: "",
                             imageUrl = user?.photoUrl ?: "",
+                            listingId = it.listingID,
+                            listingName = item?.title ?: "",
+                            chatId = it.chatID
                         )
                     }
 
@@ -133,6 +133,9 @@ class ChatRepository @Inject constructor(
                             read = true,
                             name = item?.title ?: "",
                             imageUrl = user?.photoUrl ?: "",
+                            listingId = it.listingID,
+                            listingName = item?.title ?: "",
+                            chatId = it.chatID
                         )
                     }
 
@@ -376,171 +379,144 @@ class ChatRepository @Inject constructor(
     }
 
     private suspend fun sendGenericMessage(
-        myEmail: String,
-        otherEmail: String,
-        myName: String,
-        otherName: String,
-        myImageUrl: String,
-        otherImageUrl: String,
         selfIsBuyer: Boolean,
-        postId: String,
-        imageUrl: String? = null,
+        listingId: String,
+        myId: String,
+        otherId: String,
         text: String? = null,
         availability: AvailabilityDocument? = null,
-        meetingInfo: MeetingInfo? = null
+        meetingInfo: MeetingInfo? = null,
+        imagesBase64: List<String>,
+        chatId: String,
     ) {
-        val currentTimeMillis = System.currentTimeMillis()
-        val userInfo = userInfoRepository.getUserInfo()
+        val buyerId = if (selfIsBuyer) myId else otherId
+        val sellerId = if (selfIsBuyer) otherId else myId
 
-        val sellerEmail = if (selfIsBuyer) otherEmail else myEmail
-        val buyerEmail = if (selfIsBuyer) myEmail else otherEmail
-
-        val sellerName = if (selfIsBuyer) otherName else myName
-        val buyerName = if (selfIsBuyer) myName else otherName
-
-        val sellerImageUrl = if (selfIsBuyer) otherImageUrl else myImageUrl
-        val buyerImageUrl = if (selfIsBuyer) myImageUrl else otherImageUrl
-
-        val time = Timestamp.now()
-
-        val userDocument = UserDocument(
-            _id = myEmail,
-            name = userInfo.name,
-            avatar = userInfo.imageUrl
-        )
-        val chatDocument = ChatDocument(
-            _id = currentTimeMillis.toString(),
-            createdAt = time,
-            image = imageUrl ?: "",
-            text = text ?: "",
-            user = userDocument,
-            availability = availability,
-            // Product handled later
-            product = null,
-            meetingInfo = meetingInfo,
-        )
-
-        val item = (postRepository.allPostsFlow.value.asSuccessOrNull()?.data?.firstOrNull {
-            it.id == postId
-        } ?: postRepository.getPostById(postId)).copy(
-            id = postId,
-        )
-
-        // Before sending, if it's the first message in the chat, send a product message.
-        val response = subscribedChatFlow.value
-        if (response is ResellApiResponse.Success && response.data.chatHistory.isEmpty()) {
-            fireStoreRepository.sendProductMessage(
-                buyerEmail = buyerEmail,
-                sellerEmail = sellerEmail,
-                otherDocument = chatDocument,
-                post = item
+        if (text != null) {
+            retrofitInstance.chatApi.sendChat(
+                chatBody = ChatBody(
+                    buyerId = buyerId,
+                    sellerId = sellerId,
+                    listingId = listingId,
+                    text = text,
+                    senderId = myId,
+                    images = imagesBase64,
+                ),
+                chatId = chatId
             )
-        }
+        } else if (availability != null) {
+            retrofitInstance.chatApi.sendAvailability(
+                availabilityBody = AvailabilityBody(
+                    buyerId = buyerId,
+                    sellerId = sellerId,
+                    listingId = listingId,
+                    senderId = myId,
+                    availabilities = availability.availabilities.map { block ->
+                        StartAndEnd(
+                            startDate = block.startDate,
+                            endDate = block.endDate
+                        )
+                    }
+                ),
+                chatId = chatId
+            )
+        } else if (meetingInfo != null) {
 
-        fireStoreRepository.sendChatMessage(
-            buyerEmail = buyerEmail,
-            sellerEmail = sellerEmail,
-            chatDocument = chatDocument
-        )
+            if (meetingInfo.state == "proposed") {
+                retrofitInstance.chatApi.sendProposal(
+                    proposalBody = ProposalBody(
+                        buyerId = buyerId,
+                        sellerId = sellerId,
+                        listingId = listingId,
+                        senderId = myId,
+                        startDate = meetingInfo.proposeTime,
+                        endDate = meetingInfo.endTime
+                    ),
+                    chatId = chatId
+                )
+            } else if (meetingInfo.state == "confirmed" || meetingInfo.state == "declined") {
+                retrofitInstance.chatApi.sendProposalResponse(
+                    proposalResponseBody = ProposalResponseBody(
+                        buyerId = buyerId,
+                        sellerId = sellerId,
+                        listingId = listingId,
+                        senderId = myId,
+                        startDate = meetingInfo.proposeTime,
+                        endDate = meetingInfo.endTime,
+                        accepted = meetingInfo.state == "confirmed"
+                    ),
+                    chatId = chatId
+                )
+            }
+        }
     }
 
     suspend fun sendTextMessage(
-        myEmail: String,
-        otherEmail: String,
-        myName: String,
-        otherName: String,
-        myImageUrl: String,
-        otherImageUrl: String,
-        text: String,
         selfIsBuyer: Boolean,
-        postId: String,
+        listingId: String,
+        myId: String,
+        otherId: String,
+        text: String,
+        chatId: String,
     ) = sendGenericMessage(
-        myEmail = myEmail,
-        otherEmail = otherEmail,
-        myName = myName,
-        otherName = otherName,
-        myImageUrl = myImageUrl,
-        otherImageUrl = otherImageUrl,
         text = text,
         selfIsBuyer = selfIsBuyer,
-        postId = postId,
+        listingId = listingId,
+        myId = myId,
+        otherId = otherId,
+        imagesBase64 = emptyList(),
+        chatId = chatId
     )
 
     suspend fun sendImageMessage(
-        myEmail: String,
-        otherEmail: String,
-        myName: String,
-        otherName: String,
-        myImageUrl: String,
-        otherImageUrl: String,
+        selfIsBuyer: Boolean,
+        listingId: String,
+        myId: String,
+        otherId: String,
         imageBase64: String,
-        selfIsBuyer: Boolean,
-        postId: String,
-    ) {
-        val url = retrofitInstance.userApi.uploadImage(
-            body = ImageBody(
-                imageBase64 = imageBase64
-            )
-        ).image
-
-        sendGenericMessage(
-            myEmail = myEmail,
-            otherEmail = otherEmail,
-            myName = myName,
-            otherName = otherName,
-            myImageUrl = myImageUrl,
-            otherImageUrl = otherImageUrl,
-            imageUrl = url,
-            selfIsBuyer = selfIsBuyer,
-            postId = postId,
-        )
-    }
-
-    suspend fun sendAvailability(
-        myEmail: String,
-        otherEmail: String,
-        myName: String,
-        otherName: String,
-        myImageUrl: String,
-        otherImageUrl: String,
-        selfIsBuyer: Boolean,
-        postId: String,
-        availability: AvailabilityDocument
+        chatId: String,
     ) = sendGenericMessage(
-        availability = availability,
-        myEmail = myEmail,
-        otherEmail = otherEmail,
-        myName = myName,
-        otherName = otherName,
-        myImageUrl = myImageUrl,
-        otherImageUrl = otherImageUrl,
         selfIsBuyer = selfIsBuyer,
-        postId = postId
+        listingId = listingId,
+        myId = myId,
+        otherId = otherId,
+        imagesBase64 = listOf(imageBase64),
+        chatId = chatId
     )
 
-    /**
-     * Depending on
-     */
-    suspend fun sendProposalUpdate(
-        myEmail: String,
-        otherEmail: String,
-        myName: String,
-        otherName: String,
-        myImageUrl: String,
-        otherImageUrl: String,
+
+    suspend fun sendAvailability(
         selfIsBuyer: Boolean,
-        postId: String,
-        meetingInfo: MeetingInfo
+        listingId: String,
+        myId: String,
+        otherId: String,
+        availability: AvailabilityDocument,
+        chatId: String,
     ) = sendGenericMessage(
-        meetingInfo = meetingInfo,
-        myEmail = myEmail,
-        otherEmail = otherEmail,
-        myName = myName,
-        otherName = otherName,
-        myImageUrl = myImageUrl,
-        otherImageUrl = otherImageUrl,
         selfIsBuyer = selfIsBuyer,
-        postId = postId
+        listingId = listingId,
+        myId = myId,
+        otherId = otherId,
+        imagesBase64 = listOf(),
+        availability = availability,
+        chatId = chatId
+    )
+
+    suspend fun sendProposalUpdate(
+        selfIsBuyer: Boolean,
+        listingId: String,
+        myId: String,
+        otherId: String,
+        meetingInfo: MeetingInfo,
+        chatId: String,
+    ) = sendGenericMessage(
+        selfIsBuyer = selfIsBuyer,
+        listingId = listingId,
+        myId = myId,
+        otherId = otherId,
+        imagesBase64 = listOf(),
+        meetingInfo = meetingInfo,
+        chatId = chatId
     )
 
     private fun getFormattedTime(): String {
@@ -555,7 +531,7 @@ class ChatRepository @Inject constructor(
     }
 
     suspend fun shouldShowGCalSync(
-        otherEmail: String,
+        otherId: String,
         meetingDate: Date,
     ): Boolean {
         val mapString = dataStore.data.map { preferences ->
@@ -564,13 +540,13 @@ class ChatRepository @Inject constructor(
 
         val map = mapString?.let { Json.decodeFromString<Map<String, String>>(mapString) }
 
-        if (map != null && map[otherEmail] == meetingDate.toString()) {
+        if (map != null && map[otherId] == meetingDate.toString()) {
             return false
         }
 
         // Store new map, indicating that the user has already been notified for this meeting.
         val newMap = map?.toMutableMap() ?: mutableMapOf()
-        newMap[otherEmail] = meetingDate.toString()
+        newMap[otherId] = meetingDate.toString()
         dataStore.edit { preferences ->
             preferences[PreferencesKeys.GCAL_SYNC] = Json.encodeToString(newMap)
         }

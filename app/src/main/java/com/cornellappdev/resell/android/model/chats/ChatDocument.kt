@@ -6,6 +6,7 @@ import com.cornellappdev.resell.android.ui.theme.ResellPurple
 import com.google.firebase.Timestamp
 import com.google.gson.annotations.SerializedName
 import java.text.SimpleDateFormat
+import java.time.ZoneId
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
@@ -63,15 +64,10 @@ data class UserDocument(
  * An optional block included in the [ChatDocument] to represent a meeting proposal.
  *
  * @property state Either "confirmed" or "declined" or "proposed" or "canceled".
- * @property proposeTime of the form "MMMM dd yyyy, h:mm a"
- * @property proposer Email of the person who proposed the meeting.
- * @property canceler Email of the person who canceled the meeting.
  */
 data class MeetingInfo(
-    val proposer: String?,
-    val proposeTime: String,
+    val proposeTime: Timestamp,
     val state: String,
-    val canceler: String?,
     var mostRecent: Boolean
 ) {
     val actionText
@@ -89,33 +85,24 @@ data class MeetingInfo(
             else -> R.drawable.ic_calendar
         }
 
+    val endTime: Timestamp
+        get() {
+            val calendar = Calendar.getInstance()
+            calendar.time = proposeTime.toDate()
+            calendar.add(Calendar.MINUTE, 30)
+            return Timestamp(calendar.time)
+        }
+
     fun toFirebaseMap(): Map<String, Any> {
         val map = mutableMapOf<String, Any>()
-        if (proposer != null) {
-            map["proposer"] = proposer
-        }
         map["proposeTime"] = proposeTime
         map["state"] = state
-        if (canceler != null) {
-            map["canceler"] = canceler
-        }
         return map
     }
 
     fun convertToUtcMinusFiveDate(): Date {
-        val inputFormat = SimpleDateFormat("MMMM dd yyyy, h:mm a", Locale.ENGLISH)
-
-        // Input format UTC-5
-        inputFormat.timeZone = TimeZone.getTimeZone("GMT-5")
-
-        // Parse the date string
-        val parsedDate = inputFormat.parse(proposeTime)
-
-        // Convert the parsed date to UTC-5
         val calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT-5"))
-        if (parsedDate != null) {
-            calendar.time = parsedDate
-        }
+        calendar.time = proposeTime.toDate()
 
         return calendar.time
     }

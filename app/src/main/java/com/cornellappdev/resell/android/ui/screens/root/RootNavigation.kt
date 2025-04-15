@@ -223,11 +223,13 @@ sealed class ResellRootRoute {
     data class CHAT(
         /** Real name.*/
         val name: String,
-        val email: String,
         val pfp: String,
         // TODO There should be some way to fix this automatically but I can't figure it out.
         val postJson: String,
-        val isBuyer: Boolean
+        val isBuyer: Boolean,
+        val otherUserId: String,
+        val otherVenmo: String,
+        val chatId: String,
     ) : ResellRootRoute()
 
     @Serializable
