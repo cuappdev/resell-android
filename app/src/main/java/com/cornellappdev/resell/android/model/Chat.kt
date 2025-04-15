@@ -24,7 +24,6 @@ enum class MeetingProposalState {
 
 /**
  * @param imageUrl Only used if [messageType] is [MessageType.Image].
- * @param post Only used if [messageType] is [MessageType.Card].
  * @param availability Only used if [messageType] is [MessageType.Availability].
  * @param meetingInfo Only used if [messageType] is [MessageType.State].
  */
@@ -32,10 +31,9 @@ data class ChatMessageData(
     val timestamp: Timestamp,
     val id: String,
     val content: String,
-    val senderEmail: String,
+    val senderId: String,
     val messageType: MessageType,
     val imageUrl: String = "",
-    val post: Post? = null,
     val availability: AvailabilityDocument? = null,
     val meetingInfo: MeetingInfo? = null,
 ) {

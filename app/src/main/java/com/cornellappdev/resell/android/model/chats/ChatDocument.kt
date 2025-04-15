@@ -1,26 +1,28 @@
 package com.cornellappdev.resell.android.model.chats
 
 import com.cornellappdev.resell.android.R
-import com.cornellappdev.resell.android.model.api.Post
+import com.cornellappdev.resell.android.model.api.StartAndEnd
 import com.cornellappdev.resell.android.ui.theme.ResellPurple
 import com.google.firebase.Timestamp
 import com.google.gson.annotations.SerializedName
 import java.text.SimpleDateFormat
-import java.time.ZoneId
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
 
 data class ChatDocument(
-    val _id: String,
-    val createdAt: Timestamp,
-    val image: String,
-    val text: String,
-    val user: UserDocument,
-    val availability: AvailabilityDocument?,
-    val product: Post?,
-    val meetingInfo: MeetingInfo?
+    val id: String,
+    val timestamp: Timestamp,
+    /** Urls **/
+    val images: List<String>?,
+    val text: String?,
+    val type: String,
+    val senderId: String,
+    val availabilities: List<StartAndEnd>?,
+    val accepted: Boolean?,
+    val startDate: Timestamp?,
+    val endDate: Timestamp?,
 )
 
 /**

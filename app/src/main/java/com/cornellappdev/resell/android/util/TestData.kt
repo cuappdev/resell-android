@@ -88,7 +88,7 @@ val richieMessages = { count: Int ->
                     "https://media.licdn.com/dms/image/D4E03AQGOCNNbxGtcjw/profile-displayphoto-shrink_200_200/0/1704329714345?e=2147483647&v=beta&t=Kq7ex1pKyiifjOpuNIojeZ8f4dXjEAsNSpkJDXBwjxc",
                     "deajdaejk",
                     messageType = MessageType.Card,
-                    senderEmail = ""
+                    senderId = ""
                 )
             } else {
                 ChatMessageData(
@@ -96,7 +96,7 @@ val richieMessages = { count: Int ->
                     "HELP",
                     "feajkdna",
                     messageType = MessageType.Message,
-                    senderEmail = ""
+                    senderId = ""
                 )
             }
         },
@@ -116,7 +116,7 @@ val justinMessages = { count: Int ->
                     "Lia",
                     "feaojfea",
                     messageType = MessageType.Availability,
-                    senderEmail = ""
+                    senderId = ""
                 )
             } else if (it == 2) {
                 ChatMessageData(
@@ -124,13 +124,13 @@ val justinMessages = { count: Int ->
                     "Lia",
                     "00efa",
                     messageType = MessageType.State,
-                    senderEmail = ""
+                    senderId = ""
                 )
             } else {
                 ChatMessageData(
                     timestamp = Timestamp(0, 0), "HELP", "FEADea",
                     messageType = MessageType.Message,
-                    senderEmail = ""
+                    senderId = ""
                 )
             }
         },

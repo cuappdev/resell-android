@@ -1,16 +1,9 @@
 package com.cornellappdev.resell.android.model.login
 
 import android.util.Log
-import com.cornellappdev.resell.android.model.api.Post
-import com.cornellappdev.resell.android.model.api.User
-import com.cornellappdev.resell.android.model.chats.AvailabilityBlock
-import com.cornellappdev.resell.android.model.chats.AvailabilityDocument
+import com.cornellappdev.resell.android.model.api.StartAndEnd
 import com.cornellappdev.resell.android.model.chats.ChatDocument
-import com.cornellappdev.resell.android.model.chats.ChatDocumentAny
-import com.cornellappdev.resell.android.model.chats.ChatDocumentAnyMeetingInfo
-import com.cornellappdev.resell.android.model.chats.MeetingInfo
 import com.cornellappdev.resell.android.model.chats.RawChatHeaderData
-import com.cornellappdev.resell.android.model.chats.UserDocument
 import com.cornellappdev.resell.android.viewmodel.main.ChatViewModel
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
@@ -168,15 +161,14 @@ class FireStoreRepository @Inject constructor(
     }
 
     fun subscribeToChat(
-        buyerEmail: String,
-        sellerEmail: String,
+        chatId: String,
         onSnapshotUpdate: (List<ChatDocument>) -> Unit
     ) {
         // Remove old subscription.
         lastSubscription?.remove()
 
-        val chatDocRef = chatsCollection.document(buyerEmail).collection(sellerEmail)
-            .orderBy("createdAt", Query.Direction.ASCENDING)
+        val chatDocRef = chatsCollection.document(chatId).collection("messages")
+            .orderBy("timestamp", Query.Direction.ASCENDING)
 
         lastSubscription = chatDocRef.addSnapshotListener { snapshot, e ->
             if (e != null) {
@@ -189,191 +181,62 @@ class FireStoreRepository @Inject constructor(
                 return@addSnapshotListener
             }
 
-            Log.d("FireStoreRepository", "Current data: ${snapshot.documents}")
-
             val messages = snapshot.documents.mapNotNull {
-
-                val userMap =
-                    (it.get("user") as Map<String, Any>).mapValues { it?.value?.toString() }
-
-                val productMap =
-                    (it.get("product") as? Map<String, Any>)?.mapValues { it?.value?.toString() }
-
-                val productUserMap =
-                    if (productMap?.get("user") != null) {
-                        val doc = it.get("product") as Map<String, Any>
-                        val postUserMap = doc.get("user") as Map<String, Any>
-                        postUserMap.mapValues { it?.value?.toString() }
-                    } else {
-                        null
+                val docs = mutableListOf<ChatDocument>()
+                val images = it.get("images") as? List<String>
+                // Separate image message into separate messages
+                if (!images.isNullOrEmpty()) {
+                    images.forEach { url ->
+                        val doc = ChatDocument(
+                            id = url,
+                            images = listOf(url),
+                            timestamp = it.getTimestamp("createdAt") ?: Timestamp(0, 0),
+                            senderId = it.get("senderId") as? String ?: "",
+                            text = null,
+                            accepted = null,
+                            startDate = null,
+                            endDate = null,
+                            availabilities = null,
+                            type = "chat"
+                        )
+                        docs += doc
                     }
-
-                val availabilityArray: List<Map<String, Any>>? =
-                    it.get("availability") as? List<Map<String, Any>>
-
-                val meetingInfoMap =
-                    (it.get("meetingInfo") as? Map<String, Any>)?.mapValues { it?.value?.toString() }
-
-                val userDoc = UserDocument(
-                    _id = userMap["_id"] ?: "",
-                    avatar = userMap["avatar"] ?: "",
-                    name = userMap["name"] ?: "",
-                )
-
-                val postUser = if (productUserMap != null) {
-                    User(
-                        id = productUserMap["id"] ?: "",
-                        username = productUserMap["username"] ?: "",
-                        netid = productUserMap["netid"] ?: "",
-                        givenName = productUserMap["givenName"] ?: "",
-                        familyName = productUserMap["familyName"] ?: "",
-                        email = productUserMap["email"] ?: "",
-                        photoUrl = productUserMap["photoUrl"] ?: "",
-                        bio = productUserMap["bio"] ?: "",
-                        admin = productUserMap["admin"]?.toBoolean() ?: false,
-                        googleId = productUserMap["googleId"] ?: "",
-                        venmoHandle = "",
-                        isActive = true
-                    )
+                    val text = it.get("text")?.toString() ?: ""
+                    if (text.isNotEmpty()) {
+                        val doc = ChatDocument(
+                            id = it.id,
+                            timestamp = it.getTimestamp("createdAt") ?: Timestamp(0, 0),
+                            text = text,
+                            accepted = null,
+                            startDate = null,
+                            endDate = null,
+                            availabilities = null,
+                            type = "chat",
+                            senderId = it.get("senderId") as? String ?: "",
+                            images = emptyList()
+                        )
+                        docs += doc
+                    }
                 } else {
-                    null
-                }
-
-                // TODO Availability Documents
-                val post = productMap?.get("id")?.let { _ ->
-                    Post(
-                        id = productMap["id"] ?: "",
-                        title = productMap["title"] ?: "",
-                        description = productMap["description"] ?: "",
-                        user = postUser,
-                        archive = (productMap["archive"] ?: "").toBoolean(),
-                        location = productMap["location"] ?: "",
-                        created = productMap["created"] ?: "",
-                        alteredPrice = productMap["altered_price"] ?: "",
-                        images = (it.get("product") as Map<String, Any>).get("images") as? List<String>
-                            ?: listOf(),
-                        category = ((it.get("product") as Map<String, Any>).get("categories") as? List<String>
-                            ?: listOf())[0],
+                    val chatDoc = ChatDocument(
+                        id = it.id,
+                        timestamp = it.getTimestamp("createdAt") ?: Timestamp(0, 0),
+                        text = it.get("text")?.toString() ?: "",
+                        accepted = it.get("accepted") as? Boolean,
+                        startDate = it.getTimestamp("startDate"),
+                        endDate = it.getTimestamp("endDate"),
+                        images = it.get("images") as? List<String>,
+                        availabilities = it.get("availabilities") as? List<StartAndEnd>,
+                        type = it.get("type") as? String ?: "",
+                        senderId = it.get("senderId") as? String ?: "",
                     )
+
+                    docs += chatDoc
                 }
-
-                val meetingInfo = meetingInfoMap?.let {
-                    MeetingInfo(
-                        state = meetingInfoMap["state"] ?: "",
-                        proposeTime = meetingInfoMap["proposeTime"] ?: "",
-                        mostRecent = false,
-                    )
-                }
-
-                val availability = if (availabilityArray.isNullOrEmpty()) {
-                    null
-                } else {
-                    AvailabilityDocument(
-                        availabilities = availabilityArray.map {
-                            AvailabilityBlock(
-                                startDate = it["startDate"] as? Timestamp ?: Timestamp(0, 0),
-                                id = (it["id"] as? String ?: "").toIntOrNull() ?: 0,
-                            )
-                        },
-                    )
-                }
-
-                val chatDoc = ChatDocument(
-                    _id = it.get("_id")?.toString() ?: "",
-                    createdAt = it.getTimestamp("createdAt") ?: Timestamp(0, 0),
-                    user = userDoc,
-                    availability = availability,
-                    product = post,
-                    image = it.get("image")?.toString() ?: "",
-                    text = it.get("text")?.toString() ?: "",
-                    meetingInfo = meetingInfo
-                )
-
-                chatDoc
+                docs
             }
-
-            onSnapshotUpdate(messages)
+            onSnapshotUpdate(messages.flatten())
         }
-    }
-
-    suspend fun sendChatMessage(
-        buyerEmail: String,
-        sellerEmail: String,
-        chatDocument: ChatDocument,
-    ) {
-
-        // Make into an empty object if applicable instead of null cuz react native crashes
-        var anyable: Any = ChatDocumentAny(
-            _id = chatDocument._id,
-            createdAt = Timestamp.now(),
-            user = chatDocument.user,
-            availability = chatDocument.availability?.toFirebaseArray() ?: mapOf<String, Any>(),
-            product = chatDocument.product ?: mapOf<String, Any>(),
-            image = chatDocument.image,
-            text = chatDocument.text
-        )
-
-        // Use meeting info structure instead
-        if (chatDocument.meetingInfo != null) {
-            anyable = ChatDocumentAnyMeetingInfo(
-                _id = chatDocument._id,
-                createdAt = Timestamp.now(),
-                user = chatDocument.user,
-                image = chatDocument.image,
-                text = chatDocument.text,
-                meetingInfo = chatDocument.meetingInfo.toFirebaseMap()
-            )
-        }
-
-        // Reference to the desired collection
-        val chatRef = fireStore.collection("chats")
-            .document(buyerEmail)
-            .collection(sellerEmail)
-
-        chatRef.add(anyable).await()
-    }
-
-    suspend fun sendProductMessage(
-        buyerEmail: String,
-        sellerEmail: String,
-        otherDocument: ChatDocument,
-        post: Post
-    ) {
-        val currentTimeMillis = System.currentTimeMillis()
-        val chatDocument = otherDocument.copy(
-            _id = currentTimeMillis.toString(),
-            createdAt = Timestamp.now(),
-            image = "",
-            text = "",
-            availability = null,
-            product = post
-        )
-
-        val anyable = ChatDocumentAny(
-            _id = chatDocument._id,
-            createdAt = chatDocument.createdAt,
-            user = chatDocument.user,
-            availability = chatDocument.availability?.toFirebaseArray() ?: mapOf<String, Any>(),
-            product = chatDocument.product ?: mapOf<String, Any>(),
-            image = chatDocument.image,
-            text = chatDocument.text
-        )
-
-        val chatRef = fireStore.collection("chats")
-            .document(buyerEmail)
-            .collection(sellerEmail)
-
-        chatRef.add(anyable).await()
-    }
-
-    suspend fun updateItems(
-        email: String,
-        postId: String,
-        post: Post,
-    ) {
-        val docRef = historyCollection.document(email).collection("items").document(postId)
-
-        docRef.set(post).await()
     }
 
     fun subscribeToBuyerHistory(
@@ -433,11 +296,11 @@ class FireStoreRepository @Inject constructor(
                 onSnapshotUpdate(data ?: emptyList())
             }
     }
-}
 
-data class FirebaseDoc(
-    val venmo: String = "",
-    val onboarded: Boolean = false,
-    val notificationsEnabled: Boolean = true,
-    val fcmToken: String = ""
-)
+    data class FirebaseDoc(
+        val venmo: String = "",
+        val onboarded: Boolean = false,
+        val notificationsEnabled: Boolean = true,
+        val fcmToken: String = ""
+    )
+}

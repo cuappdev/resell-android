@@ -55,7 +55,6 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import java.time.LocalDateTime
 import java.time.ZoneId
-import java.time.format.DateTimeFormatter
 import java.util.Date
 import javax.inject.Inject
 
@@ -493,7 +492,7 @@ class ChatViewModel @Inject constructor(
                     }.flatten().sortedByDescending {
                         it.timestamp
                     }.firstOrNull {
-                        it.availability != null && it.senderEmail != myEmail
+                        it.availability != null && it.senderId != myEmail
                     }
 
                     mostRecentAvailability?.availability?.let {
@@ -676,7 +675,7 @@ class ChatViewModel @Inject constructor(
                 if (response is ResellApiResponse.Success) {
                     val myEmail = userInfoRepository.getEmail()!!
                     val data = getFirstChatOrNull {
-                        it.availability != null && it.senderEmail != myEmail
+                        it.availability != null && it.senderId != myEmail
                     }
 
                     applyMutation {

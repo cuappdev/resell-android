@@ -7,6 +7,7 @@ import com.cornellappdev.resell.android.model.Chat
 import com.cornellappdev.resell.android.model.ChatMessageCluster
 import com.cornellappdev.resell.android.model.ChatMessageData
 import com.cornellappdev.resell.android.model.MessageType
+import com.cornellappdev.resell.android.model.chats.AvailabilityBlock
 import com.cornellappdev.resell.android.model.chats.AvailabilityDocument
 import com.cornellappdev.resell.android.model.chats.ChatDocument
 import com.cornellappdev.resell.android.model.chats.ChatHeaderData
@@ -180,15 +181,13 @@ class ChatRepository @Inject constructor(
     }
 
     fun subscribeToChat(
-        myEmail: String,
-        otherEmail: String,
-        selfIsBuyer: Boolean,
+        chatId: String,
+        myId: String,
         myName: String,
         otherName: String
     ) {
         fireStoreRepository.subscribeToChat(
-            sellerEmail = if (selfIsBuyer) otherEmail else myEmail,
-            buyerEmail = if (selfIsBuyer) myEmail else otherEmail
+            chatId = chatId
         ) {
             // Convert the List<ChatDocument> into a Chat
             var otherPfp = ""
@@ -197,41 +196,61 @@ class ChatRepository @Inject constructor(
             // The String is the sender's id.
             val messageData = it.map { document ->
                 val messageType =
-                    if (document.image.isNotEmpty()) {
+                    if (document.images?.isNotEmpty() == true) {
                         MessageType.Image
-                    } else if (document.availability != null) {
+                    } else if (document.availabilities != null) {
                         MessageType.Availability
-                    } else if (document.product != null) {
-                        MessageType.Card
-                    } else if (document.meetingInfo != null) {
+                    } else if (document.startDate != null) {
                         MessageType.State
                     } else {
                         MessageType.Message
                     }
 
-                if (document.user._id != myEmail) {
-                    otherPfp = document.user.avatar
+                val meetingInfo = document.startDate?.let {
+                    MeetingInfo(
+                        proposeTime = it,
+                        state = if (document.accepted == true) {
+                            "confirmed"
+                        } else if (document.accepted == false) {
+                            "declined"
+                        } else {
+                            "proposed"
+                        },
+                        mostRecent = false
+                    )
+                }
+
+                val availability = document.availabilities?.let {
+                    AvailabilityDocument(
+                        availabilities = it.map {
+                            AvailabilityBlock(
+                                startDate = it.startDate,
+                                // lmao wtf is ID
+                                id = it.hashCode()
+                            )
+                        }
+                    )
                 }
 
                 Pair(
                     ChatMessageData(
-                        id = document._id,
-                        content = if (document.meetingInfo != null) {
+                        id = document.id,
+                        content = if (meetingInfo != null) {
                             getMeetingInfoContent(
-                                document.meetingInfo,
-                                document,
-                                myEmail,
-                                otherName
+                                meetingInfo = meetingInfo,
+                                document = document,
+                                myId = myId,
+                                otherName = otherName
                             )
-                        } else document.text,
-                        timestamp = document.createdAt,
-                        senderEmail = document.user._id,
+                        } else document.text ?: "",
+                        timestamp = document.timestamp,
+                        senderId = document.senderId,
                         messageType = messageType,
-                        imageUrl = document.image,
-                        post = document.product,
-                        availability = document.availability,
-                        meetingInfo = document.meetingInfo
-                    ), document.user._id
+                        imageUrl = document.images?.firstOrNull() ?: "",
+                        availability = availability,
+                        meetingInfo = meetingInfo
+                    ),
+                    document.senderId
                 )
             }
 
@@ -239,36 +258,36 @@ class ChatRepository @Inject constructor(
             val messageClusters = mutableListOf<ChatMessageCluster>()
 
             var currentList = mutableListOf<ChatMessageData>()
-            var currentSender = ""
+            var currentSenderId = ""
 
-            messageData.forEach { (message, sender) ->
-                if (sender != currentSender) {
-                    if (currentSender.isNotEmpty()) {
+            messageData.forEach { (message, senderId) ->
+                if (senderId != currentSenderId) {
+                    if (currentSenderId.isNotEmpty()) {
                         messageClusters.add(
                             ChatMessageCluster(
-                                fromUser = currentSender == myEmail,
-                                senderId = currentSender,
+                                fromUser = currentSenderId == myId,
+                                senderId = currentSenderId,
                                 messages = currentList.toImmutableList(),
                                 senderImage = otherPfp,
-                                senderName = if (currentSender == myEmail) myName else otherName
+                                senderName = if (currentSenderId == myId) myName else otherName
                             )
                         )
                     }
                     currentList = mutableListOf(message)
-                    currentSender = sender
+                    currentSenderId = senderId
                 } else {
                     currentList.add(message)
                 }
             }
 
-            if (currentSender.isNotEmpty()) {
+            if (currentSenderId.isNotEmpty()) {
                 messageClusters.add(
                     ChatMessageCluster(
-                        fromUser = currentSender == myEmail,
-                        senderId = currentSender,
+                        fromUser = currentSenderId == myId,
+                        senderId = currentSenderId,
                         messages = currentList.toImmutableList(),
                         senderImage = otherPfp,
-                        senderName = if (currentSender == myEmail) myName else otherName
+                        senderName = if (currentSenderId == myId) myName else otherName
                     )
                 )
             }
@@ -292,7 +311,7 @@ class ChatRepository @Inject constructor(
                                 content = messageData.timestamp.toDateString(),
                                 timestamp = messageData.timestamp,
                                 messageType = MessageType.State,
-                                senderEmail = currentSender,
+                                senderId = currentSenderId,
                             )
                         )
                         newCluster = newCluster.copy(messages = newMessages.toImmutableList())
@@ -338,11 +357,11 @@ class ChatRepository @Inject constructor(
     private fun getMeetingInfoContent(
         meetingInfo: MeetingInfo,
         document: ChatDocument,
-        myEmail: String,
+        myId: String,
         otherName: String
     ) = when (meetingInfo.state) {
         "proposed" -> {
-            if (document.user._id == myEmail) {
+            if (document.senderId == myId) {
                 "You proposed a new meeting"
             } else {
                 "$otherName proposed a new meeting"
@@ -350,7 +369,7 @@ class ChatRepository @Inject constructor(
         }
 
         "confirmed" -> {
-            if (document.user._id == myEmail) {
+            if (document.senderId == myId) {
                 "You accepted a new meeting"
             } else {
                 "$otherName accepted a new meeting"
@@ -358,7 +377,7 @@ class ChatRepository @Inject constructor(
         }
 
         "declined" -> {
-            if (document.user._id == myEmail) {
+            if (document.senderId == myId) {
                 "You declined the meeting proposal"
             } else {
                 "$otherName declined the meeting proposal"
@@ -366,7 +385,7 @@ class ChatRepository @Inject constructor(
         }
 
         "canceled" -> {
-            if (document.user._id == myEmail) {
+            if (document.senderId == myId) {
                 "You canceled the meeting"
             } else {
                 "$otherName canceled the meeting"
