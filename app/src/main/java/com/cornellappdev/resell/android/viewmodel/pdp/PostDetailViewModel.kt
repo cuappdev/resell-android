@@ -116,8 +116,11 @@ class PostDetailViewModel @Inject constructor(
             try {
                 // TODO: Backend be mf tweaking breh
                 //  Replace with `getSimilarPosts` when that endpoint is back up running.
-                val response = retrofitInstance.postsApi.getFilteredPosts(
-                    CategoryRequest(category)
+//                val response = retrofitInstance.postsApi.getFilteredPosts(
+//                    CategoryRequest(category)
+//                )
+                val response = retrofitInstance.postsApi.getSimilarPosts(
+                    id
                 )
 
                 val posts = response.posts.filter {

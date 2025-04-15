@@ -177,7 +177,7 @@ class ProfileRepository @Inject constructor(
     fun softDelete(onSuccess: () -> Unit, onError: () -> Unit) {
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                val user = retrofitInstance.userApi.softDeleteUser(userInfoRepository.getUserId()!!)
+                val user = retrofitInstance.userApi.deleteUser()
                 onSuccess()
             } catch (e: Exception) {
                 Log.e("ProfileRepository", "Error soft deleting user: ", e)
