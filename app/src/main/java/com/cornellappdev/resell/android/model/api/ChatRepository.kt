@@ -91,7 +91,7 @@ class ChatRepository @Inject constructor(
                         ChatHeaderData(
                             recentMessage = it.lastMessage,
                             updatedAt = it.updatedAt,
-                            read = fireStoreRepository.getMostRecentMessageRead(it.chatID),
+                            read = fireStoreRepository.getMostRecentMessageRead(it.chatID, myId),
                             name = user?.username ?: "",
                             imageUrl = user?.photoUrl ?: "",
                             listingId = it.listingID,
@@ -131,7 +131,7 @@ class ChatRepository @Inject constructor(
                         ChatHeaderData(
                             recentMessage = it.lastMessage,
                             updatedAt = it.updatedAt,
-                            read = fireStoreRepository.getMostRecentMessageRead(it.chatID),
+                            read = fireStoreRepository.getMostRecentMessageRead(it.chatID, myId),
                             name = user?.username ?: "",
                             imageUrl = user?.photoUrl ?: "",
                             listingId = it.listingID,

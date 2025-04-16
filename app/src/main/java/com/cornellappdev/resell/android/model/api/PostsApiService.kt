@@ -85,7 +85,7 @@ data class Post(
     val id: String,
     val title: String,
     val description: String,
-    val category: String,
+    val category: String?,
     val archive: Boolean,
     private val created: String,
     @SerializedName("altered_price") val alteredPrice: String,
@@ -106,7 +106,8 @@ data class Post(
             title = title,
             images = images,
             price = priceString,
-            categories = listOf(category),
+            // TODO: Some posts are given a null category? Find out why
+            categories = listOf(category ?: ""),
             description = description,
             user = user?.toUserInfo() ?: richieUserInfo.apply {
                 Log.e("PostsApiService", "User is null")

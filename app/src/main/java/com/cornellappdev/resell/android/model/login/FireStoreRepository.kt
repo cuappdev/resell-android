@@ -128,13 +128,18 @@ class FireStoreRepository @Inject constructor(
         }
     }
 
+    /**
+     * Returns true if the most recent message has been read, or if it is from the current user.
+     * Thus, false if the most recent message is from the other user AND has not been read.
+     */
     suspend fun getMostRecentMessageRead(
-        chatId: String
+        chatId: String,
+        myId: String
     ): Boolean {
         val messages = refactoredChatsCollection.document(chatId).collection("messages").orderBy("timestamp", Query.Direction.ASCENDING).get().await()
 
         return messages.documents.lastOrNull()?.let {
-            it.get("read") as? Boolean
+            it.get("read") as? Boolean == true || it.get("senderID") == myId
         } ?: true
     }
 

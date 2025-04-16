@@ -178,6 +178,8 @@ abstract class ResellViewModel<UiState>(initialUiState: UiState) : ViewModel() {
                     sellerId = sellerId,
                     listingId = post.id
                 )
+
+                Log.d("helpme", post.toString())
                 rootNavigationRepository.navigate(
                     ResellRootRoute.CHAT(
                         isBuyer = isBuyer,
