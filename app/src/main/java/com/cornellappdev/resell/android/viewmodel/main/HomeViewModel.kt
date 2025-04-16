@@ -1,5 +1,6 @@
 package com.cornellappdev.resell.android.viewmodel.main
 
+import com.cornellappdev.resell.android.model.CoilRepository
 import com.cornellappdev.resell.android.model.classes.Listing
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.model.classes.ResellApiState
@@ -15,10 +16,12 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     private val rootNavigationRepository: RootNavigationRepository,
     private val resellPostRepository: ResellPostRepository,
+    private val coilRepository: CoilRepository
 ) :
     ResellViewModel<HomeViewModel.HomeUiState>(
         initialUiState = HomeUiState(
             listings = listOf(),
+            savedListings = listOf(),
             activeFilter = HomeFilter.RECENT,
             loadedState = ResellApiState.Loading
         )
@@ -27,6 +30,7 @@ class HomeViewModel @Inject constructor(
     data class HomeUiState(
         val loadedState: ResellApiState,
         private val listings: List<Listing>,
+        val savedListings: List<Listing>,
         val activeFilter: HomeFilter,
     ) {
         // TODO This should change to an endpoint, but backend is simple.
@@ -39,7 +43,21 @@ class HomeViewModel @Inject constructor(
             }
     }
 
+    private fun onSavedLoad() {
+        resellPostRepository.fetchSavedPosts()
+    }
+
     init {
+        onSavedLoad()
+        asyncCollect(resellPostRepository.savedPosts) { response ->
+            applyMutation {
+                copy(
+                    loadedState = response.toResellApiState(),
+                    savedListings = response.asSuccessOrNull()?.data?.map { it.toListing() }
+                        ?: listOf()
+                )
+            }
+        }
         asyncCollect(resellPostRepository.allPostsFlow) { response ->
             val posts = when (response) {
                 is ResellApiResponse.Success -> {
@@ -90,4 +108,7 @@ class HomeViewModel @Inject constructor(
     fun onSearchPressed() {
         rootNavigationRepository.navigate(ResellRootRoute.SEARCH)
     }
+
+    fun getImageUrlState(imageUrl: String) = coilRepository.getUrlState(imageUrl)
+
 }
