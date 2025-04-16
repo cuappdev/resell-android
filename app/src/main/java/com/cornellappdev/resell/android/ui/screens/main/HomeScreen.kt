@@ -1,6 +1,5 @@
 package com.cornellappdev.resell.android.ui.screens.main
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -11,14 +10,12 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -36,7 +33,6 @@ import com.cornellappdev.resell.android.ui.components.global.ResellLoadingListin
 import com.cornellappdev.resell.android.ui.components.global.ResellTag
 import com.cornellappdev.resell.android.ui.theme.Padding
 import com.cornellappdev.resell.android.ui.theme.Primary
-import com.cornellappdev.resell.android.ui.theme.ResellPurple
 import com.cornellappdev.resell.android.ui.theme.Style
 import com.cornellappdev.resell.android.util.clickableNoIndication
 import com.cornellappdev.resell.android.util.defaultHorizontalPadding
@@ -53,8 +49,7 @@ fun HomeScreen(
 
     Column(
         modifier = Modifier
-            .fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally
+            .fillMaxSize()
     ) {
         HomeHeader(
             activeFilter = homeUiState.activeFilter,
@@ -70,32 +65,11 @@ fun HomeScreen(
         when (homeUiState.loadedState) {
             is ResellApiState.Success -> {
                 ResellListingsScroll(
-                    listings = homeUiState.listings,
+                    listings = homeUiState.filteredListings,
                     onListingPressed = {
                         homeViewModel.onListingPressed(it)
                     },
                     listState = listState,
-                    onScrollBottom = {
-                        homeViewModel.onHitBottom()
-                    },
-                    footer = {
-                        AnimatedVisibility(
-                            visible = homeUiState.bottomLoading,
-                            modifier = Modifier.padding(bottom = 50.dp)
-                        ) {
-                            Row(
-                                horizontalArrangement = Arrangement.Center
-                            ) {
-                                CircularProgressIndicator(
-                                    strokeWidth = 2.dp,
-                                    color = ResellPurple,
-                                    modifier = Modifier
-                                        .padding(16.dp)
-                                        .size(40.dp)
-                                )
-                            }
-                        }
-                    }
                 )
             }
 
@@ -105,8 +79,6 @@ fun HomeScreen(
 
             is ResellApiState.Error -> {}
         }
-
-
     }
 }
 

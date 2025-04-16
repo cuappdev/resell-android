@@ -2,7 +2,6 @@ package com.cornellappdev.resell.android.model.posts
 
 import android.util.Log
 import androidx.compose.ui.graphics.ImageBitmap
-import com.cornellappdev.resell.android.model.api.CategoryRequest
 import com.cornellappdev.resell.android.model.api.NewPostBody
 import com.cornellappdev.resell.android.model.api.Post
 import com.cornellappdev.resell.android.model.api.PostResponse
@@ -12,7 +11,10 @@ import com.cornellappdev.resell.android.util.toNetworkingString
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.util.Locale
 import javax.inject.Inject
@@ -27,8 +29,20 @@ class ResellPostRepository @Inject constructor(
         MutableStateFlow<ResellApiResponse<List<Post>>>(ResellApiResponse.Pending)
     val allPostsFlow = _allPostsFlow.asStateFlow()
 
-    val _savedPosts = MutableStateFlow<ResellApiResponse<List<Post>>>(ResellApiResponse.Pending)
-    val savedPosts = _savedPosts.asStateFlow()
+    private val _savedPostsIds =
+        MutableStateFlow<ResellApiResponse<List<String>>>(ResellApiResponse.Pending)
+
+    val savedPosts = _savedPostsIds.combine(allPostsFlow) { savedIds, posts ->
+        savedIds.combine(posts).map { (saved, list) ->
+            list.filter {
+                saved.contains(it.id)
+            }
+        }
+    }.stateIn(
+        scope = CoroutineScope(Dispatchers.IO),
+        started = SharingStarted.Eagerly,
+        initialValue = ResellApiResponse.Pending
+    )
 
     private var recentBitmaps: List<ImageBitmap>? = null
 
@@ -36,16 +50,13 @@ class ResellPostRepository @Inject constructor(
      * Asynchronously fetches the list of posts from the API. Once finished, will send down
      * `allPostsFlow` to be observed.
      */
-    fun fetchPosts(page: Int = 1) {
+    fun fetchPosts() {
         _allPostsFlow.value = ResellApiResponse.Pending
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 _allPostsFlow.value =
                     ResellApiResponse.Success(
-                        retrofitInstance.postsApi.getPosts(
-                            page = page
-                        )
-                            .posts
+                        retrofitInstance.postsApi.getPosts().posts
                             .sortedByDescending {
                                 it.createdDate
                             })
@@ -54,14 +65,6 @@ class ResellPostRepository @Inject constructor(
                 _allPostsFlow.value = ResellApiResponse.Error
             }
         }
-    }
-
-    suspend fun getPostsByPage(page: Int): List<Post> {
-        return retrofitInstance.postsApi.getPosts(page = page).posts
-    }
-
-    suspend fun getPostByFilter(category: String): List<Post> {
-        return retrofitInstance.postsApi.getFilteredPosts(CategoryRequest(listOf(category))).posts
     }
 
     suspend fun uploadPost(
@@ -124,15 +127,15 @@ class ResellPostRepository @Inject constructor(
      * Sometime after calling, [savedPosts] will be updated.
      */
     fun fetchSavedPosts() {
-        _savedPosts.value = ResellApiResponse.Pending
+        _savedPostsIds.value = ResellApiResponse.Pending
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val saved = retrofitInstance.postsApi.getSavedPosts().posts
 
-                _savedPosts.value = ResellApiResponse.Success(saved)
+                _savedPostsIds.value = ResellApiResponse.Success(saved.map { it.id })
             } catch (e: Exception) {
                 Log.e("ResellPostRepository", "Error fetching saved posts: ", e)
-                _savedPosts.value = ResellApiResponse.Error
+                _savedPostsIds.value = ResellApiResponse.Error
             }
         }
     }
