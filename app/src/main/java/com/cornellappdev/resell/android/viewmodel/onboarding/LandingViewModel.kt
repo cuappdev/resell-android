@@ -27,6 +27,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.launch
+import retrofit2.HttpException
 import javax.inject.Inject
 
 @HiltViewModel
@@ -168,6 +169,16 @@ class LandingViewModel @Inject constructor(
                 } else {
                     userInfoRepository.storeUserFromUserObject(user)
                     rootNavigationRepository.navigate(ResellRootRoute.MAIN)
+                }
+            } catch (e: HttpException) {
+                if (e.code() == 403) {
+                    // 403 indicates that we need to create a new user.
+                    rootNavigationRepository.navigate(ResellRootRoute.ONBOARDING)
+                }
+                else {
+                    Log.e("LandingViewModel", "Error getting user: ", e)
+                    onSignInFailed(showSheet = true)
+                    rootConfirmationRepository.showError()
                 }
             } catch (e: Exception) {
                 Log.e("LandingViewModel", "Error getting user: ", e)
