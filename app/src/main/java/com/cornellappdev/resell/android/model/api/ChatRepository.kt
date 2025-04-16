@@ -21,7 +21,6 @@ import com.cornellappdev.resell.android.model.login.PreferencesKeys
 import com.cornellappdev.resell.android.model.posts.ResellPostRepository
 import com.cornellappdev.resell.android.model.profile.ProfileRepository
 import com.cornellappdev.resell.android.util.toDateString
-import com.cornellappdev.resell.android.viewmodel.main.ChatViewModel
 import com.google.firebase.Timestamp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -343,14 +342,15 @@ class ChatRepository @Inject constructor(
     }
 
     suspend fun markChatRead(
-        myEmail: String,
-        otherEmail: String,
-        chatType: ChatViewModel.ChatType,
+        chatId: String,
+        messageId: String,
     ) {
-        fireStoreRepository.markChatAsRead(
-            myEmail = myEmail,
-            otherEmail = otherEmail,
-            chatType = chatType
+        retrofitInstance.chatApi.markChatRead(
+            chatId = chatId,
+            messageId = messageId,
+            markReadBody = MarkReadBody(
+                read = true
+            )
         )
     }
 

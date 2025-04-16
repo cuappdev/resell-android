@@ -4,12 +4,12 @@ import android.util.Log
 import com.cornellappdev.resell.android.model.api.StartAndEnd
 import com.cornellappdev.resell.android.model.chats.ChatDocument
 import com.cornellappdev.resell.android.model.chats.RawChatHeaderData
-import com.cornellappdev.resell.android.viewmodel.main.ChatViewModel
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.Query
 import kotlinx.coroutines.tasks.await
+import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -17,10 +17,6 @@ import javax.inject.Singleton
 class FireStoreRepository @Inject constructor(
     private val fireStore: FirebaseFirestore
 ) {
-
-    private val historyCollection = fireStore.collection("history")
-    private val chatsCollection = fireStore.collection("chats")
-
     private val refactoredChatsCollection = fireStore.collection("chats_refactored")
 
     private var lastSubscription: ListenerRegistration? = null
@@ -131,33 +127,23 @@ class FireStoreRepository @Inject constructor(
         }
     }
 
-    suspend fun markChatAsRead(
-        myEmail: String,
-        otherEmail: String,
-        chatType: ChatViewModel.ChatType,
-    ) {
-        val docRef = when (chatType) {
-            // Self is buying from the other; other is a seller.
-            // Must write to myEmail/sellers/otherEmail/viewed
-            ChatViewModel.ChatType.Purchases -> {
-                historyCollection.document(myEmail)
-                    .collection("sellers").document(otherEmail)
-            }
+    suspend fun getMostRecentMessageRead(
+        chatId: String
+    ): Boolean {
+        val messages = refactoredChatsCollection.document(chatId).collection("messages").orderBy("timestamp", Query.Direction.ASCENDING).get().await()
 
-            // Self is selling to the other; other is a buyer.
-            // Must write to myEmail/buyers/otherEmail/viewed
-            ChatViewModel.ChatType.Offers -> {
-                historyCollection.document(myEmail)
-                    .collection("buyers").document(otherEmail)
-            }
-        }
-        val doc = docRef.get().await()
+        return messages.documents.lastOrNull()?.let {
+            it.get("read") as? Boolean
+        } ?: true
+    }
 
-        if (doc.exists()) {
-            docRef.update("viewed", true)
-        } else {
-            Log.e("FirestoreError", "Document does not exist!")
-        }
+    suspend fun getMostRecentMessageId(
+        chatId: String
+    ): String? {
+        val messages = refactoredChatsCollection.document(chatId).collection("messages")
+            .orderBy("timestamp", Query.Direction.ASCENDING).get().await()
+
+        return messages.documents.lastOrNull()?.id
     }
 
     fun subscribeToChat(
@@ -167,7 +153,7 @@ class FireStoreRepository @Inject constructor(
         // Remove old subscription.
         lastSubscription?.remove()
 
-        val chatDocRef = chatsCollection.document(chatId).collection("messages")
+        val chatDocRef = refactoredChatsCollection.document(chatId).collection("messages")
             .orderBy("timestamp", Query.Direction.ASCENDING)
 
         lastSubscription = chatDocRef.addSnapshotListener { snapshot, e ->
@@ -295,6 +281,35 @@ class FireStoreRepository @Inject constructor(
                 }
                 onSnapshotUpdate(data ?: emptyList())
             }
+    }
+
+    /**
+     * Returns the chat ID of the chat that matches the given [buyerId], [sellerId], and [listingId].
+     * If no chat is found, generates a new UUID and returns it.
+     */
+    suspend fun findChatWith(
+        buyerId: String,
+        sellerId: String,
+        listingId: String
+    ): String {
+        val result = refactoredChatsCollection.whereEqualTo(
+            "buyerID",
+            buyerId
+        ).whereEqualTo(
+            "sellerID",
+            sellerId
+        ).whereEqualTo("listingID", listingId).get().await()
+
+        if (result.documents.isEmpty()) {
+            // Generate UUID, make sure it is unique.
+            var uuid = UUID.randomUUID().toString()
+            while (refactoredChatsCollection.document(uuid).get().await().exists()) {
+                uuid = UUID.randomUUID().toString()
+            }
+            return uuid
+        }
+
+        return result.documents.first().id
     }
 
     data class FirebaseDoc(

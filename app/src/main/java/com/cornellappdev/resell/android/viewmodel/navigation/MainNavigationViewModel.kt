@@ -80,17 +80,15 @@ class MainNavigationViewModel @Inject constructor(
     private fun parseNotification(notificationData: NotificationData) {
         when (notificationData) {
             is NotificationData.ChatNotification -> {
-                val post = Json.decodeFromString<Post>(notificationData.postJson)
-
-                rootNavigationRepository.navigate(
-                    ResellRootRoute.CHAT(
-                        email = notificationData.email,
-                        name = notificationData.name,
-                        pfp = notificationData.pfp,
-                        isBuyer = notificationData.isBuyer == "true",
-                        postJson = Json.encodeToString(post.toListing()),
-                    )
-                )
+                // TODO: Navigate based on notification. Dunno structure after refactor.
+//                rootNavigationRepository.navigate(
+//                    ResellRootRoute.CHAT(
+//                        name = notificationData.name,
+//                        pfp = notificationData.pfp,
+//                        isBuyer = notificationData.isBuyer == "true",
+//                        postJson = Json.encodeToString(post.toListing()),
+//                    )
+//                )
             }
         }
     }

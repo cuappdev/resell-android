@@ -5,6 +5,8 @@ import com.cornellappdev.resell.android.model.api.ChatRepository
 import com.cornellappdev.resell.android.model.chats.ChatHeaderData
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.model.classes.ResellApiState
+import com.cornellappdev.resell.android.model.core.UserInfoRepository
+import com.cornellappdev.resell.android.model.login.FireStoreRepository
 import com.cornellappdev.resell.android.model.posts.ResellPostRepository
 import com.cornellappdev.resell.android.model.profile.ProfileRepository
 import com.cornellappdev.resell.android.util.parseIsoDateToDate
@@ -24,6 +26,8 @@ class MessagesViewModel @Inject constructor(
     private val rootConfirmationRepository: RootConfirmationRepository,
     private val rootNavigationRepository: RootNavigationRepository,
     private val postsRepository: ResellPostRepository,
+    private val userInfoRepository: UserInfoRepository,
+    private val fireStoreRepository: FireStoreRepository
 ) :
     ResellViewModel<MessagesViewModel.MessagesUiState>(
         initialUiState = MessagesUiState(
@@ -68,25 +72,25 @@ class MessagesViewModel @Inject constructor(
             get() = buyerChats.asSuccessOrNull()?.data?.filter { !it.read }?.size ?: 0
     }
 
-    fun onMessagePressed(historyEntry: ChatHeaderData) {
+    fun onMessagePressed(historyEntry: ChatHeaderData) = viewModelScope.launch {
+        val myId = userInfoRepository.getUserId() ?: ""
         contactSeller(
             onSuccess = {},
             onError = {},
-            profileRepository = profileRepository,
             postsRepository = postsRepository,
             rootConfirmationRepository = rootConfirmationRepository,
             rootNavigationRepository = rootNavigationRepository,
             listingId = historyEntry.listingId,
             isBuyer = stateValue().chatType == ChatType.Purchases,
             name = historyEntry.name,
-            pfp = historyEntry.imageUrl
+            pfp = historyEntry.imageUrl,
+            myId = myId,
+            fireStoreRepository = fireStoreRepository
         )
 
         // Wait a bit then reload; loads the marked as read.
-        viewModelScope.launch {
-            delay(400)
-            onLoad()
-        }
+        delay(400)
+        onLoad()
     }
 
     fun onChangeChatType(chatType: ChatType) {

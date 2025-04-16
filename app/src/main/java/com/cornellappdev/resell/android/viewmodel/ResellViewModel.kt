@@ -5,8 +5,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.cornellappdev.resell.android.model.login.FireStoreRepository
 import com.cornellappdev.resell.android.model.posts.ResellPostRepository
-import com.cornellappdev.resell.android.model.profile.ProfileRepository
 import com.cornellappdev.resell.android.model.settings.BlockedUsersRepository
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonContainer
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonState
@@ -20,7 +20,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -158,11 +157,12 @@ abstract class ResellViewModel<UiState>(initialUiState: UiState) : ViewModel() {
     protected fun contactSeller(
         onSuccess: () -> Unit,
         onError: () -> Unit,
-        profileRepository: ProfileRepository,
         postsRepository: ResellPostRepository,
         rootNavigationRepository: RootNavigationRepository,
         rootConfirmationRepository: RootConfirmationRepository,
+        fireStoreRepository: FireStoreRepository,
         name: String,
+        myId: String,
         pfp: String,
         listingId: String,
         isBuyer: Boolean
@@ -170,12 +170,22 @@ abstract class ResellViewModel<UiState>(initialUiState: UiState) : ViewModel() {
         viewModelScope.launch {
             try {
                 val post = postsRepository.getPostById(listingId).toListing()
+                val buyerId = if (isBuyer) myId else post.user.id
+                val sellerId = if (isBuyer) post.user.id else myId
+                val chatId = fireStoreRepository.findChatWith(
+                    buyerId = buyerId,
+                    sellerId = sellerId,
+                    listingId = post.id
+                )
                 rootNavigationRepository.navigate(
                     ResellRootRoute.CHAT(
                         isBuyer = isBuyer,
                         name = name,
                         pfp = pfp,
                         postJson = Json.encodeToString(post),
+                        otherUserId = post.user.id,
+                        otherVenmo = post.user.venmoHandle,
+                        chatId = chatId
                     )
                 )
 

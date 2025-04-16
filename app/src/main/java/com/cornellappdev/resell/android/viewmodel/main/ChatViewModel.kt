@@ -620,18 +620,19 @@ class ChatViewModel @Inject constructor(
 
         viewModelScope.launch {
             // Mark chat as read
-            chatRepository.markChatRead(
-                myEmail = myEmail,
-                otherEmail = theirEmail,
-                chatType = stateValue().chatType
-            )
+            val messageId = fireStoreRepository.getMostRecentMessageId(navArgs.chatId)
+            messageId?.let {
+                chatRepository.markChatRead(
+                    chatId = navArgs.chatId,
+                    messageId = it
+                )
+            }
 
             chatRepository.subscribeToChat(
-                myEmail = myEmail,
-                otherEmail = theirEmail,
-                selfIsBuyer = navArgs.isBuyer,
                 myName = userInfoRepository.getFirstName()!!,
-                otherName = navArgs.name
+                otherName = navArgs.name,
+                chatId = navArgs.chatId,
+                myId = userInfoRepository.getUserId() ?: ""
             )
         }
 
