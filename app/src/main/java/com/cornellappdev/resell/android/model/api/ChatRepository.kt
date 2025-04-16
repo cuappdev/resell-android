@@ -1,6 +1,7 @@
 package com.cornellappdev.resell.android.model.api
 
 import androidx.datastore.core.DataStore
+import android.util.Log
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import com.cornellappdev.resell.android.model.Chat
@@ -13,6 +14,7 @@ import com.cornellappdev.resell.android.model.chats.ChatDocument
 import com.cornellappdev.resell.android.model.chats.ChatHeaderData
 import com.cornellappdev.resell.android.model.chats.MeetingInfo
 import com.cornellappdev.resell.android.model.chats.RawChatHeaderData
+import com.cornellappdev.resell.android.model.classes.Listing
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.model.core.UserInfoRepository
 import com.cornellappdev.resell.android.model.login.FireStoreRepository
@@ -82,16 +84,15 @@ class ChatRepository @Inject constructor(
                             user.user.id != myId
                         }?.user
 
-                        val item = listings.firstOrNull { post ->
-                            post.id == it.listingID
-                        }?.toListing()
+                        val item = listings.firstOrNull { listing ->
+                            listing.id == it.listingID
+                        }
 
                         ChatHeaderData(
                             recentMessage = it.lastMessage,
-                            updatedAt = it.updatedAt.toDateString(),
-                            // TODO:
-                            read = false,
-                            name = item?.title ?: "",
+                            updatedAt = it.updatedAt,
+                            read = fireStoreRepository.getMostRecentMessageRead(it.chatID),
+                            name = user?.username ?: "",
                             imageUrl = user?.photoUrl ?: "",
                             listingId = it.listingID,
                             listingName = item?.title ?: "",
@@ -122,16 +123,15 @@ class ChatRepository @Inject constructor(
                             user.user.id != myId
                         }?.user
 
-                        val item = listings.firstOrNull { post ->
-                            post.id == it.listingID
-                        }?.toListing()
+                        val item = listings.firstOrNull { listing ->
+                            listing.id == it.listingID
+                        }
 
                         ChatHeaderData(
                             recentMessage = it.lastMessage,
-                            updatedAt = it.updatedAt.toDateString(),
-                            // TODO: Add actual read/unread logic
-                            read = true,
-                            name = item?.title ?: "",
+                            updatedAt = it.updatedAt,
+                            read = fireStoreRepository.getMostRecentMessageRead(it.chatID),
+                            name = user?.username ?: "",
                             imageUrl = user?.photoUrl ?: "",
                             listingId = it.listingID,
                             listingName = item?.title ?: "",
@@ -153,6 +153,7 @@ class ChatRepository @Inject constructor(
             it.listingID
         }
         val otherUserIds = rawData.map {
+            Log.d("helpme", it.userIDs.toString())
             it.userIDs.first {
                 it != myId
             }
@@ -175,6 +176,10 @@ class ChatRepository @Inject constructor(
         val data = allDeferred.awaitAll()
         val listings = data.filterIsInstance<Post>()
         val userResponses = data.filterIsInstance<UserResponse>()
+
+        Log.d("helpme listings", listings.toString())
+        Log.d("helpme users", userResponses.toString())
+        Log.d("helpme all", data.toString())
 
         return@coroutineScope Pair(listings, userResponses)
     }

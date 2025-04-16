@@ -8,9 +8,9 @@ data class ChatHeaderData(
      */
     val recentMessage: String,
     /**
-     * Ex: "2024-10-26T23:37:43.433Z"
+     * Ex: 2024-10-26T23:37:43.433Z
      */
-    val updatedAt: String,
+    val updatedAt: Timestamp,
     val read: Boolean,
     val name: String,
     val listingName: String,

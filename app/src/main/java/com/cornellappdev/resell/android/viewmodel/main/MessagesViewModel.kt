@@ -53,7 +53,7 @@ class MessagesViewModel @Inject constructor(
                 emptyList()
             }
         }.sortedByDescending {
-            parseIsoDateToDate(it.updatedAt)
+            it.updatedAt
         }
 
         val loadedState: ResellApiState =

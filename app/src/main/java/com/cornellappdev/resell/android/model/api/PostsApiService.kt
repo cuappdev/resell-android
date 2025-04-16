@@ -24,7 +24,7 @@ interface PostsApiService {
     ): PostsResponse
 
     @GET("post/id/{id}")
-    suspend fun getPost(@Path("id") id: String): Post
+    suspend fun getPost(@Path("id") id: String): PostResponse
 
     @GET("post/similar/postId/{id}")
     suspend fun getSimilarPosts(@Path("id") id: String): PostsResponse

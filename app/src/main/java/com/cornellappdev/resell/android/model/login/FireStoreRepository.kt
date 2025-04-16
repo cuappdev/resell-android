@@ -229,7 +229,7 @@ class FireStoreRepository @Inject constructor(
         myId: String,
         onSnapshotUpdate: (List<RawChatHeaderData>) -> Unit
     ) {
-        refactoredChatsCollection.whereEqualTo("buyerID", myId)
+        refactoredChatsCollection.whereEqualTo("sellerID", myId)
             .addSnapshotListener { snapshot, _ ->
                 val data = snapshot?.documents?.mapNotNull { documentSnapshot ->
                     val chatId = documentSnapshot.id
@@ -238,7 +238,9 @@ class FireStoreRepository @Inject constructor(
                     val buyerId = documentSnapshot.get("buyerID") as? String
                     val updatedAt = documentSnapshot.get("updatedAt") as? Timestamp
                     val lastMessage = documentSnapshot.get("lastMessage") as? String
-                    val userIds = documentSnapshot.get("userIds") as? List<*>
+                    val userIds = documentSnapshot.get("userIDs") as? List<*>
+                    Log.d("helpme", "Gotten $userIds")
+                    Log.d("helpme", "Also gotten like $listingId")
 
                     RawChatHeaderData(
                         listingID = listingId ?: "",
@@ -258,7 +260,7 @@ class FireStoreRepository @Inject constructor(
         myId: String,
         onSnapshotUpdate: (List<RawChatHeaderData>) -> Unit
     ) {
-        refactoredChatsCollection.whereEqualTo("sellerID", myId)
+        refactoredChatsCollection.whereEqualTo("buyerID", myId)
             .addSnapshotListener { snapshot, _ ->
                 val data = snapshot?.documents?.mapNotNull { documentSnapshot ->
                     val chatId = documentSnapshot.id
@@ -267,7 +269,9 @@ class FireStoreRepository @Inject constructor(
                     val buyerId = documentSnapshot.get("buyerID") as? String
                     val updatedAt = documentSnapshot.get("updatedAt") as? Timestamp
                     val lastMessage = documentSnapshot.get("lastMessage") as? String
-                    val userIds = documentSnapshot.get("userIds") as? List<*>
+                    val userIds = documentSnapshot.get("userIDs") as? List<*>
+                    Log.d("helpme", "Gotten $userIds")
+                    Log.d("helpme", "Also gotten like $listingId")
 
                     RawChatHeaderData(
                         listingID = listingId ?: "",

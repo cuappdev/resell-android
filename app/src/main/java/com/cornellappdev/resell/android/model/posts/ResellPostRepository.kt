@@ -142,6 +142,6 @@ class ResellPostRepository @Inject constructor(
     }
 
     suspend fun getPostById(id: String): Post {
-        return retrofitInstance.postsApi.getPost(id)
+        return retrofitInstance.postsApi.getPost(id).post
     }
 }
