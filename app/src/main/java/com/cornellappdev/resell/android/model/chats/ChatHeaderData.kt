@@ -18,6 +18,8 @@ data class ChatHeaderData(
     /** URL */
     val imageUrl: String,
     val chatId: String,
+    /** of the other user **/
+    val userId: String
 )
 
 data class RawChatHeaderData(

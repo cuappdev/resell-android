@@ -285,8 +285,9 @@ class PostDetailViewModel @Inject constructor(
                     isBuyer = true,
                     pfp = userInfo.imageUrl,
                     name = userInfo.name,
-                    myId = userInfo.id,
-                    listingId = postId
+                    myId = userInfoRepository.getUserId() ?: "",
+                    listingId = postId,
+                    otherId = uid
                 )
 
             } catch (e: Exception) {

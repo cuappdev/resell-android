@@ -6,25 +6,25 @@ import retrofit2.http.POST
 import retrofit2.http.Path
 
 interface ChatApiService {
-    @POST("chat/{chatId}")
+    @POST("chat/message/{chatId}")
     suspend fun sendChat(
         @Body chatBody: ChatBody,
         @Path("chatId") chatId: String
     )
 
-    @POST("chat/{chatId}")
+    @POST("chat/availability/{chatId}")
     suspend fun sendAvailability(
         @Body availabilityBody: AvailabilityBody,
         @Path("chatId") chatId: String
     )
 
-    @POST("chat/{chatId}")
+    @POST("chat/proposal/initial/{chatId}")
     suspend fun sendProposal(
         @Body proposalBody: ProposalBody,
         @Path("chatId") chatId: String
     )
 
-    @POST("chat/{chatId}")
+    @POST("chat/proposal/{chatId}")
     suspend fun sendProposalResponse(
         @Body proposalResponseBody: ProposalResponseBody,
         @Path("chatId") chatId: String

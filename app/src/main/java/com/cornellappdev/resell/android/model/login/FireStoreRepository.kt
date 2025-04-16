@@ -1,6 +1,7 @@
 package com.cornellappdev.resell.android.model.login
 
 import android.util.Log
+import androidx.compose.ui.text.capitalize
 import com.cornellappdev.resell.android.model.api.StartAndEnd
 import com.cornellappdev.resell.android.model.chats.ChatDocument
 import com.cornellappdev.resell.android.model.chats.RawChatHeaderData
@@ -153,6 +154,8 @@ class FireStoreRepository @Inject constructor(
         // Remove old subscription.
         lastSubscription?.remove()
 
+        Log.d("helpme", "subscribing to $chatId")
+
         val chatDocRef = refactoredChatsCollection.document(chatId).collection("messages")
             .orderBy("timestamp", Query.Direction.ASCENDING)
 
@@ -174,10 +177,10 @@ class FireStoreRepository @Inject constructor(
                 if (!images.isNullOrEmpty()) {
                     images.forEach { url ->
                         val doc = ChatDocument(
-                            id = url,
+                            id = it.id,
                             images = listOf(url),
-                            timestamp = it.getTimestamp("createdAt") ?: Timestamp(0, 0),
-                            senderId = it.get("senderId") as? String ?: "",
+                            timestamp = it.getTimestamp("timestamp") ?: Timestamp(0, 0),
+                            senderId = it.get("senderID") as? String ?: "",
                             text = null,
                             accepted = null,
                             startDate = null,
@@ -191,14 +194,14 @@ class FireStoreRepository @Inject constructor(
                     if (text.isNotEmpty()) {
                         val doc = ChatDocument(
                             id = it.id,
-                            timestamp = it.getTimestamp("createdAt") ?: Timestamp(0, 0),
+                            timestamp = it.getTimestamp("timestamp") ?: Timestamp(0, 0),
                             text = text,
                             accepted = null,
                             startDate = null,
                             endDate = null,
                             availabilities = null,
                             type = "chat",
-                            senderId = it.get("senderId") as? String ?: "",
+                            senderId = it.get("senderID") as? String ?: "",
                             images = emptyList()
                         )
                         docs += doc
@@ -206,7 +209,7 @@ class FireStoreRepository @Inject constructor(
                 } else {
                     val chatDoc = ChatDocument(
                         id = it.id,
-                        timestamp = it.getTimestamp("createdAt") ?: Timestamp(0, 0),
+                        timestamp = it.getTimestamp("timestamp") ?: Timestamp(0, 0),
                         text = it.get("text")?.toString() ?: "",
                         accepted = it.get("accepted") as? Boolean,
                         startDate = it.getTimestamp("startDate"),
@@ -214,14 +217,15 @@ class FireStoreRepository @Inject constructor(
                         images = it.get("images") as? List<String>,
                         availabilities = it.get("availabilities") as? List<StartAndEnd>,
                         type = it.get("type") as? String ?: "",
-                        senderId = it.get("senderId") as? String ?: "",
+                        senderId = it.get("senderID") as? String ?: "",
                     )
 
                     docs += chatDoc
                 }
                 docs
-            }
-            onSnapshotUpdate(messages.flatten())
+            }.flatten()
+            Log.d("helpme", "Gotten messages $messages")
+            onSnapshotUpdate(messages)
         }
     }
 
@@ -304,13 +308,15 @@ class FireStoreRepository @Inject constructor(
             sellerId
         ).whereEqualTo("listingID", listingId).get().await()
 
+        Log.d("helpme", "Finding buyer $buyerId seller $sellerId listing $listingId")
+
         if (result.documents.isEmpty()) {
             // Generate UUID, make sure it is unique.
             var uuid = UUID.randomUUID().toString()
             while (refactoredChatsCollection.document(uuid).get().await().exists()) {
                 uuid = UUID.randomUUID().toString()
             }
-            return uuid
+            return uuid.uppercase()
         }
 
         return result.documents.first().id

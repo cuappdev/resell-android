@@ -85,7 +85,8 @@ class MessagesViewModel @Inject constructor(
             name = historyEntry.name,
             pfp = historyEntry.imageUrl,
             myId = myId,
-            fireStoreRepository = fireStoreRepository
+            fireStoreRepository = fireStoreRepository,
+            otherId = historyEntry.userId
         )
 
         // Wait a bit then reload; loads the marked as read.

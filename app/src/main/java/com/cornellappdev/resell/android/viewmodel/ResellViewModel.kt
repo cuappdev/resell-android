@@ -163,6 +163,7 @@ abstract class ResellViewModel<UiState>(initialUiState: UiState) : ViewModel() {
         fireStoreRepository: FireStoreRepository,
         name: String,
         myId: String,
+        otherId: String,
         pfp: String,
         listingId: String,
         isBuyer: Boolean
@@ -170,8 +171,8 @@ abstract class ResellViewModel<UiState>(initialUiState: UiState) : ViewModel() {
         viewModelScope.launch {
             try {
                 val post = postsRepository.getPostById(listingId).toListing()
-                val buyerId = if (isBuyer) myId else post.user.id
-                val sellerId = if (isBuyer) post.user.id else myId
+                val buyerId = if (isBuyer) myId else otherId
+                val sellerId = if (isBuyer) otherId else myId
                 val chatId = fireStoreRepository.findChatWith(
                     buyerId = buyerId,
                     sellerId = sellerId,

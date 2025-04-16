@@ -96,7 +96,8 @@ class ChatRepository @Inject constructor(
                             imageUrl = user?.photoUrl ?: "",
                             listingId = it.listingID,
                             listingName = item?.title ?: "",
-                            chatId = it.chatID
+                            chatId = it.chatID,
+                            userId = user?.id ?: "",
                         )
                     }
 
@@ -135,7 +136,8 @@ class ChatRepository @Inject constructor(
                             imageUrl = user?.photoUrl ?: "",
                             listingId = it.listingID,
                             listingName = item?.title ?: "",
-                            chatId = it.chatID
+                            chatId = it.chatID,
+                            userId = user?.id ?: "",
                         )
                     }
 
@@ -188,14 +190,13 @@ class ChatRepository @Inject constructor(
         chatId: String,
         myId: String,
         myName: String,
-        otherName: String
+        otherName: String,
+        otherPfp: String,
     ) {
         fireStoreRepository.subscribeToChat(
             chatId = chatId
         ) {
             // Convert the List<ChatDocument> into a Chat
-            var otherPfp = ""
-
             // Step 1: Creates a list of Pair<ChatMessageData, String>.
             // The String is the sender's id.
             val messageData = it.map { document ->
