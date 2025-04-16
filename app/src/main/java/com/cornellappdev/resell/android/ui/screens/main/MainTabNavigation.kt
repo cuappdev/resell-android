@@ -67,7 +67,7 @@ fun MainTabNavigation(
             modifier = Modifier.fillMaxSize()
         ) {
             composable<ResellMainScreen.Home> {
-                HomeScreen()
+                HomeScreen(onSavedPressed = { mainNav.navigate(ResellMainScreen.Bookmarks) })
             }
 
             composable<ResellMainScreen.Bookmarks> {

@@ -89,7 +89,6 @@ androidx-compose-material = { group = "androidx.wear.compose", name = "compose-m
 ui = { module = "androidx.compose.ui:ui", version.ref = "ui" }
 ui-tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = "uiTooling" }
 ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview", version.ref = "uiToolingPreview" }
-androidx-media3-common-ktx = { group = "androidx.media3", name = "media3-common-ktx", version.ref = "media3CommonKtx" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

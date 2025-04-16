@@ -50,9 +50,6 @@ fun SearchBar(
             )
             Text(text = "Search", style = Style.body2, color = Secondary)
         }
-//        Icon(
-////            painter = painterResource(R.drawable.ic)
-//        )
     }
 }
 

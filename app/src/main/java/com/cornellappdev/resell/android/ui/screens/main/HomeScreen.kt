@@ -1,6 +1,7 @@
 package com.cornellappdev.resell.android.ui.screens.main
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -18,6 +19,8 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.InlineTextContent
+import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -34,8 +37,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.Placeholder
+import androidx.compose.ui.text.PlaceholderVerticalAlign
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.model.classes.Listing
@@ -47,6 +54,7 @@ import com.cornellappdev.resell.android.ui.components.global.ResellListingsScrol
 import com.cornellappdev.resell.android.ui.components.global.ResellLoadingListingScroll
 import com.cornellappdev.resell.android.ui.components.main.SearchBar
 import com.cornellappdev.resell.android.ui.theme.ResellPreview
+import com.cornellappdev.resell.android.ui.theme.Stroke
 import com.cornellappdev.resell.android.ui.theme.Style
 import com.cornellappdev.resell.android.util.defaultHorizontalPadding
 import com.cornellappdev.resell.android.viewmodel.main.HomeViewModel
@@ -55,6 +63,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun HomeScreen(
     homeViewModel: HomeViewModel = hiltViewModel(),
+    onSavedPressed: () -> Unit
 ) {
     val homeUiState = homeViewModel.collectUiStateValue()
     val listState = rememberLazyStaggeredGridState()
@@ -67,8 +76,7 @@ fun HomeScreen(
         verticalArrangement = Arrangement.spacedBy(24.dp),
     ) {
         HomeHeader(
-            activeFilter = homeUiState.activeFilter,
-            onFilterPressed = homeViewModel::onToggleFilter,
+            onFilter = {},// TODO
             onTopPressed = {
                 coroutineScope.launch {
                     listState.animateScrollToItem(0)
@@ -77,7 +85,12 @@ fun HomeScreen(
             onSearchPressed = homeViewModel::onSearchPressed
         )
 
-        MainContent(homeUiState.savedListings, homeViewModel::getImageUrlState)
+        MainContent(
+            savedListings = homeUiState.savedListings,
+            getImageUrlState = homeViewModel::getImageUrlState,
+            onSavedPressed = onSavedPressed,
+            toPost = homeViewModel::onListingPressed
+        )
 
         when (homeUiState.loadedState) {
             is ResellApiState.Success -> {
@@ -104,7 +117,6 @@ fun HomeScreen(
 private fun HomeScreenPreview() = ResellPreview {
     val listState = rememberLazyStaggeredGridState()
     val coroutineScope = rememberCoroutineScope()
-
     var filter by remember { mutableStateOf(HomeViewModel.HomeFilter.RECENT) }
 
     Column(
@@ -114,8 +126,7 @@ private fun HomeScreenPreview() = ResellPreview {
         verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
         HomeHeader(
-            activeFilter = filter,
-            onFilterPressed = { filter = it },
+            onFilter = {},
             onTopPressed = {
                 coroutineScope.launch {
                     listState.animateScrollToItem(0)
@@ -123,7 +134,11 @@ private fun HomeScreenPreview() = ResellPreview {
             },
             onSearchPressed = {}
         )
-        MainContent(List(5) { dumbListing }) { mutableStateOf(ResellApiResponse.Pending) }
+        MainContent(
+            List(5) { dumbListing },
+            getImageUrlState = { mutableStateOf(ResellApiResponse.Pending) },
+            onSavedPressed = {},
+            toPost = {})
     }
 }
 
@@ -149,8 +164,7 @@ val dumbListing = Listing(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun HomeHeader(
-    activeFilter: HomeViewModel.HomeFilter,
-    onFilterPressed: (HomeViewModel.HomeFilter) -> Unit = {},
+    onFilter: () -> Unit = {},
     onTopPressed: () -> Unit,
     onSearchPressed: () -> Unit,
 ) {
@@ -179,7 +193,11 @@ private fun HomeHeader(
             verticalAlignment = Alignment.CenterVertically
         ) {
             SearchBar(onClick = onSearchPressed, modifier = Modifier.weight(1f))
-            Icon(painter = painterResource(R.drawable.ic_filter), contentDescription = "Filter")
+            Icon(
+                painter = painterResource(R.drawable.ic_filter),
+                contentDescription = "Filter",
+                modifier = Modifier.clickable(onClick = onFilter)
+            )
         }
     }
 }
@@ -187,42 +205,95 @@ private fun HomeHeader(
 @Composable
 private fun MainContent(
     savedListings: List<Listing>,
-    getImageUrlState: (String) -> MutableState<ResellApiResponse<ImageBitmap>>
+    getImageUrlState: (String) -> MutableState<ResellApiResponse<ImageBitmap>>,
+    onSavedPressed: () -> Unit,
+    toPost: (Listing) -> Unit
 ) {
     Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(24.dp)) {
-        SavedByYou(savedListings, getImageUrlState)
+        SavedByYou(savedListings, getImageUrlState, onSavedPressed, toPost)
     }
 }
 
 @Composable
 private fun SavedByYou(
     savedListings: List<Listing>,
-    getImageUrlState: (String) -> MutableState<ResellApiResponse<ImageBitmap>>
+    getImageUrlState: (String) -> MutableState<ResellApiResponse<ImageBitmap>>,
+    onSavedPressed: () -> Unit,
+    toPost: (Listing) -> Unit
 ) {
-    Column(modifier = Modifier.fillMaxWidth()) {
+    Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             Text(text = "Saved By You", style = Style.heading3)
-            Text(text = "See All", style = Style.body2, modifier = Modifier.clickable { })//todo
+            Text(text = "See All", style = Style.body2, modifier = Modifier.clickable {
+                onSavedPressed()
+            })
         }
-        LazyRow(horizontalArrangement = Arrangement.spacedBy(15.dp)) {
-            items(savedListings) { listing ->
-                val image by getImageUrlState(listing.image)
-                if (LocalInspectionMode.current) {
-                    Image(
-                        painter = painterResource(R.drawable.ic_appdev),
-                        contentDescription = "appdev"
-                    )
-                } else {
-                    AnimatedClampedAsyncImage(
-                        image = image,
-                        modifier = Modifier
-                            .height(112.dp)
-                            .width(112.dp)
-                            .clip(RoundedCornerShape(4.dp))
-                    )
+        if (savedListings.isEmpty()) {
+            NoSaved()
+        } else {
+            LazyRow(horizontalArrangement = Arrangement.spacedBy(15.dp)) {
+                items(savedListings) { listing ->
+                    val image by getImageUrlState(listing.image)
+                    if (LocalInspectionMode.current) {
+                        Image(
+                            painter = painterResource(R.drawable.ic_appdev),
+                            contentDescription = "appdev"
+                        )
+                    } else {
+                        AnimatedClampedAsyncImage(
+                            image = image,
+                            modifier = Modifier
+                                .height(112.dp)
+                                .width(112.dp)
+                                .clip(RoundedCornerShape(4.dp))
+                                .clickable {
+                                    toPost(listing)
+                                }
+                        )
+                    }
                 }
             }
-        }
 
+        }
+    }
+}
+
+@Composable
+private fun NoSaved() {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(110.dp)
+            .clip(RoundedCornerShape(10.dp))
+            .border(width = 1.dp, color = Stroke, shape = RoundedCornerShape(10.dp)),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Text(text = "You haven't saved any listings yet.", style = Style.body1)
+
+        val inlineContent = mapOf(
+            Pair(
+                "1",
+                InlineTextContent(
+                    Placeholder(
+                        width = 12.sp,
+                        height = 12.sp,
+                        placeholderVerticalAlign = PlaceholderVerticalAlign.AboveBaseline
+                    )
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_bookmark),
+                        contentDescription = "Bookmark Button"
+                    )
+                }
+            )
+        )
+
+        val text = buildAnnotatedString {
+            append("Tap ")
+            appendInlineContent(id = "1", "[icon]")
+            append(" on a listing to save")
+        }
+        Text(text = text, style = Style.body1, inlineContent = inlineContent)
     }
 }
