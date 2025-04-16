@@ -154,8 +154,6 @@ class FireStoreRepository @Inject constructor(
         // Remove old subscription.
         lastSubscription?.remove()
 
-        Log.d("helpme", "subscribing to $chatId")
-
         val chatDocRef = refactoredChatsCollection.document(chatId).collection("messages")
             .orderBy("timestamp", Query.Direction.ASCENDING)
 
@@ -224,7 +222,6 @@ class FireStoreRepository @Inject constructor(
                 }
                 docs
             }.flatten()
-            Log.d("helpme", "Gotten messages $messages")
             onSnapshotUpdate(messages)
         }
     }
@@ -243,8 +240,6 @@ class FireStoreRepository @Inject constructor(
                     val updatedAt = documentSnapshot.get("updatedAt") as? Timestamp
                     val lastMessage = documentSnapshot.get("lastMessage") as? String
                     val userIds = documentSnapshot.get("userIDs") as? List<*>
-                    Log.d("helpme", "Gotten $userIds")
-                    Log.d("helpme", "Also gotten like $listingId")
 
                     RawChatHeaderData(
                         listingID = listingId ?: "",
@@ -274,8 +269,6 @@ class FireStoreRepository @Inject constructor(
                     val updatedAt = documentSnapshot.get("updatedAt") as? Timestamp
                     val lastMessage = documentSnapshot.get("lastMessage") as? String
                     val userIds = documentSnapshot.get("userIDs") as? List<*>
-                    Log.d("helpme", "Gotten $userIds")
-                    Log.d("helpme", "Also gotten like $listingId")
 
                     RawChatHeaderData(
                         listingID = listingId ?: "",
@@ -307,8 +300,6 @@ class FireStoreRepository @Inject constructor(
             "sellerID",
             sellerId
         ).whereEqualTo("listingID", listingId).get().await()
-
-        Log.d("helpme", "Finding buyer $buyerId seller $sellerId listing $listingId")
 
         if (result.documents.isEmpty()) {
             // Generate UUID, make sure it is unique.

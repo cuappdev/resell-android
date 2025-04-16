@@ -155,7 +155,6 @@ class ChatRepository @Inject constructor(
             it.listingID
         }
         val otherUserIds = rawData.map {
-            Log.d("helpme", it.userIDs.toString())
             it.userIDs.first {
                 it != myId
             }
@@ -178,10 +177,6 @@ class ChatRepository @Inject constructor(
         val data = allDeferred.awaitAll()
         val listings = data.filterIsInstance<Post>()
         val userResponses = data.filterIsInstance<UserResponse>()
-
-        Log.d("helpme listings", listings.toString())
-        Log.d("helpme users", userResponses.toString())
-        Log.d("helpme all", data.toString())
 
         return@coroutineScope Pair(listings, userResponses)
     }
