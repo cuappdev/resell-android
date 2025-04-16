@@ -1,10 +1,12 @@
 package com.cornellappdev.resell.android.ui.screens.main
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -12,16 +14,17 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.foundation.text.appendInlineContent
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -30,11 +33,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.Placeholder
@@ -59,6 +63,7 @@ import com.cornellappdev.resell.android.ui.theme.Style
 import com.cornellappdev.resell.android.util.defaultHorizontalPadding
 import com.cornellappdev.resell.android.viewmodel.main.HomeViewModel
 import kotlinx.coroutines.launch
+import kotlin.math.min
 
 @Composable
 fun HomeScreen(
@@ -117,7 +122,6 @@ fun HomeScreen(
 private fun HomeScreenPreview() = ResellPreview {
     val listState = rememberLazyStaggeredGridState()
     val coroutineScope = rememberCoroutineScope()
-    var filter by remember { mutableStateOf(HomeViewModel.HomeFilter.RECENT) }
 
     Column(
         modifier = Modifier
@@ -134,6 +138,25 @@ private fun HomeScreenPreview() = ResellPreview {
             },
             onSearchPressed = {}
         )
+
+        val dumbListing = Listing(
+            id = "1",
+            title = "Dumb Listing",
+            images = listOf(""),
+            price = 100.0.toString(),
+            categories = listOf("Electronics"),
+            description = "This is a dumb listing",
+            user = UserInfo(
+                username = "Caleb",
+                name = "Caleb",
+                netId = "chs232",
+                venmoHandle = "-",
+                bio = "lol",
+                imageUrl = "",
+                id = "1",
+                email = ""
+            )
+        )
         MainContent(
             List(5) { dumbListing },
             getImageUrlState = { mutableStateOf(ResellApiResponse.Pending) },
@@ -142,26 +165,7 @@ private fun HomeScreenPreview() = ResellPreview {
     }
 }
 
-val dumbListing = Listing(
-    id = "1",
-    title = "Dumb Listing",
-    images = listOf(""),
-    price = 100.0.toString(),
-    categories = listOf("Electronics"),
-    description = "This is a dumb listing",
-    user = UserInfo(
-        username = "Caleb",
-        name = "Caleb",
-        netId = "chs232",
-        venmoHandle = "-",
-        bio = "lol",
-        imageUrl = "",
-        id = "1",
-        email = ""
-    )
-)
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun HomeHeader(
     onFilter: () -> Unit = {},
@@ -211,6 +215,7 @@ private fun MainContent(
 ) {
     Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(24.dp)) {
         SavedByYou(savedListings, getImageUrlState, onSavedPressed, toPost)
+        ShopByCategory()
     }
 }
 
@@ -231,29 +236,42 @@ private fun SavedByYou(
         if (savedListings.isEmpty()) {
             NoSaved()
         } else {
-            LazyRow(horizontalArrangement = Arrangement.spacedBy(15.dp)) {
-                items(savedListings) { listing ->
-                    val image by getImageUrlState(listing.image)
-                    if (LocalInspectionMode.current) {
-                        Image(
-                            painter = painterResource(R.drawable.ic_appdev),
-                            contentDescription = "appdev"
-                        )
-                    } else {
-                        AnimatedClampedAsyncImage(
-                            image = image,
-                            modifier = Modifier
-                                .height(112.dp)
-                                .width(112.dp)
-                                .clip(RoundedCornerShape(4.dp))
-                                .clickable {
-                                    toPost(listing)
-                                }
-                        )
-                    }
-                }
-            }
+            SavedListingsRow(savedListings, getImageUrlState, toPost)
 
+        }
+    }
+}
+
+@Composable
+private fun SavedListingsRow(
+    savedListings: List<Listing>,
+    getImageUrlState: (String) -> MutableState<ResellApiResponse<ImageBitmap>>,
+    toPost: (Listing) -> Unit
+) {
+    LazyRow(horizontalArrangement = Arrangement.spacedBy(15.dp)) {
+        items(savedListings) { listing ->
+            val image by getImageUrlState(listing.image)
+            if (LocalInspectionMode.current) {
+                Image(
+                    painter = painterResource(R.drawable.ic_appdev),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .height(112.dp)
+                        .width(112.dp)
+                        .clip(RoundedCornerShape(4.dp))
+                )
+            } else {
+                AnimatedClampedAsyncImage(
+                    image = image,
+                    modifier = Modifier
+                        .height(112.dp)
+                        .width(112.dp)
+                        .clip(RoundedCornerShape(4.dp))
+                        .clickable {
+                            toPost(listing)
+                        }
+                )
+            }
         }
     }
 }
@@ -295,5 +313,69 @@ private fun NoSaved() {
             append(" on a listing to save")
         }
         Text(text = text, style = Style.body1, inlineContent = inlineContent)
+    }
+}
+
+
+@Composable
+fun ShopByCategory() {
+    Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+            Text(text = "Shop by Category", style = Style.heading3)
+        }
+        LazyRow(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+            val images = listOf(
+                R.drawable.shoes,
+                R.drawable.books,
+                R.drawable.pencilcase,
+                R.drawable.airpods_max,
+                R.drawable.color_palette,
+                R.drawable.basketball,
+                R.drawable.other
+            )
+            val labels = listOf(
+                "Clothing",
+                "Books",
+                "School",
+                "Electronics",
+                "Handmade",
+                "Sports & Outdoors",
+                "Other"
+            )
+            val backgroundColors = listOf(
+                Color(0x80CA95A3),
+                Color(0x80316054),
+                Color(0x80A4B7AB),
+                Color(0x80D795AB),
+                Color(0x80E3B570),
+                Color(0x8073A2AB),
+                Color(0x80E2B56E)
+            )
+            items(min(min(images.size, labels.size), backgroundColors.size)) { idx ->
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(80.dp)
+                            .clip(CircleShape)
+                            .background(color = backgroundColors[idx])
+                            .align(alignment = Alignment.CenterHorizontally),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Image(
+                            painter = painterResource(images[idx]),
+                            contentDescription = labels[idx],
+                            modifier = Modifier
+                                .width(57.dp)
+                                .height(57.dp),
+                            contentScale = ContentScale.Fit
+                        )
+                    }
+                    Text(text = labels[idx], style = Style.title4)
+                }
+            }
+        }
     }
 }
