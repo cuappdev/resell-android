@@ -111,8 +111,11 @@ private fun ResellCardContent(
 }
 
 @Composable
-private fun AnimatedClampedAsyncImage(image: ResellApiResponse<ImageBitmap>) {
-    Box(modifier = Modifier.heightIn(min = 130.dp, max = 220.dp)) {
+fun AnimatedClampedAsyncImage(
+    image: ResellApiResponse<ImageBitmap>,
+    modifier: Modifier = Modifier
+) {
+    Box(modifier = modifier.heightIn(min = 130.dp, max = 220.dp)) {
         AnimatedContent(targetState = image, label = "image loading") { response ->
             when (response) {
                 ResellApiResponse.Pending -> {
