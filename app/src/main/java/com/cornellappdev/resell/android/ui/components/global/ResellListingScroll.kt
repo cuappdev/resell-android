@@ -3,6 +3,7 @@ package com.cornellappdev.resell.android.ui.components.global
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridScope
 import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
@@ -45,16 +46,22 @@ fun ResellListingsScroll(
         item(span = StaggeredGridItemSpan.FullLine) {
             header()
         }
+        resellListingScroll(listings = listings, onListingPressed = onListingPressed)
+    }
+}
 
-        items(items = listings) { item ->
-            ResellCard(
-                imageUrl = item.image,
-                title = item.title,
-                price = item.price,
-                modifier = Modifier.padding(horizontal = Padding.medium / 2f)
-            ) {
-                onListingPressed(item)
-            }
+fun LazyStaggeredGridScope.resellListingScroll(
+    listings: List<Listing>,
+    onListingPressed: (Listing) -> Unit
+) {
+    items(items = listings) { item ->
+        ResellCard(
+            imageUrl = item.image,
+            title = item.title,
+            price = item.price,
+            modifier = Modifier.padding(horizontal = Padding.medium / 2f)
+        ) {
+            onListingPressed(item)
         }
     }
 }

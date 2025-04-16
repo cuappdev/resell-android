@@ -1,6 +1,7 @@
 package com.cornellappdev.resell.android.ui.components.global
 
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridScope
 import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
@@ -41,14 +42,18 @@ fun ResellLoadingListingScroll(
         verticalItemSpacing = Padding.medium,
     ) {
         item(span = StaggeredGridItemSpan.FullLine) { header() }
+        resellLoadingListingScroll(numCards = numCards, randomList = randomList)
 
-        // LazyVerticalStaggeredGrid takes at most Int.MAX_VALUE items
-        items(numCards.coerceIn(0, Int.MAX_VALUE - 1)) { idx ->
-            ResellLoadingCard(
-                small = randomList[idx % randomList.size],
-                modifier = Modifier.padding(horizontal = Padding.medium / 2f)
-            )
-        }
+    }
+}
+
+fun LazyStaggeredGridScope.resellLoadingListingScroll(numCards: Int, randomList: List<Boolean>) {
+    // LazyVerticalStaggeredGrid takes at most Int.MAX_VALUE items
+    items(numCards.coerceIn(0, Int.MAX_VALUE - 1)) { idx ->
+        ResellLoadingCard(
+            small = randomList[idx % randomList.size],
+            modifier = Modifier.padding(horizontal = Padding.medium / 2f)
+        )
     }
 }
 

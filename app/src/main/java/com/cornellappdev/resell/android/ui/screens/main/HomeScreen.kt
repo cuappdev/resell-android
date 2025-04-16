@@ -20,6 +20,10 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridScope
+import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
+import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
+import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
 import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -54,8 +58,8 @@ import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.model.classes.ResellApiState
 import com.cornellappdev.resell.android.model.classes.UserInfo
 import com.cornellappdev.resell.android.ui.components.global.AnimatedClampedAsyncImage
-import com.cornellappdev.resell.android.ui.components.global.ResellListingsScroll
-import com.cornellappdev.resell.android.ui.components.global.ResellLoadingListingScroll
+import com.cornellappdev.resell.android.ui.components.global.resellListingScroll
+import com.cornellappdev.resell.android.ui.components.global.resellLoadingListingScroll
 import com.cornellappdev.resell.android.ui.components.main.SearchBar
 import com.cornellappdev.resell.android.ui.theme.ResellPreview
 import com.cornellappdev.resell.android.ui.theme.Stroke
@@ -64,6 +68,7 @@ import com.cornellappdev.resell.android.util.defaultHorizontalPadding
 import com.cornellappdev.resell.android.viewmodel.main.HomeViewModel
 import kotlinx.coroutines.launch
 import kotlin.math.min
+import kotlin.random.Random
 
 @Composable
 fun HomeScreen(
@@ -94,26 +99,11 @@ fun HomeScreen(
             savedListings = homeUiState.savedListings,
             getImageUrlState = homeViewModel::getImageUrlState,
             onSavedPressed = onSavedPressed,
-            toPost = homeViewModel::onListingPressed
+            toPost = homeViewModel::onListingPressed,
+            loadedState = homeUiState.loadedState,
+            filteredListings = homeUiState.filteredListings,
+            onListingPressed = homeViewModel::onListingPressed
         )
-
-        when (homeUiState.loadedState) {
-            is ResellApiState.Success -> {
-                ResellListingsScroll(
-                    listings = homeUiState.filteredListings,
-                    onListingPressed = {
-                        homeViewModel.onListingPressed(it)
-                    },
-                    listState = listState,
-                )
-            }
-
-            is ResellApiState.Loading -> {
-                ResellLoadingListingScroll()
-            }
-
-            is ResellApiState.Error -> {}
-        }
     }
 }
 
@@ -161,7 +151,11 @@ private fun HomeScreenPreview() = ResellPreview {
             List(5) { dumbListing },
             getImageUrlState = { mutableStateOf(ResellApiResponse.Pending) },
             onSavedPressed = {},
-            toPost = {})
+            toPost = {},
+            loadedState = ResellApiState.Success,
+            filteredListings = List(10) { dumbListing },
+            onListingPressed = {}
+        )
     }
 }
 
@@ -211,11 +205,36 @@ private fun MainContent(
     savedListings: List<Listing>,
     getImageUrlState: (String) -> MutableState<ResellApiResponse<ImageBitmap>>,
     onSavedPressed: () -> Unit,
-    toPost: (Listing) -> Unit
+    toPost: (Listing) -> Unit,
+    loadedState: ResellApiState,
+    filteredListings: List<Listing>,
+    onListingPressed: (Listing) -> Unit,
 ) {
-    Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(24.dp)) {
-        SavedByYou(savedListings, getImageUrlState, onSavedPressed, toPost)
-        ShopByCategory()
+    val preview = LocalInspectionMode.current
+    LazyVerticalStaggeredGrid(
+        modifier = Modifier.fillMaxWidth(),
+        columns = StaggeredGridCells.Fixed(2),
+        verticalItemSpacing = 12.dp
+    ) {
+        item(span = StaggeredGridItemSpan.FullLine) {
+            SavedByYou(
+                savedListings,
+                getImageUrlState,
+                onSavedPressed,
+                toPost
+            )
+            Spacer(Modifier.height(12.dp))
+        }
+        item(span = StaggeredGridItemSpan.FullLine) {
+            ShopByCategory()
+            Spacer(Modifier.height(12.dp))
+        }
+        recentListings(
+            loadedState = loadedState,
+            filteredListings = filteredListings,
+            onListingPressed = onListingPressed,
+            preview = preview
+        )
     }
 }
 
@@ -237,7 +256,6 @@ private fun SavedByYou(
             NoSaved()
         } else {
             SavedListingsRow(savedListings, getImageUrlState, toPost)
-
         }
     }
 }
@@ -316,10 +334,9 @@ private fun NoSaved() {
     }
 }
 
-
 @Composable
-fun ShopByCategory() {
-    Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+private fun ShopByCategory() {
+    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             Text(text = "Shop by Category", style = Style.heading3)
         }
@@ -379,3 +396,43 @@ fun ShopByCategory() {
         }
     }
 }
+
+private fun LazyStaggeredGridScope.recentListings(
+    loadedState: ResellApiState,
+    filteredListings: List<Listing>,
+    onListingPressed: (Listing) -> Unit,
+    preview: Boolean = false
+) {
+    item(span = StaggeredGridItemSpan.FullLine) {
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+            Text(text = "Recent Listings", style = Style.heading3)
+        }
+    }
+    val randomList = List(50) { i ->
+        when (i) {
+            0 -> true
+            1 -> false
+            else -> Random.nextBoolean()
+        }
+    }
+    when (loadedState) {
+        is ResellApiState.Success -> {
+            if (preview) {
+                resellLoadingListingScroll(numCards = 5, randomList = randomList)
+            } else {
+                resellListingScroll(
+                    listings = filteredListings,
+                    onListingPressed = onListingPressed
+                )
+            }
+        }
+
+        is ResellApiState.Loading -> {
+            resellLoadingListingScroll(numCards = Int.MAX_VALUE - 1, randomList = randomList)
+        }
+
+        is ResellApiState.Error -> {}
+    }
+
+}
+
