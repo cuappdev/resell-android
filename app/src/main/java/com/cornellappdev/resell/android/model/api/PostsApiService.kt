@@ -81,18 +81,17 @@ data class Post(
     val id: String,
     val title: String,
     val description: String,
-    val categories: List<String>,
+    val category: String,
     val archive: Boolean,
-    private val created: String,  // Use Long for timestamps
-    val price: Double,
-    @SerializedName("altered_price") val altered_price: String,
+    private val created: String,
+    @SerializedName("altered_price") val alteredPrice: String,
     val images: List<String>,
     val location: String?,
     val user: User? // Reusing the User class from before
 ) {
 
     private val priceString
-        get() = String.format(Locale.US, "$%.2f", altered_price?.ifBlank { null }?.toDouble() ?: 0.0)
+        get() = String.format(Locale.US, "$%.2f", alteredPrice.ifBlank { null }?.toDouble() ?: 0.0)
 
     val createdDate: Date
         get() = parseIsoDate(created)
@@ -103,7 +102,7 @@ data class Post(
             title = title,
             images = images,
             price = priceString,
-            categories = categories,
+            categories = listOf(category),
             description = description,
             user = user?.toUserInfo() ?: richieUserInfo.apply {
                 Log.e("PostsApiService", "User is null")
@@ -124,7 +123,8 @@ private fun parseIsoDate(dateString: String): Date {
 data class NewPostBody(
     val title: String,
     val description: String,
-    val categories: List<String>,
+    val category: String,
+    val condition: String,
     @SerializedName("original_price") val originalPrice: Double,
     val imagesBase64: List<String>,
     val userId: String

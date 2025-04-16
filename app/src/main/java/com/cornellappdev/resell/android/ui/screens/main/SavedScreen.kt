@@ -20,7 +20,9 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.cornellappdev.resell.android.model.classes.ResellApiState
 import com.cornellappdev.resell.android.ui.components.global.ResellListingsScroll
+import com.cornellappdev.resell.android.ui.components.global.ResellLoadingListingScroll
 import com.cornellappdev.resell.android.ui.theme.Padding
 import com.cornellappdev.resell.android.ui.theme.Style
 import com.cornellappdev.resell.android.util.defaultHorizontalPadding
@@ -46,11 +48,21 @@ fun SavedScreen(
                 }
             }
         )
-        ResellListingsScroll(
-            listings = savedUiState.listings,
-            listState = listState,
-            onListingPressed = savedViewModel::onListingPressed
-        )
+        when (savedUiState.loadedState) {
+            is ResellApiState.Success -> {
+                ResellListingsScroll(
+                    listings = savedUiState.listings,
+                    listState = listState,
+                    onListingPressed = savedViewModel::onListingPressed
+                )
+            }
+
+            is ResellApiState.Loading -> {
+                ResellLoadingListingScroll()
+            }
+
+            is ResellApiState.Error -> {}
+        }
     }
 }
 
