@@ -53,19 +53,6 @@ class FirebaseNotificationService : FirebaseMessagingService() {
     override fun onNewToken(token: String) {
         super.onNewToken(token)
         Log.d("FCM", "Refreshed token: $token")
-
-        // Send the new token to firestore
-        CoroutineScope(Dispatchers.IO).launch {
-            val email = userInfoRepository.getEmail()
-            if (email != null) {
-                fireStoreRepository.saveDeviceToken(
-                    email,
-                    token
-                )
-            } else {
-                Log.w("FCM", "Email is null; cannot save device token.")
-            }
-        }
     }
 
     private fun sendNotification(

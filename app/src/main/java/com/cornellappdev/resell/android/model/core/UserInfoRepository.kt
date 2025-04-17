@@ -18,7 +18,6 @@ import javax.inject.Singleton
 @Singleton
 class UserInfoRepository @Inject constructor(
     private val dataStore: DataStore<Preferences>,
-    private val fireStoreRepository: FireStoreRepository,
 ) {
 
     private var accessToken: String? = null
@@ -35,7 +34,7 @@ class UserInfoRepository @Inject constructor(
         val lastNameDeferred = async { getLastName() }
         val imageUrlDeferred = async { getProfilePicUrl()!! }
         val netIdDeferred = async { getNetId()!! }
-        val venmoHandleDeferred = async { fireStoreRepository.getVenmoHandle(getEmail()!!) }
+        val venmoHandleDeferred = async { getVenmoHandle()!! }
         val bioDeferred = async { getBio()!! }
         val userIdDeferred = async { getUserId()!! }
         val emailDeferred = async { getEmail()!! }
@@ -62,6 +61,7 @@ class UserInfoRepository @Inject constructor(
         val storeFirstName = async { storeFirstName(user.givenName) }
         val storeLastName = async { storeLastName(user.familyName) }
         val storeProfilePicUrl = async { storeProfilePicUrl(user.photoUrl) }
+        val storeVenmoHandle = async { storeVenmoHandle(user.venmoHandle) }
 
         awaitAll(
             storeUserId,
@@ -71,7 +71,8 @@ class UserInfoRepository @Inject constructor(
             storeUsername,
             storeFirstName,
             storeLastName,
-            storeProfilePicUrl
+            storeProfilePicUrl,
+            storeVenmoHandle
         )
     }
 
@@ -133,6 +134,12 @@ class UserInfoRepository @Inject constructor(
         }
     }
 
+    suspend fun storeVenmoHandle(venmoHandle: String) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.VENMO_HANDLE] = venmoHandle
+        }
+    }
+
     suspend fun getAccessToken(): String? {
         return dataStore.data.map { preferences ->
             preferences[PreferencesKeys.ACCESS_TOKEN]
@@ -184,6 +191,12 @@ class UserInfoRepository @Inject constructor(
     suspend fun getEmail(): String? {
         return dataStore.data.map { preferences ->
             preferences[PreferencesKeys.EMAIL]
+        }.firstOrNull()
+    }
+
+    suspend fun getVenmoHandle(): String? {
+        return dataStore.data.map { preferences ->
+            preferences[PreferencesKeys.VENMO_HANDLE]
         }.firstOrNull()
     }
 }
