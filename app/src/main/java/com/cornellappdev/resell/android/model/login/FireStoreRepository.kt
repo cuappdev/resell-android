@@ -117,6 +117,23 @@ class FireStoreRepository @Inject constructor(
                         docs += doc
                     }
                 } else {
+                    val avail = (it.get("availabilities") as? List<Map<String, *>>)?.map {
+                        val startMap = it["startDate"] as Map<*, *>
+                        val startTime = Timestamp(
+                            (startMap["seconds"] as Number).toLong(),
+                            (startMap["nanoseconds"] as Number).toInt()
+                        )
+                        val endMap = it["endDate"] as Map<*, *>
+                        val endTime = Timestamp(
+                            (endMap["seconds"] as Number).toLong(),
+                            (endMap["nanoseconds"] as Number).toInt()
+                        )
+                        StartAndEnd(
+                            startDate = startTime,
+                            endDate = endTime
+                        )
+                    }
+
                     val chatDoc = ChatDocument(
                         id = it.id,
                         timestamp = it.getTimestamp("timestamp") ?: Timestamp(0, 0),
@@ -125,7 +142,7 @@ class FireStoreRepository @Inject constructor(
                         startDate = it.getTimestamp("startDate"),
                         endDate = it.getTimestamp("endDate"),
                         images = it.get("images") as? List<String>,
-                        availabilities = it.get("availabilities") as? List<StartAndEnd>,
+                        availabilities = avail,
                         type = it.get("type") as? String ?: "",
                         senderId = it.get("senderID") as? String ?: "",
                     )

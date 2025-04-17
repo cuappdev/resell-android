@@ -306,7 +306,7 @@ class ChatViewModel @Inject constructor(
             rootDialogRepository.showDialog(
                 RootDialogContent.TwoButtonDialog(
                     title = "Venmo Not Set Up",
-                    description = "The user has not set up venmo yet, please contact the user directly.",
+                    description = "${stateValue().otherName} has not set up their venmo yet.\nPlease contact them directly.",
                     primaryButtonText = "Dismiss",
                     secondaryButtonText = null,
                     onPrimaryButtonClick = {

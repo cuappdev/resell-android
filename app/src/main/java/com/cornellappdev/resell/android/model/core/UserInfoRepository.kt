@@ -61,7 +61,7 @@ class UserInfoRepository @Inject constructor(
         val storeFirstName = async { storeFirstName(user.givenName) }
         val storeLastName = async { storeLastName(user.familyName) }
         val storeProfilePicUrl = async { storeProfilePicUrl(user.photoUrl) }
-        val storeVenmoHandle = async { storeVenmoHandle(user.venmoHandle) }
+        val storeVenmoHandle = async { storeVenmoHandle(user.venmoHandle ?: "") }
 
         awaitAll(
             storeUserId,

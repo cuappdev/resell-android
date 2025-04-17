@@ -415,7 +415,7 @@ class ChatRepository @Inject constructor(
         text: String? = null,
         availability: AvailabilityDocument? = null,
         meetingInfo: MeetingInfo? = null,
-        imagesBase64: List<String>,
+        imageUrls: List<String>,
         chatId: String,
     ) {
         val buyerId = if (selfIsBuyer) myId else otherId
@@ -429,7 +429,7 @@ class ChatRepository @Inject constructor(
                     listingId = listingId,
                     text = text,
                     senderId = myId,
-                    images = imagesBase64,
+                    images = imageUrls,
                 ),
                 chatId = chatId
             )
@@ -493,7 +493,7 @@ class ChatRepository @Inject constructor(
         listingId = listingId,
         myId = myId,
         otherId = otherId,
-        imagesBase64 = emptyList(),
+        imageUrls = emptyList(),
         chatId = chatId
     )
 
@@ -504,14 +504,22 @@ class ChatRepository @Inject constructor(
         otherId: String,
         imageBase64: String,
         chatId: String,
-    ) = sendGenericMessage(
-        selfIsBuyer = selfIsBuyer,
-        listingId = listingId,
-        myId = myId,
-        otherId = otherId,
-        imagesBase64 = listOf(imageBase64),
-        chatId = chatId
-    )
+    ) {
+        val url = retrofitInstance.userApi.uploadImage(
+            body = ImageBody(
+                imageBase64 = imageBase64
+            )
+        ).image
+        sendGenericMessage(
+            selfIsBuyer = selfIsBuyer,
+            listingId = listingId,
+            myId = myId,
+            otherId = otherId,
+            imageUrls = listOf(url),
+            chatId = chatId,
+            text = ""
+        )
+    }
 
 
     suspend fun sendAvailability(
@@ -526,7 +534,7 @@ class ChatRepository @Inject constructor(
         listingId = listingId,
         myId = myId,
         otherId = otherId,
-        imagesBase64 = listOf(),
+        imageUrls = listOf(),
         availability = availability,
         chatId = chatId
     )
@@ -543,7 +551,7 @@ class ChatRepository @Inject constructor(
         listingId = listingId,
         myId = myId,
         otherId = otherId,
-        imagesBase64 = listOf(),
+        imageUrls = listOf(),
         meetingInfo = meetingInfo,
         chatId = chatId
     )
