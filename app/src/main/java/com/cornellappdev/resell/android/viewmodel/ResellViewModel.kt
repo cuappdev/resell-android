@@ -16,7 +16,6 @@ import com.cornellappdev.resell.android.viewmodel.root.RootConfirmationRepositor
 import com.cornellappdev.resell.android.viewmodel.root.RootDialogContent
 import com.cornellappdev.resell.android.viewmodel.root.RootDialogRepository
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -154,9 +153,7 @@ abstract class ResellViewModel<UiState>(initialUiState: UiState) : ViewModel() {
      * @param pfp The profile picture of the OTHER user.
      * @param id The id of the post.
      */
-    protected fun contactSeller(
-        onSuccess: () -> Unit,
-        onError: () -> Unit,
+    protected suspend fun contactSeller(
         postsRepository: ResellPostRepository,
         rootNavigationRepository: RootNavigationRepository,
         rootConfirmationRepository: RootConfirmationRepository,
@@ -168,37 +165,26 @@ abstract class ResellViewModel<UiState>(initialUiState: UiState) : ViewModel() {
         listingId: String,
         isBuyer: Boolean
     ) {
-        viewModelScope.launch {
-            try {
-                val post = postsRepository.getPostById(listingId).toListing()
-                val buyerId = if (isBuyer) myId else otherId
-                val sellerId = if (isBuyer) otherId else myId
-                val chatId = fireStoreRepository.findChatWith(
-                    buyerId = buyerId,
-                    sellerId = sellerId,
-                    listingId = post.id
-                )
+        val post = postsRepository.getPostById(listingId).toListing()
+        val buyerId = if (isBuyer) myId else otherId
+        val sellerId = if (isBuyer) otherId else myId
+        val chatId = fireStoreRepository.findChatWith(
+            buyerId = buyerId,
+            sellerId = sellerId,
+            listingId = post.id
+        )
 
-                Log.d("helpme", post.toString())
-                rootNavigationRepository.navigate(
-                    ResellRootRoute.CHAT(
-                        isBuyer = isBuyer,
-                        name = name,
-                        pfp = pfp,
-                        postJson = Json.encodeToString(post),
-                        otherUserId = post.user.id,
-                        otherVenmo = post.user.venmoHandle,
-                        chatId = chatId
-                    )
-                )
-
-                delay(500)
-                onSuccess()
-            } catch (e: Exception) {
-                Log.e("PostDetailViewModel", "Error navigating to chat: ", e)
-                onError()
-                rootConfirmationRepository.showError()
-            }
-        }
+        Log.d("helpme", post.toString())
+        rootNavigationRepository.navigate(
+            ResellRootRoute.CHAT(
+                isBuyer = isBuyer,
+                name = name,
+                pfp = pfp,
+                postJson = Json.encodeToString(post),
+                otherUserId = post.user.id,
+                otherVenmo = post.user.venmoHandle,
+                chatId = chatId
+            )
+        )
     }
 }

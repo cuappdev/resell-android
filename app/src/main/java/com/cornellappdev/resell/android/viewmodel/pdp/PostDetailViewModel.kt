@@ -264,20 +264,6 @@ class PostDetailViewModel @Inject constructor(
                     )
                 }
                 contactSeller(
-                    onSuccess = {
-                        applyMutation {
-                            copy(
-                                contactButtonState = ResellTextButtonState.ENABLED
-                            )
-                        }
-                    },
-                    onError = {
-                        applyMutation {
-                            copy(
-                                contactButtonState = ResellTextButtonState.ENABLED
-                            )
-                        }
-                    },
                     postsRepository = postsRepository,
                     rootConfirmationRepository = rootConfirmationRepository,
                     rootNavigationRepository = rootNavigationRepository,
@@ -289,9 +275,8 @@ class PostDetailViewModel @Inject constructor(
                     listingId = postId,
                     otherId = uid
                 )
-
             } catch (e: Exception) {
-                Log.e("PostDetailViewModel", "Error fetching user info: ", e)
+                Log.e("PostDetailViewModel", "Error contacting seller: ", e)
                 applyMutation {
                     copy(
                         contactButtonState = ResellTextButtonState.ENABLED

@@ -1,5 +1,6 @@
 package com.cornellappdev.resell.android.viewmodel.main
 
+import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.cornellappdev.resell.android.model.api.ChatRepository
 import com.cornellappdev.resell.android.model.chats.ChatHeaderData
@@ -73,25 +74,29 @@ class MessagesViewModel @Inject constructor(
     }
 
     fun onMessagePressed(historyEntry: ChatHeaderData) = viewModelScope.launch {
-        val myId = userInfoRepository.getUserId() ?: ""
-        contactSeller(
-            onSuccess = {},
-            onError = {},
-            postsRepository = postsRepository,
-            rootConfirmationRepository = rootConfirmationRepository,
-            rootNavigationRepository = rootNavigationRepository,
-            listingId = historyEntry.listingId,
-            isBuyer = stateValue().chatType == ChatType.Purchases,
-            name = historyEntry.name,
-            pfp = historyEntry.imageUrl,
-            myId = myId,
-            fireStoreRepository = fireStoreRepository,
-            otherId = historyEntry.userId
-        )
+        try {
+            val myId = userInfoRepository.getUserId() ?: ""
+            contactSeller(
+                postsRepository = postsRepository,
+                rootConfirmationRepository = rootConfirmationRepository,
+                rootNavigationRepository = rootNavigationRepository,
+                listingId = historyEntry.listingId,
+                isBuyer = stateValue().chatType == ChatType.Purchases,
+                name = historyEntry.name,
+                pfp = historyEntry.imageUrl,
+                myId = myId,
+                fireStoreRepository = fireStoreRepository,
+                otherId = historyEntry.userId
+            )
 
-        // Wait a bit then reload; loads the marked as read.
-        delay(1000)
-        onLoad()
+            // Wait a bit then reload; loads the marked as read.
+            delay(400)
+            onLoad()
+        }
+        catch(e: Exception) {
+            Log.e("MessagesViewModel", "Error navigating to chat: ", e)
+            rootConfirmationRepository.showError()
+        }
     }
 
     fun onChangeChatType(chatType: ChatType) {
