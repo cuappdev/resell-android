@@ -342,13 +342,21 @@ class ChatRepository @Inject constructor(
         }
     }
 
+    /**
+     * Marks the most recent message in a chat as read.
+     * Only triggers if the most recent message is not already read.
+     */
     suspend fun markChatRead(
         chatId: String,
-        messageId: String,
+        myId: String,
     ) {
+        val mostRecentMessage = fireStoreRepository.getMostRecentMessageId(chatId) ?: ""
+        if (fireStoreRepository.getMostRecentMessageRead(chatId, myId)) {
+            return
+        }
         retrofitInstance.chatApi.markChatRead(
             chatId = chatId,
-            messageId = messageId,
+            messageId = mostRecentMessage,
             markReadBody = MarkReadBody(
                 read = true
             )
