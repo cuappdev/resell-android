@@ -10,6 +10,7 @@ import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
+import retrofit2.http.Query
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -17,10 +18,13 @@ import java.util.TimeZone
 
 interface PostsApiService {
     @GET("post")
-    suspend fun getPosts(): PostsResponse
+    suspend fun getPosts(
+        @Query("page") page: Int = 1,
+        @Query("limit") size: Int = 10
+    ): PostsResponse
 
     @GET("post/id/{id}")
-    suspend fun getPost(@Path("id") id: String): Post
+    suspend fun getPost(@Path("id") id: String): PostResponse
 
     @GET("post/similar/postId/{id}")
     suspend fun getSimilarPosts(@Path("id") id: String): PostsResponse
@@ -64,7 +68,7 @@ data class SearchRequest(
 )
 
 data class CategoryRequest(
-    val category: String
+    val categories: List<String>
 )
 
 
@@ -81,7 +85,7 @@ data class Post(
     val id: String,
     val title: String,
     val description: String,
-    val category: String,
+    val category: String?,
     val archive: Boolean,
     private val created: String,
     @SerializedName("altered_price") val alteredPrice: String,
@@ -102,7 +106,8 @@ data class Post(
             title = title,
             images = images,
             price = priceString,
-            categories = listOf(category),
+            // TODO: Some posts are given a null category? Find out why
+            categories = listOf(category ?: ""),
             description = description,
             user = user?.toUserInfo() ?: richieUserInfo.apply {
                 Log.e("PostsApiService", "User is null")

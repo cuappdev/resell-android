@@ -8,7 +8,9 @@ import android.util.Base64
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.toPixelMap
+import com.google.firebase.Timestamp
 import java.io.ByteArrayOutputStream
+import java.time.Instant
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Date
@@ -111,6 +113,13 @@ fun getRelativeTimeSpan(isoString: String): String {
         currentTimeMillis,
         DateUtils.MINUTE_IN_MILLIS
     ).toString()
+}
+
+fun getRelativeTimeSpan(timestamp: Timestamp): String {
+    val instant = Instant.ofEpochSecond(timestamp.seconds, timestamp.nanoseconds.toLong())
+    val isoString = DateTimeFormatter.ISO_INSTANT.format(instant)
+
+    return getRelativeTimeSpan(isoString)
 }
 
 fun closeApp(context: Context) {

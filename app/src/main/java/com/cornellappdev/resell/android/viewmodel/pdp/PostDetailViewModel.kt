@@ -6,11 +6,11 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
-import com.cornellappdev.resell.android.model.api.CategoryRequest
 import com.cornellappdev.resell.android.model.api.RetrofitInstance
 import com.cornellappdev.resell.android.model.classes.Listing
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.model.core.UserInfoRepository
+import com.cornellappdev.resell.android.model.login.FireStoreRepository
 import com.cornellappdev.resell.android.model.login.FirebaseMessagingRepository
 import com.cornellappdev.resell.android.model.pdp.ImageBitmapLoader
 import com.cornellappdev.resell.android.model.posts.ResellPostRepository
@@ -43,6 +43,7 @@ class PostDetailViewModel @Inject constructor(
     private val rootConfirmationRepository: RootConfirmationRepository,
     private val profileRepository: ProfileRepository,
     private val firebaseMessagingRepository: FirebaseMessagingRepository,
+    private val fireStoreRepository: FireStoreRepository,
     savedStateHandle: SavedStateHandle
 ) : ResellViewModel<PostDetailViewModel.UiState>(
     initialUiState = UiState()
@@ -252,7 +253,7 @@ class PostDetailViewModel @Inject constructor(
 
     fun onContactClick() {
         val uid = stateValue().uid
-        val id = stateValue().postId
+        val postId = stateValue().postId
 
         viewModelScope.launch {
             try {
@@ -263,33 +264,18 @@ class PostDetailViewModel @Inject constructor(
                     )
                 }
                 contactSeller(
-                    id = id,
-                    onSuccess = {
-                        applyMutation {
-                            copy(
-                                contactButtonState = ResellTextButtonState.ENABLED
-                            )
-                        }
-                    },
-                    onError = {
-                        applyMutation {
-                            copy(
-                                contactButtonState = ResellTextButtonState.ENABLED
-                            )
-                        }
-                    },
-                    profileRepository = profileRepository,
                     postsRepository = postsRepository,
-                    rootConfirmationRepository = rootConfirmationRepository,
                     rootNavigationRepository = rootNavigationRepository,
-                    isBuyer = true,
-                    email = userInfo.email,
+                    fireStoreRepository = fireStoreRepository,
+                    name = userInfo.name,
+                    myId = userInfoRepository.getUserId() ?: "",
+                    otherId = uid,
                     pfp = userInfo.imageUrl,
-                    name = userInfo.name
+                    listingId = postId,
+                    isBuyer = true
                 )
-
             } catch (e: Exception) {
-                Log.e("PostDetailViewModel", "Error fetching user info: ", e)
+                Log.e("PostDetailViewModel", "Error contacting seller: ", e)
                 applyMutation {
                     copy(
                         contactButtonState = ResellTextButtonState.ENABLED

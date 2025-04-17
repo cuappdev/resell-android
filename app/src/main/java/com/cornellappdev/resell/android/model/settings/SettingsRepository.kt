@@ -75,11 +75,6 @@ class SettingsRepository @Inject constructor(
             )
         )
 
-        fireStoreRepository.saveVenmo(
-            userInfoRepository.getEmail()!!,
-            venmo
-        )
-
         profileRepository.fetchInternalProfile(userInfoRepository.getUserId()!!)
     }
 }

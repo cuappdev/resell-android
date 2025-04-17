@@ -38,7 +38,8 @@ fun Timestamp.toDateString(): String {
 
 fun LocalDateTime.convertToFirestoreTimestamp(): Timestamp {
     // Convert LocalDateTime to Instant using UTC-5 offset
-    val instant = this.toInstant(ZoneOffset.ofHours(-5))
+    //  For some reason this became -4 after backend refactor? Should be -5
+    val instant = this.toInstant(ZoneOffset.ofHours(-4))
 
     // Create Firestore Timestamp from Instant
     return Timestamp(instant.epochSecond, instant.nano)

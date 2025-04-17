@@ -1,6 +1,5 @@
 package com.cornellappdev.resell.android.model.api
 
-import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
@@ -8,23 +7,26 @@ import com.cornellappdev.resell.android.model.Chat
 import com.cornellappdev.resell.android.model.ChatMessageCluster
 import com.cornellappdev.resell.android.model.ChatMessageData
 import com.cornellappdev.resell.android.model.MessageType
+import com.cornellappdev.resell.android.model.chats.AvailabilityBlock
 import com.cornellappdev.resell.android.model.chats.AvailabilityDocument
-import com.cornellappdev.resell.android.model.chats.BuyerSellerData
 import com.cornellappdev.resell.android.model.chats.ChatDocument
+import com.cornellappdev.resell.android.model.chats.ChatHeaderData
 import com.cornellappdev.resell.android.model.chats.MeetingInfo
-import com.cornellappdev.resell.android.model.chats.UserDocument
+import com.cornellappdev.resell.android.model.chats.RawChatHeaderData
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.model.core.UserInfoRepository
 import com.cornellappdev.resell.android.model.login.FireStoreRepository
 import com.cornellappdev.resell.android.model.login.GoogleAuthRepository
 import com.cornellappdev.resell.android.model.login.PreferencesKeys
 import com.cornellappdev.resell.android.model.posts.ResellPostRepository
+import com.cornellappdev.resell.android.model.profile.ProfileRepository
 import com.cornellappdev.resell.android.util.toDateString
-import com.cornellappdev.resell.android.util.toIsoString
-import com.cornellappdev.resell.android.viewmodel.main.ChatViewModel
 import com.google.firebase.Timestamp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.firstOrNull
@@ -48,14 +50,15 @@ class ChatRepository @Inject constructor(
     private val retrofitInstance: RetrofitInstance,
     private val googleAuthRepository: GoogleAuthRepository,
     private val dataStore: DataStore<Preferences>,
+    private val profileRepository: ProfileRepository,
 ) {
 
     private val _buyersHistoryFlow =
-        MutableStateFlow<ResellApiResponse<List<BuyerSellerData>>>(ResellApiResponse.Pending)
+        MutableStateFlow<ResellApiResponse<List<ChatHeaderData>>>(ResellApiResponse.Pending)
     val buyersHistoryFlow = _buyersHistoryFlow.asStateFlow()
 
     private val _sellersHistoryFlow =
-        MutableStateFlow<ResellApiResponse<List<BuyerSellerData>>>(ResellApiResponse.Pending)
+        MutableStateFlow<ResellApiResponse<List<ChatHeaderData>>>(ResellApiResponse.Pending)
     val sellersHistoryFlow = _sellersHistoryFlow.asStateFlow()
 
     private val _subscribedChatFlow =
@@ -63,92 +66,192 @@ class ChatRepository @Inject constructor(
     val subscribedChatFlow = _subscribedChatFlow.asStateFlow()
 
     /**
-     * Starts loading the chat history and sends it down [sellersHistoryFlow].
+     * Starts the subscription to the chat history for the buyer.
+     *
+     * Whenever an update would occur, it will be sent down [buyersHistoryFlow].
      */
-    fun fetchSellersHistory() {
-        _sellersHistoryFlow.value = ResellApiResponse.Pending
+    fun subscribeToBuyerHistory() {
+        _buyersHistoryFlow.value = ResellApiResponse.Pending
         CoroutineScope(Dispatchers.IO).launch {
-            try {
-                val sellerData =
-                    fireStoreRepository.getSellerHistory(userInfoRepository.getEmail()!!)
-                _sellersHistoryFlow.value = ResellApiResponse.Success(sellerData)
-            } catch (e: Exception) {
-                _sellersHistoryFlow.value = ResellApiResponse.Error
-                Log.e("ChatRepository", "Error fetching buyer history: ", e)
+            val myId = userInfoRepository.getUserId() ?: ""
+            fireStoreRepository.subscribeToBuyerHistory(myId = myId) { rawData ->
+                CoroutineScope(Dispatchers.IO).launch {
+                    val (listings, users) = getListingAndUserData(rawData, myId)
+                    val chatHeaders = rawData.map {
+                        val user = users.firstOrNull { user ->
+                            user.user.id != myId
+                        }?.user
+
+                        val item = listings.firstOrNull { listing ->
+                            listing.id == it.listingID
+                        }
+
+                        ChatHeaderData(
+                            recentMessage = it.lastMessage,
+                            updatedAt = it.updatedAt,
+                            read = fireStoreRepository.getMostRecentMessageRead(it.chatID, myId),
+                            name = user?.username ?: "",
+                            imageUrl = user?.photoUrl ?: "",
+                            listingId = it.listingID,
+                            listingName = item?.title ?: "",
+                            chatId = it.chatID,
+                            userId = user?.id ?: "",
+                        )
+                    }
+
+                    _buyersHistoryFlow.value = ResellApiResponse.Success(chatHeaders)
+                }
             }
         }
     }
 
     /**
-     * Starts loading the chat history and sends it down [buyersHistoryFlow].
+     * Starts the subscription to the chat history for the seller.
+     *
+     * Whenever an update would occur, it will be sent down [sellersHistoryFlow].
      */
-    fun fetchBuyersHistory() {
-        _buyersHistoryFlow.value = ResellApiResponse.Pending
+    fun subscribeToSellerHistory() {
+        _sellersHistoryFlow.value = ResellApiResponse.Pending
         CoroutineScope(Dispatchers.IO).launch {
-            try {
-                val buyerData =
-                    fireStoreRepository.getBuyerHistory(userInfoRepository.getEmail()!!)
-                _buyersHistoryFlow.value = ResellApiResponse.Success(buyerData)
-            } catch (e: Exception) {
-                _buyersHistoryFlow.value = ResellApiResponse.Error
-                Log.e("ChatRepository", "Error fetching buyer history: ", e)
+            val myId = userInfoRepository.getUserId() ?: ""
+            fireStoreRepository.subscribeToSellerHistory(myId = myId) { rawData ->
+                CoroutineScope(Dispatchers.IO).launch {
+                    val (listings, users) = getListingAndUserData(rawData, myId)
+                    val chatHeaders = rawData.map {
+                        val user = users.firstOrNull { user ->
+                            user.user.id != myId
+                        }?.user
+
+                        val item = listings.firstOrNull { listing ->
+                            listing.id == it.listingID
+                        }
+
+                        ChatHeaderData(
+                            recentMessage = it.lastMessage,
+                            updatedAt = it.updatedAt,
+                            read = fireStoreRepository.getMostRecentMessageRead(it.chatID, myId),
+                            name = user?.username ?: "",
+                            imageUrl = user?.photoUrl ?: "",
+                            listingId = it.listingID,
+                            listingName = item?.title ?: "",
+                            chatId = it.chatID,
+                            userId = user?.id ?: "",
+                        )
+                    }
+
+                    _sellersHistoryFlow.value = ResellApiResponse.Success(chatHeaders)
+                }
             }
         }
     }
 
+    /**
+     * Asynchronously loads all users and listings for the given [rawData] in parallel.
+     */
+    private suspend fun getListingAndUserData(
+        rawData: List<RawChatHeaderData>,
+        myId: String
+    ): Pair<List<Post>, List<UserResponse>> = coroutineScope {
+        val listingIds = rawData.map {
+            it.listingID
+        }.toSet()
+        val otherUserIds = rawData.map {
+            it.userIDs.first {
+                it != myId
+            }
+        }.toSet()
+
+        val deferredListings = listingIds.map { id ->
+            async {
+                postRepository.getPostById(id)
+            }
+        }
+
+        val deferredUsers = otherUserIds.map { id ->
+            async {
+                profileRepository.getUserById(id)
+            }
+        }
+
+        val allDeferred = deferredListings + deferredUsers
+
+        val data = allDeferred.awaitAll()
+        val listings = data.filterIsInstance<Post>()
+        val userResponses = data.filterIsInstance<UserResponse>()
+
+        return@coroutineScope Pair(listings, userResponses)
+    }
+
     fun subscribeToChat(
-        myEmail: String,
-        otherEmail: String,
-        selfIsBuyer: Boolean,
+        chatId: String,
+        myId: String,
         myName: String,
-        otherName: String
+        otherName: String,
+        otherPfp: String,
     ) {
         fireStoreRepository.subscribeToChat(
-            sellerEmail = if (selfIsBuyer) otherEmail else myEmail,
-            buyerEmail = if (selfIsBuyer) myEmail else otherEmail
+            chatId = chatId
         ) {
             // Convert the List<ChatDocument> into a Chat
-            var otherPfp = ""
-
             // Step 1: Creates a list of Pair<ChatMessageData, String>.
             // The String is the sender's id.
             val messageData = it.map { document ->
                 val messageType =
-                    if (document.image.isNotEmpty()) {
+                    if (document.images?.isNotEmpty() == true) {
                         MessageType.Image
-                    } else if (document.availability != null) {
+                    } else if (document.availabilities != null) {
                         MessageType.Availability
-                    } else if (document.product != null) {
-                        MessageType.Card
-                    } else if (document.meetingInfo != null) {
+                    } else if (document.startDate != null) {
                         MessageType.State
                     } else {
                         MessageType.Message
                     }
 
-                if (document.user._id != myEmail) {
-                    otherPfp = document.user.avatar
+                val meetingInfo = document.startDate?.let {
+                    MeetingInfo(
+                        proposeTime = it,
+                        state = if (document.accepted == true) {
+                            "confirmed"
+                        } else if (document.accepted == false) {
+                            "declined"
+                        } else {
+                            "proposed"
+                        },
+                        mostRecent = false
+                    )
+                }
+
+                val availability = document.availabilities?.let {
+                    AvailabilityDocument(
+                        availabilities = it.map {
+                            AvailabilityBlock(
+                                startDate = it.startDate,
+                                // lmao wtf is ID
+                                id = it.hashCode()
+                            )
+                        }
+                    )
                 }
 
                 Pair(
                     ChatMessageData(
-                        id = document._id,
-                        content = if (document.meetingInfo != null) {
+                        id = document.id,
+                        content = if (meetingInfo != null) {
                             getMeetingInfoContent(
-                                document.meetingInfo,
-                                document,
-                                myEmail,
-                                otherName
+                                meetingInfo = meetingInfo,
+                                document = document,
+                                myId = myId,
+                                otherName = otherName
                             )
-                        } else document.text,
-                        timestamp = document.createdAt,
-                        senderEmail = document.user._id,
+                        } else document.text ?: "",
+                        timestamp = document.timestamp,
+                        senderId = document.senderId,
                         messageType = messageType,
-                        imageUrl = document.image,
-                        post = document.product,
-                        availability = document.availability,
-                        meetingInfo = document.meetingInfo
-                    ), document.user._id
+                        imageUrl = document.images?.firstOrNull() ?: "",
+                        availability = availability,
+                        meetingInfo = meetingInfo
+                    ),
+                    document.senderId
                 )
             }
 
@@ -156,36 +259,36 @@ class ChatRepository @Inject constructor(
             val messageClusters = mutableListOf<ChatMessageCluster>()
 
             var currentList = mutableListOf<ChatMessageData>()
-            var currentSender = ""
+            var currentSenderId = ""
 
-            messageData.forEach { (message, sender) ->
-                if (sender != currentSender) {
-                    if (currentSender.isNotEmpty()) {
+            messageData.forEach { (message, senderId) ->
+                if (senderId != currentSenderId) {
+                    if (currentSenderId.isNotEmpty()) {
                         messageClusters.add(
                             ChatMessageCluster(
-                                fromUser = currentSender == myEmail,
-                                senderId = currentSender,
+                                fromUser = currentSenderId == myId,
+                                senderId = currentSenderId,
                                 messages = currentList.toImmutableList(),
                                 senderImage = otherPfp,
-                                senderName = if (currentSender == myEmail) myName else otherName
+                                senderName = if (currentSenderId == myId) myName else otherName
                             )
                         )
                     }
                     currentList = mutableListOf(message)
-                    currentSender = sender
+                    currentSenderId = senderId
                 } else {
                     currentList.add(message)
                 }
             }
 
-            if (currentSender.isNotEmpty()) {
+            if (currentSenderId.isNotEmpty()) {
                 messageClusters.add(
                     ChatMessageCluster(
-                        fromUser = currentSender == myEmail,
-                        senderId = currentSender,
+                        fromUser = currentSenderId == myId,
+                        senderId = currentSenderId,
                         messages = currentList.toImmutableList(),
                         senderImage = otherPfp,
-                        senderName = if (currentSender == myEmail) myName else otherName
+                        senderName = if (currentSenderId == myId) myName else otherName
                     )
                 )
             }
@@ -209,7 +312,7 @@ class ChatRepository @Inject constructor(
                                 content = messageData.timestamp.toDateString(),
                                 timestamp = messageData.timestamp,
                                 messageType = MessageType.State,
-                                senderEmail = currentSender,
+                                senderId = currentSenderId,
                             )
                         )
                         newCluster = newCluster.copy(messages = newMessages.toImmutableList())
@@ -240,26 +343,35 @@ class ChatRepository @Inject constructor(
         }
     }
 
+    /**
+     * Marks the most recent message in a chat as read.
+     * Only triggers if the most recent message is not already read.
+     */
     suspend fun markChatRead(
-        myEmail: String,
-        otherEmail: String,
-        chatType: ChatViewModel.ChatType,
+        chatId: String,
+        myId: String,
     ) {
-        fireStoreRepository.markChatAsRead(
-            myEmail = myEmail,
-            otherEmail = otherEmail,
-            chatType = chatType
+        val mostRecentMessage = fireStoreRepository.getMostRecentMessageId(chatId) ?: ""
+        if (fireStoreRepository.getMostRecentMessageRead(chatId, myId)) {
+            return
+        }
+        retrofitInstance.chatApi.markChatRead(
+            chatId = chatId,
+            messageId = mostRecentMessage,
+            markReadBody = MarkReadBody(
+                read = true
+            )
         )
     }
 
     private fun getMeetingInfoContent(
         meetingInfo: MeetingInfo,
         document: ChatDocument,
-        myEmail: String,
+        myId: String,
         otherName: String
     ) = when (meetingInfo.state) {
         "proposed" -> {
-            if (document.user._id == myEmail) {
+            if (document.senderId == myId) {
                 "You proposed a new meeting"
             } else {
                 "$otherName proposed a new meeting"
@@ -267,7 +379,7 @@ class ChatRepository @Inject constructor(
         }
 
         "confirmed" -> {
-            if (document.user._id == myEmail) {
+            if (document.senderId == myId) {
                 "You accepted a new meeting"
             } else {
                 "$otherName accepted a new meeting"
@@ -275,7 +387,7 @@ class ChatRepository @Inject constructor(
         }
 
         "declined" -> {
-            if (document.user._id == myEmail) {
+            if (document.senderId == myId) {
                 "You declined the meeting proposal"
             } else {
                 "$otherName declined the meeting proposal"
@@ -283,7 +395,7 @@ class ChatRepository @Inject constructor(
         }
 
         "canceled" -> {
-            if (document.user._id == myEmail) {
+            if (document.senderId == myId) {
                 "You canceled the meeting"
             } else {
                 "$otherName canceled the meeting"
@@ -296,285 +408,152 @@ class ChatRepository @Inject constructor(
     }
 
     private suspend fun sendGenericMessage(
-        myEmail: String,
-        otherEmail: String,
-        myName: String,
-        otherName: String,
-        myImageUrl: String,
-        otherImageUrl: String,
         selfIsBuyer: Boolean,
-        postId: String,
-        imageUrl: String? = null,
+        listingId: String,
+        myId: String,
+        otherId: String,
         text: String? = null,
         availability: AvailabilityDocument? = null,
-        meetingInfo: MeetingInfo? = null
+        meetingInfo: MeetingInfo? = null,
+        imageUrls: List<String>,
+        chatId: String,
     ) {
-        val currentTimeMillis = System.currentTimeMillis()
-        val userInfo = userInfoRepository.getUserInfo()
+        val buyerId = if (selfIsBuyer) myId else otherId
+        val sellerId = if (selfIsBuyer) otherId else myId
 
-        val sellerEmail = if (selfIsBuyer) otherEmail else myEmail
-        val buyerEmail = if (selfIsBuyer) myEmail else otherEmail
-
-        val sellerName = if (selfIsBuyer) otherName else myName
-        val buyerName = if (selfIsBuyer) myName else otherName
-
-        val sellerImageUrl = if (selfIsBuyer) otherImageUrl else myImageUrl
-        val buyerImageUrl = if (selfIsBuyer) myImageUrl else otherImageUrl
-
-        val time = Timestamp.now()
-
-        val userDocument = UserDocument(
-            _id = myEmail,
-            name = userInfo.name,
-            avatar = userInfo.imageUrl
-        )
-        val chatDocument = ChatDocument(
-            _id = currentTimeMillis.toString(),
-            createdAt = time,
-            image = imageUrl ?: "",
-            text = text ?: "",
-            user = userDocument,
-            availability = availability,
-            // Product handled later
-            product = null,
-            meetingInfo = meetingInfo,
-        )
-
-        val item = (postRepository.allPostsFlow.value.asSuccessOrNull()?.data?.firstOrNull {
-            it.id == postId
-        } ?: postRepository.getPostById(postId)).copy(
-            id = postId,
-        )
-
-        // Before sending, if it's the first message in the chat, send a product message.
-        val response = subscribedChatFlow.value
-        if (response is ResellApiResponse.Success && response.data.chatHistory.isEmpty()) {
-            fireStoreRepository.sendProductMessage(
-                buyerEmail = buyerEmail,
-                sellerEmail = sellerEmail,
-                otherDocument = chatDocument,
-                post = item
-            )
-        }
-
-        fireStoreRepository.sendChatMessage(
-            buyerEmail = buyerEmail,
-            sellerEmail = sellerEmail,
-            chatDocument = chatDocument
-        )
-
-        val recentMessage = when {
-            !text.isNullOrEmpty() -> text
-            !imageUrl.isNullOrEmpty() -> "[Image]"
-            availability != null -> "[Availability]"
-            meetingInfo != null -> {
-                when (meetingInfo.state) {
-                    "proposed" -> "[Meeting Proposal]"
-                    "confirmed" -> "[Meeting Accepted!]"
-                    "declined" -> "[Meeting Declined]"
-                    "canceled" -> "[Meeting Canceled]"
-                    else -> "[Meeting Details]"
-                }
-            }
-            else -> {
-                ""
-            }
-        }
-
-        val notificationText = when {
-            !text.isNullOrEmpty() -> text
-            !imageUrl.isNullOrEmpty() -> "Sent an Image"
-            availability != null -> "Sent their Availability"
-            meetingInfo != null -> {
-                when (meetingInfo.state) {
-                    "proposed" -> "Proposed a Meeting"
-                    "confirmed" -> "Accepted a Meeting!"
-                    "declined" -> "Declined a Meeting"
-                    "canceled" -> "Canceled a Meeting"
-                    else -> "Updated Meeting Details"
-                }
-            }
-
-            else -> {
-                ""
-            }
-        }
-
-        // The data that will go into the `seller` entry of the buyer. Amazing.
-        //  Basically, this belongs the buyer.
-        //  SO, this should be information about the seller.
-        val sellerData = BuyerSellerData(
-            item = item,
-            recentMessage = recentMessage,
-            viewed = selfIsBuyer,
-            name = sellerName,
-            image = sellerImageUrl,
-            recentMessageTime = time.toIsoString(),
-            recentSender = myName,
-            confirmedTime = "",
-            confirmedViewed = false,
-        )
-
-        // Information about the buyer. Shown to the seller.
-        val buyerData = BuyerSellerData(
-            item = item,
-            recentMessage = recentMessage,
-            viewed = !selfIsBuyer,
-            name = buyerName,
-            image = buyerImageUrl,
-            recentMessageTime = time.toIsoString(),
-            recentSender = myName,
-            confirmedTime = "",
-            confirmedViewed = false,
-        )
-
-        fireStoreRepository.updateBuyerHistory(
-            buyerEmail = buyerEmail,
-            sellerEmail = sellerEmail,
-            data = buyerData
-        )
-
-        fireStoreRepository.updateSellerHistory(
-            buyerEmail = buyerEmail,
-            sellerEmail = sellerEmail,
-            data = sellerData
-        )
-
-        fireStoreRepository.updateItems(
-            email = buyerEmail,
-            postId = postId,
-            post = item
-        )
-
-        val otherNotifsEnabled = fireStoreRepository.getNotificationsEnabled(
-            otherEmail
-        )
-
-        val token = fireStoreRepository.getUserFCMToken(
-            email = otherEmail,
-        )
-        Log.d("ChatRepository", "Token: $token")
-        val oauth = googleAuthRepository.getOAuthToken()
-        if (token != null && otherNotifsEnabled) {
-            retrofitInstance.notificationsApi.sendNotification(
-                body = FcmBody(
-                    message = FcmMessage(
-                        notification = FcmNotification(
-                            title = myName,
-                            body = notificationText,
-                        ),
-                        token = token,
-                        data = NotificationData.ChatNotification(
-                            name = myName,
-                            email = myEmail,
-                            pfp = myImageUrl,
-                            postJson = Json.encodeToString(item),
-                            isBuyer = (!selfIsBuyer).toString(),
-                        )
-                    )
+        if (text != null) {
+            retrofitInstance.chatApi.sendChat(
+                chatBody = ChatBody(
+                    buyerId = buyerId,
+                    sellerId = sellerId,
+                    listingId = listingId,
+                    text = text,
+                    senderId = myId,
+                    images = imageUrls,
                 ),
-                authToken = "Bearer $oauth"
+                chatId = chatId
             )
+        } else if (availability != null) {
+            retrofitInstance.chatApi.sendAvailability(
+                availabilityBody = AvailabilityBody(
+                    buyerId = buyerId,
+                    sellerId = sellerId,
+                    listingId = listingId,
+                    senderId = myId,
+                    availabilities = availability.availabilities.map { block ->
+                        StartAndEnd(
+                            startDate = block.startDate,
+                            endDate = block.endDate
+                        )
+                    }
+                ),
+                chatId = chatId
+            )
+        } else if (meetingInfo != null) {
+
+            if (meetingInfo.state == "proposed") {
+                retrofitInstance.chatApi.sendProposal(
+                    proposalBody = ProposalBody(
+                        buyerId = buyerId,
+                        sellerId = sellerId,
+                        listingId = listingId,
+                        senderId = myId,
+                        startDate = meetingInfo.proposeTime,
+                        endDate = meetingInfo.endTime
+                    ),
+                    chatId = chatId
+                )
+            } else if (meetingInfo.state == "confirmed" || meetingInfo.state == "declined") {
+                retrofitInstance.chatApi.sendProposalResponse(
+                    proposalResponseBody = ProposalResponseBody(
+                        buyerId = buyerId,
+                        sellerId = sellerId,
+                        listingId = listingId,
+                        senderId = myId,
+                        startDate = meetingInfo.proposeTime,
+                        endDate = meetingInfo.endTime,
+                        accepted = meetingInfo.state == "confirmed"
+                    ),
+                    chatId = chatId
+                )
+            }
         }
     }
 
     suspend fun sendTextMessage(
-        myEmail: String,
-        otherEmail: String,
-        myName: String,
-        otherName: String,
-        myImageUrl: String,
-        otherImageUrl: String,
-        text: String,
         selfIsBuyer: Boolean,
-        postId: String,
+        listingId: String,
+        myId: String,
+        otherId: String,
+        text: String,
+        chatId: String,
     ) = sendGenericMessage(
-        myEmail = myEmail,
-        otherEmail = otherEmail,
-        myName = myName,
-        otherName = otherName,
-        myImageUrl = myImageUrl,
-        otherImageUrl = otherImageUrl,
         text = text,
         selfIsBuyer = selfIsBuyer,
-        postId = postId,
+        listingId = listingId,
+        myId = myId,
+        otherId = otherId,
+        imageUrls = emptyList(),
+        chatId = chatId
     )
 
     suspend fun sendImageMessage(
-        myEmail: String,
-        otherEmail: String,
-        myName: String,
-        otherName: String,
-        myImageUrl: String,
-        otherImageUrl: String,
-        imageBase64: String,
         selfIsBuyer: Boolean,
-        postId: String,
+        listingId: String,
+        myId: String,
+        otherId: String,
+        imageBase64: String,
+        chatId: String,
     ) {
         val url = retrofitInstance.userApi.uploadImage(
             body = ImageBody(
                 imageBase64 = imageBase64
             )
         ).image
-
         sendGenericMessage(
-            myEmail = myEmail,
-            otherEmail = otherEmail,
-            myName = myName,
-            otherName = otherName,
-            myImageUrl = myImageUrl,
-            otherImageUrl = otherImageUrl,
-            imageUrl = url,
             selfIsBuyer = selfIsBuyer,
-            postId = postId,
+            listingId = listingId,
+            myId = myId,
+            otherId = otherId,
+            imageUrls = listOf(url),
+            chatId = chatId,
+            text = ""
         )
     }
 
+
     suspend fun sendAvailability(
-        myEmail: String,
-        otherEmail: String,
-        myName: String,
-        otherName: String,
-        myImageUrl: String,
-        otherImageUrl: String,
         selfIsBuyer: Boolean,
-        postId: String,
-        availability: AvailabilityDocument
+        listingId: String,
+        myId: String,
+        otherId: String,
+        availability: AvailabilityDocument,
+        chatId: String,
     ) = sendGenericMessage(
-        availability = availability,
-        myEmail = myEmail,
-        otherEmail = otherEmail,
-        myName = myName,
-        otherName = otherName,
-        myImageUrl = myImageUrl,
-        otherImageUrl = otherImageUrl,
         selfIsBuyer = selfIsBuyer,
-        postId = postId
+        listingId = listingId,
+        myId = myId,
+        otherId = otherId,
+        imageUrls = listOf(),
+        availability = availability,
+        chatId = chatId
     )
 
-    /**
-     * Depending on
-     */
     suspend fun sendProposalUpdate(
-        myEmail: String,
-        otherEmail: String,
-        myName: String,
-        otherName: String,
-        myImageUrl: String,
-        otherImageUrl: String,
         selfIsBuyer: Boolean,
-        postId: String,
-        meetingInfo: MeetingInfo
+        listingId: String,
+        myId: String,
+        otherId: String,
+        meetingInfo: MeetingInfo,
+        chatId: String,
     ) = sendGenericMessage(
-        meetingInfo = meetingInfo,
-        myEmail = myEmail,
-        otherEmail = otherEmail,
-        myName = myName,
-        otherName = otherName,
-        myImageUrl = myImageUrl,
-        otherImageUrl = otherImageUrl,
         selfIsBuyer = selfIsBuyer,
-        postId = postId
+        listingId = listingId,
+        myId = myId,
+        otherId = otherId,
+        imageUrls = listOf(),
+        meetingInfo = meetingInfo,
+        chatId = chatId
     )
 
     private fun getFormattedTime(): String {
@@ -589,7 +568,7 @@ class ChatRepository @Inject constructor(
     }
 
     suspend fun shouldShowGCalSync(
-        otherEmail: String,
+        otherId: String,
         meetingDate: Date,
     ): Boolean {
         val mapString = dataStore.data.map { preferences ->
@@ -598,13 +577,13 @@ class ChatRepository @Inject constructor(
 
         val map = mapString?.let { Json.decodeFromString<Map<String, String>>(mapString) }
 
-        if (map != null && map[otherEmail] == meetingDate.toString()) {
+        if (map != null && map[otherId] == meetingDate.toString()) {
             return false
         }
 
         // Store new map, indicating that the user has already been notified for this meeting.
         val newMap = map?.toMutableMap() ?: mutableMapOf()
-        newMap[otherEmail] = meetingDate.toString()
+        newMap[otherId] = meetingDate.toString()
         dataStore.edit { preferences ->
             preferences[PreferencesKeys.GCAL_SYNC] = Json.encodeToString(newMap)
         }
