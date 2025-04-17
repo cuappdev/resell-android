@@ -90,7 +90,7 @@ class MessagesViewModel @Inject constructor(
         )
 
         // Wait a bit then reload; loads the marked as read.
-        delay(400)
+        delay(1000)
         onLoad()
     }
 

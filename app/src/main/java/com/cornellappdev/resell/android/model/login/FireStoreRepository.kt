@@ -1,7 +1,6 @@
 package com.cornellappdev.resell.android.model.login
 
 import android.util.Log
-import androidx.compose.ui.text.capitalize
 import com.cornellappdev.resell.android.model.api.StartAndEnd
 import com.cornellappdev.resell.android.model.chats.ChatDocument
 import com.cornellappdev.resell.android.model.chats.RawChatHeaderData
@@ -21,6 +20,8 @@ class FireStoreRepository @Inject constructor(
     private val refactoredChatsCollection = fireStore.collection("chats_refactored")
 
     private var lastSubscription: ListenerRegistration? = null
+    private var lastBuyerSubscription: ListenerRegistration? = null
+    private var lastSellerSubscription: ListenerRegistration? = null
 
     /**
      * Checks if the specified email has been onboarded.
@@ -136,7 +137,8 @@ class FireStoreRepository @Inject constructor(
         chatId: String,
         myId: String
     ): Boolean {
-        val messages = refactoredChatsCollection.document(chatId).collection("messages").orderBy("timestamp", Query.Direction.ASCENDING).get().await()
+        val messages = refactoredChatsCollection.document(chatId).collection("messages")
+            .orderBy("timestamp", Query.Direction.ASCENDING).get().await()
 
         return messages.documents.lastOrNull()?.let {
             it.get("read") as? Boolean == true || it.get("senderID") == myId
@@ -235,7 +237,9 @@ class FireStoreRepository @Inject constructor(
         myId: String,
         onSnapshotUpdate: (List<RawChatHeaderData>) -> Unit
     ) {
-        refactoredChatsCollection.whereEqualTo("sellerID", myId)
+        // Remove old subscription.
+        lastBuyerSubscription?.remove()
+        lastBuyerSubscription = refactoredChatsCollection.whereEqualTo("sellerID", myId)
             .addSnapshotListener { snapshot, _ ->
                 val data = snapshot?.documents?.mapNotNull { documentSnapshot ->
                     val chatId = documentSnapshot.id
@@ -264,7 +268,9 @@ class FireStoreRepository @Inject constructor(
         myId: String,
         onSnapshotUpdate: (List<RawChatHeaderData>) -> Unit
     ) {
-        refactoredChatsCollection.whereEqualTo("buyerID", myId)
+        // Remove old subscription.
+        lastSellerSubscription?.remove()
+        lastSellerSubscription = refactoredChatsCollection.whereEqualTo("buyerID", myId)
             .addSnapshotListener { snapshot, _ ->
                 val data = snapshot?.documents?.mapNotNull { documentSnapshot ->
                     val chatId = documentSnapshot.id
