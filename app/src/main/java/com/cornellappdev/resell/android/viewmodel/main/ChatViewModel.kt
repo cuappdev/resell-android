@@ -85,7 +85,6 @@ class ChatViewModel @Inject constructor(
         val title: String = "Unknown",
         val typedMessage: String = "",
         val scrollBottom: UIEvent<Unit>? = null,
-        val listing: Listing? = null,
         val mostRecentOtherAvailability: AvailabilityDocument? = null,
     ) {
         val showNegotiate
@@ -216,11 +215,11 @@ class ChatViewModel @Inject constructor(
             RootSheet.ProposalSheet(
                 confirmString = "Propose",
                 title = "What price do you want to propose?",
-                defaultPrice = stateValue().listing!!.price.replace("$", ""),
+                defaultPrice = listing.price.replace("$", ""),
                 callback = { price ->
                     if (stateValue().chatType == ChatType.Purchases) {
                         onTyped(
-                            message = "Hi! I'm interested in buying your ${stateValue().listing!!.title}, but would you be open to selling it for $$price?"
+                            message = "Hi! I'm interested in buying your ${listing.title}, but would you be open to selling it for $$price?"
                         )
                     } else {
                         onTyped(
@@ -599,13 +598,6 @@ class ChatViewModel @Inject constructor(
     }
 
     init {
-
-        applyMutation {
-            copy(
-                listing = listing,
-            )
-        }
-
         firebaseMessagingRepository.requestNotificationsPermission()
 
         val title = listing.title
@@ -672,9 +664,9 @@ class ChatViewModel @Inject constructor(
             // If chat has an availability message from the other user, show that tab.
             viewModelScope.launch {
                 if (response is ResellApiResponse.Success) {
-                    val myEmail = userInfoRepository.getEmail()!!
+                    val myId = userInfoRepository.getUserId()!!
                     val data = getFirstChatOrNull {
-                        it.availability != null && it.senderId != myEmail
+                        it.availability != null && it.senderId != myId
                     }
 
                     applyMutation {
