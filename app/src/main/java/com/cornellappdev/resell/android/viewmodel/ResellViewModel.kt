@@ -156,7 +156,6 @@ abstract class ResellViewModel<UiState>(initialUiState: UiState) : ViewModel() {
     protected suspend fun contactSeller(
         postsRepository: ResellPostRepository,
         rootNavigationRepository: RootNavigationRepository,
-        rootConfirmationRepository: RootConfirmationRepository,
         fireStoreRepository: FireStoreRepository,
         name: String,
         myId: String,
@@ -174,7 +173,6 @@ abstract class ResellViewModel<UiState>(initialUiState: UiState) : ViewModel() {
             listingId = post.id
         )
 
-        Log.d("helpme", post.toString())
         rootNavigationRepository.navigate(
             ResellRootRoute.CHAT(
                 isBuyer = isBuyer,

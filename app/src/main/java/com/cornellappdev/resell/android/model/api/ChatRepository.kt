@@ -147,18 +147,21 @@ class ChatRepository @Inject constructor(
         }
     }
 
+    /**
+     * Asynchronously loads all users and listings for the given [rawData] in parallel.
+     */
     private suspend fun getListingAndUserData(
         rawData: List<RawChatHeaderData>,
         myId: String
     ): Pair<List<Post>, List<UserResponse>> = coroutineScope {
         val listingIds = rawData.map {
             it.listingID
-        }
+        }.toSet()
         val otherUserIds = rawData.map {
             it.userIDs.first {
                 it != myId
             }
-        }
+        }.toSet()
 
         val deferredListings = listingIds.map { id ->
             async {

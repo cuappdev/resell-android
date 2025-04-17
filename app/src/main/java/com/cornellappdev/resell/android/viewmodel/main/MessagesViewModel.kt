@@ -6,11 +6,11 @@ import com.cornellappdev.resell.android.model.api.ChatRepository
 import com.cornellappdev.resell.android.model.chats.ChatHeaderData
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.model.classes.ResellApiState
+import com.cornellappdev.resell.android.model.classes.toResellApiState
 import com.cornellappdev.resell.android.model.core.UserInfoRepository
 import com.cornellappdev.resell.android.model.login.FireStoreRepository
 import com.cornellappdev.resell.android.model.posts.ResellPostRepository
 import com.cornellappdev.resell.android.model.profile.ProfileRepository
-import com.cornellappdev.resell.android.util.parseIsoDateToDate
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
 import com.cornellappdev.resell.android.viewmodel.main.ChatViewModel.ChatType
 import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepository
@@ -47,24 +47,22 @@ class MessagesViewModel @Inject constructor(
         val filteredChats = when (chatType) {
             ChatType.Purchases -> sellerChats
             ChatType.Offers -> buyerChats
-        }.let {
-            if (it is ResellApiResponse.Success) {
-                it.data
+        }.let { response ->
+            if (response is ResellApiResponse.Success) {
+                val list = response.data.sortedByDescending { headerData ->
+                    headerData.updatedAt
+                }
+                ResellApiResponse.Success(list)
             } else {
-                emptyList()
+                response
             }
-        }.sortedByDescending {
-            it.updatedAt
         }
 
-        val loadedState: ResellApiState =
-            if (buyerChats is ResellApiResponse.Success && sellerChats is ResellApiResponse.Success) {
-                ResellApiState.Success
-            } else if (buyerChats is ResellApiResponse.Error || sellerChats is ResellApiResponse.Error) {
-                ResellApiState.Error
-            } else {
-                ResellApiState.Loading
-            }
+        val loadedState: ResellApiState
+            get() = filteredChats.toResellApiState()
+
+        val loadedEmpty: Boolean
+            get() = filteredChats is ResellApiResponse.Success && filteredChats.data.isEmpty()
 
         val purchasesUnreads: Int
             get() = sellerChats.asSuccessOrNull()?.data?.filter { !it.read }?.size ?: 0
@@ -78,22 +76,20 @@ class MessagesViewModel @Inject constructor(
             val myId = userInfoRepository.getUserId() ?: ""
             contactSeller(
                 postsRepository = postsRepository,
-                rootConfirmationRepository = rootConfirmationRepository,
                 rootNavigationRepository = rootNavigationRepository,
-                listingId = historyEntry.listingId,
-                isBuyer = stateValue().chatType == ChatType.Purchases,
-                name = historyEntry.name,
-                pfp = historyEntry.imageUrl,
-                myId = myId,
                 fireStoreRepository = fireStoreRepository,
-                otherId = historyEntry.userId
+                name = historyEntry.name,
+                myId = myId,
+                otherId = historyEntry.userId,
+                pfp = historyEntry.imageUrl,
+                listingId = historyEntry.listingId,
+                isBuyer = stateValue().chatType == ChatType.Purchases
             )
 
             // Wait a bit then reload; loads the marked as read.
             delay(400)
             onLoad()
-        }
-        catch(e: Exception) {
+        } catch (e: Exception) {
             Log.e("MessagesViewModel", "Error navigating to chat: ", e)
             rootConfirmationRepository.showError()
         }

@@ -4,6 +4,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
@@ -14,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -25,6 +27,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.cornellappdev.resell.android.model.classes.ResellApiState
+import com.cornellappdev.resell.android.model.classes.toResellApiState
 import com.cornellappdev.resell.android.ui.components.chat.messages.MessageTag
 import com.cornellappdev.resell.android.ui.components.chat.messages.ResellMessagesScroll
 import com.cornellappdev.resell.android.ui.theme.Padding
@@ -57,39 +61,62 @@ fun MessagesScreen(
             purchasesUnreads = chatUiState.purchasesUnreads,
             offersUnreads = chatUiState.offersUnreads
         )
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(bottom = if (chatUiState.filteredChats.isEmpty()) 128.dp else 0.dp),
+                .padding(bottom = if (chatUiState.loadedEmpty) 128.dp else 0.dp),
             verticalArrangement = Arrangement.Center
         ) {
-            if (chatUiState.filteredChats.isEmpty()) {
-                val isOffers = chatUiState.chatType == ChatViewModel.ChatType.Offers
-                Text(
-                    modifier = Modifier.align(alignment = Alignment.CenterHorizontally),
-                    text = "No messages with ${if (isOffers) "buyers" else "sellers"} yet",
-                    style = Style.heading2
-                )
-                Spacer(modifier = Modifier.height(19.dp))
-                Text(
-                    modifier = Modifier.align(alignment = Alignment.CenterHorizontally),
-                    text = if (isOffers) "When a buyer contacts you, you'll see their messages here"
-                    else "When you contact a seller, you'll see your messages here",
-                    color = Color.Gray,
-                    textAlign = TextAlign.Center,
-                    style = Style.body1
-                )
-            } else {
-                ResellMessagesScroll(
-                    chats = chatUiState.filteredChats,
-                    onChatPressed = {
-                        messagesViewModel.onMessagePressed(it)
-                    },
-                    listState = listState,
-                    modifier = Modifier.fillMaxSize()
-                )
+            when (chatUiState.loadedState) {
+                ResellApiState.Loading -> {
+                    // TODO Loading State
+                }
+
+                ResellApiState.Error -> {
+                    // TODO Error State
+                }
+
+                ResellApiState.Success -> {
+                    LoadedContent(chatUiState, messagesViewModel, listState)
+                }
             }
+
         }
+    }
+}
+
+@Composable
+private fun ColumnScope.LoadedContent(
+    chatUiState: MessagesViewModel.MessagesUiState,
+    messagesViewModel: MessagesViewModel,
+    listState: LazyListState
+) {
+    if (chatUiState.filteredChats.asSuccess().data.isEmpty()) {
+        val isOffers = chatUiState.chatType == ChatViewModel.ChatType.Offers
+        Text(
+            modifier = Modifier.Companion.align(alignment = Alignment.CenterHorizontally),
+            text = "No messages with ${if (isOffers) "buyers" else "sellers"} yet",
+            style = Style.heading2
+        )
+        Spacer(modifier = Modifier.height(19.dp))
+        Text(
+            modifier = Modifier.Companion.align(alignment = Alignment.CenterHorizontally),
+            text = if (isOffers) "When a buyer contacts you, you'll see their messages here"
+            else "When you contact a seller, you'll see your messages here",
+            color = Color.Gray,
+            textAlign = TextAlign.Center,
+            style = Style.body1
+        )
+    } else {
+        ResellMessagesScroll(
+            chats = chatUiState.filteredChats.asSuccess().data,
+            onChatPressed = {
+                messagesViewModel.onMessagePressed(it)
+            },
+            listState = listState,
+            modifier = Modifier.fillMaxSize()
+        )
     }
 }
 

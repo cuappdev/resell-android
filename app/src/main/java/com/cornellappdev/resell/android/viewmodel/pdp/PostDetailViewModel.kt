@@ -265,15 +265,14 @@ class PostDetailViewModel @Inject constructor(
                 }
                 contactSeller(
                     postsRepository = postsRepository,
-                    rootConfirmationRepository = rootConfirmationRepository,
                     rootNavigationRepository = rootNavigationRepository,
                     fireStoreRepository = fireStoreRepository,
-                    isBuyer = true,
-                    pfp = userInfo.imageUrl,
                     name = userInfo.name,
                     myId = userInfoRepository.getUserId() ?: "",
+                    otherId = uid,
+                    pfp = userInfo.imageUrl,
                     listingId = postId,
-                    otherId = uid
+                    isBuyer = true
                 )
             } catch (e: Exception) {
                 Log.e("PostDetailViewModel", "Error contacting seller: ", e)
