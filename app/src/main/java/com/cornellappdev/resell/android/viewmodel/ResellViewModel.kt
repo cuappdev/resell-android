@@ -1,6 +1,5 @@
 package com.cornellappdev.resell.android.viewmodel
 
-import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.ViewModel

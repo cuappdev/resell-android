@@ -28,7 +28,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.resell.android.model.classes.ResellApiState
-import com.cornellappdev.resell.android.model.classes.toResellApiState
 import com.cornellappdev.resell.android.ui.components.chat.messages.MessageTag
 import com.cornellappdev.resell.android.ui.components.chat.messages.ResellMessagesScroll
 import com.cornellappdev.resell.android.ui.theme.Padding
