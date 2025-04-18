@@ -29,19 +29,14 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.foundation.text.appendInlineContent
-import androidx.compose.material3.BottomSheetScaffold
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -65,7 +60,6 @@ import com.cornellappdev.resell.android.model.classes.UserInfo
 import com.cornellappdev.resell.android.ui.components.global.AnimatedClampedAsyncImage
 import com.cornellappdev.resell.android.ui.components.global.resellListingScroll
 import com.cornellappdev.resell.android.ui.components.global.resellLoadingListingScroll
-import com.cornellappdev.resell.android.ui.components.main.FilterBottomSheet
 import com.cornellappdev.resell.android.ui.components.main.SearchBar
 import com.cornellappdev.resell.android.ui.theme.ResellPreview
 import com.cornellappdev.resell.android.ui.theme.Stroke
@@ -76,7 +70,6 @@ import kotlinx.coroutines.launch
 import kotlin.math.min
 import kotlin.random.Random
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     homeViewModel: HomeViewModel = hiltViewModel(),
@@ -85,74 +78,32 @@ fun HomeScreen(
     val homeUiState = homeViewModel.collectUiStateValue()
     val listState = rememberLazyStaggeredGridState()
     val coroutineScope = rememberCoroutineScope()
-    val scaffoldState = rememberBottomSheetScaffoldState()
-    var itemsOnSale by remember { mutableStateOf(false) }
-    val categoriesSelected =
-        remember { MutableList(7) { false }.toMutableStateList() }
-    val conditionsSelected =
-        remember { MutableList(7) { false }.toMutableStateList() }
-    BottomSheetScaffold(
-        sheetContent = {
-            FilterBottomSheet(
-                itemsOnSale = itemsOnSale,
-                onItemsOnSaleChanged = { itemsOnSale = it },
-                categoriesToggled = categoriesSelected,
-                onCategoryToggled = {
-                    categoriesSelected[it] = !categoriesSelected[it]
-                },
-                conditionsToggled = conditionsSelected,
-                onConditionToggled = { conditionsSelected[it] = !conditionsSelected[it] },
-                reset = {
-                    for (i in 0..<categoriesSelected.size) {
-                        categoriesSelected[i] = false
-                    }
-                    for (i in 0..<conditionsSelected.size) {
-                        conditionsSelected[i] = false
-                    }
-                },
-                applyFilters = {
-                    coroutineScope.launch {
-                        scaffoldState.bottomSheetState.hide()
-                    }
-                }
-            )
-        },
-        scaffoldState = scaffoldState,
-        modifier = Modifier
-            .fillMaxSize()
-            .background(color = Color.White),
-        containerColor = Color.White
-    ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .defaultHorizontalPadding()
-                .fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(24.dp),
-        ) {
-            HomeHeader(
-                onFilter = {
-                    coroutineScope.launch {
-                        scaffoldState.bottomSheetState.expand()
-                    }
-                },
-                onTopPressed = {
-                    coroutineScope.launch {
-                        listState.animateScrollToItem(0)
-                    }
-                },
-                onSearchPressed = homeViewModel::onSearchPressed
-            )
 
-            MainContent(
-                savedListings = homeUiState.savedListings,
-                getImageUrlState = homeViewModel::getImageUrlState,
-                onSavedPressed = onSavedPressed,
-                toPost = homeViewModel::onListingPressed,
-                loadedState = homeUiState.loadedState,
-                filteredListings = homeUiState.filteredListings,
-                onListingPressed = homeViewModel::onListingPressed
-            )
-        }
+    Column(
+        modifier = Modifier
+            .defaultHorizontalPadding()
+            .fillMaxSize(),
+        verticalArrangement = Arrangement.spacedBy(24.dp),
+    ) {
+        HomeHeader(
+            onFilter = {},// TODO
+            onTopPressed = {
+                coroutineScope.launch {
+                    listState.animateScrollToItem(0)
+                }
+            },
+            onSearchPressed = homeViewModel::onSearchPressed
+        )
+
+        MainContent(
+            savedListings = homeUiState.savedListings,
+            getImageUrlState = homeViewModel::getImageUrlState,
+            onSavedPressed = onSavedPressed,
+            toPost = homeViewModel::onListingPressed,
+            loadedState = homeUiState.loadedState,
+            filteredListings = homeUiState.filteredListings,
+            onListingPressed = homeViewModel::onListingPressed
+        )
     }
 }
 
