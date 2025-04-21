@@ -8,9 +8,6 @@ import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
 import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.cornellappdev.resell.android.ui.theme.Padding
@@ -25,15 +22,6 @@ fun ResellLoadingListingScroll(
     listState: LazyStaggeredGridState = rememberLazyStaggeredGridState(),
     header: @Composable () -> Unit = {},
 ) {
-    val randomList by remember {
-        mutableStateOf(List(50) { i ->
-            when (i) {
-                0 -> true
-                1 -> false
-                else -> Random.nextBoolean()
-            }
-        })
-    }
 
     LazyVerticalStaggeredGrid(
         columns = StaggeredGridCells.Fixed(2),
@@ -42,12 +30,19 @@ fun ResellLoadingListingScroll(
         verticalItemSpacing = Padding.medium,
     ) {
         item(span = StaggeredGridItemSpan.FullLine) { header() }
-        resellLoadingListingScroll(numCards = numCards, randomList = randomList)
+        resellLoadingListingScroll(numCards = numCards)
 
     }
 }
 
-fun LazyStaggeredGridScope.resellLoadingListingScroll(numCards: Int, randomList: List<Boolean>) {
+fun LazyStaggeredGridScope.resellLoadingListingScroll(numCards: Int) {
+    val randomList = List(50) { i ->
+        when (i) {
+            0 -> true
+            1 -> false
+            else -> Random.nextBoolean()
+        }
+    }
     // LazyVerticalStaggeredGrid takes at most Int.MAX_VALUE items
     items(numCards.coerceIn(0, Int.MAX_VALUE - 1)) { idx ->
         ResellLoadingCard(
