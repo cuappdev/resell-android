@@ -4,7 +4,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,7 +24,6 @@ import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridScope
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
-import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.InlineTextContent
@@ -36,8 +34,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -68,7 +64,6 @@ import com.cornellappdev.resell.android.ui.theme.Stroke
 import com.cornellappdev.resell.android.ui.theme.Style
 import com.cornellappdev.resell.android.util.defaultHorizontalPadding
 import com.cornellappdev.resell.android.viewmodel.main.HomeViewModel
-import kotlinx.coroutines.launch
 
 @Composable
 fun HomeScreen(
@@ -76,8 +71,6 @@ fun HomeScreen(
     onSavedPressed: () -> Unit
 ) {
     val homeUiState = homeViewModel.collectUiStateValue()
-    val listState = rememberLazyStaggeredGridState()
-    val coroutineScope = rememberCoroutineScope()
 
     Column(
         modifier = Modifier
@@ -86,11 +79,6 @@ fun HomeScreen(
     ) {
         HomeHeader(
             onFilter = {},// TODO
-            onTopPressed = {
-                coroutineScope.launch {
-                    listState.animateScrollToItem(0)
-                }
-            },
             onSearchPressed = homeViewModel::onSearchPressed,
             modifier = Modifier.defaultHorizontalPadding()
         )
@@ -110,9 +98,6 @@ fun HomeScreen(
 @Preview
 @Composable
 private fun HomeScreenPreview() = ResellPreview {
-    val listState = rememberLazyStaggeredGridState()
-    val coroutineScope = rememberCoroutineScope()
-
     val dumbListing = Listing(
         id = "1",
         title = "Dumb Listing",
@@ -138,11 +123,6 @@ private fun HomeScreenPreview() = ResellPreview {
     ) {
         HomeHeader(
             onFilter = {},
-            onTopPressed = {
-                coroutineScope.launch {
-                    listState.animateScrollToItem(0)
-                }
-            },
             onSearchPressed = {},
             modifier = Modifier.defaultHorizontalPadding()
         )
@@ -163,9 +143,6 @@ private fun HomeScreenPreview() = ResellPreview {
 @Preview
 @Composable
 private fun NoSavedPreview() = ResellPreview {
-    val listState = rememberLazyStaggeredGridState()
-    val coroutineScope = rememberCoroutineScope()
-
     Column(
         modifier = Modifier
             .fillMaxSize(),
@@ -173,11 +150,6 @@ private fun NoSavedPreview() = ResellPreview {
     ) {
         HomeHeader(
             onFilter = {},
-            onTopPressed = {
-                coroutineScope.launch {
-                    listState.animateScrollToItem(0)
-                }
-            },
             onSearchPressed = {},
             modifier = Modifier.defaultHorizontalPadding()
         )
@@ -198,7 +170,6 @@ private fun NoSavedPreview() = ResellPreview {
 @Composable
 private fun HomeHeader(
     onFilter: () -> Unit,
-    onTopPressed: () -> Unit,
     onSearchPressed: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -206,12 +177,6 @@ private fun HomeHeader(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable(
-                    interactionSource = remember { MutableInteractionSource() },
-                    indication = null,
-                ) {
-                    onTopPressed()
-                }
                 .windowInsetsPadding(WindowInsets.statusBars),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
@@ -443,8 +408,10 @@ private fun ShopByCategory() {
         ) {
             Text(text = "Shop by Category", style = Style.heading3)
         }
-        LazyRow(horizontalArrangement = Arrangement.spacedBy(16.dp),
-            contentPadding = PaddingValues(horizontal = 24.dp)) {
+        LazyRow(
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            contentPadding = PaddingValues(horizontal = 24.dp)
+        ) {
             items(CategoryItem.allCategories) { category ->
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
@@ -468,8 +435,10 @@ private fun ShopByCategory() {
                             contentScale = ContentScale.Fit
                         )
                     }
-                    Text(text = category.label, style = Style.title4,
-                        textAlign = TextAlign.Center)
+                    Text(
+                        text = category.label, style = Style.title4,
+                        textAlign = TextAlign.Center
+                    )
                 }
             }
         }
