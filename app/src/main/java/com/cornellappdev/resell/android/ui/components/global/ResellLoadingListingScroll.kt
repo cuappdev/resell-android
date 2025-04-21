@@ -10,7 +10,7 @@ import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridS
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.cornellappdev.resell.android.ui.theme.Padding
+import androidx.compose.ui.unit.dp
 import com.cornellappdev.resell.android.ui.theme.ResellPreview
 import kotlin.random.Random
 
@@ -27,7 +27,7 @@ fun ResellLoadingListingScroll(
         columns = StaggeredGridCells.Fixed(2),
         modifier = modifier,
         state = listState,
-        verticalItemSpacing = Padding.medium,
+        verticalItemSpacing = 24.dp
     ) {
         item(span = StaggeredGridItemSpan.FullLine) { header() }
         resellLoadingListingScroll(numCards = numCards)

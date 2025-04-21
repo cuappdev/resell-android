@@ -214,8 +214,7 @@ private fun MainContent(
     val preview = LocalInspectionMode.current
     LazyVerticalStaggeredGrid(
         modifier = Modifier.fillMaxWidth(),
-        columns = StaggeredGridCells.Fixed(2),
-        verticalItemSpacing = 12.dp
+        columns = StaggeredGridCells.Fixed(2)
     ) {
         item(span = StaggeredGridItemSpan.FullLine) {
             SavedByYou(
@@ -224,11 +223,15 @@ private fun MainContent(
                 onSavedPressed,
                 toPost,
             )
-            Spacer(Modifier.height(12.dp))
+        }
+        item {
+            Spacer(Modifier.height(24.dp))
         }
         item(span = StaggeredGridItemSpan.FullLine) {
             ShopByCategory()
-            Spacer(Modifier.height(12.dp))
+        }
+        item {
+            Spacer(Modifier.height(24.dp))
         }
         recentListings(
             loadedState = loadedState,
@@ -458,6 +461,12 @@ private fun LazyStaggeredGridScope.recentListings(
         ) {
             Text(text = "Recent Listings", style = Style.heading3)
         }
+    }
+    item(span = StaggeredGridItemSpan.FullLine) {
+        Spacer(
+            modifier = Modifier
+                .height(12.dp)
+        )
     }
     when (loadedState) {
         is ResellApiState.Success -> {

@@ -15,7 +15,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.cornellappdev.resell.android.model.classes.Listing
-import com.cornellappdev.resell.android.ui.theme.Padding
 
 
 @Composable
@@ -40,8 +39,8 @@ fun ResellListingsScroll(
             bottom = 100.dp,
             top = paddedTop,
         ),
-        verticalItemSpacing = Padding.medium,
-        modifier = modifier.fillMaxWidth(),
+        verticalItemSpacing = 24.dp,
+        modifier = modifier.fillMaxWidth()
     ) {
         item(span = StaggeredGridItemSpan.FullLine) {
             header()
@@ -52,9 +51,9 @@ fun ResellListingsScroll(
 
 fun calculateItemPadding(index: Int): PaddingValues {
     return if (index % 2 == 0) {
-        PaddingValues(start = 12.dp, end = 6.dp)
+        PaddingValues(start = 24.dp, end = 6.dp, bottom = 24.dp)
     } else {
-        PaddingValues(start = 6.dp, end = 12.dp)
+        PaddingValues(start = 6.dp, end = 24.dp, bottom = 24.dp)
     }
 }
 
@@ -62,7 +61,7 @@ fun LazyStaggeredGridScope.resellListingScroll(
     listings: List<Listing>,
     onListingPressed: (Listing) -> Unit
 ) {
-    itemsIndexed(items = listings) { idx,item ->
+    itemsIndexed(items = listings) { idx, item ->
         val padding = calculateItemPadding(idx)
         ResellCard(
             imageUrl = item.image,
