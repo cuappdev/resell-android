@@ -8,7 +8,7 @@ import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
-import androidx.compose.foundation.lazy.staggeredgrid.items
+import androidx.compose.foundation.lazy.staggeredgrid.itemsIndexed
 import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -50,16 +50,25 @@ fun ResellListingsScroll(
     }
 }
 
+fun calculateItemPadding(index: Int): PaddingValues {
+    return if (index % 2 == 0) {
+        PaddingValues(start = 12.dp, end = 6.dp)
+    } else {
+        PaddingValues(start = 6.dp, end = 12.dp)
+    }
+}
+
 fun LazyStaggeredGridScope.resellListingScroll(
     listings: List<Listing>,
     onListingPressed: (Listing) -> Unit
 ) {
-    items(items = listings) { item ->
+    itemsIndexed(items = listings) { idx,item ->
+        val padding = calculateItemPadding(idx)
         ResellCard(
             imageUrl = item.image,
             title = item.title,
             price = item.price,
-            modifier = Modifier.padding(horizontal = Padding.medium / 2f)
+            modifier = Modifier.padding(padding)
         ) {
             onListingPressed(item)
         }

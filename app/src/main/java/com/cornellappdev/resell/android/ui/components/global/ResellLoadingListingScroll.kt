@@ -45,9 +45,10 @@ fun LazyStaggeredGridScope.resellLoadingListingScroll(numCards: Int) {
     }
     // LazyVerticalStaggeredGrid takes at most Int.MAX_VALUE items
     items(numCards.coerceIn(0, Int.MAX_VALUE - 1)) { idx ->
+        val padding = calculateItemPadding(idx)
         ResellLoadingCard(
             small = randomList[idx % randomList.size],
-            modifier = Modifier.padding(horizontal = Padding.medium / 2f)
+            modifier = Modifier.padding(padding)
         )
     }
 }

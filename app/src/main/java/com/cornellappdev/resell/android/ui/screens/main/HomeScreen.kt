@@ -67,8 +67,6 @@ import com.cornellappdev.resell.android.ui.theme.Style
 import com.cornellappdev.resell.android.util.defaultHorizontalPadding
 import com.cornellappdev.resell.android.viewmodel.main.HomeViewModel
 import kotlinx.coroutines.launch
-import kotlin.math.min
-import kotlin.random.Random
 
 @Composable
 fun HomeScreen(
@@ -81,7 +79,6 @@ fun HomeScreen(
 
     Column(
         modifier = Modifier
-            .defaultHorizontalPadding()
             .fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(24.dp),
     ) {
@@ -92,7 +89,8 @@ fun HomeScreen(
                     listState.animateScrollToItem(0)
                 }
             },
-            onSearchPressed = homeViewModel::onSearchPressed
+            onSearchPressed = homeViewModel::onSearchPressed,
+            modifier = Modifier.defaultHorizontalPadding()
         )
 
         MainContent(
@@ -113,9 +111,26 @@ private fun HomeScreenPreview() = ResellPreview {
     val listState = rememberLazyStaggeredGridState()
     val coroutineScope = rememberCoroutineScope()
 
+    val dumbListing = Listing(
+        id = "1",
+        title = "Dumb Listing",
+        images = listOf(""),
+        price = 100.0.toString(),
+        categories = listOf("Electronics"),
+        description = "This is a dumb listing",
+        user = UserInfo(
+            username = "Caleb",
+            name = "Caleb",
+            netId = "chs232",
+            venmoHandle = "-",
+            bio = "lol",
+            imageUrl = "",
+            id = "1",
+            email = ""
+        )
+    )
     Column(
         modifier = Modifier
-            .defaultHorizontalPadding()
             .fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
@@ -126,27 +141,10 @@ private fun HomeScreenPreview() = ResellPreview {
                     listState.animateScrollToItem(0)
                 }
             },
-            onSearchPressed = {}
+            onSearchPressed = {},
+            modifier = Modifier.defaultHorizontalPadding()
         )
 
-        val dumbListing = Listing(
-            id = "1",
-            title = "Dumb Listing",
-            images = listOf(""),
-            price = 100.0.toString(),
-            categories = listOf("Electronics"),
-            description = "This is a dumb listing",
-            user = UserInfo(
-                username = "Caleb",
-                name = "Caleb",
-                netId = "chs232",
-                venmoHandle = "-",
-                bio = "lol",
-                imageUrl = "",
-                id = "1",
-                email = ""
-            )
-        )
         MainContent(
             List(5) { dumbListing },
             getImageUrlState = { mutableStateOf(ResellApiResponse.Pending) },
@@ -160,13 +158,49 @@ private fun HomeScreenPreview() = ResellPreview {
 }
 
 
+@Preview
+@Composable
+private fun NoSavedPreview() = ResellPreview {
+    val listState = rememberLazyStaggeredGridState()
+    val coroutineScope = rememberCoroutineScope()
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize(),
+        verticalArrangement = Arrangement.spacedBy(24.dp)
+    ) {
+        HomeHeader(
+            onFilter = {},
+            onTopPressed = {
+                coroutineScope.launch {
+                    listState.animateScrollToItem(0)
+                }
+            },
+            onSearchPressed = {},
+            modifier = Modifier.defaultHorizontalPadding()
+        )
+
+        MainContent(
+            savedListings = emptyList(),
+            getImageUrlState = { mutableStateOf(ResellApiResponse.Pending) },
+            onSavedPressed = {},
+            toPost = {},
+            loadedState = ResellApiState.Success,
+            filteredListings = emptyList(),
+            onListingPressed = {}
+        )
+    }
+}
+
+
 @Composable
 private fun HomeHeader(
-    onFilter: () -> Unit = {},
+    onFilter: () -> Unit,
     onTopPressed: () -> Unit,
     onSearchPressed: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    Column {
+    Column(modifier = modifier) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -221,7 +255,8 @@ private fun MainContent(
                 savedListings,
                 getImageUrlState,
                 onSavedPressed,
-                toPost
+                toPost,
+                modifier = Modifier.defaultHorizontalPadding()
             )
             Spacer(Modifier.height(12.dp))
         }
@@ -243,9 +278,10 @@ private fun SavedByYou(
     savedListings: List<Listing>,
     getImageUrlState: (String) -> MutableState<ResellApiResponse<ImageBitmap>>,
     onSavedPressed: () -> Unit,
-    toPost: (Listing) -> Unit
+    toPost: (Listing) -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+    Column(modifier = modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             Text(text = "Saved By You", style = Style.heading3)
             Text(text = "See All", style = Style.body2, modifier = Modifier.clickable {
@@ -334,41 +370,76 @@ private fun NoSaved() {
     }
 }
 
+data class CategoryItem(
+    val image: Int,
+    val label: String,
+    val backgroundColor: Color,
+) {
+    companion object {
+        private val clothing = CategoryItem(
+            image = R.drawable.shoes,
+            label = "Clothing",
+            backgroundColor = Color(0x80CA95A3)
+        )
+        private val books = CategoryItem(
+            image = R.drawable.books,
+            label = "Books",
+            backgroundColor = Color(0x80316054)
+        )
+        private val school = CategoryItem(
+            image = R.drawable.pencilcase,
+            label = "School",
+            backgroundColor = Color(0x80A4B7AB)
+        )
+        private val electronics = CategoryItem(
+            image = R.drawable.airpods_max,
+            label = "Electronics",
+            backgroundColor = Color(0x80D795AB)
+        )
+        private val handmade = CategoryItem(
+            image = R.drawable.color_palette,
+            label = "Handmade",
+            backgroundColor = Color(0x80E3B570)
+        )
+        private val sports = CategoryItem(
+            image = R.drawable.basketball,
+            label = "Sports & Outdoors",
+            backgroundColor = Color(0x8073A2AB)
+        )
+        private val other = CategoryItem(
+            image = R.drawable.other,
+            label = "Other",
+            backgroundColor = Color(0x80E2B56E)
+        )
+
+        val allCategories = listOf(
+            clothing,
+            books,
+            school,
+            electronics,
+            handmade,
+            sports,
+            other
+        )
+    }
+}
+
 @Composable
 private fun ShopByCategory() {
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+        Row(
+            modifier = Modifier
+                .defaultHorizontalPadding()
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
             Text(text = "Shop by Category", style = Style.heading3)
         }
         LazyRow(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-            val images = listOf(
-                R.drawable.shoes,
-                R.drawable.books,
-                R.drawable.pencilcase,
-                R.drawable.airpods_max,
-                R.drawable.color_palette,
-                R.drawable.basketball,
-                R.drawable.other
-            )
-            val labels = listOf(
-                "Clothing",
-                "Books",
-                "School",
-                "Electronics",
-                "Handmade",
-                "Sports & Outdoors",
-                "Other"
-            )
-            val backgroundColors = listOf(
-                Color(0x80CA95A3),
-                Color(0x80316054),
-                Color(0x80A4B7AB),
-                Color(0x80D795AB),
-                Color(0x80E3B570),
-                Color(0x8073A2AB),
-                Color(0x80E2B56E)
-            )
-            items(min(min(images.size, labels.size), backgroundColors.size)) { idx ->
+            item {
+                Spacer(modifier = Modifier.width(12.dp))
+            }
+            items(CategoryItem.allCategories) { category ->
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -377,20 +448,20 @@ private fun ShopByCategory() {
                         modifier = Modifier
                             .size(80.dp)
                             .clip(CircleShape)
-                            .background(color = backgroundColors[idx])
+                            .background(color = category.backgroundColor)
                             .align(alignment = Alignment.CenterHorizontally),
                         contentAlignment = Alignment.Center
                     ) {
                         Image(
-                            painter = painterResource(images[idx]),
-                            contentDescription = labels[idx],
+                            painter = painterResource(category.image),
+                            contentDescription = category.label,
                             modifier = Modifier
                                 .width(57.dp)
                                 .height(57.dp),
                             contentScale = ContentScale.Fit
                         )
                     }
-                    Text(text = labels[idx], style = Style.title4)
+                    Text(text = category.label, style = Style.title4)
                 }
             }
         }
@@ -404,31 +475,24 @@ private fun LazyStaggeredGridScope.recentListings(
     preview: Boolean = false
 ) {
     item(span = StaggeredGridItemSpan.FullLine) {
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+        Row(modifier = Modifier.defaultHorizontalPadding(), horizontalArrangement = Arrangement.SpaceBetween) {
             Text(text = "Recent Listings", style = Style.heading3)
-        }
-    }
-    val randomList = List(50) { i ->
-        when (i) {
-            0 -> true
-            1 -> false
-            else -> Random.nextBoolean()
         }
     }
     when (loadedState) {
         is ResellApiState.Success -> {
             if (preview) {
-                resellLoadingListingScroll(numCards = 5, randomList = randomList)
+                resellLoadingListingScroll(numCards = 5)
             } else {
                 resellListingScroll(
                     listings = filteredListings,
-                    onListingPressed = onListingPressed
+                    onListingPressed = onListingPressed,
                 )
             }
         }
 
         is ResellApiState.Loading -> {
-            resellLoadingListingScroll(numCards = Int.MAX_VALUE - 1, randomList = randomList)
+            resellLoadingListingScroll(numCards = Int.MAX_VALUE - 1)
         }
 
         is ResellApiState.Error -> {}
