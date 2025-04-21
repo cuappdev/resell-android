@@ -36,21 +36,29 @@ fun ResellLoadingListingScroll(
 }
 
 fun LazyStaggeredGridScope.resellLoadingListingScroll(numCards: Int) {
-    val randomList = List(50) { i ->
-        when (i) {
-            0 -> true
-            1 -> false
-            else -> Random.nextBoolean()
-        }
-    }
+    val booleans = getRandomList()
     // LazyVerticalStaggeredGrid takes at most Int.MAX_VALUE items
     items(numCards.coerceIn(0, Int.MAX_VALUE - 1)) { idx ->
         val padding = calculateItemPadding(idx)
         ResellLoadingCard(
-            small = randomList[idx % randomList.size],
+            small = booleans[idx % booleans.size],
             modifier = Modifier.padding(padding)
         )
     }
+}
+
+private var randomList = emptyList<Boolean>()
+private fun getRandomList(): List<Boolean> {
+    if (randomList.isEmpty()) {
+        randomList = List(50) { i ->
+            when (i) {
+                0 -> true
+                1 -> false
+                else -> Random.nextBoolean()
+            }
+        }
+    }
+    return randomList
 }
 
 @Preview

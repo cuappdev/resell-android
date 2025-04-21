@@ -8,6 +8,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
@@ -48,6 +49,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.PlaceholderVerticalAlign
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -256,7 +258,6 @@ private fun MainContent(
                 getImageUrlState,
                 onSavedPressed,
                 toPost,
-                modifier = Modifier.defaultHorizontalPadding()
             )
             Spacer(Modifier.height(12.dp))
         }
@@ -279,17 +280,21 @@ private fun SavedByYou(
     getImageUrlState: (String) -> MutableState<ResellApiResponse<ImageBitmap>>,
     onSavedPressed: () -> Unit,
     toPost: (Listing) -> Unit,
-    modifier: Modifier = Modifier
 ) {
-    Column(modifier = modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+    Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        Row(
+            modifier = Modifier
+                .defaultHorizontalPadding()
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
             Text(text = "Saved By You", style = Style.heading3)
             Text(text = "See All", style = Style.body2, modifier = Modifier.clickable {
                 onSavedPressed()
             })
         }
         if (savedListings.isEmpty()) {
-            NoSaved()
+            NoSaved(modifier = Modifier.defaultHorizontalPadding())
         } else {
             SavedListingsRow(savedListings, getImageUrlState, toPost)
         }
@@ -302,7 +307,10 @@ private fun SavedListingsRow(
     getImageUrlState: (String) -> MutableState<ResellApiResponse<ImageBitmap>>,
     toPost: (Listing) -> Unit
 ) {
-    LazyRow(horizontalArrangement = Arrangement.spacedBy(15.dp)) {
+    LazyRow(
+        horizontalArrangement = Arrangement.spacedBy(15.dp),
+        contentPadding = PaddingValues(horizontal = 24.dp)
+    ) {
         items(savedListings) { listing ->
             val image by getImageUrlState(listing.image)
             if (LocalInspectionMode.current) {
@@ -331,9 +339,9 @@ private fun SavedListingsRow(
 }
 
 @Composable
-private fun NoSaved() {
+private fun NoSaved(modifier: Modifier = Modifier) {
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .height(110.dp)
             .clip(RoundedCornerShape(10.dp))
@@ -435,14 +443,13 @@ private fun ShopByCategory() {
         ) {
             Text(text = "Shop by Category", style = Style.heading3)
         }
-        LazyRow(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-            item {
-                Spacer(modifier = Modifier.width(12.dp))
-            }
+        LazyRow(horizontalArrangement = Arrangement.spacedBy(16.dp),
+            contentPadding = PaddingValues(horizontal = 24.dp)) {
             items(CategoryItem.allCategories) { category ->
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.width(80.dp)
                 ) {
                     Box(
                         modifier = Modifier
@@ -461,7 +468,8 @@ private fun ShopByCategory() {
                             contentScale = ContentScale.Fit
                         )
                     }
-                    Text(text = category.label, style = Style.title4)
+                    Text(text = category.label, style = Style.title4,
+                        textAlign = TextAlign.Center)
                 }
             }
         }
@@ -475,14 +483,17 @@ private fun LazyStaggeredGridScope.recentListings(
     preview: Boolean = false
 ) {
     item(span = StaggeredGridItemSpan.FullLine) {
-        Row(modifier = Modifier.defaultHorizontalPadding(), horizontalArrangement = Arrangement.SpaceBetween) {
+        Row(
+            modifier = Modifier.defaultHorizontalPadding(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
             Text(text = "Recent Listings", style = Style.heading3)
         }
     }
     when (loadedState) {
         is ResellApiState.Success -> {
             if (preview) {
-                resellLoadingListingScroll(numCards = 5)
+                resellLoadingListingScroll(numCards = Int.MAX_VALUE - 200)
             } else {
                 resellListingScroll(
                     listings = filteredListings,
@@ -492,11 +503,10 @@ private fun LazyStaggeredGridScope.recentListings(
         }
 
         is ResellApiState.Loading -> {
-            resellLoadingListingScroll(numCards = Int.MAX_VALUE - 1)
+            resellLoadingListingScroll(numCards = Int.MAX_VALUE - 200)
         }
 
         is ResellApiState.Error -> {}
     }
-
 }
 
