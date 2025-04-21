@@ -185,6 +185,11 @@ private fun HomeHeader(
                 text = "resell",
                 style = Style.resellBrand
             )
+            Icon(
+                painter = painterResource(R.drawable.bell),
+                contentDescription = "Notifications",
+                modifier = Modifier.clickable(onClick = {})//todo
+            )
         }
         Spacer(modifier = Modifier.height(16.dp))
         Row(
