@@ -68,8 +68,8 @@ fun RequestMatchesScreen(
             is ResellApiResponse.Success -> {
                 ResellListingsScroll(
                     listings = uiState.listings.data,
-                    listState = listState,
                     onListingPressed = requestMatchesViewModel::onListingPressed,
+                    listState = listState,
                     emptyState = {
                         ProfileEmptyState(
                             title = "No matching listings",

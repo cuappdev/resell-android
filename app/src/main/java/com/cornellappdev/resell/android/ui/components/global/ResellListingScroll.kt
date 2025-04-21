@@ -22,8 +22,8 @@ import com.cornellappdev.resell.android.ui.theme.Padding
 fun ResellListingsScroll(
     listings: List<Listing>,
     onListingPressed: (Listing) -> Unit,
-    listState: LazyStaggeredGridState = rememberLazyStaggeredGridState(),
     modifier: Modifier = Modifier,
+    listState: LazyStaggeredGridState = rememberLazyStaggeredGridState(),
     paddedTop: Dp = 0.dp,
     emptyState: @Composable () -> Unit = { },
     header: @Composable () -> Unit = {},

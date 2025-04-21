@@ -52,8 +52,8 @@ fun SavedScreen(
             is ResellApiState.Success -> {
                 ResellListingsScroll(
                     listings = savedUiState.listings,
-                    listState = listState,
-                    onListingPressed = savedViewModel::onListingPressed
+                    onListingPressed = savedViewModel::onListingPressed,
+                    listState = listState
                 )
             }
 
