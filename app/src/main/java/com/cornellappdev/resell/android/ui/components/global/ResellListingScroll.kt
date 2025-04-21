@@ -46,7 +46,7 @@ fun ResellListingsScroll(
         item(span = StaggeredGridItemSpan.FullLine) {
             header()
         }
-        resellListingScroll(listings = listings, onListingPressed = onListingPressed)
+        resellListingScroll(listings, onListingPressed)
     }
 }
 
