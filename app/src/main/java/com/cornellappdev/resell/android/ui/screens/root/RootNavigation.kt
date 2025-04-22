@@ -207,16 +207,11 @@ sealed class ResellRootRoute {
 
     @Serializable
     data class PDP(
-        val id: String,
-        val title: String,
-        val images: List<String>,
-        val price: String,
-        val categories: List<String>,
-        val description: String,
         val userImageUrl: String,
         val username: String,
         val userId: String,
-        val userHumanName: String
+        val userHumanName: String,
+        val listingJson: String,
     ) : ResellRootRoute()
 
     @Serializable

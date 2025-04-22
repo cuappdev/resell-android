@@ -1,5 +1,6 @@
 package com.cornellappdev.resell.android.model.chats
 
+import com.cornellappdev.resell.android.model.classes.Listing
 import com.google.firebase.Timestamp
 
 data class ChatHeaderData(
@@ -13,8 +14,7 @@ data class ChatHeaderData(
     val updatedAt: Timestamp,
     val read: Boolean,
     val name: String,
-    val listingName: String,
-    val listingId: String,
+    val listing: Listing,
     /** URL */
     val imageUrl: String,
     val chatId: String,

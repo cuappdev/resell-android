@@ -75,14 +75,13 @@ class MessagesViewModel @Inject constructor(
         try {
             val myId = userInfoRepository.getUserId() ?: ""
             contactSeller(
-                postsRepository = postsRepository,
                 rootNavigationRepository = rootNavigationRepository,
                 fireStoreRepository = fireStoreRepository,
                 name = historyEntry.name,
                 myId = myId,
                 otherId = historyEntry.userId,
                 pfp = historyEntry.imageUrl,
-                listingId = historyEntry.listingId,
+                listing = historyEntry.listing,
                 isBuyer = stateValue().chatType == ChatType.Purchases
             )
 

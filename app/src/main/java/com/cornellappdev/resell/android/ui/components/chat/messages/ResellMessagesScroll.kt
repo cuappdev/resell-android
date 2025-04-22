@@ -32,7 +32,7 @@ fun ResellMessagesScroll(
             MessageCard(
                 imageUrl = item.imageUrl,
                 seller = item.name,
-                title = item.listingName,
+                title = item.listing.title,
                 message = item.recentMessage,
                 unread = !item.read,
                 relativeTimestamp = getRelativeTimeSpan(item.updatedAt)

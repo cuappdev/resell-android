@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.cornellappdev.resell.android.model.classes.Listing
 import com.cornellappdev.resell.android.model.login.FireStoreRepository
 import com.cornellappdev.resell.android.model.posts.ResellPostRepository
 import com.cornellappdev.resell.android.model.settings.BlockedUsersRepository
@@ -153,23 +154,21 @@ abstract class ResellViewModel<UiState>(initialUiState: UiState) : ViewModel() {
      * @param id The id of the post.
      */
     protected suspend fun contactSeller(
-        postsRepository: ResellPostRepository,
         rootNavigationRepository: RootNavigationRepository,
         fireStoreRepository: FireStoreRepository,
         name: String,
         myId: String,
         otherId: String,
         pfp: String,
-        listingId: String,
+        listing: Listing,
         isBuyer: Boolean
     ) {
-        val post = postsRepository.getPostById(listingId).toListing()
         val buyerId = if (isBuyer) myId else otherId
         val sellerId = if (isBuyer) otherId else myId
         val chatId = fireStoreRepository.findChatWith(
             buyerId = buyerId,
             sellerId = sellerId,
-            listingId = post.id
+            listingId = listing.id
         )
 
         rootNavigationRepository.navigate(
@@ -177,9 +176,9 @@ abstract class ResellViewModel<UiState>(initialUiState: UiState) : ViewModel() {
                 isBuyer = isBuyer,
                 name = name,
                 pfp = pfp,
-                postJson = Json.encodeToString(post),
-                otherUserId = post.user.id,
-                otherVenmo = post.user.venmoHandle,
+                postJson = Json.encodeToString(listing),
+                otherUserId = listing.user.id,
+                otherVenmo = listing.user.venmoHandle,
                 chatId = chatId
             )
         )

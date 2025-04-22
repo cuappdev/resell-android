@@ -20,6 +20,8 @@ import com.cornellappdev.resell.android.viewmodel.root.RootDialogRepository
 import com.cornellappdev.resell.android.viewmodel.root.RootOptionsMenuRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import java.lang.StackWalker.Option
 import javax.inject.Inject
 
@@ -67,16 +69,11 @@ class ExternalProfileViewModel @Inject constructor(
     fun onListingPressed(listing: Listing) {
         rootNavigationRepository.navigate(
             ResellRootRoute.PDP(
-                id = listing.id,
-                title = listing.title,
-                price = listing.price,
-                images = listing.images,
-                description = listing.description,
-                categories = listing.categories,
                 userImageUrl = listing.user.imageUrl,
                 username = listing.user.username,
                 userId = listing.user.id,
-                userHumanName = listing.user.name
+                userHumanName = listing.user.name,
+                listingJson = Json.encodeToString(listing)
             )
         )
     }

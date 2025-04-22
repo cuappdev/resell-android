@@ -77,31 +77,43 @@ class ChatRepository @Inject constructor(
             fireStoreRepository.subscribeToBuyerHistory(myId = myId) { rawData ->
                 CoroutineScope(Dispatchers.IO).launch {
                     val (listings, users) = getListingAndUserData(rawData, myId)
-                    val chatHeaders = rawData.map {
-                        val user = users.firstOrNull { user ->
-                            user.user.id != myId
-                        }?.user
-
-                        val item = listings.firstOrNull { listing ->
-                            listing.id == it.listingID
-                        }
-
-                        ChatHeaderData(
-                            recentMessage = it.lastMessage,
-                            updatedAt = it.updatedAt,
-                            read = fireStoreRepository.getMostRecentMessageRead(it.chatID, myId),
-                            name = user?.username ?: "",
-                            imageUrl = user?.photoUrl ?: "",
-                            listingId = it.listingID,
-                            listingName = item?.title ?: "",
-                            chatId = it.chatID,
-                            userId = user?.id ?: "",
-                        )
+                    val chatHeaders = rawData.mapNotNull {
+                        rawToRealHeaderData(users, myId, listings, it)
                     }
 
                     _buyersHistoryFlow.value = ResellApiResponse.Success(chatHeaders)
                 }
             }
+        }
+    }
+
+    private suspend fun rawToRealHeaderData(
+        users: List<UserResponse>,
+        myId: String,
+        listings: List<Post>,
+        it: RawChatHeaderData
+    ): ChatHeaderData? {
+        val user = users.firstOrNull { user ->
+            user.user.id != myId
+        }?.user
+
+        val item = listings.firstOrNull { listing ->
+            listing.id == it.listingID
+        }
+        return item?.toListing()?.let { listing ->
+            ChatHeaderData(
+                recentMessage = it.lastMessage,
+                updatedAt = it.updatedAt,
+                read = fireStoreRepository.getMostRecentMessageRead(
+                    it.chatID,
+                    myId
+                ),
+                name = user?.username ?: "",
+                imageUrl = user?.photoUrl ?: "",
+                listing = listing,
+                chatId = it.chatID,
+                userId = user?.id ?: "",
+            )
         }
     }
 
@@ -117,26 +129,8 @@ class ChatRepository @Inject constructor(
             fireStoreRepository.subscribeToSellerHistory(myId = myId) { rawData ->
                 CoroutineScope(Dispatchers.IO).launch {
                     val (listings, users) = getListingAndUserData(rawData, myId)
-                    val chatHeaders = rawData.map {
-                        val user = users.firstOrNull { user ->
-                            user.user.id != myId
-                        }?.user
-
-                        val item = listings.firstOrNull { listing ->
-                            listing.id == it.listingID
-                        }
-
-                        ChatHeaderData(
-                            recentMessage = it.lastMessage,
-                            updatedAt = it.updatedAt,
-                            read = fireStoreRepository.getMostRecentMessageRead(it.chatID, myId),
-                            name = user?.username ?: "",
-                            imageUrl = user?.photoUrl ?: "",
-                            listingId = it.listingID,
-                            listingName = item?.title ?: "",
-                            chatId = it.chatID,
-                            userId = user?.id ?: "",
-                        )
+                    val chatHeaders = rawData.mapNotNull {
+                        rawToRealHeaderData(users, myId, listings, it)
                     }
 
                     _sellersHistoryFlow.value = ResellApiResponse.Success(chatHeaders)

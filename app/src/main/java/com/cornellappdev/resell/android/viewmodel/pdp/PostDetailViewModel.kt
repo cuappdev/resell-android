@@ -29,6 +29,7 @@ import com.cornellappdev.resell.android.viewmodel.root.RootDialogRepository
 import com.cornellappdev.resell.android.viewmodel.root.RootOptionsMenuRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import kotlinx.serialization.json.Json
 import javax.inject.Inject
 
 @HiltViewModel
@@ -48,6 +49,9 @@ class PostDetailViewModel @Inject constructor(
 ) : ResellViewModel<PostDetailViewModel.UiState>(
     initialUiState = UiState()
 ) {
+
+    val navArgs = savedStateHandle.toRoute<ResellRootRoute.PDP>()
+    var listing = Json.decodeFromString<Listing>(navArgs.listingJson)
 
     data class UiState(
         val title: String = "",
@@ -264,14 +268,13 @@ class PostDetailViewModel @Inject constructor(
                     )
                 }
                 contactSeller(
-                    postsRepository = postsRepository,
                     rootNavigationRepository = rootNavigationRepository,
                     fireStoreRepository = fireStoreRepository,
                     name = userInfo.name,
                     myId = userInfoRepository.getUserId() ?: "",
                     otherId = uid,
                     pfp = userInfo.imageUrl,
-                    listingId = postId,
+                    listing = listing,
                     isBuyer = true
                 )
             } catch (e: Exception) {
@@ -332,52 +335,42 @@ class PostDetailViewModel @Inject constructor(
     }
 
     fun onSimilarPressed(index: Int) {
-        val listing = stateValue().similarItems.asSuccess().data[index]
+        listing = stateValue().similarItems.asSuccess().data[index]
 
         loadPost(
-            id = listing.id,
-            title = listing.title,
-            price = listing.price,
-            description = listing.description,
             userImageUrl = listing.user.imageUrl,
             userHumanName = listing.user.name,
             userId = listing.user.id,
-            images = listing.images,
-            categories = listing.categories
+            listing = listing,
         )
     }
 
     private fun loadPost(
-        id: String,
-        title: String,
-        price: String,
-        description: String,
+        listing: Listing,
         userImageUrl: String,
         userHumanName: String,
         userId: String,
-        images: List<String>,
-        categories: List<String>
     ) {
         applyMutation {
             copy(
-                postId = id,
-                title = title,
-                price = price,
-                description = description,
+                postId = listing.id,
+                title = listing.title,
+                price = listing.price,
+                description = listing.description,
                 profileImageUrl = userImageUrl,
                 username = userHumanName,
                 uid = userId
             )
         }
         onNeedLoadImages(
-            urls = images,
-            currentPostId = id
+            urls = listing.images,
+            currentPostId = listing.id
         )
         fetchSimilarPosts(
-            id = id,
-            category = categories.firstOrNull() ?: ""
+            id = listing.id,
+            category = listing.categories.firstOrNull() ?: ""
         )
-        fetchSaved(id)
+        fetchSaved(listing.id)
 
         // Hide "Contact Seller" if the current user is the same as the post owner.
         viewModelScope.launch {
@@ -391,17 +384,11 @@ class PostDetailViewModel @Inject constructor(
     }
 
     init {
-        val navArgs = savedStateHandle.toRoute<ResellRootRoute.PDP>()
         loadPost(
-            id = navArgs.id,
-            title = navArgs.title,
-            price = navArgs.price,
-            description = navArgs.description,
             userImageUrl = navArgs.userImageUrl,
             userHumanName = navArgs.userHumanName,
             userId = navArgs.userId,
-            images = navArgs.images,
-            categories = navArgs.categories
+            listing = listing
         )
     }
 }
