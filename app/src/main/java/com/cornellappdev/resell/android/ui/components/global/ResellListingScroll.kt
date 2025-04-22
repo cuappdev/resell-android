@@ -49,20 +49,17 @@ fun ResellListingsScroll(
     }
 }
 
-fun calculateItemPadding(index: Int): PaddingValues {
-    return if (index % 2 == 0) {
-        PaddingValues(start = 24.dp, end = 6.dp, bottom = 24.dp)
-    } else {
-        PaddingValues(start = 6.dp, end = 24.dp, bottom = 24.dp)
-    }
-}
+fun calculateItemPadding(addVerticalPadding: Boolean): PaddingValues =
+    if (addVerticalPadding) PaddingValues(bottom = 24.dp) else PaddingValues()
+
 
 fun LazyStaggeredGridScope.resellListingScroll(
     listings: List<Listing>,
-    onListingPressed: (Listing) -> Unit
+    onListingPressed: (Listing) -> Unit,
+    addVerticalPadding: Boolean = false
 ) {
-    itemsIndexed(items = listings) { idx, item ->
-        val padding = calculateItemPadding(idx)
+    itemsIndexed(items = listings) { _, item ->
+        val padding = calculateItemPadding(addVerticalPadding)
         ResellCard(
             imageUrl = item.image,
             title = item.title,

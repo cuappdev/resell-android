@@ -1,6 +1,5 @@
 package com.cornellappdev.resell.android.viewmodel.main
 
-import com.cornellappdev.resell.android.model.CoilRepository
 import com.cornellappdev.resell.android.model.classes.Listing
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.model.classes.ResellApiState
@@ -15,8 +14,7 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val rootNavigationRepository: RootNavigationRepository,
-    private val resellPostRepository: ResellPostRepository,
-    private val coilRepository: CoilRepository
+    resellPostRepository: ResellPostRepository,
 ) :
     ResellViewModel<HomeViewModel.HomeUiState>(
         initialUiState = HomeUiState(
