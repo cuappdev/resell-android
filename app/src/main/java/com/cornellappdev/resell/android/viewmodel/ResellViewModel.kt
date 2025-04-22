@@ -6,7 +6,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cornellappdev.resell.android.model.classes.Listing
 import com.cornellappdev.resell.android.model.login.FireStoreRepository
-import com.cornellappdev.resell.android.model.posts.ResellPostRepository
 import com.cornellappdev.resell.android.model.settings.BlockedUsersRepository
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonContainer
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonState
@@ -176,7 +175,7 @@ abstract class ResellViewModel<UiState>(initialUiState: UiState) : ViewModel() {
                 isBuyer = isBuyer,
                 name = name,
                 pfp = pfp,
-                postJson = Json.encodeToString(listing),
+                listingJson = Json.encodeToString(listing),
                 otherUserId = listing.user.id,
                 otherVenmo = listing.user.venmoHandle,
                 chatId = chatId

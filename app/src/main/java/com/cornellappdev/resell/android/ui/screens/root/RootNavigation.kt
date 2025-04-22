@@ -219,8 +219,7 @@ sealed class ResellRootRoute {
         /** Real name.*/
         val name: String,
         val pfp: String,
-        // TODO There should be some way to fix this automatically but I can't figure it out.
-        val postJson: String,
+        val listingJson: String,
         val isBuyer: Boolean,
         val otherUserId: String,
         val otherVenmo: String,

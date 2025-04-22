@@ -115,7 +115,7 @@ class ChatViewModel @Inject constructor(
     }
 
     val navArgs = savedStateHandle.toRoute<ResellRootRoute.CHAT>()
-    val listing = Json.decodeFromString<Listing>(navArgs.postJson)
+    val listing = Json.decodeFromString<Listing>(navArgs.listingJson)
 
     enum class ChatType {
         Purchases, Offers
