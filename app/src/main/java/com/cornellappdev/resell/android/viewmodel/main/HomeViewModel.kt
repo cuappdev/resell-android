@@ -20,8 +20,8 @@ class HomeViewModel @Inject constructor(
 ) :
     ResellViewModel<HomeViewModel.HomeUiState>(
         initialUiState = HomeUiState(
-            listings = listOf(),
-            savedListings = listOf(),
+            listings = emptyList(),
+            savedListings = emptyList(),
             activeFilter = HomeFilter.RECENT,
             loadedState = ResellApiState.Loading
         )
@@ -31,7 +31,7 @@ class HomeViewModel @Inject constructor(
         val loadedState: ResellApiState,
         private val listings: List<Listing>,
         val savedListings: List<Listing>,
-        val activeFilter: HomeFilter,
+        val activeFilter: HomeFilter
     ) {
         // TODO This should change to an endpoint, but backend is simple.
         val filteredListings: List<Listing>
@@ -43,12 +43,8 @@ class HomeViewModel @Inject constructor(
             }
     }
 
-    private fun onSavedLoad() {
-        resellPostRepository.fetchSavedPosts()
-    }
-
     init {
-        onSavedLoad()
+        resellPostRepository.fetchSavedPosts()
         asyncCollect(resellPostRepository.savedPosts) { response ->
             applyMutation {
                 copy(
@@ -75,6 +71,7 @@ class HomeViewModel @Inject constructor(
                     loadedState = response.toResellApiState()
                 )
             }
+
         }
     }
 
@@ -109,6 +106,5 @@ class HomeViewModel @Inject constructor(
         rootNavigationRepository.navigate(ResellRootRoute.SEARCH)
     }
 
-    fun getImageUrlState(imageUrl: String) = coilRepository.getUrlState(imageUrl)
 
 }

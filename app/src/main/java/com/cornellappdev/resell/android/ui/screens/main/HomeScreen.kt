@@ -31,14 +31,10 @@ import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.painterResource
@@ -52,10 +48,9 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.model.classes.Listing
-import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.model.classes.ResellApiState
 import com.cornellappdev.resell.android.model.classes.UserInfo
-import com.cornellappdev.resell.android.ui.components.global.AnimatedClampedAsyncImage
+import com.cornellappdev.resell.android.ui.components.global.ResellSavedCard
 import com.cornellappdev.resell.android.ui.components.global.resellListingScroll
 import com.cornellappdev.resell.android.ui.components.global.resellLoadingListingScroll
 import com.cornellappdev.resell.android.ui.components.main.SearchBar
@@ -85,7 +80,6 @@ fun HomeScreen(
 
         MainContent(
             savedListings = homeUiState.savedListings,
-            getImageUrlState = homeViewModel::getImageUrlState,
             onSavedPressed = onSavedPressed,
             toPost = homeViewModel::onListingPressed,
             loadedState = homeUiState.loadedState,
@@ -129,7 +123,6 @@ private fun HomeScreenPreview() = ResellPreview {
 
         MainContent(
             List(5) { dumbListing },
-            getImageUrlState = { mutableStateOf(ResellApiResponse.Pending) },
             onSavedPressed = {},
             toPost = {},
             loadedState = ResellApiState.Success,
@@ -156,7 +149,6 @@ private fun NoSavedPreview() = ResellPreview {
 
         MainContent(
             savedListings = emptyList(),
-            getImageUrlState = { mutableStateOf(ResellApiResponse.Pending) },
             onSavedPressed = {},
             toPost = {},
             loadedState = ResellApiState.Success,
@@ -209,7 +201,6 @@ private fun HomeHeader(
 @Composable
 private fun MainContent(
     savedListings: List<Listing>,
-    getImageUrlState: (String) -> MutableState<ResellApiResponse<ImageBitmap>>,
     onSavedPressed: () -> Unit,
     toPost: (Listing) -> Unit,
     loadedState: ResellApiState,
@@ -219,12 +210,12 @@ private fun MainContent(
     val preview = LocalInspectionMode.current
     LazyVerticalStaggeredGrid(
         modifier = Modifier.fillMaxWidth(),
-        columns = StaggeredGridCells.Fixed(2)
+        columns = StaggeredGridCells.Fixed(2),
+        contentPadding = PaddingValues(bottom = 85.dp)
     ) {
         item(span = StaggeredGridItemSpan.FullLine) {
             SavedByYou(
                 savedListings,
-                getImageUrlState,
                 onSavedPressed,
                 toPost,
             )
@@ -250,7 +241,6 @@ private fun MainContent(
 @Composable
 private fun SavedByYou(
     savedListings: List<Listing>,
-    getImageUrlState: (String) -> MutableState<ResellApiResponse<ImageBitmap>>,
     onSavedPressed: () -> Unit,
     toPost: (Listing) -> Unit,
 ) {
@@ -269,7 +259,7 @@ private fun SavedByYou(
         if (savedListings.isEmpty()) {
             NoSaved(modifier = Modifier.defaultHorizontalPadding())
         } else {
-            SavedListingsRow(savedListings, getImageUrlState, toPost)
+            SavedListingsRow(savedListings, toPost)
         }
     }
 }
@@ -277,7 +267,6 @@ private fun SavedByYou(
 @Composable
 private fun SavedListingsRow(
     savedListings: List<Listing>,
-    getImageUrlState: (String) -> MutableState<ResellApiResponse<ImageBitmap>>,
     toPost: (Listing) -> Unit
 ) {
     LazyRow(
@@ -285,7 +274,6 @@ private fun SavedListingsRow(
         contentPadding = PaddingValues(horizontal = 24.dp)
     ) {
         items(savedListings) { listing ->
-            val image by getImageUrlState(listing.image)
             if (LocalInspectionMode.current) {
                 Image(
                     painter = painterResource(R.drawable.ic_appdev),
@@ -296,15 +284,9 @@ private fun SavedListingsRow(
                         .clip(RoundedCornerShape(4.dp))
                 )
             } else {
-                AnimatedClampedAsyncImage(
-                    image = image,
-                    modifier = Modifier
-                        .height(112.dp)
-                        .width(112.dp)
-                        .clip(RoundedCornerShape(4.dp))
-                        .clickable {
-                            toPost(listing)
-                        }
+                ResellSavedCard(
+                    imageUrl = listing.image,
+                    onClick = { toPost(listing) }
                 )
             }
         }
