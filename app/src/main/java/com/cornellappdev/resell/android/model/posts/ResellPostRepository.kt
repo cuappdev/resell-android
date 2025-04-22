@@ -2,7 +2,7 @@ package com.cornellappdev.resell.android.model.posts
 
 import android.util.Log
 import androidx.compose.ui.graphics.ImageBitmap
-import com.cornellappdev.resell.android.model.api.CategoryRequest
+import com.cornellappdev.resell.android.model.api.CategoriesRequest
 import com.cornellappdev.resell.android.model.api.NewPostBody
 import com.cornellappdev.resell.android.model.api.Post
 import com.cornellappdev.resell.android.model.api.PostResponse
@@ -60,8 +60,8 @@ class ResellPostRepository @Inject constructor(
         return retrofitInstance.postsApi.getPosts(page = page).posts
     }
 
-    suspend fun getPostByFilter(category: String): List<Post> {
-        return retrofitInstance.postsApi.getFilteredPosts(CategoryRequest(listOf(category))).posts
+    suspend fun getPostsByFilter(category: String): List<Post> {
+        return retrofitInstance.postsApi.getFilteredPosts(CategoriesRequest(listOf(category))).posts
     }
 
     suspend fun uploadPost(

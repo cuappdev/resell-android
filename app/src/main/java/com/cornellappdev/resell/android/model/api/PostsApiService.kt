@@ -29,8 +29,8 @@ interface PostsApiService {
     @GET("post/similar/postId/{id}")
     suspend fun getSimilarPosts(@Path("id") id: String): PostsResponse
 
-    @POST("post/filter")
-    suspend fun getFilteredPosts(@Body categoryRequest: CategoryRequest): PostsResponse
+    @POST("post/filterByCategories")
+    suspend fun getFilteredPosts(@Body categoriesRequest: CategoriesRequest): PostsResponse
 
     @GET("post/userId/{id}")
     suspend fun getPostsByUser(@Path("id") id: String): PostsResponse
@@ -67,7 +67,7 @@ data class SearchRequest(
     val keywords: String
 )
 
-data class CategoryRequest(
+data class CategoriesRequest(
     val categories: List<String>
 )
 

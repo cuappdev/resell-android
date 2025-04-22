@@ -99,7 +99,7 @@ class HomeViewModel @Inject constructor(
         }
         viewModelScope.launch {
             try {
-                val posts = resellPostRepository.getPostByFilter(filter.name)
+                val posts = resellPostRepository.getPostsByFilter(filter.name)
                 applyMutation {
                     copy(
                         listings = posts.map { it.toListing() },
