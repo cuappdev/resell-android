@@ -47,6 +47,7 @@ import androidx.compose.ui.text.PlaceholderVerticalAlign
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.offset
 import androidx.compose.ui.unit.sp
@@ -60,6 +61,7 @@ import com.cornellappdev.resell.android.ui.components.global.AnimatedClampedAsyn
 import com.cornellappdev.resell.android.ui.components.global.resellListingScroll
 import com.cornellappdev.resell.android.ui.components.global.resellLoadingListingScroll
 import com.cornellappdev.resell.android.ui.components.main.SearchBar
+import com.cornellappdev.resell.android.ui.theme.Padding
 import com.cornellappdev.resell.android.ui.theme.ResellPreview
 import com.cornellappdev.resell.android.ui.theme.Stroke
 import com.cornellappdev.resell.android.ui.theme.Style
@@ -202,7 +204,7 @@ private fun LazyStaggeredGridScope.savedByYou(
         if (savedListings.isEmpty()) {
             NoSaved()
         } else {
-            Offset { modifier ->
+            ForceHorizontalOffset(offset = Padding.leftRight) { modifier ->
                 SavedListingsRow(
                     savedListings,
                     toPost,
@@ -215,15 +217,32 @@ private fun LazyStaggeredGridScope.savedByYou(
     }
 }
 
+/**
+ * Allows [content] to ignore parent padding and offset itself towards the start and end by
+ * [offset].
+ *
+ * This modifier can be applied where there is a need for a scrollable list to disobey the content
+ * padding of its parent. This is optimal for LazyStaggeredGrids, as manually calculating padding
+ * for individual staggered grid items in multiple columns is impractical.
+ *
+ * @see Modifier.layout
+ */
 @Composable
-private fun Offset(content: @Composable (Modifier) -> Unit) {
-    val offsetPx = with(LocalDensity.current) { 48.dp.roundToPx() }
+private fun ForceHorizontalOffset(
+    offset: Dp,
+    content: @Composable (Modifier) -> Unit
+) {
+    val offsetPx = with(LocalDensity.current) { offset.roundToPx() }
     content(
         Modifier
             .layout { measurable, constraints ->
-                val looseConstraints = constraints.offset(offsetPx, 0)
+                // Expand given constraints by increasing width by twice the given offset
+                val looseConstraints = constraints.offset(horizontal = offsetPx * 2, vertical = 0)
+
+                // Measure the layout based on new constraints
                 val placeable = measurable.measure(looseConstraints)
                 layout(placeable.width, placeable.height) {
+                    // Where the composable is placed in the layout
                     placeable.placeRelative(0, 0)
                 }
             }
@@ -359,7 +378,7 @@ private fun LazyStaggeredGridScope.shopByCategory() {
         Spacer(modifier = Modifier.height(12.dp))
     }
     item(span = StaggeredGridItemSpan.FullLine) {
-        Offset { modifier ->
+        ForceHorizontalOffset(offset = Padding.leftRight) { modifier ->
             CategoryRow(modifier)
         }
     }
