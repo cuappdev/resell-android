@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridScope
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
@@ -35,6 +36,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalDensity
@@ -51,9 +53,10 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.model.classes.Listing
+import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.model.classes.ResellApiState
 import com.cornellappdev.resell.android.model.classes.UserInfo
-import com.cornellappdev.resell.android.ui.components.global.ResellSavedCard
+import com.cornellappdev.resell.android.ui.components.global.AnimatedClampedAsyncImage
 import com.cornellappdev.resell.android.ui.components.global.resellListingScroll
 import com.cornellappdev.resell.android.ui.components.global.resellLoadingListingScroll
 import com.cornellappdev.resell.android.ui.components.main.SearchBar
@@ -87,7 +90,8 @@ fun HomeScreen(
             toPost = homeViewModel::onListingPressed,
             loadedState = homeUiState.loadedState,
             filteredListings = homeUiState.filteredListings,
-            onListingPressed = homeViewModel::onListingPressed
+            onListingPressed = homeViewModel::onListingPressed,
+            savedImagesResponses = homeUiState.imageResponses
         )
     }
 }
@@ -140,6 +144,7 @@ private fun MainContent(
     loadedState: ResellApiState,
     filteredListings: List<Listing>,
     onListingPressed: (Listing) -> Unit,
+    savedImagesResponses: List<ResellApiResponse<ImageBitmap>>
 ) {
     val preview = LocalInspectionMode.current
     LazyVerticalStaggeredGrid(
@@ -154,6 +159,7 @@ private fun MainContent(
             savedListings,
             onSavedPressed,
             toPost,
+            savedImagesResponses
         )
         item(span = StaggeredGridItemSpan.FullLine) {
             Spacer(Modifier.height(24.dp))
@@ -175,6 +181,7 @@ private fun LazyStaggeredGridScope.savedByYou(
     savedListings: List<Listing>,
     onSavedPressed: () -> Unit,
     toPost: (Listing) -> Unit,
+    savedImagesResponses: List<ResellApiResponse<ImageBitmap>>
 ) {
     item(span = StaggeredGridItemSpan.FullLine) {
         Row(
@@ -199,6 +206,7 @@ private fun LazyStaggeredGridScope.savedByYou(
                 SavedListingsRow(
                     savedListings,
                     toPost,
+                    imageResponses = savedImagesResponses,
                     modifier = modifier
                 )
             }
@@ -227,6 +235,7 @@ private fun Offset(content: @Composable (Modifier) -> Unit) {
 private fun SavedListingsRow(
     savedListings: List<Listing>,
     toPost: (Listing) -> Unit,
+    imageResponses: List<ResellApiResponse<ImageBitmap>>,
     modifier: Modifier = Modifier
 ) {
     LazyRow(
@@ -234,7 +243,7 @@ private fun SavedListingsRow(
         horizontalArrangement = Arrangement.spacedBy(15.dp),
         contentPadding = PaddingValues(horizontal = 24.dp)
     ) {
-        items(savedListings) { listing ->
+        itemsIndexed(savedListings) { index, listing ->
             if (LocalInspectionMode.current) {
                 Image(
                     painter = painterResource(R.drawable.ic_appdev),
@@ -246,8 +255,8 @@ private fun SavedListingsRow(
                 )
             } else {
                 ResellSavedCard(
-                    imageUrl = listing.image,
-                    onClick = { toPost(listing) }
+                    onClick = { toPost(listing) },
+                    imageResponse = imageResponses[index]
                 )
             }
         }
@@ -294,58 +303,46 @@ private fun NoSaved(modifier: Modifier = Modifier) {
     }
 }
 
-private data class CategoryItem(
+private enum class CategoryItem(
     val image: Int,
     val label: String,
     val backgroundColor: Color,
 ) {
-    companion object {
-        private val clothing = CategoryItem(
-            image = R.drawable.shoes,
-            label = "Clothing",
-            backgroundColor = Color(0x80CA95A3)
-        )
-        private val books = CategoryItem(
-            image = R.drawable.books,
-            label = "Books",
-            backgroundColor = Color(0x80316054)
-        )
-        private val school = CategoryItem(
-            image = R.drawable.pencilcase,
-            label = "School",
-            backgroundColor = Color(0x80A4B7AB)
-        )
-        private val electronics = CategoryItem(
-            image = R.drawable.airpods_max,
-            label = "Electronics",
-            backgroundColor = Color(0x80D795AB)
-        )
-        private val handmade = CategoryItem(
-            image = R.drawable.color_palette,
-            label = "Handmade",
-            backgroundColor = Color(0x80E3B570)
-        )
-        private val sports = CategoryItem(
-            image = R.drawable.basketball,
-            label = "Sports & Outdoors",
-            backgroundColor = Color(0x8073A2AB)
-        )
-        private val other = CategoryItem(
-            image = R.drawable.other,
-            label = "Other",
-            backgroundColor = Color(0x80E2B56E)
-        )
-
-        val allCategories = listOf(
-            clothing,
-            books,
-            school,
-            electronics,
-            handmade,
-            sports,
-            other
-        )
-    }
+    CLOTHING(
+        image = R.drawable.shoes,
+        label = "Clothing",
+        backgroundColor = Color(0x80CA95A3)
+    ),
+    BOOKS(
+        image = R.drawable.books,
+        label = "Books",
+        backgroundColor = Color(0x80316054)
+    ),
+    SCHOOL(
+        image = R.drawable.pencilcase,
+        label = "School",
+        backgroundColor = Color(0x80A4B7AB)
+    ),
+    ELECTRONICS(
+        image = R.drawable.airpods_max,
+        label = "Electronics",
+        backgroundColor = Color(0x80D795AB)
+    ),
+    HANDMADE(
+        image = R.drawable.color_palette,
+        label = "Handmade",
+        backgroundColor = Color(0x80E3B570)
+    ),
+    SPORTS(
+        image = R.drawable.basketball,
+        label = "Sports & Outdoors",
+        backgroundColor = Color(0x8073A2AB)
+    ),
+    OTHER(
+        image = R.drawable.other,
+        label = "Other",
+        backgroundColor = Color(0x80E2B56E)
+    )
 }
 
 private fun LazyStaggeredGridScope.shopByCategory() {
@@ -375,7 +372,7 @@ private fun CategoryRow(modifier: Modifier) {
         contentPadding = PaddingValues(horizontal = 24.dp),
         modifier = modifier
     ) {
-        items(CategoryItem.allCategories) { category ->
+        items(CategoryItem.entries.toTypedArray()) { category ->
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -450,6 +447,20 @@ private fun LazyStaggeredGridScope.recentListings(
     }
 }
 
+@Composable
+private fun ResellSavedCard(
+    onClick: () -> Unit,
+    imageResponse: ResellApiResponse<ImageBitmap>,
+) {
+    AnimatedClampedAsyncImage(
+        image = imageResponse,
+        modifier = Modifier
+            .height(112.dp)
+            .width(112.dp)
+            .clip(RoundedCornerShape(4.dp))
+            .clickable { onClick() }
+    )
+}
 
 @Preview
 @Composable
@@ -489,7 +500,8 @@ private fun HomeScreenPreview() = ResellPreview {
             toPost = {},
             loadedState = ResellApiState.Success,
             filteredListings = List(10) { dumbListing },
-            onListingPressed = {}
+            onListingPressed = {},
+            savedImagesResponses = emptyList()
         )
     }
 }
@@ -515,7 +527,8 @@ private fun NoSavedPreview() = ResellPreview {
             toPost = {},
             loadedState = ResellApiState.Success,
             filteredListings = emptyList(),
-            onListingPressed = {}
+            onListingPressed = {},
+            savedImagesResponses = emptyList()
         )
     }
 }
