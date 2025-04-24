@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -42,7 +43,8 @@ fun SearchBar(
         Icon(
             painter = painterResource(R.drawable.ic_search),
             contentDescription = "Search Icon",
-            tint = Secondary
+            tint = Secondary,
+            modifier = Modifier.size(24.dp)
         )
         Text(text = "Search", style = Style.body2, color = Secondary)
     }
