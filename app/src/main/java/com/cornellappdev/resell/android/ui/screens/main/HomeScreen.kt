@@ -202,7 +202,7 @@ private fun LazyStaggeredGridScope.savedByYou(
     }
     item(span = StaggeredGridItemSpan.FullLine) {
         if (savedListings.isEmpty()) {
-            NoSaved()
+            SavedEmptyState()
         } else {
             ForceHorizontalOffset(offset = Padding.leftRight) { modifier ->
                 SavedListingsRow(
@@ -283,7 +283,7 @@ private fun SavedListingsRow(
 }
 
 @Composable
-private fun NoSaved(modifier: Modifier = Modifier) {
+private fun SavedEmptyState(modifier: Modifier = Modifier) {
     Column(
         modifier = modifier
             .fillMaxWidth()
