@@ -1,5 +1,6 @@
 package com.cornellappdev.resell.android.ui.components.global
 
+import android.util.Log
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -43,8 +44,8 @@ fun ResellListingsScroll(
         snapshotFlow { listState.layoutInfo }
             .map { layoutInfo ->
                 // -1 to account for the header and footer
-                val lastVisibleItemIndex = layoutInfo.visibleItemsInfo.lastOrNull()?.index?.minus(2)
-                lastVisibleItemIndex == listings.lastIndex
+                val lastVisibleItemIndex = layoutInfo.visibleItemsInfo.lastOrNull()?.index
+                lastVisibleItemIndex == layoutInfo.totalItemsCount - 1
             }
             .distinctUntilChanged()
             .collect { isAtBottom ->
