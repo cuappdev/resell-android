@@ -81,11 +81,17 @@ data class PostResponse(
 )
 
 @Serializable
+data class Category(
+    val id: String,
+    val name: String
+)
+
+@Serializable
 data class Post(
     val id: String,
     val title: String,
     val description: String,
-    val category: String?,
+    val categories: List<Category>,
     val archive: Boolean,
     private val created: String,
     @SerializedName("altered_price") val alteredPrice: String,
@@ -106,8 +112,7 @@ data class Post(
             title = title,
             images = images,
             price = priceString,
-            // TODO: Some posts are given a null category? Find out why
-            categories = listOf(category ?: ""),
+            categories = categories.map { it.name },
             description = description,
             user = user?.toUserInfo() ?: richieUserInfo.apply {
                 Log.e("PostsApiService", "User is null")

@@ -12,6 +12,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import java.util.Locale
 import javax.inject.Inject
 
 @HiltViewModel
@@ -99,7 +100,9 @@ class HomeViewModel @Inject constructor(
         }
         viewModelScope.launch {
             try {
-                val posts = resellPostRepository.getPostsByFilter(filter.name)
+                val posts = resellPostRepository.getPostsByFilter(
+                    filter.name
+                )
                 applyMutation {
                     copy(
                         listings = posts.map { it.toListing() },

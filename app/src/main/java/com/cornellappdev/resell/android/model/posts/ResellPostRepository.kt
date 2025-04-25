@@ -61,7 +61,17 @@ class ResellPostRepository @Inject constructor(
     }
 
     suspend fun getPostsByFilter(category: String): List<Post> {
-        return retrofitInstance.postsApi.getFilteredPosts(CategoriesRequest(listOf(category))).posts
+        return retrofitInstance.postsApi.getFilteredPosts(
+            CategoriesRequest(
+                listOf(
+                    category.lowercase().replaceFirstChar {
+                        if (it.isLowerCase()) it.titlecase(
+                            Locale.US
+                        ) else it.toString()
+                    }
+                )
+            )
+        ).posts
     }
 
     suspend fun uploadPost(
