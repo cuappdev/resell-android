@@ -91,7 +91,7 @@ data class Post(
     val id: String,
     val title: String,
     val description: String,
-    val categories: List<Category>,
+    val categories: List<Category>?,
     val archive: Boolean,
     private val created: String,
     @SerializedName("altered_price") val alteredPrice: String,
@@ -112,7 +112,7 @@ data class Post(
             title = title,
             images = images,
             price = priceString,
-            categories = categories.map { it.name },
+            categories = categories?.map { it.name } ?: listOf(),
             description = description,
             user = user?.toUserInfo() ?: richieUserInfo.apply {
                 Log.e("PostsApiService", "User is null")
@@ -133,7 +133,7 @@ private fun parseIsoDate(dateString: String): Date {
 data class NewPostBody(
     val title: String,
     val description: String,
-    val category: String,
+    val categories: List<String>,
     val condition: String,
     @SerializedName("original_price") val originalPrice: Double,
     val imagesBase64: List<String>,

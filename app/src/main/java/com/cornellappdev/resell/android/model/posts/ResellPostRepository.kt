@@ -79,7 +79,7 @@ class ResellPostRepository @Inject constructor(
         description: String,
         images: List<ImageBitmap>,
         originalPrice: Double,
-        category: String,
+        categories: List<String>,
         userId: String,
     ): PostResponse {
         val base64s = images.map { it.toNetworkingString() }
@@ -90,8 +90,10 @@ class ResellPostRepository @Inject constructor(
                 description = description,
                 imagesBase64 = base64s,
                 originalPrice = originalPrice,
-                category = category.replaceFirstChar {
-                    if (it.isLowerCase()) it.titlecase(Locale.US) else it.toString()
+                categories = categories.map { category ->
+                    category.lowercase().replaceFirstChar {
+                        if (it.isLowerCase()) it.titlecase(Locale.US) else it.toString()
+                    }
                 },
                 userId = userId,
                 // TODO: New designs incoming to allow a change here?
