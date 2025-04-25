@@ -89,7 +89,6 @@ class PostDetailsEntryViewModel @Inject constructor(
     }
 
     fun onConfirmPost() {
-        // TODO: Placeholder
         viewModelScope.launch {
             try {
                 applyMutation {

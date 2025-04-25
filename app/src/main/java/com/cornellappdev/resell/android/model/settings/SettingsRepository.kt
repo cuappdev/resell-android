@@ -22,7 +22,6 @@ class SettingsRepository @Inject constructor(
 ) {
 
     suspend fun reportPost(id: String, uid: String, reason: String) {
-        // TODO: The backend input is really weird...
         retrofitInstance.settingsApi.reportPost(
             ReportPostBody(
                 reported = uid,

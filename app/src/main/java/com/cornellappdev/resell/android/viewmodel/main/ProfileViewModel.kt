@@ -159,7 +159,6 @@ class ProfileViewModel @Inject constructor(
             onReloadListings()
         }
 
-        // TODO: Check if this is the internal profile... or separately implement external.
         asyncCollect(profileRepository.internalUser) { response ->
             applyMutation {
                 copy(

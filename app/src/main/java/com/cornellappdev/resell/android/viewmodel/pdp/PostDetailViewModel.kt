@@ -120,8 +120,6 @@ class PostDetailViewModel @Inject constructor(
         // Start networking
         viewModelScope.launch {
             try {
-                // TODO: Backend be mf tweaking breh
-                //  Replace with `getSimilarPosts` when that endpoint is back up running.
                 val response = retrofitInstance.postsApi.getSimilarPosts(
                     id
                 )
