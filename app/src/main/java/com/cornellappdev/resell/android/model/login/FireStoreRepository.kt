@@ -117,6 +117,7 @@ class FireStoreRepository @Inject constructor(
                         docs += doc
                     }
                 } else {
+
                     val avail = (it.get("availabilities") as? List<Map<String, *>>)?.map {
                         val startMap = it["startDate"] as Map<*, *>
                         val startTime = Timestamp(
@@ -134,13 +135,28 @@ class FireStoreRepository @Inject constructor(
                         )
                     }
 
+                    // Create nullable start and end times, if they exist
+                    val startMap = it.get("startDate") as Map<*, *>?
+                    val startTime = startMap?.let {
+                        Timestamp(
+                            (startMap["seconds"] as Number).toLong(),
+                            (startMap["nanoseconds"] as Number).toInt()
+                        )
+                    }
+                    val endMap = it.get("endDate") as Map<*, *>?
+                    val endTime = endMap?.let {
+                        Timestamp(
+                            (endMap["seconds"] as Number).toLong(),
+                            (endMap["nanoseconds"] as Number).toInt()
+                        )
+                    }
                     val chatDoc = ChatDocument(
                         id = it.id,
                         timestamp = it.getTimestamp("timestamp") ?: Timestamp(0, 0),
                         text = it.get("text")?.toString() ?: "",
                         accepted = it.get("accepted") as? Boolean,
-                        startDate = it.getTimestamp("startDate"),
-                        endDate = it.getTimestamp("endDate"),
+                        startDate = startTime,
+                        endDate = endTime,
                         images = it.get("images") as? List<String>,
                         availabilities = avail,
                         type = it.get("type") as? String ?: "",
