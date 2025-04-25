@@ -94,8 +94,9 @@ class ChatRepository @Inject constructor(
         listings: List<Post>,
         it: RawChatHeaderData
     ): ChatHeaderData? {
+        val otherId = if (it.buyerID == myId) it.sellerID else it.buyerID
         val user = users.firstOrNull { user ->
-            user.user.id != myId
+            user.user.id == otherId
         }?.user
 
         val item = listings.firstOrNull { listing ->
