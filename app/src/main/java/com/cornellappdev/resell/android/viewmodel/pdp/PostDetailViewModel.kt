@@ -261,12 +261,12 @@ class PostDetailViewModel @Inject constructor(
 
         viewModelScope.launch {
             try {
-                val userInfo = profileRepository.getUserById(uid).user.toUserInfo()
                 applyMutation {
                     copy(
                         contactButtonState = ResellTextButtonState.SPINNING
                     )
                 }
+                val userInfo = profileRepository.getUserById(uid).user.toUserInfo()
                 contactSeller(
                     rootNavigationRepository = rootNavigationRepository,
                     fireStoreRepository = fireStoreRepository,
@@ -279,12 +279,12 @@ class PostDetailViewModel @Inject constructor(
                 )
             } catch (e: Exception) {
                 Log.e("PostDetailViewModel", "Error contacting seller: ", e)
-                applyMutation {
-                    copy(
-                        contactButtonState = ResellTextButtonState.ENABLED
-                    )
-                }
                 rootConfirmationRepository.showError()
+            }
+            applyMutation {
+                copy(
+                    contactButtonState = ResellTextButtonState.ENABLED
+                )
             }
         }
     }

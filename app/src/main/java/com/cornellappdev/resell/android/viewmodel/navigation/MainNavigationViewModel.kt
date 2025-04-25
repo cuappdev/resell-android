@@ -68,9 +68,6 @@ class MainNavigationViewModel @Inject constructor(
             if (stateValue().notificationData != null) {
                 parseNotification(stateValue().notificationData!!)
             }
-
-            // User was locked onto the main screen, so we can fetch posts now and it will load.
-            resellPostRepository.fetchPosts()
         }
     }
 

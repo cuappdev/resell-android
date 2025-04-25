@@ -23,41 +23,14 @@ class ResellPostRepository @Inject constructor(
     private val retrofitInstance: RetrofitInstance,
 ) {
 
-    private val _allPostsFlow =
-        MutableStateFlow<ResellApiResponse<List<Post>>>(ResellApiResponse.Pending)
-    val allPostsFlow = _allPostsFlow.asStateFlow()
-
-    val _savedPosts = MutableStateFlow<ResellApiResponse<List<Post>>>(ResellApiResponse.Pending)
+    private val _savedPosts = MutableStateFlow<ResellApiResponse<List<Post>>>(ResellApiResponse.Pending)
     val savedPosts = _savedPosts.asStateFlow()
 
     private var recentBitmaps: List<ImageBitmap>? = null
 
-    /**
-     * Asynchronously fetches the list of posts from the API. Once finished, will send down
-     * `allPostsFlow` to be observed.
-     */
-    fun fetchPosts(page: Int = 1) {
-        _allPostsFlow.value = ResellApiResponse.Pending
-        CoroutineScope(Dispatchers.IO).launch {
-            try {
-                _allPostsFlow.value =
-                    ResellApiResponse.Success(
-                        retrofitInstance.postsApi.getPosts(
-                            page = page
-                        )
-                            .posts
-                            .sortedByDescending {
-                                it.createdDate
-                            })
-            } catch (e: Exception) {
-                Log.e("ResellPostRepository", "Error fetching posts: ", e)
-                _allPostsFlow.value = ResellApiResponse.Error
-            }
-        }
-    }
-
     suspend fun getPostsByPage(page: Int): List<Post> {
-        return retrofitInstance.postsApi.getPosts(page = page).posts
+        val posts = retrofitInstance.postsApi.getPosts(page = page).posts
+        return posts
     }
 
     suspend fun getPostsByFilter(category: String): List<Post> {
