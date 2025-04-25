@@ -1,5 +1,6 @@
 package com.cornellappdev.resell.android.ui.components.global
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridScope
 import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState
@@ -27,7 +28,8 @@ fun ResellLoadingListingScroll(
         columns = StaggeredGridCells.Fixed(2),
         modifier = modifier,
         state = listState,
-        verticalItemSpacing = 24.dp
+        verticalItemSpacing = 24.dp,
+        horizontalArrangement = Arrangement.spacedBy(20.dp)
     ) {
         item(span = StaggeredGridItemSpan.FullLine) { header() }
         resellLoadingListingScroll(numCards = numCards)

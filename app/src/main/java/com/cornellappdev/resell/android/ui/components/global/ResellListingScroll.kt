@@ -1,5 +1,6 @@
 package com.cornellappdev.resell.android.ui.components.global
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -40,6 +41,7 @@ fun ResellListingsScroll(
             top = paddedTop,
         ),
         verticalItemSpacing = 24.dp,
+        horizontalArrangement = Arrangement.spacedBy(20.dp),
         modifier = modifier.fillMaxWidth()
     ) {
         item(span = StaggeredGridItemSpan.FullLine) {

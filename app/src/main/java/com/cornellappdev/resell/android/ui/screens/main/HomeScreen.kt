@@ -32,6 +32,7 @@ import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -93,7 +94,7 @@ fun HomeScreen(
             loadedState = homeUiState.loadedState,
             filteredListings = homeUiState.filteredListings,
             onListingPressed = homeViewModel::onListingPressed,
-            savedImagesResponses = homeUiState.imageResponses
+            savedImagesResponses = homeUiState.savedImageResponses
         )
     }
 }
@@ -146,7 +147,7 @@ private fun MainContent(
     loadedState: ResellApiState,
     filteredListings: List<Listing>,
     onListingPressed: (Listing) -> Unit,
-    savedImagesResponses: List<ResellApiResponse<ImageBitmap>>
+    savedImagesResponses: List<MutableState<ResellApiResponse<ImageBitmap>>>
 ) {
     val preview = LocalInspectionMode.current
     LazyVerticalStaggeredGrid(
@@ -183,7 +184,7 @@ private fun LazyStaggeredGridScope.savedByYou(
     savedListings: List<Listing>,
     onSavedPressed: () -> Unit,
     toPost: (Listing) -> Unit,
-    savedImagesResponses: List<ResellApiResponse<ImageBitmap>>
+    savedImagesResponses: List<MutableState<ResellApiResponse<ImageBitmap>>>
 ) {
     item(span = StaggeredGridItemSpan.FullLine) {
         Row(
@@ -208,7 +209,7 @@ private fun LazyStaggeredGridScope.savedByYou(
                 SavedListingsRow(
                     savedListings,
                     toPost,
-                    imageResponses = savedImagesResponses,
+                    savedImagesResponses,
                     modifier = modifier
                 )
             }
@@ -254,7 +255,7 @@ private fun ForceHorizontalOffset(
 private fun SavedListingsRow(
     savedListings: List<Listing>,
     toPost: (Listing) -> Unit,
-    imageResponses: List<ResellApiResponse<ImageBitmap>>,
+    savedImageResponses: List<MutableState<ResellApiResponse<ImageBitmap>>>,
     modifier: Modifier = Modifier
 ) {
     LazyRow(
@@ -275,7 +276,7 @@ private fun SavedListingsRow(
             } else {
                 ResellSavedCard(
                     onClick = { toPost(listing) },
-                    imageResponse = imageResponses[index]
+                    imageResponse = savedImageResponses[index]
                 )
             }
         }
@@ -469,10 +470,10 @@ private fun LazyStaggeredGridScope.recentListings(
 @Composable
 private fun ResellSavedCard(
     onClick: () -> Unit,
-    imageResponse: ResellApiResponse<ImageBitmap>,
+    imageResponse: MutableState<ResellApiResponse<ImageBitmap>>,
 ) {
     AnimatedClampedAsyncImage(
-        image = imageResponse,
+        image = imageResponse.value,
         modifier = Modifier
             .height(112.dp)
             .width(112.dp)

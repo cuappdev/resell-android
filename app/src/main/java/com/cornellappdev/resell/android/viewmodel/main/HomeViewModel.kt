@@ -1,5 +1,6 @@
 package com.cornellappdev.resell.android.viewmodel.main
 
+import androidx.compose.runtime.MutableState
 import androidx.compose.ui.graphics.ImageBitmap
 import com.cornellappdev.resell.android.model.CoilRepository
 import com.cornellappdev.resell.android.model.classes.Listing
@@ -25,7 +26,7 @@ class HomeViewModel @Inject constructor(
             savedListings = emptyList(),
             activeFilter = HomeFilter.RECENT,
             loadedState = ResellApiState.Loading,
-            imageResponses = emptyList()
+            savedImageResponses = emptyList()
         )
     ) {
 
@@ -34,13 +35,13 @@ class HomeViewModel @Inject constructor(
         private val listings: List<Listing>,
         val savedListings: List<Listing>,
         val activeFilter: HomeFilter,
-        val imageResponses: List<ResellApiResponse<ImageBitmap>>
+        val savedImageResponses: List<MutableState<ResellApiResponse<ImageBitmap>>>
     ) {
         // TODO This should change to an endpoint, but backend is simple.
         val filteredListings: List<Listing>
-            get() = listings.filter {
+            get() = listings.filter { listing ->
                 activeFilter == HomeFilter.RECENT ||
-                        it.categories.map { it.lowercase() }.any {
+                        listing.categories.map { it.lowercase() }.any {
                             it.contains(activeFilter.name.lowercase())
                         }
             }
@@ -50,27 +51,21 @@ class HomeViewModel @Inject constructor(
         resellPostRepository.fetchSavedPosts()
         asyncCollect(resellPostRepository.savedPosts) { response ->
             applyMutation {
-                when (response) {
-                    is ResellApiResponse.Success -> {
-                        response.data.map {
-                            if (it.images.isEmpty()) {
-                                ResellApiResponse.Error
-                            } else {
-                                coilRepository.getUrlState(it.images[0]).value
+                copy(
+                    loadedState = response.toResellApiState(),
+                    savedListings = response.asSuccessOrNull()?.data?.map { it.toListing() }
+                        ?: emptyList(),
+                    savedImageResponses = when(response) {
+                        is ResellApiResponse.Success -> {
+                            response.data.map { listing ->
+                                coilRepository.getUrlState(listing.images.firstOrNull() ?: "")
                             }
                         }
+                        else -> {
+                            emptyList()
+                        }
                     }
-
-                    else -> {
-                        emptyList()
-                    }
-                }.let {
-                    copy(
-                        loadedState = response.toResellApiState(),
-                        savedListings = response.asSuccessOrNull()?.data?.map { it.toListing() }
-                            ?: listOf(),
-                        imageResponses = it)
-                }
+                )
             }
         }
         asyncCollect(resellPostRepository.allPostsFlow)
@@ -81,7 +76,7 @@ class HomeViewModel @Inject constructor(
                 }
 
                 else -> {
-                    listOf()
+                    emptyList()
                 }
             }
 
@@ -92,6 +87,7 @@ class HomeViewModel @Inject constructor(
                 )
             }
         }
+
     }
 
     enum class HomeFilter {

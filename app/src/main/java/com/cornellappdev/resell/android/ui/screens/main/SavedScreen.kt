@@ -39,6 +39,7 @@ fun SavedScreen(
 
     Column(
         modifier = Modifier
+            .defaultHorizontalPadding()
             .fillMaxSize()
     ) {
         Header(
@@ -80,7 +81,6 @@ private fun Header(
                 ) {
                     onTopPressed()
                 }
-                .defaultHorizontalPadding()
                 .windowInsetsPadding(WindowInsets.statusBars),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
