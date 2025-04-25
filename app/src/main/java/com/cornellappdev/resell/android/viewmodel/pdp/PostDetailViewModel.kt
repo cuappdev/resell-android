@@ -28,6 +28,7 @@ import com.cornellappdev.resell.android.viewmodel.root.RootDialogContent
 import com.cornellappdev.resell.android.viewmodel.root.RootDialogRepository
 import com.cornellappdev.resell.android.viewmodel.root.RootOptionsMenuRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import javax.inject.Inject
@@ -121,9 +122,6 @@ class PostDetailViewModel @Inject constructor(
             try {
                 // TODO: Backend be mf tweaking breh
                 //  Replace with `getSimilarPosts` when that endpoint is back up running.
-//                val response = retrofitInstance.postsApi.getFilteredPosts(
-//                    CategoryRequest(category)
-//                )
                 val response = retrofitInstance.postsApi.getSimilarPosts(
                     id
                 )
@@ -161,6 +159,8 @@ class PostDetailViewModel @Inject constructor(
                 applyMutation {
                     copy(bookmarked = saved)
                 }
+            } catch (_: CancellationException) {
+
             } catch (e: Exception) {
                 Log.e("PostDetailViewModel", "Error fetching saved: ", e)
             }
@@ -298,6 +298,8 @@ class PostDetailViewModel @Inject constructor(
             viewModelScope.launch {
                 try {
                     postsRepository.unsavePost(stateValue().postId)
+                } catch (_: CancellationException) {
+
                 } catch (e: Exception) {
                     Log.e("PostDetailViewModel", "Error unsaving post: ", e)
                     rootConfirmationRepository.showError()
@@ -314,6 +316,8 @@ class PostDetailViewModel @Inject constructor(
             viewModelScope.launch {
                 try {
                     postsRepository.savePost(stateValue().postId)
+                } catch (_: CancellationException) {
+
                 } catch (e: Exception) {
                     Log.e("PostDetailViewModel", "Error saving post: ", e)
                     rootConfirmationRepository.showError()
