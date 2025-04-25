@@ -1,5 +1,6 @@
 package com.cornellappdev.resell.android.model.api
 
+import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
@@ -157,13 +158,23 @@ class ChatRepository @Inject constructor(
 
         val deferredListings = listingIds.map { id ->
             async {
-                postRepository.getPostById(id)
+                try {
+                    postRepository.getPostById(id)
+                } catch (e: Exception) {
+                    Log.e("ChatRepository", "Error fetching listing: ", e)
+                    null
+                }
             }
         }
 
         val deferredUsers = otherUserIds.map { id ->
             async {
-                profileRepository.getUserById(id)
+                try {
+                    profileRepository.getUserById(id)
+                } catch (e: Exception) {
+                    Log.e("ChatRepository", "Error fetching user: ", e)
+                    null
+                }
             }
         }
 
