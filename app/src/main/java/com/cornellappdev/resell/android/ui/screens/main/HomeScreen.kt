@@ -354,12 +354,12 @@ private enum class CategoryItem(
         backgroundColor = Color(0x80E3B570)
     ),
     SPORTS(
-        image = R.drawable.basketball,
+        image = R.drawable.football,
         label = "Sports & Outdoors",
         backgroundColor = Color(0x8073A2AB)
     ),
     OTHER(
-        image = R.drawable.other,
+        image = R.drawable.gift,
         label = "Other",
         backgroundColor = Color(0x80E2B56E)
     )
@@ -529,7 +529,7 @@ private fun HomeScreenPreview() = ResellPreview {
 
 @Preview
 @Composable
-private fun NoSavedPreview() = ResellPreview {
+private fun SavedEmptyStatePreview() = ResellPreview {
     Column(
         modifier = Modifier
             .fillMaxSize(),
