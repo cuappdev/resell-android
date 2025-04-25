@@ -35,6 +35,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
@@ -85,7 +86,7 @@ fun SetupScreen(
                 .verticalScroll(rememberScrollState()),
         ) {
             PhotoHeader(
-                imageBitmap = uiState.imageBitmap,
+                imageBitmap = uiState.imageBitmap?.asAndroidBitmap(),
                 onImageTapped = {
                     singlePhotoPicker.launch(
                         PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
