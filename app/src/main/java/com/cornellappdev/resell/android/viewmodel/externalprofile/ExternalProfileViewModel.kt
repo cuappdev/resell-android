@@ -2,7 +2,6 @@ package com.cornellappdev.resell.android.viewmodel.externalprofile
 
 import androidx.compose.ui.Alignment
 import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.cornellappdev.resell.android.model.classes.Listing
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
@@ -19,10 +18,8 @@ import com.cornellappdev.resell.android.viewmodel.root.RootConfirmationRepositor
 import com.cornellappdev.resell.android.viewmodel.root.RootDialogRepository
 import com.cornellappdev.resell.android.viewmodel.root.RootOptionsMenuRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.launch
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import java.lang.StackWalker.Option
 import javax.inject.Inject
 
 @HiltViewModel
@@ -142,9 +139,7 @@ class ExternalProfileViewModel @Inject constructor(
      * Reloads the listings made by the external user.
      */
     fun onReloadListings(id: String) {
-        viewModelScope.launch {
-            profileRepository.fetchExternalListings(id)
-        }
+        profileRepository.fetchExternalListings(id)
     }
 
     init {
@@ -157,10 +152,8 @@ class ExternalProfileViewModel @Inject constructor(
         }
 
         // Fetch user info on first.
-        viewModelScope.launch {
-            profileRepository.fetchExternalProfile(navArgs.uid)
-            onReloadListings(navArgs.uid)
-        }
+        profileRepository.fetchExternalProfile(navArgs.uid)
+        onReloadListings(navArgs.uid)
 
         asyncCollect(profileRepository.externalUser) { response ->
             applyMutation {
