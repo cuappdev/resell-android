@@ -17,7 +17,6 @@ import com.cornellappdev.resell.android.model.chats.RawChatHeaderData
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.model.core.UserInfoRepository
 import com.cornellappdev.resell.android.model.login.FireStoreRepository
-import com.cornellappdev.resell.android.model.login.GoogleAuthRepository
 import com.cornellappdev.resell.android.model.login.PreferencesKeys
 import com.cornellappdev.resell.android.model.posts.ResellPostRepository
 import com.cornellappdev.resell.android.model.profile.ProfileRepository
@@ -36,9 +35,7 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import okhttp3.internal.toImmutableList
-import java.time.ZoneId
-import java.time.ZonedDateTime
-import java.time.format.DateTimeFormatter
+import java.util.Calendar
 import java.util.Date
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -49,7 +46,6 @@ class ChatRepository @Inject constructor(
     private val userInfoRepository: UserInfoRepository,
     private val postRepository: ResellPostRepository,
     private val retrofitInstance: RetrofitInstance,
-    private val googleAuthRepository: GoogleAuthRepository,
     private val dataStore: DataStore<Preferences>,
     private val profileRepository: ProfileRepository,
 ) {
@@ -151,8 +147,8 @@ class ChatRepository @Inject constructor(
         val listingIds = rawData.map {
             it.listingID
         }.toSet()
-        val otherUserIds = rawData.map {
-            it.userIDs.first {
+        val otherUserIds = rawData.map { headerData ->
+            headerData.userIDs.first {
                 it != myId
             }
         }.toSet()
@@ -309,9 +305,12 @@ class ChatRepository @Inject constructor(
                 var newCluster = cluster.copy()
                 val newMessages = cluster.messages.toMutableList()
                 cluster.messages.forEach { messageData ->
-                    if (lastTimestamp.toDate().day != messageData.timestamp.toDate().day
-                        || lastTimestamp.toDate().month != messageData.timestamp.toDate().month
-                        || lastTimestamp.toDate().year != messageData.timestamp.toDate().year
+                    val lastCal = Calendar.getInstance().apply { time = lastTimestamp.toDate() }
+                    val messageCal = Calendar.getInstance().apply { time = messageData.timestamp.toDate() }
+
+                    if (lastCal.get(Calendar.DAY_OF_MONTH) != messageCal.get(Calendar.DAY_OF_MONTH)
+                        || lastCal.get(Calendar.MONTH) != messageCal.get(Calendar.MONTH)
+                        || lastCal.get(Calendar.YEAR) != messageCal.get(Calendar.YEAR)
                     ) {
                         newMessages.add(
                             newMessages.indexOf(messageData),
@@ -328,6 +327,7 @@ class ChatRepository @Inject constructor(
                     lastTimestamp = messageData.timestamp
                 }
 
+
                 newCluster
             }
 
@@ -337,9 +337,9 @@ class ChatRepository @Inject constructor(
             }.flatten()
                 .filter {
                     it.meetingInfo != null
-                }.sortedByDescending {
+                }.maxByOrNull {
                     it.timestamp
-                }.firstOrNull()?.meetingInfo?.mostRecent = true
+                }?.meetingInfo?.mostRecent = true
 
 
             // Step 3: Return the final Chat object.
@@ -459,43 +459,49 @@ class ChatRepository @Inject constructor(
             )
         } else if (meetingInfo != null) {
 
-            if (meetingInfo.state == "proposed") {
-                retrofitInstance.chatApi.sendProposal(
-                    proposalBody = ProposalBody(
-                        buyerId = buyerId,
-                        sellerId = sellerId,
-                        listingId = listingId,
-                        senderId = myId,
-                        startDate = meetingInfo.proposeTime,
-                        endDate = meetingInfo.endTime
-                    ),
-                    chatId = chatId
-                )
-            } else if (meetingInfo.state == "confirmed" || meetingInfo.state == "declined") {
-                retrofitInstance.chatApi.sendProposalResponse(
-                    proposalResponseBody = ProposalResponseBody(
-                        buyerId = buyerId,
-                        sellerId = sellerId,
-                        listingId = listingId,
-                        senderId = myId,
-                        startDate = meetingInfo.proposeTime,
-                        endDate = meetingInfo.endTime,
-                        accepted = meetingInfo.state == "confirmed"
-                    ),
-                    chatId = chatId
-                )
-            } else if (meetingInfo.state == "canceled") {
-                retrofitInstance.chatApi.sendProposalCancel(
-                    proposalCancelBody = ProposalCancelBody(
-                        buyerId = buyerId,
-                        sellerId = sellerId,
-                        listingId = listingId,
-                        senderId = myId,
-                        startDate = meetingInfo.proposeTime,
-                        endDate = meetingInfo.endTime
-                    ),
-                    chatId = chatId
-                )
+            when (meetingInfo.state) {
+                "proposed" -> {
+                    retrofitInstance.chatApi.sendProposal(
+                        proposalBody = ProposalBody(
+                            buyerId = buyerId,
+                            sellerId = sellerId,
+                            listingId = listingId,
+                            senderId = myId,
+                            startDate = meetingInfo.proposeTime,
+                            endDate = meetingInfo.endTime
+                        ),
+                        chatId = chatId
+                    )
+                }
+
+                "confirmed", "declined" -> {
+                    retrofitInstance.chatApi.sendProposalResponse(
+                        proposalResponseBody = ProposalResponseBody(
+                            buyerId = buyerId,
+                            sellerId = sellerId,
+                            listingId = listingId,
+                            senderId = myId,
+                            startDate = meetingInfo.proposeTime,
+                            endDate = meetingInfo.endTime,
+                            accepted = meetingInfo.state == "confirmed"
+                        ),
+                        chatId = chatId
+                    )
+                }
+
+                "canceled" -> {
+                    retrofitInstance.chatApi.sendProposalCancel(
+                        proposalCancelBody = ProposalCancelBody(
+                            buyerId = buyerId,
+                            sellerId = sellerId,
+                            listingId = listingId,
+                            senderId = myId,
+                            startDate = meetingInfo.proposeTime,
+                            endDate = meetingInfo.endTime
+                        ),
+                        chatId = chatId
+                    )
+                }
             }
         }
     }
@@ -575,17 +581,6 @@ class ChatRepository @Inject constructor(
         meetingInfo = meetingInfo,
         chatId = chatId
     )
-
-    private fun getFormattedTime(): String {
-        // Get the current time in the system's time zone (you can change ZoneId for specific time zones)
-        val currentTime = ZonedDateTime.now(ZoneId.of("America/New_York"))
-
-        // Define the desired format
-        val formatter = DateTimeFormatter.ofPattern("MMMM dd, yyyy 'at' h:mm:ss a z")
-
-        // Format the current time according to the specified pattern
-        return currentTime.format(formatter)
-    }
 
     suspend fun shouldShowGCalSync(
         otherId: String,
