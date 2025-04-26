@@ -9,7 +9,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import com.cornellappdev.resell.android.ui.theme.Secondary
 import com.cornellappdev.resell.android.util.LocalInfiniteShimmer
 
 @Composable
@@ -24,7 +23,7 @@ fun ProfilePictureView(
                 .sizeIn(minWidth = 31.dp, minHeight = 31.dp)
                 .clip(CircleShape),
             color = LocalInfiniteShimmer.current,
-            shape = CircleShape
+            shape = CircleShape,
         ) {}
     } else {
         AsyncImage(
