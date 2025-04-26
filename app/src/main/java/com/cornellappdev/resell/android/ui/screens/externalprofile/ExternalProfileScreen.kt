@@ -24,6 +24,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.ui.components.global.ResellListingsScroll
+import com.cornellappdev.resell.android.ui.components.global.ResellLoadingListingScroll
 import com.cornellappdev.resell.android.ui.components.profile.ProfileEmptyState
 import com.cornellappdev.resell.android.ui.components.profile.ProfileHeader
 import com.cornellappdev.resell.android.ui.theme.Style.title1
@@ -42,6 +43,7 @@ fun ExternalProfileScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .background(Color.White)
                 .then(
                     if (uiState.isBlocked) Modifier.blur(5.dp)
                     else Modifier
@@ -62,7 +64,7 @@ fun ExternalProfileScreen(
 
             when (uiState.shopListings) {
                 is ResellApiResponse.Pending -> {
-
+                    ResellLoadingListingScroll()
                 }
 
                 is ResellApiResponse.Error -> {

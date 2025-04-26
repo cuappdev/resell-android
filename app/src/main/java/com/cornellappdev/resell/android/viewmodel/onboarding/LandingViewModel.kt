@@ -26,6 +26,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
 import javax.inject.Inject
@@ -188,6 +189,7 @@ class LandingViewModel @Inject constructor(
                 )
             }
 
+            delay(500)
             applyMutation {
                 copy(buttonState = ResellTextButtonState.ENABLED)
             }

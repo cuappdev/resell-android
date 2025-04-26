@@ -207,27 +207,23 @@ sealed class ResellRootRoute {
 
     @Serializable
     data class PDP(
-        val id: String,
-        val title: String,
-        val images: List<String>,
-        val price: String,
-        val categories: List<String>,
-        val description: String,
         val userImageUrl: String,
         val username: String,
         val userId: String,
-        val userHumanName: String
+        val userHumanName: String,
+        val listingJson: String,
     ) : ResellRootRoute()
 
     @Serializable
     data class CHAT(
         /** Real name.*/
         val name: String,
-        val email: String,
         val pfp: String,
-        // TODO There should be some way to fix this automatically but I can't figure it out.
-        val postJson: String,
-        val isBuyer: Boolean
+        val listingJson: String,
+        val isBuyer: Boolean,
+        val otherUserId: String,
+        val otherVenmo: String,
+        val chatId: String,
     ) : ResellRootRoute()
 
     @Serializable

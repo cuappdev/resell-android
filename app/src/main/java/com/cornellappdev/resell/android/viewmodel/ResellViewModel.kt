@@ -1,12 +1,11 @@
 package com.cornellappdev.resell.android.viewmodel
 
-import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.cornellappdev.resell.android.model.posts.ResellPostRepository
-import com.cornellappdev.resell.android.model.profile.ProfileRepository
+import com.cornellappdev.resell.android.model.classes.Listing
+import com.cornellappdev.resell.android.model.login.FireStoreRepository
 import com.cornellappdev.resell.android.model.settings.BlockedUsersRepository
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonContainer
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonState
@@ -16,11 +15,9 @@ import com.cornellappdev.resell.android.viewmodel.root.RootConfirmationRepositor
 import com.cornellappdev.resell.android.viewmodel.root.RootDialogContent
 import com.cornellappdev.resell.android.viewmodel.root.RootDialogRepository
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -155,43 +152,34 @@ abstract class ResellViewModel<UiState>(initialUiState: UiState) : ViewModel() {
      * @param pfp The profile picture of the OTHER user.
      * @param id The id of the post.
      */
-    protected fun contactSeller(
-        onSuccess: () -> Unit,
-        onError: () -> Unit,
-        profileRepository: ProfileRepository,
-        postsRepository: ResellPostRepository,
+    protected suspend fun contactSeller(
         rootNavigationRepository: RootNavigationRepository,
-        rootConfirmationRepository: RootConfirmationRepository,
+        fireStoreRepository: FireStoreRepository,
         name: String,
-        email: String,
+        myId: String,
+        otherId: String,
         pfp: String,
-        id: String,
+        listing: Listing,
         isBuyer: Boolean
     ) {
-        viewModelScope.launch {
-            try {
-                val post = postsRepository.allPostsFlow.first().asSuccess().let {
-                    it.data.first {
-                        it.id == id
-                    }
-                }.toListing()
-                rootNavigationRepository.navigate(
-                    ResellRootRoute.CHAT(
-                        isBuyer = isBuyer,
-                        name = name,
-                        pfp = pfp,
-                        email = email,
-                        postJson = Json.encodeToString(post),
-                    )
-                )
+        val buyerId = if (isBuyer) myId else otherId
+        val sellerId = if (isBuyer) otherId else myId
+        val chatId = fireStoreRepository.findChatWith(
+            buyerId = buyerId,
+            sellerId = sellerId,
+            listingId = listing.id
+        )
 
-                delay(500)
-                onSuccess()
-            } catch (e: Exception) {
-                Log.e("PostDetailViewModel", "Error navigating to chat: ", e)
-                onError()
-                rootConfirmationRepository.showError()
-            }
-        }
+        rootNavigationRepository.navigate(
+            ResellRootRoute.CHAT(
+                isBuyer = isBuyer,
+                name = name,
+                pfp = pfp,
+                listingJson = Json.encodeToString(listing),
+                otherUserId = listing.user.id,
+                otherVenmo = listing.user.venmoHandle,
+                chatId = chatId
+            )
+        )
     }
 }
