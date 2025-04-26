@@ -197,11 +197,11 @@ class ChatRepository @Inject constructor(
     ) {
         fireStoreRepository.subscribeToChat(
             chatId = chatId
-        ) {
+        ) { chatDocuments ->
             // Convert the List<ChatDocument> into a Chat
             // Step 1: Creates a list of Pair<ChatMessageData, String>.
             // The String is the sender's id.
-            val messageData = it.map { document ->
+            val messageData = chatDocuments.map { document ->
                 val messageType =
                     if (document.images?.isNotEmpty() == true) {
                         MessageType.Image
@@ -220,6 +220,8 @@ class ChatRepository @Inject constructor(
                             "confirmed"
                         } else if (document.accepted == false) {
                             "declined"
+                        } else if (document.cancellation == true) {
+                            "canceled"
                         } else {
                             "proposed"
                         },
@@ -227,9 +229,9 @@ class ChatRepository @Inject constructor(
                     )
                 }
 
-                val availability = document.availabilities?.let {
+                val availability = document.availabilities?.let { startAndEnds ->
                     AvailabilityDocument(
-                        availabilities = it.map {
+                        availabilities = startAndEnds.map {
                             AvailabilityBlock(
                                 startDate = it.startDate,
                                 // lmao wtf is ID
@@ -479,6 +481,18 @@ class ChatRepository @Inject constructor(
                         startDate = meetingInfo.proposeTime,
                         endDate = meetingInfo.endTime,
                         accepted = meetingInfo.state == "confirmed"
+                    ),
+                    chatId = chatId
+                )
+            } else if (meetingInfo.state == "canceled") {
+                retrofitInstance.chatApi.sendProposalCancel(
+                    proposalCancelBody = ProposalCancelBody(
+                        buyerId = buyerId,
+                        sellerId = sellerId,
+                        listingId = listingId,
+                        senderId = myId,
+                        startDate = meetingInfo.proposeTime,
+                        endDate = meetingInfo.endTime
                     ),
                     chatId = chatId
                 )

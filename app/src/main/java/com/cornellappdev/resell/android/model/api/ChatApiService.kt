@@ -30,6 +30,12 @@ interface ChatApiService {
         @Path("chatId") chatId: String
     )
 
+    @POST("chat/proposal/cancel/{chatId}")
+    suspend fun sendProposalCancel(
+        @Body proposalCancelBody: ProposalCancelBody,
+        @Path("chatId") chatId: String
+    )
+
     @POST("chat/{chatId}/message/{messageId}")
     suspend fun markChatRead(
         @Body markReadBody: MarkReadBody,
@@ -81,6 +87,16 @@ data class ProposalResponseBody(
     val startDate: Timestamp,
     val endDate: Timestamp,
     val accepted: Boolean
+)
+
+data class ProposalCancelBody(
+    val type: String = "proposal",
+    val listingId: String,
+    val buyerId: String,
+    val sellerId: String,
+    val senderId: String,
+    val startDate: Timestamp,
+    val endDate: Timestamp
 )
 
 data class MarkReadBody(

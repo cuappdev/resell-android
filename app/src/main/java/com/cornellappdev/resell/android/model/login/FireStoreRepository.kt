@@ -96,7 +96,8 @@ class FireStoreRepository @Inject constructor(
                             startDate = null,
                             endDate = null,
                             availabilities = null,
-                            type = "chat"
+                            type = "chat",
+                            cancellation = null,
                         )
                         docs += doc
                     }
@@ -112,7 +113,8 @@ class FireStoreRepository @Inject constructor(
                             availabilities = null,
                             type = "chat",
                             senderId = it.get("senderID") as? String ?: "",
-                            images = emptyList()
+                            images = emptyList(),
+                            cancellation = null,
                         )
                         docs += doc
                     }
@@ -161,6 +163,7 @@ class FireStoreRepository @Inject constructor(
                         availabilities = avail,
                         type = it.get("type") as? String ?: "",
                         senderId = it.get("senderID") as? String ?: "",
+                        cancellation = it.get("cancellation") as? Boolean
                     )
 
                     docs += chatDoc

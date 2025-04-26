@@ -21,6 +21,7 @@ data class ChatDocument(
     val senderId: String,
     val availabilities: List<StartAndEnd>?,
     val accepted: Boolean?,
+    val cancellation: Boolean?,
     val startDate: Timestamp?,
     val endDate: Timestamp?,
 )
