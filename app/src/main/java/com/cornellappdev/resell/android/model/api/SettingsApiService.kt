@@ -18,7 +18,7 @@ interface SettingsApiService {
     suspend fun sendFeedback(@Body feedback: Feedback)
 
     @POST("user")
-    suspend fun editUser(@Body user: EditUser)
+    suspend fun editUser(@Body user: EditUser): UserResponse
 }
 
 data class EditUser(

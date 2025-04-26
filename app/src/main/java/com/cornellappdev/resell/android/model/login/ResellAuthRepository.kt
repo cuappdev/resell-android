@@ -14,7 +14,7 @@ class ResellAuthRepository @Inject constructor(
     private val firebaseMessagingRepository: FirebaseMessagingRepository,
     private val googleAuthRepository: GoogleAuthRepository,
 ) {
-    suspend fun createUser(createUserBody: CreateUserBody) =
+    suspend fun createUser(createUserBody: CreateUserBody): User =
         retrofitInstance.userApi.createUser(createUserBody)
 
     /**

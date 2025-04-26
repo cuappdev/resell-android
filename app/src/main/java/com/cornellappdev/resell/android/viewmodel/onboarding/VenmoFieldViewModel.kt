@@ -108,7 +108,7 @@ class VenmoFieldViewModel @Inject constructor(
         viewModelScope.launch {
             val googleUser = googleAuthRepository.accountOrNull()!!
             try {
-                val response = resellAuthRepository.createUser(
+                val user = resellAuthRepository.createUser(
                     CreateUserBody(
                         username = stateValue().username,
                         netid = googleUser.email!!.split("@")[0],
@@ -125,7 +125,7 @@ class VenmoFieldViewModel @Inject constructor(
                     )
                 )
 
-                userInfoRepository.storeUserFromUserObject(response)
+                userInfoRepository.storeUserFromUserObject(user)
                 rootNavigationRepository.navigate(ResellRootRoute.MAIN)
                 rootNavigationSheetRepository.showBottomSheet(RootSheet.Welcome)
             } catch (e: Exception) {
