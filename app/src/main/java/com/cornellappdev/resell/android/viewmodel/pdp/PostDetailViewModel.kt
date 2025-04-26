@@ -6,11 +6,11 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
-import com.cornellappdev.resell.android.model.api.CategoryRequest
 import com.cornellappdev.resell.android.model.api.RetrofitInstance
 import com.cornellappdev.resell.android.model.classes.Listing
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.model.core.UserInfoRepository
+import com.cornellappdev.resell.android.model.login.FireStoreRepository
 import com.cornellappdev.resell.android.model.login.FirebaseMessagingRepository
 import com.cornellappdev.resell.android.model.pdp.ImageBitmapLoader
 import com.cornellappdev.resell.android.model.posts.ResellPostRepository
@@ -28,7 +28,9 @@ import com.cornellappdev.resell.android.viewmodel.root.RootDialogContent
 import com.cornellappdev.resell.android.viewmodel.root.RootDialogRepository
 import com.cornellappdev.resell.android.viewmodel.root.RootOptionsMenuRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
+import kotlinx.serialization.json.Json
 import javax.inject.Inject
 
 @HiltViewModel
@@ -43,10 +45,14 @@ class PostDetailViewModel @Inject constructor(
     private val rootConfirmationRepository: RootConfirmationRepository,
     private val profileRepository: ProfileRepository,
     private val firebaseMessagingRepository: FirebaseMessagingRepository,
+    private val fireStoreRepository: FireStoreRepository,
     savedStateHandle: SavedStateHandle
 ) : ResellViewModel<PostDetailViewModel.UiState>(
     initialUiState = UiState()
 ) {
+
+    val navArgs = savedStateHandle.toRoute<ResellRootRoute.PDP>()
+    var listing = Json.decodeFromString<Listing>(navArgs.listingJson)
 
     data class UiState(
         val title: String = "",
@@ -114,11 +120,6 @@ class PostDetailViewModel @Inject constructor(
         // Start networking
         viewModelScope.launch {
             try {
-                // TODO: Backend be mf tweaking breh
-                //  Replace with `getSimilarPosts` when that endpoint is back up running.
-//                val response = retrofitInstance.postsApi.getFilteredPosts(
-//                    CategoryRequest(category)
-//                )
                 val response = retrofitInstance.postsApi.getSimilarPosts(
                     id
                 )
@@ -156,6 +157,8 @@ class PostDetailViewModel @Inject constructor(
                 applyMutation {
                     copy(bookmarked = saved)
                 }
+            } catch (_: CancellationException) {
+
             } catch (e: Exception) {
                 Log.e("PostDetailViewModel", "Error fetching saved: ", e)
             }
@@ -252,50 +255,34 @@ class PostDetailViewModel @Inject constructor(
 
     fun onContactClick() {
         val uid = stateValue().uid
-        val id = stateValue().postId
+        val postId = stateValue().postId
 
         viewModelScope.launch {
             try {
-                val userInfo = profileRepository.getUserById(uid).user.toUserInfo()
                 applyMutation {
                     copy(
                         contactButtonState = ResellTextButtonState.SPINNING
                     )
                 }
+                val userInfo = profileRepository.getUserById(uid).user.toUserInfo()
                 contactSeller(
-                    id = id,
-                    onSuccess = {
-                        applyMutation {
-                            copy(
-                                contactButtonState = ResellTextButtonState.ENABLED
-                            )
-                        }
-                    },
-                    onError = {
-                        applyMutation {
-                            copy(
-                                contactButtonState = ResellTextButtonState.ENABLED
-                            )
-                        }
-                    },
-                    profileRepository = profileRepository,
-                    postsRepository = postsRepository,
-                    rootConfirmationRepository = rootConfirmationRepository,
                     rootNavigationRepository = rootNavigationRepository,
-                    isBuyer = true,
-                    email = userInfo.email,
+                    fireStoreRepository = fireStoreRepository,
+                    name = userInfo.name,
+                    myId = userInfoRepository.getUserId() ?: "",
+                    otherId = uid,
                     pfp = userInfo.imageUrl,
-                    name = userInfo.name
+                    listing = listing,
+                    isBuyer = true
                 )
-
             } catch (e: Exception) {
-                Log.e("PostDetailViewModel", "Error fetching user info: ", e)
-                applyMutation {
-                    copy(
-                        contactButtonState = ResellTextButtonState.ENABLED
-                    )
-                }
+                Log.e("PostDetailViewModel", "Error contacting seller: ", e)
                 rootConfirmationRepository.showError()
+            }
+            applyMutation {
+                copy(
+                    contactButtonState = ResellTextButtonState.ENABLED
+                )
             }
         }
     }
@@ -309,6 +296,8 @@ class PostDetailViewModel @Inject constructor(
             viewModelScope.launch {
                 try {
                     postsRepository.unsavePost(stateValue().postId)
+                } catch (_: CancellationException) {
+
                 } catch (e: Exception) {
                     Log.e("PostDetailViewModel", "Error unsaving post: ", e)
                     rootConfirmationRepository.showError()
@@ -325,6 +314,8 @@ class PostDetailViewModel @Inject constructor(
             viewModelScope.launch {
                 try {
                     postsRepository.savePost(stateValue().postId)
+                } catch (_: CancellationException) {
+
                 } catch (e: Exception) {
                     Log.e("PostDetailViewModel", "Error saving post: ", e)
                     rootConfirmationRepository.showError()
@@ -346,52 +337,42 @@ class PostDetailViewModel @Inject constructor(
     }
 
     fun onSimilarPressed(index: Int) {
-        val listing = stateValue().similarItems.asSuccess().data[index]
+        listing = stateValue().similarItems.asSuccess().data[index]
 
         loadPost(
-            id = listing.id,
-            title = listing.title,
-            price = listing.price,
-            description = listing.description,
             userImageUrl = listing.user.imageUrl,
             userHumanName = listing.user.name,
             userId = listing.user.id,
-            images = listing.images,
-            categories = listing.categories
+            listing = listing,
         )
     }
 
     private fun loadPost(
-        id: String,
-        title: String,
-        price: String,
-        description: String,
+        listing: Listing,
         userImageUrl: String,
         userHumanName: String,
         userId: String,
-        images: List<String>,
-        categories: List<String>
     ) {
         applyMutation {
             copy(
-                postId = id,
-                title = title,
-                price = price,
-                description = description,
+                postId = listing.id,
+                title = listing.title,
+                price = listing.price,
+                description = listing.description,
                 profileImageUrl = userImageUrl,
                 username = userHumanName,
                 uid = userId
             )
         }
         onNeedLoadImages(
-            urls = images,
-            currentPostId = id
+            urls = listing.images,
+            currentPostId = listing.id
         )
         fetchSimilarPosts(
-            id = id,
-            category = categories.firstOrNull() ?: ""
+            id = listing.id,
+            category = listing.categories.firstOrNull() ?: ""
         )
-        fetchSaved(id)
+        fetchSaved(listing.id)
 
         // Hide "Contact Seller" if the current user is the same as the post owner.
         viewModelScope.launch {
@@ -405,17 +386,11 @@ class PostDetailViewModel @Inject constructor(
     }
 
     init {
-        val navArgs = savedStateHandle.toRoute<ResellRootRoute.PDP>()
         loadPost(
-            id = navArgs.id,
-            title = navArgs.title,
-            price = navArgs.price,
-            description = navArgs.description,
             userImageUrl = navArgs.userImageUrl,
             userHumanName = navArgs.userHumanName,
             userId = navArgs.userId,
-            images = navArgs.images,
-            categories = navArgs.categories
+            listing = listing
         )
     }
 }

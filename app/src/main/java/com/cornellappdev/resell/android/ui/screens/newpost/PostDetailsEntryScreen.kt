@@ -141,7 +141,7 @@ private fun PostDetailsContent(
                     text = filter.name.lowercase().replaceFirstChar {
                         it.uppercase()
                     },
-                    active = uiState.activeFilter == filter,
+                    active = uiState.activeFilters.contains(filter),
                     onClick = {
                         onHomeFilterPressed(filter)
                     }

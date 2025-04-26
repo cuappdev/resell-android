@@ -1,33 +1,30 @@
 package com.cornellappdev.resell.android.ui.components.chat
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
-import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.model.ChatMessageData
 import com.cornellappdev.resell.android.model.MessageType
 import com.cornellappdev.resell.android.model.api.Post
 import com.cornellappdev.resell.android.model.chats.AvailabilityDocument
 import com.cornellappdev.resell.android.model.chats.MeetingInfo
 import com.cornellappdev.resell.android.ui.components.main.ProfilePictureView
+import com.cornellappdev.resell.android.ui.theme.ResellPreview
 
 @Composable
-fun ChatMessage(
+fun ChatMessageCluster(
     imageUrl: String? = null,
     messageSender: @Composable (String?, @Composable () -> Unit, Int?) -> Unit,
     messages: List<ChatMessageData>,
@@ -81,11 +78,13 @@ fun ChatMessage(
 
                     MessageType.Availability -> {
                         messageSender(
-                            null,
-                            { ChatAvailability(senderName) {
-                                if (it.availability == null) return@ChatAvailability
-                                onAvailabilityClicked(it.availability)
-                            } },
+                            imageUrl,
+                            {
+                                ChatAvailability(senderName) {
+                                    if (it.availability == null) return@ChatAvailability
+                                    onAvailabilityClicked(it.availability)
+                                }
+                            },
                             messages.size - i - 1
                         )
                     }
@@ -97,8 +96,7 @@ fun ChatMessage(
                                 enabled = true,
                                 actionText = null,
                             )
-                        }
-                        else {
+                        } else {
                             ChatMeetingState(
                                 text = it.content,
                                 actionText = it.meetingInfo.actionText,
@@ -118,7 +116,7 @@ fun ChatMessage(
 }
 
 @Composable
-fun UserMessage(content: @Composable () -> Unit) {
+fun MyMessage(content: @Composable () -> Unit) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.End
@@ -142,6 +140,28 @@ fun OtherMessage(imageUrl: String?, content: @Composable () -> Unit, pos: Int = 
             Spacer(modifier = Modifier.width(32.dp))
         }
         Spacer(modifier = Modifier.width(12.dp))
-        content()
+        Box(modifier = Modifier.weight(1f)) {
+            content()
+        }
     }
+}
+
+@Preview
+@Composable
+private fun OtherMessagePreview() = ResellPreview {
+    OtherMessage(
+        imageUrl = "",
+        content = {
+            ChatAvailability(sender = "caleb") { }
+        },
+        pos = 0
+    )
+
+    OtherMessage(
+        imageUrl = "",
+        content = {
+            ChatChat(text = "Hello", timestamp = "12:00 PM", self = false)
+        },
+        pos = 0
+    )
 }

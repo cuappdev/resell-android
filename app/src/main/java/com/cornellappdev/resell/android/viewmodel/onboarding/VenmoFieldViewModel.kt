@@ -41,6 +41,7 @@ class VenmoFieldViewModel @Inject constructor(
 ) : ResellViewModel<VenmoFieldViewModel.VenmoFieldUiState>(
     initialUiState = VenmoFieldUiState()
 ) {
+    val navArgs = savedStateHandle.toRoute<ResellOnboardingScreen.Venmo>()
 
     data class VenmoFieldUiState(
         val handle: String = "",
@@ -72,8 +73,6 @@ class VenmoFieldViewModel @Inject constructor(
     }
 
     init {
-        val navArgs = savedStateHandle.toRoute<ResellOnboardingScreen.Venmo>()
-
         applyMutation {
             copy(
                 username = navArgs.username,
@@ -109,7 +108,6 @@ class VenmoFieldViewModel @Inject constructor(
         viewModelScope.launch {
             val googleUser = googleAuthRepository.accountOrNull()!!
             try {
-                // TODO: venmo should be a field here, if not skipped.
                 val response = resellAuthRepository.createUser(
                     CreateUserBody(
                         username = stateValue().username,
@@ -117,8 +115,9 @@ class VenmoFieldViewModel @Inject constructor(
                         givenName = googleUser.givenName!!,
                         familyName = googleUser.familyName!!,
                         email = googleUser.email!!,
-                        // TODO How to determine photo url from setup? This is not right.
-                        photoUrl = googleUser.photoUrl.toString(),
+                        photoUrl = navArgs.pfpUrl.ifEmpty {
+                            googleUser.photoUrl.toString()
+                        },
                         googleId = googleUser.id!!,
                         bio = stateValue().bio,
                         fcmToken = firebaseMessagingRepository.getDeviceFCMToken(),

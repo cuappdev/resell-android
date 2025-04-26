@@ -48,13 +48,13 @@ import com.cornellappdev.resell.android.viewmodel.root.RootDialogContent
 import com.cornellappdev.resell.android.viewmodel.root.RootDialogRepository
 import com.cornellappdev.resell.android.viewmodel.root.RootNavigationSheetRepository
 import com.cornellappdev.resell.android.viewmodel.root.RootSheet
+import com.google.firebase.Timestamp
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import java.time.LocalDateTime
 import java.time.ZoneId
-import java.time.format.DateTimeFormatter
 import java.util.Date
 import javax.inject.Inject
 
@@ -85,7 +85,6 @@ class ChatViewModel @Inject constructor(
         val title: String = "Unknown",
         val typedMessage: String = "",
         val scrollBottom: UIEvent<Unit>? = null,
-        val listing: Listing? = null,
         val mostRecentOtherAvailability: AvailabilityDocument? = null,
     ) {
         val showNegotiate
@@ -115,6 +114,9 @@ class ChatViewModel @Inject constructor(
             }
     }
 
+    val navArgs = savedStateHandle.toRoute<ResellRootRoute.CHAT>()
+    val listing = Json.decodeFromString<Listing>(navArgs.listingJson)
+
     enum class ChatType {
         Purchases, Offers
     }
@@ -125,7 +127,7 @@ class ChatViewModel @Inject constructor(
 
     private fun onSyncToCalendarPressed(date: Date) {
         val otherName = savedStateHandle.toRoute<ResellRootRoute.CHAT>().name
-        val listingName = stateValue().listing?.title ?: ""
+        val listingName = listing.title
 
         rootNavigationSheetRepository.hideSheet()
 
@@ -175,9 +177,6 @@ class ChatViewModel @Inject constructor(
     }
 
     fun onSendMessage(message: String) {
-        val navArgs = savedStateHandle.toRoute<ResellRootRoute.CHAT>()
-        val listing = Json.decodeFromString<Listing>(navArgs.postJson)
-
         applyMutation {
             copy(
                 typedMessage = ""
@@ -187,15 +186,12 @@ class ChatViewModel @Inject constructor(
             val myInfo = userInfoRepository.getUserInfo()
             try {
                 chatRepository.sendTextMessage(
-                    myEmail = myInfo.email,
-                    otherEmail = navArgs.email,
                     text = message,
                     selfIsBuyer = navArgs.isBuyer,
-                    postId = listing.id,
-                    myName = myInfo.name,
-                    otherName = navArgs.name,
-                    myImageUrl = myInfo.imageUrl,
-                    otherImageUrl = navArgs.pfp
+                    listingId = listing.id,
+                    myId = myInfo.id,
+                    otherId = navArgs.otherUserId,
+                    chatId = navArgs.chatId
                 )
             } catch (e: Exception) {
                 Log.e("ChatViewModel", "Error sending message: ", e)
@@ -219,11 +215,11 @@ class ChatViewModel @Inject constructor(
             RootSheet.ProposalSheet(
                 confirmString = "Propose",
                 title = "What price do you want to propose?",
-                defaultPrice = stateValue().listing!!.price.replace("$", ""),
+                defaultPrice = listing.price.replace("$", ""),
                 callback = { price ->
                     if (stateValue().chatType == ChatType.Purchases) {
                         onTyped(
-                            message = "Hi! I'm interested in buying your ${stateValue().listing!!.title}, but would you be open to selling it for $$price?"
+                            message = "Hi! I'm interested in buying your ${listing.title}, but would you be open to selling it for $$price?"
                         )
                     } else {
                         onTyped(
@@ -257,9 +253,6 @@ class ChatViewModel @Inject constructor(
     }
 
     private fun availabilityCallback(availability: List<LocalDateTime>) {
-        val navArgs = savedStateHandle.toRoute<ResellRootRoute.CHAT>()
-        val listing = Json.decodeFromString<Listing>(navArgs.postJson)
-
         viewModelScope.launch {
             try {
                 val myInfo = userInfoRepository.getUserInfo()
@@ -269,14 +262,10 @@ class ChatViewModel @Inject constructor(
                 }
 
                 chatRepository.sendAvailability(
-                    myEmail = myInfo.email,
-                    otherEmail = navArgs.email,
                     selfIsBuyer = navArgs.isBuyer,
-                    postId = listing.id,
-                    myName = myInfo.name,
-                    otherName = navArgs.name,
-                    myImageUrl = myInfo.imageUrl,
-                    otherImageUrl = navArgs.pfp,
+                    listingId = listing.id,
+                    myId = myInfo.id,
+                    otherId = navArgs.otherUserId,
                     availability = AvailabilityDocument(
                         asTimeStamp.mapIndexed { index, it ->
                             AvailabilityBlock(
@@ -284,7 +273,8 @@ class ChatViewModel @Inject constructor(
                                 id = index
                             )
                         }
-                    )
+                    ),
+                    chatId = navArgs.chatId
                 )
                 rootNavigationSheetRepository.hideSheet()
             } catch (e: Exception) {
@@ -297,13 +287,8 @@ class ChatViewModel @Inject constructor(
     }
 
     fun payWithVenmoPressed() = viewModelScope.launch {
-        val navArgs = savedStateHandle.toRoute<ResellRootRoute.CHAT>()
-
         try {
-            val theirVenmo = fireStoreRepository.getVenmoHandle(
-                email = navArgs.email
-            )
-
+            val theirVenmo = navArgs.otherVenmo
             if (theirVenmo.isNotBlank()) {
                 // Open Venmo URL
                 val intent = Intent(
@@ -320,7 +305,7 @@ class ChatViewModel @Inject constructor(
             rootDialogRepository.showDialog(
                 RootDialogContent.TwoButtonDialog(
                     title = "Venmo Not Set Up",
-                    description = "The user has not set up venmo yet, please contact the user directly.",
+                    description = "${stateValue().otherName} has not set up their venmo yet.\nPlease contact them directly.",
                     primaryButtonText = "Dismiss",
                     secondaryButtonText = null,
                     onPrimaryButtonClick = {
@@ -339,19 +324,14 @@ class ChatViewModel @Inject constructor(
             if (bitmap != null) {
                 viewModelScope.launch {
                     val myInfo = userInfoRepository.getUserInfo()
-                    val listing = stateValue().listing!!
-                    val navArgs = savedStateHandle.toRoute<ResellRootRoute.CHAT>()
                     try {
                         chatRepository.sendImageMessage(
-                            myEmail = myInfo.email,
-                            otherEmail = navArgs.email,
                             selfIsBuyer = navArgs.isBuyer,
-                            postId = listing.id,
-                            myName = myInfo.name,
-                            otherName = navArgs.name,
-                            myImageUrl = myInfo.imageUrl,
-                            otherImageUrl = navArgs.pfp,
-                            imageBase64 = bitmap.toNetworkingString()
+                            listingId = listing.id,
+                            myId = myInfo.id,
+                            otherId = navArgs.otherUserId,
+                            imageBase64 = bitmap.toNetworkingString(),
+                            chatId = navArgs.chatId
                         )
                     } catch (e: Exception) {
                         Log.e("ChatViewModel", "Error sending message: ", e)
@@ -403,7 +383,6 @@ class ChatViewModel @Inject constructor(
     ) {
         val canPropose = mostRecentMeetingStateIs("confirmed") == null
 
-        val navArgs = savedStateHandle.toRoute<ResellRootRoute.CHAT>()
         rootNavigationSheetRepository.showBottomSheet(
             sheet = RootSheet.Availability(
                 title = if (isSelf) "Your Availability" else "${navArgs.name}'s Availability",
@@ -441,7 +420,6 @@ class ChatViewModel @Inject constructor(
 
     fun onMeetingStateClicked(meetingInfo: MeetingInfo, isSelf: Boolean) {
         val name = if (isSelf) "You" else savedStateHandle.toRoute<ResellRootRoute.CHAT>().name
-        val listingName = stateValue().listing?.title ?: ""
         val otherName = savedStateHandle.toRoute<ResellRootRoute.CHAT>().name
         viewModelScope.launch {
             when (meetingInfo.state) {
@@ -482,7 +460,7 @@ class ChatViewModel @Inject constructor(
                         RootSheet.TwoButtonSheet(
                             title = "Meeting Details",
                             description = buildAnnotatedString {
-                                append("Meeting with $otherName for $listingName confirmed for:\n\n")
+                                append("Meeting with $otherName for ${listing.title} confirmed for:\n\n")
                                 withStyle(style = heading3.toSpanStyle()) {
                                     append("Time:\n")
                                 }
@@ -513,7 +491,7 @@ class ChatViewModel @Inject constructor(
                     }.flatten().sortedByDescending {
                         it.timestamp
                     }.firstOrNull {
-                        it.availability != null && it.senderEmail != myEmail
+                        it.availability != null && it.senderId != myEmail
                     }
 
                     mostRecentAvailability?.availability?.let {
@@ -533,25 +511,21 @@ class ChatViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 chatRepository.sendProposalUpdate(
-                    myEmail = userInfoRepository.getUserInfo().email,
-                    otherEmail = savedStateHandle.toRoute<ResellRootRoute.CHAT>().email,
-                    selfIsBuyer = savedStateHandle.toRoute<ResellRootRoute.CHAT>().isBuyer,
-                    postId = stateValue().listing?.id ?: "",
-                    myName = userInfoRepository.getUserInfo().name,
-                    otherName = savedStateHandle.toRoute<ResellRootRoute.CHAT>().name,
-                    myImageUrl = userInfoRepository.getUserInfo().imageUrl,
-                    otherImageUrl = savedStateHandle.toRoute<ResellRootRoute.CHAT>().pfp,
+                    selfIsBuyer = navArgs.isBuyer,
+                    listingId = listing.id,
+                    myId = userInfoRepository.getUserId() ?: "",
+                    otherId = navArgs.otherUserId,
                     meetingInfo = MeetingInfo(
                         state = "proposed",
-                        proposer = userInfoRepository.getUserInfo().email,
                         proposeTime = availability.let {
-                            val formatter = DateTimeFormatter.ofPattern("MMMM dd yyyy, h:mm a")
-                            // Format the LocalDateTime object
-                            it.format(formatter)
+                            val zoneId = ZoneId.systemDefault()
+                            val instant = it.atZone(zoneId).toInstant()
+                            val date = Date.from(instant)
+                            Timestamp(date)
                         },
-                        canceler = null,
                         mostRecent = false,
-                    )
+                    ),
+                    chatId = navArgs.chatId
                 )
             } catch (e: Exception) {
                 rootConfirmationRepository.showError()
@@ -565,19 +539,14 @@ class ChatViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 chatRepository.sendProposalUpdate(
-                    myEmail = userInfoRepository.getUserInfo().email,
-                    otherEmail = savedStateHandle.toRoute<ResellRootRoute.CHAT>().email,
-                    selfIsBuyer = savedStateHandle.toRoute<ResellRootRoute.CHAT>().isBuyer,
-                    postId = stateValue().listing?.id ?: "",
-                    myName = userInfoRepository.getUserInfo().name,
-                    otherName = savedStateHandle.toRoute<ResellRootRoute.CHAT>().name,
-                    myImageUrl = userInfoRepository.getUserInfo().imageUrl,
-                    otherImageUrl = savedStateHandle.toRoute<ResellRootRoute.CHAT>().pfp,
+                    selfIsBuyer = navArgs.isBuyer,
+                    listingId = listing.id,
+                    myId = userInfoRepository.getUserId() ?: "",
+                    otherId = navArgs.otherUserId,
                     meetingInfo = meetingInfo.copy(
                         state = "confirmed",
-                        proposer = null,
-                        canceler = null,
-                    )
+                    ),
+                    chatId = navArgs.chatId
                 )
             } catch (e: Exception) {
                 rootConfirmationRepository.showError()
@@ -591,19 +560,14 @@ class ChatViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 chatRepository.sendProposalUpdate(
-                    myEmail = userInfoRepository.getUserInfo().email,
-                    otherEmail = savedStateHandle.toRoute<ResellRootRoute.CHAT>().email,
-                    selfIsBuyer = savedStateHandle.toRoute<ResellRootRoute.CHAT>().isBuyer,
-                    postId = stateValue().listing?.id ?: "",
-                    myName = userInfoRepository.getUserInfo().name,
-                    otherName = savedStateHandle.toRoute<ResellRootRoute.CHAT>().name,
-                    myImageUrl = userInfoRepository.getUserInfo().imageUrl,
-                    otherImageUrl = savedStateHandle.toRoute<ResellRootRoute.CHAT>().pfp,
+                    selfIsBuyer = navArgs.isBuyer,
+                    listingId = listing.id,
+                    myId = userInfoRepository.getUserId() ?: "",
+                    otherId = navArgs.otherUserId,
                     meetingInfo = meetingInfo.copy(
                         state = "declined",
-                        proposer = null,
-                        canceler = null,
-                    )
+                    ),
+                    chatId = navArgs.chatId
                 )
             } catch (e: Exception) {
                 rootConfirmationRepository.showError()
@@ -617,19 +581,14 @@ class ChatViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 chatRepository.sendProposalUpdate(
-                    myEmail = userInfoRepository.getUserInfo().email,
-                    otherEmail = savedStateHandle.toRoute<ResellRootRoute.CHAT>().email,
-                    selfIsBuyer = savedStateHandle.toRoute<ResellRootRoute.CHAT>().isBuyer,
-                    postId = stateValue().listing?.id ?: "",
-                    myName = userInfoRepository.getUserInfo().name,
-                    otherName = savedStateHandle.toRoute<ResellRootRoute.CHAT>().name,
-                    myImageUrl = userInfoRepository.getUserInfo().imageUrl,
-                    otherImageUrl = savedStateHandle.toRoute<ResellRootRoute.CHAT>().pfp,
+                    selfIsBuyer = navArgs.isBuyer,
+                    listingId = listing.id,
+                    myId = userInfoRepository.getUserId() ?: "",
+                    otherId = navArgs.otherUserId,
                     meetingInfo = meetingInfo.copy(
                         state = "canceled",
-                        proposer = null,
-                        canceler = userInfoRepository.getEmail(),
-                    )
+                    ),
+                    chatId = navArgs.chatId
                 )
             } catch (e: Exception) {
                 rootConfirmationRepository.showError()
@@ -639,42 +598,31 @@ class ChatViewModel @Inject constructor(
     }
 
     init {
-        val navArgs = savedStateHandle.toRoute<ResellRootRoute.CHAT>()
-        val listing = Json.decodeFromString<Listing>(navArgs.postJson)
-
-        applyMutation {
-            copy(
-                listing = listing,
-            )
-        }
-
         firebaseMessagingRepository.requestNotificationsPermission()
 
+        val title = listing.title
+        val otherId = navArgs.otherUserId
         applyMutation {
             copy(
                 otherName = navArgs.name,
-                title = listing.title,
+                title = title,
                 chatType = if (navArgs.isBuyer) ChatType.Purchases else ChatType.Offers,
             )
         }
 
         viewModelScope.launch {
-            val myEmail = userInfoRepository.getEmail()!!
-            val theirEmail = navArgs.email
-
-            // Mark chat as read
-            chatRepository.markChatRead(
-                myEmail = myEmail,
-                otherEmail = theirEmail,
-                chatType = stateValue().chatType
+            val myId = userInfoRepository.getUserId() ?: ""
+            chatRepository.subscribeToChat(
+                myName = userInfoRepository.getFirstName()!!,
+                otherName = navArgs.name,
+                chatId = navArgs.chatId,
+                myId = myId,
+                otherPfp = navArgs.pfp
             )
 
-            chatRepository.subscribeToChat(
-                myEmail = myEmail,
-                otherEmail = theirEmail,
-                selfIsBuyer = navArgs.isBuyer,
-                myName = userInfoRepository.getFirstName()!!,
-                otherName = navArgs.name
+            chatRepository.markChatRead(
+                chatId = navArgs.chatId,
+                myId = myId
             )
         }
 
@@ -691,7 +639,7 @@ class ChatViewModel @Inject constructor(
                 if (response is ResellApiResponse.Success
                     && confirmedMeetingInfo != null
                     && chatRepository.shouldShowGCalSync(
-                        otherEmail = navArgs.email,
+                        otherId = otherId,
                         meetingDate = confirmedMeetingInfo.convertToUtcMinusFiveDate()
                     )
                 ) {
@@ -716,9 +664,9 @@ class ChatViewModel @Inject constructor(
             // If chat has an availability message from the other user, show that tab.
             viewModelScope.launch {
                 if (response is ResellApiResponse.Success) {
-                    val myEmail = userInfoRepository.getEmail()!!
+                    val myId = userInfoRepository.getUserId()!!
                     val data = getFirstChatOrNull {
-                        it.availability != null && it.senderEmail != myEmail
+                        it.availability != null && it.senderId != myId
                     }
 
                     applyMutation {

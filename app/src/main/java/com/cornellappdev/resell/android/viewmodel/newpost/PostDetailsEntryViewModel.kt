@@ -33,11 +33,11 @@ class PostDetailsEntryViewModel @Inject constructor(
         val title: String = "",
         val description: String = "",
         val price: String = "",
-        val activeFilter: HomeViewModel.HomeFilter = HomeViewModel.HomeFilter.CLOTHING,
+        val activeFilters: List<HomeViewModel.HomeFilter> = listOf(),
         val loadingPost: Boolean = false,
     ) {
         private val canConfirm
-            get() = title.isNotBlank() && price.isNotBlank()
+            get() = title.isNotBlank() && price.isNotBlank() && activeFilters.isNotEmpty()
 
         val buttonState: ResellTextButtonState
             get() = if (loadingPost) {
@@ -77,13 +77,18 @@ class PostDetailsEntryViewModel @Inject constructor(
     }
 
     fun onFilterPressed(filter: HomeViewModel.HomeFilter) {
-        applyMutation {
-            copy(activeFilter = filter)
+        if (stateValue().activeFilters.contains(filter)) {
+            applyMutation {
+                copy(activeFilters = activeFilters - filter)
+            }
+        } else {
+            applyMutation {
+                copy(activeFilters = activeFilters + filter)
+            }
         }
     }
 
     fun onConfirmPost() {
-        // TODO: Placeholder
         viewModelScope.launch {
             try {
                 applyMutation {
@@ -95,7 +100,9 @@ class PostDetailsEntryViewModel @Inject constructor(
                     description = stateValue().description,
                     originalPrice = stateValue().price.toDouble(),
                     images = postRepository.getRecentBitmaps()!!,
-                    category = stateValue().activeFilter.name,
+                    categories = stateValue().activeFilters.map {
+                        it.name
+                    },
                     userId = userInfoRepository.getUserId() ?: "lol"
                 )
                 applyMutation {

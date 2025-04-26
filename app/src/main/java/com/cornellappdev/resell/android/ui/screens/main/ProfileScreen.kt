@@ -13,6 +13,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.ui.components.global.ResellListingsScroll
+import com.cornellappdev.resell.android.ui.components.global.ResellLoadingListingScroll
 import com.cornellappdev.resell.android.ui.components.profile.ProfileEmptyState
 import com.cornellappdev.resell.android.ui.components.profile.ProfileHeader
 import com.cornellappdev.resell.android.ui.components.profile.ResellRequestsScroll
@@ -51,7 +52,7 @@ fun ProfileScreen(
                 ProfileViewModel.ProfileTab.SHOP -> {
                     when (uiState.shopListings) {
                         is ResellApiResponse.Pending -> {
-
+                            ResellLoadingListingScroll()
                         }
 
                         is ResellApiResponse.Error -> {

@@ -159,7 +159,7 @@ private fun ChatLoadedContent(
             }
         )
         ResellChatScroll(
-            chatHistory = chat.chatHistory,
+            chatClusters = chat.chatHistory,
             listState = listState,
             modifier = Modifier.weight(1f),
             onPostClicked = onPostClicked,

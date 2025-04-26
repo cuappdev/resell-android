@@ -10,6 +10,7 @@ import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
+import retrofit2.http.Query
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -17,16 +18,19 @@ import java.util.TimeZone
 
 interface PostsApiService {
     @GET("post")
-    suspend fun getPosts(): PostsResponse
+    suspend fun getPosts(
+        @Query("page") page: Int = 1,
+        @Query("limit") size: Int = 10
+    ): PostsResponse
 
     @GET("post/id/{id}")
-    suspend fun getPost(@Path("id") id: String): Post
+    suspend fun getPost(@Path("id") id: String): PostResponse
 
     @GET("post/similar/postId/{id}")
     suspend fun getSimilarPosts(@Path("id") id: String): PostsResponse
 
-    @POST("post/filter")
-    suspend fun getFilteredPosts(@Body categoryRequest: CategoryRequest): PostsResponse
+    @POST("post/filterByCategories")
+    suspend fun getFilteredPosts(@Body categoriesRequest: CategoriesRequest): PostsResponse
 
     @GET("post/userId/{id}")
     suspend fun getPostsByUser(@Path("id") id: String): PostsResponse
@@ -63,8 +67,8 @@ data class SearchRequest(
     val keywords: String
 )
 
-data class CategoryRequest(
-    val category: String
+data class CategoriesRequest(
+    val categories: List<String>
 )
 
 
@@ -77,11 +81,17 @@ data class PostResponse(
 )
 
 @Serializable
+data class Category(
+    val id: String,
+    val name: String
+)
+
+@Serializable
 data class Post(
     val id: String,
     val title: String,
     val description: String,
-    val category: String,
+    val categories: List<Category>?,
     val archive: Boolean,
     private val created: String,
     @SerializedName("altered_price") val alteredPrice: String,
@@ -102,7 +112,7 @@ data class Post(
             title = title,
             images = images,
             price = priceString,
-            categories = listOf(category),
+            categories = categories?.map { it.name } ?: listOf(),
             description = description,
             user = user?.toUserInfo() ?: richieUserInfo.apply {
                 Log.e("PostsApiService", "User is null")
@@ -123,7 +133,7 @@ private fun parseIsoDate(dateString: String): Date {
 data class NewPostBody(
     val title: String,
     val description: String,
-    val category: String,
+    val categories: List<String>,
     val condition: String,
     @SerializedName("original_price") val originalPrice: Double,
     val imagesBase64: List<String>,
