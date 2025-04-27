@@ -38,9 +38,11 @@ class FirebaseAuthRepository @Inject constructor(
      *
      * If retrieved successfully, will also store the access token in [UserInfoRepository]
      * for use in the retrofit interceptor.
+     *
+     * @param forceRefresh Whether to force a firebase refresh of the access token.
      */
-    suspend fun getFirebaseAccessToken(): String? {
-        val token = firebaseAuth.currentUser?.getIdToken(false)?.await()?.token
+    suspend fun getFirebaseAccessToken(forceRefresh: Boolean = false): String? {
+        val token = firebaseAuth.currentUser?.getIdToken(forceRefresh)?.await()?.token
         if (token == null) {
             Log.e("FirebaseAuthRepository", "Access token is null.")
             return null
