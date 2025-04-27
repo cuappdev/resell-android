@@ -58,6 +58,12 @@ class MessagesViewModel @Inject constructor(
             }
         }
 
+        val numLoadingChats: Int
+            get() = when (chatType) {
+                ChatType.Purchases -> 4
+                ChatType.Offers -> 2
+            }
+
         val loadedState: ResellApiState
             get() = filteredChats.toResellApiState()
 

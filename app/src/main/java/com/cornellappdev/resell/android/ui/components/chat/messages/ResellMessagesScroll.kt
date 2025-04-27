@@ -18,13 +18,11 @@ fun ResellMessagesScroll(
     onChatPressed: (ChatHeaderData) -> Unit,
     listState: LazyListState,
     modifier: Modifier = Modifier,
-    paddedTop: Dp = 0.dp,
 ) {
     LazyColumn(
         state = listState,
         contentPadding = PaddingValues(
             bottom = 100.dp,
-            top = paddedTop,
         ),
         modifier = modifier,
     ) {
