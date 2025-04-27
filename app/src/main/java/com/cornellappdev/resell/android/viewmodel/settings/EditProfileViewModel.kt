@@ -9,6 +9,7 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.lifecycle.viewModelScope
 import com.cornellappdev.resell.android.model.core.UserInfoRepository
 import com.cornellappdev.resell.android.model.pdp.ImageBitmapLoader
+import com.cornellappdev.resell.android.model.profile.ProfileRepository
 import com.cornellappdev.resell.android.model.settings.SettingsRepository
 import com.cornellappdev.resell.android.util.loadBitmapFromUri
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
@@ -26,7 +27,8 @@ class EditProfileViewModel @Inject constructor(
     private val confirmationRepository: RootConfirmationRepository,
     private val userInfoRepository: UserInfoRepository,
     private val settingsRepository: SettingsRepository,
-    private val imageBitmapLoader: ImageBitmapLoader
+    private val imageBitmapLoader: ImageBitmapLoader,
+    private val profileRepository: ProfileRepository
 ) :
     ResellViewModel<EditProfileViewModel.EditProfileUiState>
         (
@@ -113,7 +115,9 @@ class EditProfileViewModel @Inject constructor(
             )
         }
         viewModelScope.launch {
-            val userInfo = userInfoRepository.getUserInfo()
+            val userInfo = profileRepository.getUserById(
+                userInfoRepository.getUserId() ?: ""
+            ).user.toUserInfo()
             val netId = userInfo.netId
             val name = userInfo.name
             val username = userInfo.username
@@ -134,14 +138,15 @@ class EditProfileViewModel @Inject constructor(
 
         // Load current PFP. Should this be done in the same coroutine? Idk.
         viewModelScope.launch {
-            val pfp = userInfoRepository.getProfilePicUrl()
+            val userInfo = profileRepository.getUserById(
+                userInfoRepository.getUserId() ?: ""
+            ).user.toUserInfo()
+            val pfp = userInfo.imageUrl
 
-            if (pfp != null) {
-                val bitmap = imageBitmapLoader.getBitmap(pfp)
-                if (bitmap != null) {
-                    applyMutation {
-                        copy(imageBitmap = bitmap.asAndroidBitmap())
-                    }
+            val bitmap = imageBitmapLoader.getBitmap(pfp)
+            if (bitmap != null) {
+                applyMutation {
+                    copy(imageBitmap = bitmap.asAndroidBitmap())
                 }
             }
         }

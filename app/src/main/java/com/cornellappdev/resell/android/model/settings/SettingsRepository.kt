@@ -22,7 +22,6 @@ class SettingsRepository @Inject constructor(
 ) {
 
     suspend fun reportPost(id: String, uid: String, reason: String) {
-        // TODO: The backend input is really weird...
         retrofitInstance.settingsApi.reportPost(
             ReportPostBody(
                 reported = uid,
@@ -73,11 +72,6 @@ class SettingsRepository @Inject constructor(
                 bio = bio,
                 profilePicBase64 = image?.toNetworkingString() ?: ""
             )
-        )
-
-        fireStoreRepository.saveVenmo(
-            userInfoRepository.getEmail()!!,
-            venmo
         )
 
         profileRepository.fetchInternalProfile(userInfoRepository.getUserId()!!)

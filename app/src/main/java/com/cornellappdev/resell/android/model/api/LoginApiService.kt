@@ -23,7 +23,7 @@ data class User(
     val givenName: String,
     val familyName: String,
     val photoUrl: String,
-    val venmoHandle: String,
+    val venmoHandle: String?,
     val bio: String,
     val admin: Boolean,
     val email: String,
@@ -35,8 +35,7 @@ data class User(
         name = "$givenName $familyName",
         imageUrl = photoUrl,
         netId = netid,
-        // TODO Refactor UserInfo because we don't have all these fields
-        venmoHandle = "TODO",
+        venmoHandle = venmoHandle ?: "",
         bio = bio,
         id = id,
         email = email,

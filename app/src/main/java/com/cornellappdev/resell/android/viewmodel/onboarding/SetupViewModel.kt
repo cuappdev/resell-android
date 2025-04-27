@@ -1,13 +1,17 @@
 package com.cornellappdev.resell.android.viewmodel.onboarding
 
 import android.content.Context
-import android.graphics.Bitmap
 import android.net.Uri
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.lifecycle.viewModelScope
+import com.cornellappdev.resell.android.model.api.ImageBody
+import com.cornellappdev.resell.android.model.api.RetrofitInstance
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonState
 import com.cornellappdev.resell.android.ui.screens.onboarding.ResellOnboardingScreen
 import com.cornellappdev.resell.android.util.UIEvent
 import com.cornellappdev.resell.android.util.loadBitmapFromUri
+import com.cornellappdev.resell.android.util.toNetworkingString
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
 import com.cornellappdev.resell.android.viewmodel.navigation.OnboardingNavigationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -20,6 +24,7 @@ import javax.inject.Inject
 class SetupViewModel @Inject constructor(
     @ApplicationContext private val appContext: Context,
     private val onboardingNavigationRepository: OnboardingNavigationRepository,
+    private val retrofitInstance: RetrofitInstance
 ) : ResellViewModel<SetupViewModel.SetupUiState>(
     initialUiState = SetupUiState()
 ) {
@@ -30,7 +35,7 @@ class SetupViewModel @Inject constructor(
         val checkedEULA: Boolean = false,
         val errors: List<String> = emptyList(),
         private val loading: Boolean = false,
-        val imageBitmap: Bitmap? = null,
+        val imageBitmap: ImageBitmap? = null,
         val proceedEvent: UIEvent<Unit>? = null,
     ) {
         val buttonState: ResellTextButtonState
@@ -62,7 +67,6 @@ class SetupViewModel @Inject constructor(
     }
 
     fun onNextClick() {
-        // TODO
         applyMutation {
             copy(
                 errors = listOf(),
@@ -70,16 +74,24 @@ class SetupViewModel @Inject constructor(
             )
         }
 
-        // TODO testing
         viewModelScope.launch {
             delay(2000)
+
+            var photoUrl = ""
+            if (stateValue().imageBitmap != null) {
+                photoUrl = retrofitInstance.userApi.uploadImage(
+                    body = ImageBody(
+                        imageBase64 = stateValue().imageBitmap!!.toNetworkingString()
+                    )
+                ).image
+            }
 
             // Navigate away.
             onboardingNavigationRepository.navigate(
                 ResellOnboardingScreen.Venmo(
                     username = stateValue().username,
                     bio = stateValue().bio,
-                    // TODO Add photo URL
+                    pfpUrl = photoUrl
                 )
             )
 
@@ -96,7 +108,7 @@ class SetupViewModel @Inject constructor(
             val bitmap = loadBitmapFromUri(appContext, uri)
             if (bitmap != null) {
                 applyMutation {
-                    copy(imageBitmap = bitmap)
+                    copy(imageBitmap = bitmap.asImageBitmap())
                 }
             } else {
                 onImageLoadFail()

@@ -29,6 +29,7 @@ object PreferencesKeys {
     val BIO = stringPreferencesKey("bio")
     val EMAIL = stringPreferencesKey("email")
     val GCAL_SYNC = stringPreferencesKey("gcal_sync")
+    val VENMO_HANDLE = stringPreferencesKey("venmo_handle")
 }
 
 @Module

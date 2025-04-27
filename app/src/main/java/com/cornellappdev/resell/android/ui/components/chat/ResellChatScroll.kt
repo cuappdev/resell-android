@@ -15,11 +15,10 @@ import com.cornellappdev.resell.android.model.ChatMessageCluster
 import com.cornellappdev.resell.android.model.api.Post
 import com.cornellappdev.resell.android.model.chats.AvailabilityDocument
 import com.cornellappdev.resell.android.model.chats.MeetingInfo
-import com.cornellappdev.resell.android.util.richieMessages
 
 @Composable
 fun ResellChatScroll(
-    chatHistory: List<ChatMessageCluster> = listOf(richieMessages(5), richieMessages(5)),
+    chatClusters: List<ChatMessageCluster>,
     listState: LazyListState,
     modifier: Modifier = Modifier,
     onPostClicked: (Post) -> Unit,
@@ -33,14 +32,14 @@ fun ResellChatScroll(
             .padding(horizontal = 12.dp)
             .padding(end = 8.dp),
     ) {
-        itemsIndexed(chatHistory) { i, cluster ->
+        itemsIndexed(chatClusters) { i, cluster ->
             Column {
                 Spacer(modifier = Modifier.height(8.dp))
-                ChatMessage(
+                ChatMessageCluster(
                     imageUrl = if (cluster.fromUser) null else cluster.senderImage,
                     messages = cluster.messages,
                     messageSender = { str, func, i ->
-                        if (cluster.fromUser) UserMessage(func) else OtherMessage(str, func, i ?: 0)
+                        if (cluster.fromUser) MyMessage(func) else OtherMessage(str, func, i ?: 0)
                     },
                     onPostClicked = onPostClicked,
                     senderName = cluster.senderName ?: "",
@@ -57,7 +56,7 @@ fun ResellChatScroll(
                         )
                     }
                 )
-                if (i != chatHistory.size - 1) {
+                if (i != chatClusters.size - 1) {
                     Spacer(modifier = Modifier.height(12.dp))
                 }
             }

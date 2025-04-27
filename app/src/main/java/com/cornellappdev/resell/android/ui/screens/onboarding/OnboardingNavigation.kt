@@ -48,5 +48,6 @@ sealed class ResellOnboardingScreen {
     data class Venmo(
         val username: String,
         val bio: String,
+        val pfpUrl: String,
     ) : ResellOnboardingScreen()
 }
