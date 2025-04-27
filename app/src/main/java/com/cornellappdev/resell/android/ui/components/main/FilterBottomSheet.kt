@@ -1,6 +1,7 @@
 package com.cornellappdev.resell.android.ui.components.main
 
 //noinspection UsingMaterialAndMaterial3Libraries
+//noinspection UsingMaterialAndMaterial3Libraries
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -9,9 +10,12 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
@@ -28,7 +32,6 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchColors
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -42,6 +45,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cornellappdev.resell.android.R
+import com.cornellappdev.resell.android.ui.components.nav.NAVBAR_HEIGHT
 import com.cornellappdev.resell.android.ui.theme.IconInactive
 import com.cornellappdev.resell.android.ui.theme.PurpleWash
 import com.cornellappdev.resell.android.ui.theme.ResellPurple
@@ -57,16 +61,17 @@ import com.cornellappdev.resell.android.viewmodel.main.HomeViewModel.ResellFilte
 fun FilterBottomSheet(
     filter: ResellFilter,
     onFilterChanged: (ResellFilter) -> Unit,
-    bottomPadding: Dp
+    bottomPadding: Dp,
+    lowestPrice: Int = 0,
+    highestPrice: Int = 10000,
 ) {
     val categoriesSelectedCurrent = remember { filter.categoriesSelected }
-    val conditionsSelectedCurrent = remember { filter.conditionsSelected }
+    val conditionSelectedCurrent = remember { mutableStateOf(filter.conditionSelected) }
     val itemsOnSaleCurrent = remember { mutableStateOf(filter.itemsOnSale) }
     val priceRange = remember { mutableStateOf(filter.priceRange) }
     LazyColumn(
         modifier = Modifier
-            .fillMaxWidth()
-            .padding(bottom = 36.dp),
+            .fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         item {
@@ -84,15 +89,29 @@ fun FilterBottomSheet(
         }
         item {
             AllFilters(
-                itemsOnSaleCurrent,
-                categoriesSelectedCurrent,
-                conditionsSelectedCurrent,
-                priceRange,
-                onFilterChanged
+                itemsOnSale = itemsOnSaleCurrent.value,
+                categoriesSelected = categoriesSelectedCurrent,
+                conditionSelected = conditionSelectedCurrent.value,
+                priceRange = priceRange.value,
+                lowestPrice = lowestPrice,
+                highestPrice = highestPrice,
+                onFilterChanged = onFilterChanged,
+                onPriceRangeChanged = {
+                    priceRange.value = it.start.toInt()..it.endInclusive.toInt()
+                },
+                onItemsOnSaleChanged = { itemsOnSaleCurrent.value = it },
+                toggleCondition = {
+                    conditionSelectedCurrent.value =
+                        if (it == conditionSelectedCurrent.value) null else it
+                }
             )
         }
         item {
-            Spacer(modifier = Modifier.height(bottomPadding))
+            Spacer(
+                modifier = Modifier
+                    .windowInsetsPadding(WindowInsets.statusBars)
+                    .padding(bottom = bottomPadding),
+            )
         }
     }
 }
@@ -103,11 +122,16 @@ fun FilterBottomSheet(
     ExperimentalMaterialApi::class
 )
 private fun AllFilters(
-    itemsOnSale: MutableState<Boolean>,
+    itemsOnSale: Boolean,
     categoriesSelected: MutableMap<Category, Boolean>,
-    conditionsSelected: MutableMap<Condition, Boolean>,
-    priceRange: MutableState<ClosedFloatingPointRange<Float>>,
-    onFilterChanged: (ResellFilter) -> Unit
+    conditionSelected: Condition?,
+    priceRange: IntRange,
+    lowestPrice: Int,
+    highestPrice: Int,
+    onFilterChanged: (ResellFilter) -> Unit,
+    onPriceRangeChanged: (ClosedFloatingPointRange<Float>) -> Unit,
+    onItemsOnSaleChanged: (Boolean) -> Unit,
+    toggleCondition: (Condition) -> Unit,
 ) {
     Column(
         modifier = Modifier
@@ -149,16 +173,16 @@ private fun AllFilters(
             modifier = Modifier.padding(bottom = 16.dp)
         )
         Text(
-            text = "Any",
+            text = rangeString(priceRange, lowestPrice, highestPrice),
             color = Secondary,
             fontWeight = FontWeight.Normal,
             fontSize = 20.sp
         )
         // Using Material 2 RangeSlider to match design
         RangeSlider(
-            value = priceRange.value,
-            onValueChange = { range -> priceRange.value = range },
-            valueRange = 0f..100f,
+            value = priceRange.first.toFloat()..priceRange.last.toFloat(),
+            onValueChange = onPriceRangeChanged,
+            valueRange = lowestPrice.toFloat()..highestPrice.toFloat(),
             colors = SliderDefaults.colors(
                 thumbColor = Color.White,
                 activeTrackColor = ResellPurple,
@@ -173,8 +197,8 @@ private fun AllFilters(
                 .padding(bottom = 16.dp),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text("\$0", style = Style.title4, color = Secondary)
-            Text("\$10000", style = Style.title4, color = Secondary)
+            Text("\$${lowestPrice.toInt()}", style = Style.title4, color = Secondary)
+            Text("\$${highestPrice.toInt()}", style = Style.title4, color = Secondary)
         }
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -188,8 +212,8 @@ private fun AllFilters(
                 color = Secondary
             )
             Switch(
-                checked = itemsOnSale.value,
-                onCheckedChange = { itemsOnSale.value = !itemsOnSale.value },
+                checked = itemsOnSale,
+                onCheckedChange = onItemsOnSaleChanged,
                 colors = SwitchColors(
                     checkedThumbColor = Color.White,
                     checkedTrackColor = ResellPurple,
@@ -257,10 +281,9 @@ private fun AllFilters(
         ) {
             Condition.entries.forEach { condition ->
                 ResellChip(
-                    selected = conditionsSelected[condition] ?: false,
+                    selected = conditionSelected == condition,
                     onClick = {
-                        conditionsSelected[condition] =
-                            !(conditionsSelected[condition] ?: true)
+                        toggleCondition(condition)
                     },
                     labelText = condition.label
                 )
@@ -277,18 +300,20 @@ private fun AllFilters(
                     categoriesSelected[item] = false
                 }
                 Condition.entries.forEach { condition ->
-                    conditionsSelected[condition] = false
+                    if (condition == conditionSelected) {
+                        toggleCondition(condition)
+                    }
                 }
-                itemsOnSale.value = false
-                priceRange.value = 0f..100f
+                onItemsOnSaleChanged(false)
+                onPriceRangeChanged(lowestPrice.toFloat()..highestPrice.toFloat())
             })
             Button(onClick = {
                 onFilterChanged(
                     ResellFilter(
-                        priceRange = priceRange.value,
-                        itemsOnSale = itemsOnSale.value,
+                        priceRange = priceRange,
+                        itemsOnSale = itemsOnSale,
                         categoriesSelected = categoriesSelected,
-                        conditionsSelected = conditionsSelected
+                        conditionSelected = conditionSelected
                     )
                 )
             }) {
@@ -297,6 +322,17 @@ private fun AllFilters(
         }
 
     }
+}
+
+private fun rangeString(priceRange: IntRange, lowestPrice: Int, highestPrice: Int): String {
+    val lowerBound = priceRange.first
+    val upperBound = priceRange.last
+    if (lowerBound == lowestPrice && upperBound == highestPrice) {
+        return "Any"
+    }
+    if (lowerBound == lowestPrice) return "Up to $$upperBound"
+    if (upperBound == highestPrice) return "$$lowerBound+"
+    return "$$lowerBound to $$upperBound"
 }
 
 @Composable
@@ -349,15 +385,13 @@ private fun PreviewFilterBottomSheet() {
                             Category.HANDMADE to false,
                             Category.OTHER to true
                         ),
-                        conditionsSelected = mutableMapOf(
-                            Condition.GENTLY_USED to false,
-                            Condition.NEVER_USED to true,
-                            Condition.WORN to false
-                        ),
-                        priceRange = 0f..100f
+                        conditionSelected = null,
+                        priceRange = 0..10000
                     ),
-                    onFilterChanged = {}, bottomPadding = 36.dp
+                    onFilterChanged = {},
+                    bottomPadding = NAVBAR_HEIGHT.dp
                 )
+
             },
             sheetPeekHeight = 750.dp
         ) {

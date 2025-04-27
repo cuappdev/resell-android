@@ -29,7 +29,7 @@ class HomeViewModel @Inject constructor(
         initialUiState = HomeUiState(
             listings = emptyList(),
             savedListings = emptyList(),
-            activeFilter = HomeFilter.RECENT,
+            activeFilter = ResellFilter(),
             loadedState = ResellApiState.Loading,
             savedImageResponses = emptyList(),
             page = 1,
@@ -41,23 +41,15 @@ class HomeViewModel @Inject constructor(
         val loadedState: ResellApiState,
         val listings: List<Listing>,
         val savedListings: List<Listing>,
-        val activeFilter: HomeFilter,
+        val activeFilter: ResellFilter,
         val page: Int,
         val bottomLoading: Boolean,
         val savedImageResponses: List<MutableState<ResellApiResponse<ImageBitmap>>>
     ) {
-        // TODO This should change to an endpoint, but backend is simple.
-        val filteredListings: List<Listing>
-            get() = listings.filter { listing ->
-                activeFilter == HomeFilter.RECENT ||
-                        listing.categories.map { it.lowercase() }.any {
-                            it.contains(activeFilter.name.lowercase())
-                        }
-            }
     }
 
     init {
-        onRecentPressed()
+        getPosts(ResellFilter())
         resellPostRepository.fetchSavedPosts()
         asyncCollect(resellPostRepository.savedPosts) { response ->
             applyMutation {
@@ -65,12 +57,13 @@ class HomeViewModel @Inject constructor(
                     loadedState = response.toResellApiState(),
                     savedListings = response.asSuccessOrNull()?.data?.map { it.toListing() }
                         ?: emptyList(),
-                    savedImageResponses = when(response) {
+                    savedImageResponses = when (response) {
                         is ResellApiResponse.Success -> {
                             response.data.map { listing ->
                                 coilRepository.getUrlState(listing.images.firstOrNull() ?: "")
                             }
                         }
+
                         else -> {
                             emptyList()
                         }
@@ -81,9 +74,50 @@ class HomeViewModel @Inject constructor(
 
     }
 
+    // todo delete
     enum class HomeFilter {
         RECENT, CLOTHING, BOOKS, SCHOOL, ELECTRONICS, HOUSEHOLD, HANDMADE, SPORTS, OTHER
     }
+
+    data class ResellFilter(
+        val priceRange: IntRange = 0..10000,
+        val itemsOnSale: Boolean = false,
+        val categoriesSelected: MutableMap<Category, Boolean> = mutableMapOf(
+            Category.CLOTHING to true,
+            Category.BOOKS to true,
+            Category.SCHOOL to true,
+            Category.ELECTRONICS to true,
+            Category.HANDMADE to true,
+            Category.SPORTS to true,
+            Category.OTHER to true
+        ),
+        val conditionSelected: Condition? = null,
+        val sortBy: SortBy = SortBy.ANY
+    )
+
+    enum class SortBy {
+        ANY,
+        NEWLY_LISTED,
+        HIGH_TO_LOW,
+        LOW_TO_HIGH
+    }
+
+    enum class Condition(val label: String) {
+        GENTLY_USED("Gently Used"),
+        WORN("Worn"),
+        NEVER_USED("Never Used")
+    }
+
+    enum class Category(val label: String) {
+        CLOTHING("Clothing"),
+        BOOKS("Books"),
+        SCHOOL("School"),
+        ELECTRONICS("Electronics"),
+        HANDMADE("Handmade"),
+        SPORTS("Sports & Outdoors"),
+        OTHER("Other")
+    }
+
 
     fun onListingPressed(listing: Listing) {
         rootNavigationRepository.navigate(
@@ -97,17 +131,11 @@ class HomeViewModel @Inject constructor(
         )
     }
 
-    private fun onRecentPressed() {
-        applyMutation {
-            copy(
-                activeFilter = HomeFilter.RECENT,
-                page = 1,
-                loadedState = ResellApiState.Loading
-            )
-        }
+    private fun getPosts(filter: ResellFilter) {
         viewModelScope.launch {
             try {
-                val posts = resellPostRepository.getPostsByPage(1)
+//                val posts = resellPostRepository.getPostsByPage(1)
+                val posts = resellPostRepository.getFilteredPosts(filter)
                 applyMutation {
                     copy(
                         listings = posts.map { it.toListing() },
@@ -125,66 +153,18 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun onToggleFilter(filter: HomeFilter) {
-        if (filter == HomeFilter.RECENT) {
-            onRecentPressed()
-            return
-        }
-
+    fun onFilterChanged(filter: ResellFilter) {
         applyMutation {
             copy(
                 activeFilter = filter,
                 loadedState = ResellApiState.Loading,
             )
         }
-        viewModelScope.launch {
-            try {
-                val posts = resellPostRepository.getPostsByFilter(
-                    filter.name
-                )
-                applyMutation {
-                    copy(
-                        listings = posts.map { it.toListing() },
-                        loadedState = ResellApiState.Success
-                    )
-                }
-            } catch (e: Exception) {
-                Log.e("HomeViewModel", "Error fetching posts: ", e)
-                applyMutation {
-                    copy(
-                        loadedState = ResellApiState.Error
-                    )
-                }
-            }
-        }
+        getPosts(filter)
     }
+
 
     fun onSearchPressed() {
         rootNavigationRepository.navigate(ResellRootRoute.SEARCH)
-    }
-
-    fun onHitBottom() {
-        if (stateValue().bottomLoading || stateValue().activeFilter != HomeFilter.RECENT) {
-            return
-        }
-
-        viewModelScope.launch {
-            applyMutation {
-                copy(
-                    page = page + 1,
-                    bottomLoading = true
-                )
-            }
-
-            val newPage = resellPostRepository.getPostsByPage(stateValue().page).map {
-                it.toListing()
-            }
-            applyMutation {
-                copy(
-                    listings = stateValue().listings + newPage,
-                    bottomLoading = false
-                )
-            }
-        }
     }
 }

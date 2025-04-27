@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
@@ -29,12 +30,16 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.foundation.text.appendInlineContent
+import androidx.compose.material3.BottomSheetScaffold
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -63,41 +68,65 @@ import com.cornellappdev.resell.android.model.classes.UserInfo
 import com.cornellappdev.resell.android.ui.components.global.AnimatedClampedAsyncImage
 import com.cornellappdev.resell.android.ui.components.global.resellListingScroll
 import com.cornellappdev.resell.android.ui.components.global.resellLoadingListingScroll
+import com.cornellappdev.resell.android.ui.components.main.FilterBottomSheet
 import com.cornellappdev.resell.android.ui.components.main.SearchBar
+import com.cornellappdev.resell.android.ui.components.nav.NAVBAR_HEIGHT
 import com.cornellappdev.resell.android.ui.theme.Padding
 import com.cornellappdev.resell.android.ui.theme.ResellPreview
 import com.cornellappdev.resell.android.ui.theme.Stroke
 import com.cornellappdev.resell.android.ui.theme.Style
 import com.cornellappdev.resell.android.util.defaultHorizontalPadding
 import com.cornellappdev.resell.android.viewmodel.main.HomeViewModel
+import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     homeViewModel: HomeViewModel = hiltViewModel(),
-    onSavedPressed: () -> Unit
+    onSavedPressed: () -> Unit,
 ) {
     val homeUiState = homeViewModel.collectUiStateValue()
-    Column(
-        modifier = Modifier
-            .fillMaxSize(),
-        verticalArrangement = Arrangement.spacedBy(24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+    val scaffoldState = rememberBottomSheetScaffoldState()
+    val coroutineScope = rememberCoroutineScope()
+    BottomSheetScaffold(
+        modifier = Modifier.fillMaxSize(),
+        sheetContent = {
+            FilterBottomSheet(
+                filter = homeUiState.activeFilter,
+                onFilterChanged = homeViewModel::onFilterChanged,
+                bottomPadding = NAVBAR_HEIGHT.dp
+            )
+        },
+        scaffoldState = scaffoldState,
     ) {
-        HomeHeader(
-            onFilter = {},// TODO
-            onSearchPressed = homeViewModel::onSearchPressed,
-            modifier = Modifier.defaultHorizontalPadding()
-        )
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .windowInsetsPadding(WindowInsets.statusBars)
+                .padding(bottom = NAVBAR_HEIGHT.dp),
+            verticalArrangement = Arrangement.spacedBy(24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            HomeHeader(
+                onFilter = {
+                    coroutineScope.launch {
+                        scaffoldState.bottomSheetState.expand()
+                    }
+                },
+                onSearchPressed = homeViewModel::onSearchPressed,
+                modifier = Modifier.defaultHorizontalPadding()
+            )
 
-        MainContent(
-            savedListings = homeUiState.savedListings,
-            onSavedPressed = onSavedPressed,
-            toPost = homeViewModel::onListingPressed,
-            loadedState = homeUiState.loadedState,
-            filteredListings = homeUiState.filteredListings,
-            onListingPressed = homeViewModel::onListingPressed,
-            savedImagesResponses = homeUiState.savedImageResponses
-        )
+            MainContent(
+                savedListings = homeUiState.savedListings,
+                onSavedPressed = onSavedPressed,
+                toPost = homeViewModel::onListingPressed,
+                loadedState = homeUiState.loadedState,
+                filteredListings = homeUiState.listings,
+                onListingPressed = homeViewModel::onListingPressed,
+                savedImagesResponses = homeUiState.savedImageResponses
+            )
+        }
     }
 }
 
@@ -107,12 +136,13 @@ private fun HomeHeader(
     onSearchPressed: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column(modifier = modifier) {
+    Column(
+        modifier = modifier.fillMaxWidth()
+    ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .defaultHorizontalPadding()
-                .windowInsetsPadding(WindowInsets.statusBars),
+                .defaultHorizontalPadding(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {
@@ -157,7 +187,6 @@ private fun MainContent(
             .defaultHorizontalPadding()
             .fillMaxWidth(),
         columns = StaggeredGridCells.Fixed(2),
-        contentPadding = PaddingValues(bottom = 85.dp),
         horizontalArrangement = Arrangement.spacedBy(20.dp)
     ) {
         savedByYou(
