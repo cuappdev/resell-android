@@ -1,10 +1,10 @@
 package com.cornellappdev.resell.android.viewmodel.main
 
+import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.graphics.ImageBitmap
-import com.cornellappdev.resell.android.model.CoilRepository
-import android.util.Log
 import androidx.lifecycle.viewModelScope
+import com.cornellappdev.resell.android.model.CoilRepository
 import com.cornellappdev.resell.android.model.classes.Listing
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.model.classes.ResellApiState
@@ -17,7 +17,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import java.util.Locale
 import javax.inject.Inject
 
 @HiltViewModel
@@ -79,25 +78,6 @@ class HomeViewModel @Inject constructor(
                 )
             }
         }
-//        asyncCollect(resellPostRepository.allPostsFlow)
-//        { response ->
-//            val posts = when (response) {
-//                is ResellApiResponse.Success -> {
-//                    response.data
-//                }
-//
-//                else -> {
-//                    emptyList()
-//                }
-//            }
-//
-//            applyMutation {
-//                copy(
-//                    listings = posts.map { it.toListing() },
-//                    loadedState = response.toResellApiState()
-//                )
-//            }
-//        }
 
     }
 

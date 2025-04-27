@@ -1,7 +1,6 @@
 package com.cornellappdev.resell.android.ui.components.global
 
 import androidx.compose.foundation.layout.Arrangement
-import android.util.Log
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -19,7 +18,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.cornellappdev.resell.android.model.classes.Listing
-import com.cornellappdev.resell.android.ui.theme.Padding
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 
@@ -82,8 +80,8 @@ fun calculateItemPadding(addVerticalPadding: Boolean): PaddingValues =
 fun LazyStaggeredGridScope.resellListingScroll(
     listings: List<Listing>,
     onListingPressed: (Listing) -> Unit,
-    addVerticalPadding: Boolean = false,
-    footer: @Composable () -> Unit = {}
+    footer: @Composable () -> Unit = {},
+    addVerticalPadding: Boolean = false
 ) {
     itemsIndexed(items = listings) { _, item ->
         val padding = calculateItemPadding(addVerticalPadding)
