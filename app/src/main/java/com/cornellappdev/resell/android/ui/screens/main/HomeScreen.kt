@@ -31,6 +31,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.material3.BottomSheetScaffold
+import androidx.compose.material3.BottomSheetScaffoldState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -87,21 +88,57 @@ fun HomeScreen(
     onSavedPressed: () -> Unit,
 ) {
     val homeUiState = homeViewModel.collectUiStateValue()
-    val scaffoldState = rememberBottomSheetScaffoldState(bottomSheetState = rememberStandardBottomSheetState(
-        skipHiddenState = false
-    ))
+    val scaffoldState = rememberBottomSheetScaffoldState(
+        bottomSheetState = rememberStandardBottomSheetState(
+            skipHiddenState = false
+        )
+    )
     val coroutineScope = rememberCoroutineScope()
+    HomeScreenHelper(
+        filter = homeUiState.activeFilter,
+        onFilterChanged = {
+            homeViewModel.onFilterChanged(it)
+            coroutineScope.launch {
+                scaffoldState.bottomSheetState.hide()
+            }
+        },
+        scaffoldState = scaffoldState,
+        onFilter = {
+            coroutineScope.launch {
+                scaffoldState.bottomSheetState.expand()
+            }
+        },
+        onSearchPressed = homeViewModel::onSearchPressed,
+        savedListings = homeUiState.savedListings,
+        onSavedPressed = onSavedPressed,
+        loadedState = homeUiState.loadedState,
+        filteredListings = homeUiState.listings,
+        onListingPressed = homeViewModel::onListingPressed,
+        savedImagesResponses = homeUiState.savedImageResponses
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun HomeScreenHelper(
+    filter: HomeViewModel.ResellFilter,
+    onFilterChanged: (HomeViewModel.ResellFilter) -> Unit,
+    scaffoldState: BottomSheetScaffoldState = rememberBottomSheetScaffoldState(),
+    onFilter: () -> Unit,
+    onSearchPressed: () -> Unit,
+    savedListings: List<Listing>,
+    onSavedPressed: () -> Unit,
+    loadedState: ResellApiState,
+    filteredListings: List<Listing>,
+    onListingPressed: (Listing) -> Unit,
+    savedImagesResponses: List<MutableState<ResellApiResponse<ImageBitmap>>>
+) {
     BottomSheetScaffold(
         modifier = Modifier.fillMaxSize(),
         sheetContent = {
             FilterBottomSheet(
-                filter = homeUiState.activeFilter,
-                onFilterChanged = {
-                    homeViewModel.onFilterChanged(it)
-                    coroutineScope.launch {
-                        scaffoldState.bottomSheetState.hide()
-                    }
-                },
+                filter = filter,
+                onFilterChanged = onFilterChanged,
                 bottomPadding = NAVBAR_HEIGHT.dp
             )
         },
@@ -116,23 +153,19 @@ fun HomeScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             HomeHeader(
-                onFilter = {
-                    coroutineScope.launch {
-                        scaffoldState.bottomSheetState.expand()
-                    }
-                },
-                onSearchPressed = homeViewModel::onSearchPressed,
+                onFilter = onFilter,
+                onSearchPressed = onSearchPressed,
                 modifier = Modifier.defaultHorizontalPadding()
             )
 
             MainContent(
-                savedListings = homeUiState.savedListings,
+                savedListings = savedListings,
                 onSavedPressed = onSavedPressed,
-                toPost = homeViewModel::onListingPressed,
-                loadedState = homeUiState.loadedState,
-                filteredListings = homeUiState.listings,
-                onListingPressed = homeViewModel::onListingPressed,
-                savedImagesResponses = homeUiState.savedImageResponses
+                toPost = onListingPressed,
+                loadedState = loadedState,
+                filteredListings = filteredListings,
+                onListingPressed = onListingPressed,
+                savedImagesResponses = savedImagesResponses
             )
         }
     }
@@ -149,8 +182,7 @@ private fun HomeHeader(
     ) {
         Row(
             modifier = Modifier
-                .fillMaxWidth()
-                .defaultHorizontalPadding(),
+                .fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {
@@ -524,6 +556,7 @@ private fun ResellSavedCard(
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Composable
 private fun HomeScreenPreview() = ResellPreview {
@@ -545,27 +578,18 @@ private fun HomeScreenPreview() = ResellPreview {
             email = ""
         )
     )
-    Column(
-        modifier = Modifier
-            .fillMaxSize(),
-        verticalArrangement = Arrangement.spacedBy(24.dp)
-    ) {
-        HomeHeader(
-            onFilter = {},
-            onSearchPressed = {},
-            modifier = Modifier.defaultHorizontalPadding()
-        )
-
-        MainContent(
-            List(5) { dumbListing },
-            onSavedPressed = {},
-            toPost = {},
-            loadedState = ResellApiState.Success,
-            filteredListings = List(10) { dumbListing },
-            onListingPressed = {},
-            savedImagesResponses = emptyList()
-        )
-    }
+    HomeScreenHelper(
+        filter = HomeViewModel.ResellFilter(),
+        onFilterChanged = {},
+        onFilter = {},
+        onSearchPressed =  {},
+        savedListings = List(5) { dumbListing },
+        onSavedPressed = { },
+        loadedState = ResellApiState.Loading,
+        filteredListings = List(10) { dumbListing },
+        onListingPressed = {},
+        savedImagesResponses = emptyList()
+    )
 }
 
 
