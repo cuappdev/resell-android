@@ -106,6 +106,7 @@ fun FilterBottomSheet(
         }
         item {
             AllFilters(
+                originalFilter = filter,
                 sortBy = sortBy.value,
                 itemsOnSale = itemsOnSaleCurrent.value,
                 categoriesSelected = categoriesSelectedCurrent.value,
@@ -153,6 +154,7 @@ fun FilterBottomSheet(
 @OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
 @Composable
 private fun AllFilters(
+    originalFilter: ResellFilter,
     sortBy: HomeViewModel.SortBy,
     itemsOnSale: Boolean,
     categoriesSelected: List<Category>,
@@ -347,8 +349,15 @@ private fun AllFilters(
                 }, colors = ButtonColors(
                     containerColor = ResellPurple,
                     contentColor = Color.White,
-                    disabledContainerColor = ResellPurple,
+                    disabledContainerColor = ResellPurple.copy(alpha = 0.4f),
                     disabledContentColor = Color.White
+                ),
+                enabled = checkIfFilterChanged(
+                    sortBy,
+                    priceRange,
+                    categoriesSelected,
+                    conditionSelected,
+                    originalFilter
                 )
             ) {
                 Text(text = "Apply Filters", style = Style.title1, color = Color.White)
@@ -356,6 +365,19 @@ private fun AllFilters(
         }
 
     }
+}
+
+private fun checkIfFilterChanged(
+    sortBy: HomeViewModel.SortBy,
+    priceRange: IntRange,
+    categoriesSelected: List<Category>,
+    conditionSelected: Condition?,
+    originalFilter: ResellFilter
+): Boolean {
+    return sortBy != originalFilter.sortBy ||
+            priceRange != originalFilter.priceRange ||
+            categoriesSelected != originalFilter.categoriesSelected ||
+            conditionSelected != originalFilter.conditionSelected
 }
 
 @Composable

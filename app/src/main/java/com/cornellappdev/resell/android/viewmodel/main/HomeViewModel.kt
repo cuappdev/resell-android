@@ -80,7 +80,7 @@ class HomeViewModel @Inject constructor(
     }
 
     data class ResellFilter(
-        val priceRange: IntRange = 0..10000,
+        val priceRange: IntRange = 0..1000,
         val itemsOnSale: Boolean = false,
         val categoriesSelected: List<Category> = emptyList(),
         val conditionSelected: Condition? = null,
