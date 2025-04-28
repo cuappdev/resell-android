@@ -63,9 +63,9 @@ fun FilterBottomSheet(
     onFilterChanged: (ResellFilter) -> Unit,
     bottomPadding: Dp,
     lowestPrice: Int = 0,
-    highestPrice: Int = 10000,
+    highestPrice: Int = 1000,
 ) {
-    val categoriesSelectedCurrent = remember { filter.categoriesSelected }
+    val categoriesSelectedCurrent = remember { mutableStateOf(filter.categoriesSelected) }
     val conditionSelectedCurrent = remember { mutableStateOf(filter.conditionSelected) }
     val itemsOnSaleCurrent = remember { mutableStateOf(filter.itemsOnSale) }
     val priceRange = remember { mutableStateOf(filter.priceRange) }
@@ -90,7 +90,7 @@ fun FilterBottomSheet(
         item {
             AllFilters(
                 itemsOnSale = itemsOnSaleCurrent.value,
-                categoriesSelected = categoriesSelectedCurrent,
+                categoriesSelected = categoriesSelectedCurrent.value,
                 conditionSelected = conditionSelectedCurrent.value,
                 priceRange = priceRange.value,
                 lowestPrice = lowestPrice,
@@ -103,6 +103,14 @@ fun FilterBottomSheet(
                 toggleCondition = {
                     conditionSelectedCurrent.value =
                         if (it == conditionSelectedCurrent.value) null else it
+                },
+                toggleCategory = {
+                    if (categoriesSelectedCurrent.value.contains(it)) {
+                        categoriesSelectedCurrent.value =
+                            categoriesSelectedCurrent.value.filter { category -> category != it }
+                    } else {
+                        categoriesSelectedCurrent.value += it
+                    }
                 }
             )
         }
@@ -123,7 +131,7 @@ fun FilterBottomSheet(
 )
 private fun AllFilters(
     itemsOnSale: Boolean,
-    categoriesSelected: MutableMap<Category, Boolean>,
+    categoriesSelected: List<Category>,
     conditionSelected: Condition?,
     priceRange: IntRange,
     lowestPrice: Int,
@@ -132,6 +140,7 @@ private fun AllFilters(
     onPriceRangeChanged: (ClosedFloatingPointRange<Float>) -> Unit,
     onItemsOnSaleChanged: (Boolean) -> Unit,
     toggleCondition: (Condition) -> Unit,
+    toggleCategory: (Category) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -197,8 +206,8 @@ private fun AllFilters(
                 .padding(bottom = 16.dp),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text("\$${lowestPrice.toInt()}", style = Style.title4, color = Secondary)
-            Text("\$${highestPrice.toInt()}", style = Style.title4, color = Secondary)
+            Text("\$${lowestPrice}", style = Style.title4, color = Secondary)
+            Text("\$${highestPrice}", style = Style.title4, color = Secondary)
         }
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -255,10 +264,8 @@ private fun AllFilters(
         ) {
             Category.entries.forEach { item ->
                 ResellChip(
-                    selected = categoriesSelected[item] ?: false,
-                    onClick = {
-                        categoriesSelected[item] = !(categoriesSelected[item] ?: true)
-                    },
+                    selected = categoriesSelected.contains(item),
+                    onClick = { toggleCategory(item) },
                     labelText = item.label
                 )
             }
@@ -297,7 +304,9 @@ private fun AllFilters(
         ) {
             Text(text = "Reset", style = Style.title1, modifier = Modifier.clickable {
                 Category.entries.forEach { item ->
-                    categoriesSelected[item] = false
+                    if(categoriesSelected.contains(item)) {
+                        toggleCategory(item)
+                    }
                 }
                 Condition.entries.forEach { condition ->
                     if (condition == conditionSelected) {
@@ -331,7 +340,7 @@ private fun rangeString(priceRange: IntRange, lowestPrice: Int, highestPrice: In
         return "Any"
     }
     if (lowerBound == lowestPrice) return "Up to $$upperBound"
-    if (upperBound == highestPrice) return "$$lowerBound+"
+    if (upperBound == highestPrice) return "$$lowerBound +"
     return "$$lowerBound to $$upperBound"
 }
 
@@ -374,20 +383,7 @@ private fun PreviewFilterBottomSheet() {
         BottomSheetScaffold(
             sheetContent = {
                 FilterBottomSheet(
-                    ResellFilter(
-                        itemsOnSale = false,
-                        categoriesSelected = mutableMapOf(
-                            Category.CLOTHING to false,
-                            Category.BOOKS to true,
-                            Category.SCHOOL to false,
-                            Category.ELECTRONICS to true,
-                            Category.SPORTS to false,
-                            Category.HANDMADE to false,
-                            Category.OTHER to true
-                        ),
-                        conditionSelected = null,
-                        priceRange = 0..10000
-                    ),
+                    ResellFilter(),
                     onFilterChanged = {},
                     bottomPadding = NAVBAR_HEIGHT.dp
                 )
