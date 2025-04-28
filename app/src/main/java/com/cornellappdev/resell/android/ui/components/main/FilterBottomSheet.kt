@@ -2,6 +2,7 @@ package com.cornellappdev.resell.android.ui.components.main
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -14,17 +15,15 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.RangeSlider
-import androidx.compose.material.SliderDefaults
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -33,6 +32,10 @@ import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RangeSlider
+import androidx.compose.material3.RangeSliderState
+import androidx.compose.material3.SliderColors
+import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchColors
 import androidx.compose.material3.Text
@@ -45,15 +48,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.ui.components.nav.NAVBAR_HEIGHT
 import com.cornellappdev.resell.android.ui.theme.IconInactive
 import com.cornellappdev.resell.android.ui.theme.PurpleWash
 import com.cornellappdev.resell.android.ui.theme.ResellPurple
+import com.cornellappdev.resell.android.ui.theme.ResellPurpleTransparent
 import com.cornellappdev.resell.android.ui.theme.ResellTheme
 import com.cornellappdev.resell.android.ui.theme.Secondary
 import com.cornellappdev.resell.android.ui.theme.Stroke
@@ -129,17 +135,14 @@ fun FilterBottomSheet(
             Spacer(
                 modifier = Modifier
                     .windowInsetsPadding(WindowInsets.statusBars)
-                    .padding(bottom = bottomPadding),
+                    .padding(bottom = bottomPadding + 36.dp),
             )
         }
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
 @Composable
-@OptIn(
-    ExperimentalLayoutApi::class,
-    ExperimentalMaterialApi::class
-)
 private fun AllFilters(
     sortBy: HomeViewModel.SortBy,
     itemsOnSale: Boolean,
@@ -198,6 +201,14 @@ private fun AllFilters(
             fontSize = 20.sp
         )
         // Using Material 2 RangeSlider to match design
+        val thumb: @Composable (RangeSliderState) -> Unit = {
+            Box(
+                modifier = Modifier
+                    .size(16.dp)
+                    .background(color = Color.White, shape = CircleShape)
+                    .border(1.dp, Stroke, CircleShape)
+            )
+        }
         RangeSlider(
             value = priceRange.first.toFloat()..priceRange.last.toFloat(),
             onValueChange = onPriceRangeChanged,
@@ -205,10 +216,32 @@ private fun AllFilters(
             colors = SliderDefaults.colors(
                 thumbColor = Color.White,
                 activeTrackColor = ResellPurple,
-                inactiveTrackColor = ResellPurple.copy(alpha = 0.2f),
-                activeTickColor = ResellPurple,
-                inactiveTickColor = ResellPurple.copy(alpha = 0.2f)
-            )
+                inactiveTrackColor = ResellPurpleTransparent,
+                activeTickColor = ResellPurpleTransparent,
+                inactiveTickColor = ResellPurpleTransparent
+            ),
+            steps = 0,
+            startThumb = thumb,
+            endThumb = thumb,
+            track = {
+                SliderDefaults.Track(
+                    rangeSliderState = it, colors = SliderColors(
+                        thumbColor = Color.White,
+                        activeTrackColor = ResellPurple,
+                        activeTickColor = ResellPurpleTransparent,
+                        inactiveTrackColor = ResellPurpleTransparent,
+                        inactiveTickColor = ResellPurpleTransparent,
+                        disabledThumbColor = Color.White,
+                        disabledActiveTrackColor = ResellPurple,
+                        disabledActiveTickColor = ResellPurpleTransparent,
+                        disabledInactiveTrackColor = ResellPurpleTransparent,
+                        disabledInactiveTickColor = ResellPurpleTransparent,
+                    ),
+                    modifier = Modifier.height(8.dp),
+                    thumbTrackGapSize = 0.dp,
+                    drawStopIndicator = {}
+                )
+            }
         )
         Row(
             modifier = Modifier
@@ -291,17 +324,24 @@ private fun AllFilters(
                 onItemsOnSaleChanged(false)
                 onPriceRangeChanged(lowestPrice.toFloat()..highestPrice.toFloat())
             })
-            Button(onClick = {
-                onFilterChanged(
-                    ResellFilter(
-                        priceRange = priceRange,
-                        itemsOnSale = itemsOnSale,
-                        categoriesSelected = categoriesSelected,
-                        conditionSelected = conditionSelected,
-                        sortBy = sortBy
+            Button(
+                onClick = {
+                    onFilterChanged(
+                        ResellFilter(
+                            priceRange = priceRange,
+                            itemsOnSale = itemsOnSale,
+                            categoriesSelected = categoriesSelected,
+                            conditionSelected = conditionSelected,
+                            sortBy = sortBy
+                        )
                     )
+                }, colors = ButtonColors(
+                    containerColor = ResellPurple,
+                    contentColor = Color.White,
+                    disabledContainerColor = ResellPurple,
+                    disabledContentColor = Color.White
                 )
-            }) {
+            ) {
                 Text(text = "Apply Filters", style = Style.title1, color = Color.White)
             }
         }
@@ -400,7 +440,7 @@ fun Dropdown(onSelectSortBy: (HomeViewModel.SortBy) -> Unit) {
     var expanded by remember { mutableStateOf(false) }
     Box {
         Icon(
-            Icons.Default.KeyboardArrowDown,
+            painter = painterResource(R.drawable.baseline_keyboard_arrow_down_24),
             contentDescription = "More options",
             tint = Secondary,
             modifier = Modifier.clickable { expanded = !expanded }
