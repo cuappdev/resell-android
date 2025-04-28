@@ -1,10 +1,10 @@
 package com.cornellappdev.resell.android.ui.components.main
 
-//noinspection UsingMaterialAndMaterial3Libraries
-//noinspection UsingMaterialAndMaterial3Libraries
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
@@ -21,34 +21,44 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.RangeSlider
 import androidx.compose.material.SliderDefaults
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchColors
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.ui.components.nav.NAVBAR_HEIGHT
+import com.cornellappdev.resell.android.ui.theme.IconInactive
 import com.cornellappdev.resell.android.ui.theme.PurpleWash
 import com.cornellappdev.resell.android.ui.theme.ResellPurple
 import com.cornellappdev.resell.android.ui.theme.ResellTheme
 import com.cornellappdev.resell.android.ui.theme.Secondary
 import com.cornellappdev.resell.android.ui.theme.Stroke
 import com.cornellappdev.resell.android.ui.theme.Style
+import com.cornellappdev.resell.android.viewmodel.main.HomeViewModel
 import com.cornellappdev.resell.android.viewmodel.main.HomeViewModel.Category
 import com.cornellappdev.resell.android.viewmodel.main.HomeViewModel.Condition
 import com.cornellappdev.resell.android.viewmodel.main.HomeViewModel.ResellFilter
@@ -65,6 +75,7 @@ fun FilterBottomSheet(
     val conditionSelectedCurrent = remember { mutableStateOf(filter.conditionSelected) }
     val itemsOnSaleCurrent = remember { mutableStateOf(filter.itemsOnSale) }
     val priceRange = remember { mutableStateOf(filter.priceRange) }
+    val sortBy = remember { mutableStateOf(HomeViewModel.SortBy.ANY) }
     LazyColumn(
         modifier = Modifier
             .fillMaxWidth(),
@@ -85,6 +96,7 @@ fun FilterBottomSheet(
         }
         item {
             AllFilters(
+                sortBy = sortBy.value,
                 itemsOnSale = itemsOnSaleCurrent.value,
                 categoriesSelected = categoriesSelectedCurrent.value,
                 conditionSelected = conditionSelectedCurrent.value,
@@ -107,6 +119,9 @@ fun FilterBottomSheet(
                     } else {
                         categoriesSelectedCurrent.value += it
                     }
+                },
+                onSelectSortBy = {
+                    sortBy.value = it
                 }
             )
         }
@@ -126,6 +141,7 @@ fun FilterBottomSheet(
     ExperimentalMaterialApi::class
 )
 private fun AllFilters(
+    sortBy: HomeViewModel.SortBy,
     itemsOnSale: Boolean,
     categoriesSelected: List<Category>,
     conditionSelected: Condition?,
@@ -133,6 +149,7 @@ private fun AllFilters(
     lowestPrice: Int,
     highestPrice: Int,
     onFilterChanged: (ResellFilter) -> Unit,
+    onSelectSortBy: (HomeViewModel.SortBy) -> Unit,
     onPriceRangeChanged: (ClosedFloatingPointRange<Float>) -> Unit,
     onItemsOnSaleChanged: (Boolean) -> Unit,
     toggleCondition: (Condition) -> Unit,
@@ -145,24 +162,21 @@ private fun AllFilters(
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Text("Sort by", style = Style.heading3)
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 Text(
-                    text = "Any",
+                    text = sortBy.label,
                     color = Secondary,
                     fontWeight = FontWeight.Normal,
                     fontSize = 20.sp
                 )
-                Icon(
-                    painter = painterResource(R.drawable.baseline_keyboard_arrow_down_24),
-                    tint = Secondary,
-                    contentDescription = "Down Arrow",
-                    modifier = Modifier.clickable {
-                        //todo
-                    }
-                )
+                Dropdown(onSelectSortBy = onSelectSortBy)
             }
         }
         HorizontalDivider(
@@ -205,44 +219,8 @@ private fun AllFilters(
             Text("\$${lowestPrice}", style = Style.title4, color = Secondary)
             Text("\$${highestPrice}", style = Style.title4, color = Secondary)
         }
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "Items on Sale",
-                fontWeight = FontWeight.Normal,
-                fontSize = 20.sp,
-                color = Secondary
-            )
-            // TODO - uncomment once backend handles items on sale
-//            Switch(
-//                checked = itemsOnSale,
-//                onCheckedChange = onItemsOnSaleChanged,
-//                colors = SwitchColors(
-//                    checkedThumbColor = Color.White,
-//                    checkedTrackColor = ResellPurple,
-//                    checkedBorderColor = ResellPurple,
-//                    checkedIconColor = Color.White,
-//
-//                    uncheckedThumbColor = IconInactive,
-//                    uncheckedTrackColor = Color.White,
-//                    uncheckedBorderColor = IconInactive,
-//                    uncheckedIconColor = IconInactive,
-//
-//                    disabledCheckedThumbColor = Color.Gray,
-//                    disabledCheckedTrackColor = Color.Gray,
-//                    disabledCheckedBorderColor = Color.Gray,
-//                    disabledCheckedIconColor = Color.Gray,
-//                    disabledUncheckedThumbColor = Color.Gray,
-//                    disabledUncheckedTrackColor = Color.Gray,
-//                    disabledUncheckedBorderColor = Color.Gray,
-//                    disabledUncheckedIconColor = Color.Gray
-//                ),
-//                modifier = Modifier.scale(0.8f)
-//            )
-        }
+        // TODO - uncomment once backend handles items on sale
+//        ItemsOnSale(itemsOnSale, onItemsOnSaleChanged)
         HorizontalDivider(
             modifier = Modifier
                 .fillMaxWidth()
@@ -301,7 +279,7 @@ private fun AllFilters(
         ) {
             Text(text = "Reset", style = Style.title1, modifier = Modifier.clickable {
                 Category.entries.forEach { item ->
-                    if(categoriesSelected.contains(item)) {
+                    if (categoriesSelected.contains(item)) {
                         toggleCategory(item)
                     }
                 }
@@ -319,7 +297,8 @@ private fun AllFilters(
                         priceRange = priceRange,
                         itemsOnSale = itemsOnSale,
                         categoriesSelected = categoriesSelected,
-                        conditionSelected = conditionSelected
+                        conditionSelected = conditionSelected,
+                        sortBy = sortBy
                     )
                 )
             }) {
@@ -327,6 +306,50 @@ private fun AllFilters(
             }
         }
 
+    }
+}
+
+@Composable
+private fun ItemsOnSale(
+    itemsOnSale: Boolean,
+    onItemsOnSaleChanged: (Boolean) -> Unit
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = "Items on Sale",
+            fontWeight = FontWeight.Normal,
+            fontSize = 20.sp,
+            color = Secondary
+        )
+        Switch(
+            checked = itemsOnSale,
+            onCheckedChange = onItemsOnSaleChanged,
+            colors = SwitchColors(
+                checkedThumbColor = Color.White,
+                checkedTrackColor = ResellPurple,
+                checkedBorderColor = ResellPurple,
+                checkedIconColor = Color.White,
+
+                uncheckedThumbColor = IconInactive,
+                uncheckedTrackColor = Color.White,
+                uncheckedBorderColor = IconInactive,
+                uncheckedIconColor = IconInactive,
+
+                disabledCheckedThumbColor = Color.Gray,
+                disabledCheckedTrackColor = Color.Gray,
+                disabledCheckedBorderColor = Color.Gray,
+                disabledCheckedIconColor = Color.Gray,
+                disabledUncheckedThumbColor = Color.Gray,
+                disabledUncheckedTrackColor = Color.Gray,
+                disabledUncheckedBorderColor = Color.Gray,
+                disabledUncheckedIconColor = Color.Gray
+            ),
+            modifier = Modifier.scale(0.8f)
+        )
     }
 }
 
@@ -372,6 +395,45 @@ private fun ResellChip(selected: Boolean, onClick: () -> Unit, labelText: String
     )
 }
 
+@Composable
+fun Dropdown(onSelectSortBy: (HomeViewModel.SortBy) -> Unit) {
+    var expanded by remember { mutableStateOf(false) }
+    Box {
+        Icon(
+            Icons.Default.KeyboardArrowDown,
+            contentDescription = "More options",
+            tint = Secondary,
+            modifier = Modifier.clickable { expanded = !expanded }
+        )
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+            shape = RoundedCornerShape(13.dp),
+            modifier = Modifier.background(
+                color = MaterialTheme.colorScheme.surface,
+                shape = RoundedCornerShape(13.dp)
+            )
+        ) {
+            for (sortBy in HomeViewModel.SortBy.entries) {
+                DropdownMenuItem(
+                    text = {
+                        Text(
+                            text = sortBy.label,
+                            fontSize = 17.sp,
+                            fontWeight = FontWeight.Normal
+                        )
+                    },
+                    onClick = {
+                        onSelectSortBy(sortBy)
+                        expanded = false
+                    }
+                )
+            }
+        }
+    }
+
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Composable
@@ -387,7 +449,6 @@ private fun PreviewFilterBottomSheet() {
 
             },
             sheetPeekHeight = 750.dp
-        ) {
-        }
+        ) {}
     }
 }

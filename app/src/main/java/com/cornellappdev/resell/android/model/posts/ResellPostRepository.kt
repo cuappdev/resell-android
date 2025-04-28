@@ -2,7 +2,6 @@ package com.cornellappdev.resell.android.model.posts
 
 import android.util.Log
 import androidx.compose.ui.graphics.ImageBitmap
-import com.cornellappdev.resell.android.model.api.CategoriesRequest
 import com.cornellappdev.resell.android.model.api.FilterRequest
 import com.cornellappdev.resell.android.model.api.NewPostBody
 import com.cornellappdev.resell.android.model.api.Post
@@ -42,6 +41,7 @@ class ResellPostRepository @Inject constructor(
         val higherPrice = filter.priceRange.last
         val categories = filter.categoriesSelected
         val condition = filter.conditionSelected
+        val sortBy = filter.sortBy
         return retrofitInstance.postsApi.getFilteredPosts(
             FilterRequest(
                 price = PriceRange(
@@ -56,27 +56,18 @@ class ResellPostRepository @Inject constructor(
                 },
                 categories = if (categories.isEmpty()) null else categories.map {
                     it.label
+                },
+                sortField = when (sortBy) {
+                    HomeViewModel.SortBy.ANY -> "any"
+                    HomeViewModel.SortBy.PRICE_LOW_TO_HIGH -> "priceLowToHigh"
+                    HomeViewModel.SortBy.PRICE_HIGH_TO_LOW -> "priceHighToLow"
+                    HomeViewModel.SortBy.NEWLY_LISTED -> "newlyListed"
                 }
-
             )
         ).posts
-        // TODO: sorting
         // TODO: need a route for items on sale
     }
 
-    suspend fun getPostsByFilter(category: String): List<Post> {
-        return retrofitInstance.postsApi.getFilteredPosts(
-            CategoriesRequest(
-                listOf(
-                    category.lowercase().replaceFirstChar {
-                        if (it.isLowerCase()) it.titlecase(
-                            Locale.US
-                        ) else it.toString()
-                    }
-                )
-            )
-        ).posts
-    }
 
     suspend fun uploadPost(
         title: String,

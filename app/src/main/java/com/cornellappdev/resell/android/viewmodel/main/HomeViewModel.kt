@@ -87,11 +87,11 @@ class HomeViewModel @Inject constructor(
         val sortBy: SortBy = SortBy.ANY
     )
 
-    enum class SortBy {
-        ANY,
-        NEWLY_LISTED,
-        HIGH_TO_LOW,
-        LOW_TO_HIGH
+    enum class SortBy(val label: String) {
+        ANY("Any"),
+        NEWLY_LISTED("Newly Listed"),
+        PRICE_HIGH_TO_LOW("Price: High to Low"),
+        PRICE_LOW_TO_HIGH("Price: Low to High")
     }
 
     enum class Condition(val label: String) {
