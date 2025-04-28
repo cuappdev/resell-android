@@ -35,6 +35,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberBottomSheetScaffoldState
+import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
@@ -86,14 +87,21 @@ fun HomeScreen(
     onSavedPressed: () -> Unit,
 ) {
     val homeUiState = homeViewModel.collectUiStateValue()
-    val scaffoldState = rememberBottomSheetScaffoldState()
+    val scaffoldState = rememberBottomSheetScaffoldState(bottomSheetState = rememberStandardBottomSheetState(
+        skipHiddenState = false
+    ))
     val coroutineScope = rememberCoroutineScope()
     BottomSheetScaffold(
         modifier = Modifier.fillMaxSize(),
         sheetContent = {
             FilterBottomSheet(
                 filter = homeUiState.activeFilter,
-                onFilterChanged = homeViewModel::onFilterChanged,
+                onFilterChanged = {
+                    homeViewModel.onFilterChanged(it)
+                    coroutineScope.launch {
+                        scaffoldState.bottomSheetState.hide()
+                    }
+                },
                 bottomPadding = NAVBAR_HEIGHT.dp
             )
         },

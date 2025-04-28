@@ -82,15 +82,7 @@ class HomeViewModel @Inject constructor(
     data class ResellFilter(
         val priceRange: IntRange = 0..10000,
         val itemsOnSale: Boolean = false,
-        val categoriesSelected: MutableMap<Category, Boolean> = mutableMapOf(
-            Category.CLOTHING to true,
-            Category.BOOKS to true,
-            Category.SCHOOL to true,
-            Category.ELECTRONICS to true,
-            Category.HANDMADE to true,
-            Category.SPORTS to true,
-            Category.OTHER to true
-        ),
+        val categoriesSelected: List<Category> = emptyList(),
         val conditionSelected: Condition? = null,
         val sortBy: SortBy = SortBy.ANY
     )

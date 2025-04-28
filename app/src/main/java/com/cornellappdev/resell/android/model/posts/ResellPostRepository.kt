@@ -3,12 +3,15 @@ package com.cornellappdev.resell.android.model.posts
 import android.util.Log
 import androidx.compose.ui.graphics.ImageBitmap
 import com.cornellappdev.resell.android.model.api.CategoriesRequest
+import com.cornellappdev.resell.android.model.api.FilterRequest
 import com.cornellappdev.resell.android.model.api.NewPostBody
 import com.cornellappdev.resell.android.model.api.Post
 import com.cornellappdev.resell.android.model.api.PostResponse
+import com.cornellappdev.resell.android.model.api.PriceRange
 import com.cornellappdev.resell.android.model.api.RetrofitInstance
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.util.toNetworkingString
+import com.cornellappdev.resell.android.viewmodel.main.HomeViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,7 +26,8 @@ class ResellPostRepository @Inject constructor(
     private val retrofitInstance: RetrofitInstance,
 ) {
 
-    private val _savedPosts = MutableStateFlow<ResellApiResponse<List<Post>>>(ResellApiResponse.Pending)
+    private val _savedPosts =
+        MutableStateFlow<ResellApiResponse<List<Post>>>(ResellApiResponse.Pending)
     val savedPosts = _savedPosts.asStateFlow()
 
     private var recentBitmaps: List<ImageBitmap>? = null
@@ -31,6 +35,33 @@ class ResellPostRepository @Inject constructor(
     suspend fun getPostsByPage(page: Int): List<Post> {
         val posts = retrofitInstance.postsApi.getPosts(page = page).posts
         return posts
+    }
+
+    suspend fun getFilteredPosts(filter: HomeViewModel.ResellFilter): List<Post> {
+        val lowerPrice = filter.priceRange.first
+        val higherPrice = filter.priceRange.last
+        val categories = filter.categoriesSelected
+        val condition = filter.conditionSelected
+        return retrofitInstance.postsApi.getFilteredPosts(
+            FilterRequest(
+                price = PriceRange(
+                    lowerBound = lowerPrice.toDouble(),
+                    upperBound = higherPrice.toDouble()
+                ),
+                condition = when (condition) {
+                    HomeViewModel.Condition.GENTLY_USED -> "gentlyUsed"
+                    HomeViewModel.Condition.NEVER_USED -> "new"
+                    HomeViewModel.Condition.WORN -> "worn"
+                    null -> null
+                },
+                categories = if (categories.isEmpty()) null else categories.map {
+                    it.label
+                }
+
+            )
+        ).posts
+        // TODO: sorting
+        // TODO: need a route for items on sale
     }
 
     suspend fun getPostsByFilter(category: String): List<Post> {

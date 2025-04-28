@@ -28,15 +28,12 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchColors
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -46,7 +43,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.ui.components.nav.NAVBAR_HEIGHT
-import com.cornellappdev.resell.android.ui.theme.IconInactive
 import com.cornellappdev.resell.android.ui.theme.PurpleWash
 import com.cornellappdev.resell.android.ui.theme.ResellPurple
 import com.cornellappdev.resell.android.ui.theme.ResellTheme
@@ -126,7 +122,7 @@ fun FilterBottomSheet(
 
 @Composable
 @OptIn(
-    ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class,
+    ExperimentalLayoutApi::class,
     ExperimentalMaterialApi::class
 )
 private fun AllFilters(
@@ -220,31 +216,32 @@ private fun AllFilters(
                 fontSize = 20.sp,
                 color = Secondary
             )
-            Switch(
-                checked = itemsOnSale,
-                onCheckedChange = onItemsOnSaleChanged,
-                colors = SwitchColors(
-                    checkedThumbColor = Color.White,
-                    checkedTrackColor = ResellPurple,
-                    checkedBorderColor = ResellPurple,
-                    checkedIconColor = Color.White,
-
-                    uncheckedThumbColor = IconInactive,
-                    uncheckedTrackColor = Color.White,
-                    uncheckedBorderColor = IconInactive,
-                    uncheckedIconColor = IconInactive,
-
-                    disabledCheckedThumbColor = Color.Gray,
-                    disabledCheckedTrackColor = Color.Gray,
-                    disabledCheckedBorderColor = Color.Gray,
-                    disabledCheckedIconColor = Color.Gray,
-                    disabledUncheckedThumbColor = Color.Gray,
-                    disabledUncheckedTrackColor = Color.Gray,
-                    disabledUncheckedBorderColor = Color.Gray,
-                    disabledUncheckedIconColor = Color.Gray
-                ),
-                modifier = Modifier.scale(0.8f)
-            )
+            // TODO - uncomment once backend handles items on sale
+//            Switch(
+//                checked = itemsOnSale,
+//                onCheckedChange = onItemsOnSaleChanged,
+//                colors = SwitchColors(
+//                    checkedThumbColor = Color.White,
+//                    checkedTrackColor = ResellPurple,
+//                    checkedBorderColor = ResellPurple,
+//                    checkedIconColor = Color.White,
+//
+//                    uncheckedThumbColor = IconInactive,
+//                    uncheckedTrackColor = Color.White,
+//                    uncheckedBorderColor = IconInactive,
+//                    uncheckedIconColor = IconInactive,
+//
+//                    disabledCheckedThumbColor = Color.Gray,
+//                    disabledCheckedTrackColor = Color.Gray,
+//                    disabledCheckedBorderColor = Color.Gray,
+//                    disabledCheckedIconColor = Color.Gray,
+//                    disabledUncheckedThumbColor = Color.Gray,
+//                    disabledUncheckedTrackColor = Color.Gray,
+//                    disabledUncheckedBorderColor = Color.Gray,
+//                    disabledUncheckedIconColor = Color.Gray
+//                ),
+//                modifier = Modifier.scale(0.8f)
+//            )
         }
         HorizontalDivider(
             modifier = Modifier
