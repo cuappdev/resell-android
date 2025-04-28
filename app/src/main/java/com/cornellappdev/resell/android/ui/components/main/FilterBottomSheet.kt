@@ -22,7 +22,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.DropdownMenu
@@ -33,6 +32,7 @@ import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.RangeSlider
 import androidx.compose.material3.RangeSliderState
 import androidx.compose.material3.SliderColors
@@ -40,6 +40,7 @@ import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchColors
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -53,11 +54,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cornellappdev.resell.android.R
-import com.cornellappdev.resell.android.ui.components.nav.NAVBAR_HEIGHT
 import com.cornellappdev.resell.android.ui.theme.IconInactive
 import com.cornellappdev.resell.android.ui.theme.PurpleWash
 import com.cornellappdev.resell.android.ui.theme.ResellPurple
@@ -76,7 +75,6 @@ import kotlinx.coroutines.launch
 fun FilterBottomSheet(
     filter: ResellFilter,
     onFilterChanged: (ResellFilter) -> Unit,
-    bottomPadding: Dp,
     lowestPrice: Int = 0,
     highestPrice: Int = 1000,
 ) {
@@ -146,7 +144,7 @@ fun FilterBottomSheet(
             Spacer(
                 modifier = Modifier
                     .windowInsetsPadding(WindowInsets.statusBars)
-                    .padding(bottom = bottomPadding + 36.dp),
+                    .padding(bottom = 36.dp)
             )
         }
     }
@@ -490,16 +488,16 @@ fun Dropdown(onSelectSortBy: (HomeViewModel.SortBy) -> Unit) {
 @Composable
 private fun PreviewFilterBottomSheet() {
     ResellTheme {
-        BottomSheetScaffold(
-            sheetContent = {
-                FilterBottomSheet(
-                    ResellFilter(),
-                    onFilterChanged = {},
-                    bottomPadding = NAVBAR_HEIGHT.dp
-                )
-
-            },
-            sheetPeekHeight = 750.dp
-        ) {}
+        val sheetState = rememberModalBottomSheetState()
+        val coroutineScope = rememberCoroutineScope()
+        ModalBottomSheet(
+            onDismissRequest = { coroutineScope.launch { sheetState.hide() } },
+            sheetState = sheetState
+        ) {
+            FilterBottomSheet(
+                ResellFilter(),
+                onFilterChanged = {}
+            )
+        }
     }
 }

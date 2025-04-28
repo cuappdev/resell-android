@@ -1,8 +1,11 @@
 package com.cornellappdev.resell.android.ui.screens.main
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -14,6 +17,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -44,6 +49,7 @@ fun MainTabNavigation(
     val mainNav = rememberNavController()
     val navDestination by mainNav.currentBackStackEntryAsState()
     val uiState = mainNavigationViewModel.collectUiStateValue()
+    val navBarShown = remember { mutableStateOf(true) }
 
     LaunchedEffect(uiState.navEvent) {
         uiState.navEvent?.consumeSuspend {
@@ -67,7 +73,12 @@ fun MainTabNavigation(
             modifier = Modifier.fillMaxSize()
         ) {
             composable<ResellMainScreen.Home> {
-                HomeScreen(onSavedPressed = { mainNav.navigate(ResellMainScreen.Bookmarks) })
+                HomeScreen(
+                    onSavedPressed = { mainNav.navigate(ResellMainScreen.Bookmarks) },
+                    setNavBarShown = {
+                        navBarShown.value = it
+                    }
+                )
             }
 
             composable<ResellMainScreen.Bookmarks> {
@@ -83,24 +94,31 @@ fun MainTabNavigation(
             }
         }
 
-        NavBar(
-            onHomeClick = {
-                mainNav.navigate(ResellMainScreen.Home)
-            },
-            onBookmarksClick = {
-                mainNav.navigate(ResellMainScreen.Bookmarks)
-            },
-            onMessagesClick = {
-                mainNav.navigate(ResellMainScreen.Messages)
-            },
-            onUserClick = {
-                mainNav.navigate(ResellMainScreen.User)
-            },
-            selectedTab = navDestination?.destination?.route?.toResellMainScreen()
-                ?: ResellMainScreen.Home,
-            modifier = Modifier.align(Alignment.BottomCenter),
-            enabled = uiState.bottomBarEnabled
-        )
+        AnimatedVisibility(
+            visible = navBarShown.value,
+            enter = slideInVertically(initialOffsetY = {it}),
+            exit = slideOutVertically(targetOffsetY = {it}),
+            modifier = Modifier.align(Alignment.BottomCenter)
+        ) {
+            NavBar(
+                onHomeClick = {
+                    mainNav.navigate(ResellMainScreen.Home)
+                },
+                onBookmarksClick = {
+                    mainNav.navigate(ResellMainScreen.Bookmarks)
+                },
+                onMessagesClick = {
+                    mainNav.navigate(ResellMainScreen.Messages)
+                },
+                onUserClick = {
+                    mainNav.navigate(ResellMainScreen.User)
+                },
+                selectedTab = navDestination?.destination?.route?.toResellMainScreen()
+                    ?: ResellMainScreen.Home,
+                modifier = Modifier.align(Alignment.BottomCenter),
+                enabled = uiState.bottomBarEnabled
+            )
+        }
 
         ShadeOverlay(
             onTapped = {
