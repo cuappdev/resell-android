@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.BottomSheetScaffold
@@ -43,6 +44,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -68,6 +70,7 @@ import com.cornellappdev.resell.android.viewmodel.main.HomeViewModel
 import com.cornellappdev.resell.android.viewmodel.main.HomeViewModel.Category
 import com.cornellappdev.resell.android.viewmodel.main.HomeViewModel.Condition
 import com.cornellappdev.resell.android.viewmodel.main.HomeViewModel.ResellFilter
+import kotlinx.coroutines.launch
 
 @Composable
 fun FilterBottomSheet(
@@ -82,10 +85,13 @@ fun FilterBottomSheet(
     val itemsOnSaleCurrent = remember { mutableStateOf(filter.itemsOnSale) }
     val priceRange = remember { mutableStateOf(filter.priceRange) }
     val sortBy = remember { mutableStateOf(HomeViewModel.SortBy.ANY) }
+    val listState = rememberLazyListState()
+    val coroutineScope = rememberCoroutineScope()
     LazyColumn(
         modifier = Modifier
             .fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
+        state = listState
     ) {
         item {
             Text(
@@ -109,7 +115,12 @@ fun FilterBottomSheet(
                 priceRange = priceRange.value,
                 lowestPrice = lowestPrice,
                 highestPrice = highestPrice,
-                onFilterChanged = onFilterChanged,
+                onFilterChanged = {
+                    coroutineScope.launch {
+                        listState.animateScrollToItem(0)
+                    }
+                    onFilterChanged(it)
+                },
                 onPriceRangeChanged = {
                     priceRange.value = it.start.toInt()..it.endInclusive.toInt()
                 },
