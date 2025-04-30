@@ -31,6 +31,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.ui.components.main.FloatingActionExpandingCTA
 import com.cornellappdev.resell.android.ui.components.main.PostFloatingActionButton
@@ -38,6 +39,7 @@ import com.cornellappdev.resell.android.ui.components.main.ShadeOverlay
 import com.cornellappdev.resell.android.ui.components.nav.NavBar
 import com.cornellappdev.resell.android.ui.screens.main.ResellMainScreen.Home.toResellMainScreen
 import com.cornellappdev.resell.android.util.closeApp
+import com.cornellappdev.resell.android.viewmodel.main.HomeViewModel
 import com.cornellappdev.resell.android.viewmodel.navigation.MainNavigationViewModel
 import kotlinx.serialization.Serializable
 
@@ -77,7 +79,18 @@ fun MainTabNavigation(
                     onSavedPressed = { mainNav.navigate(ResellMainScreen.Bookmarks) },
                     setNavBarShown = {
                         navBarShown.value = it
-                    }
+                    },
+                    onCategoryPressed = { category ->
+                        mainNav.navigate(ResellMainScreen.ByCategory(category))
+                    },
+                )
+            }
+
+            composable<ResellMainScreen.ByCategory> { backStackEntry ->
+                val category: ResellMainScreen.ByCategory = backStackEntry.toRoute()
+                CategoryScreen(
+                    category.category,
+                    goBack = mainNav::popBackStack
                 )
             }
 
@@ -96,8 +109,8 @@ fun MainTabNavigation(
 
         AnimatedVisibility(
             visible = navBarShown.value,
-            enter = slideInVertically(initialOffsetY = {it}),
-            exit = slideOutVertically(targetOffsetY = {it}),
+            enter = slideInVertically(initialOffsetY = { it }),
+            exit = slideOutVertically(targetOffsetY = { it }),
             modifier = Modifier.align(Alignment.BottomCenter)
         ) {
             NavBar(
@@ -205,6 +218,9 @@ sealed class ResellMainScreen {
 
     @Serializable
     data object Home : ResellMainScreen()
+
+    @Serializable
+    data class ByCategory(val category: HomeViewModel.Category) : ResellMainScreen()
 
     @Serializable
     data object Bookmarks : ResellMainScreen()

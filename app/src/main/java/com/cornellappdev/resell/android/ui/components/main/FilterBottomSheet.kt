@@ -77,6 +77,7 @@ fun FilterBottomSheet(
     onFilterChanged: (ResellFilter) -> Unit,
     lowestPrice: Int = 0,
     highestPrice: Int = 1000,
+    includeCategory: Boolean = true
 ) {
     val categoriesSelectedCurrent = remember { mutableStateOf(filter.categoriesSelected) }
     val conditionSelectedCurrent = remember { mutableStateOf(filter.conditionSelected) }
@@ -109,6 +110,7 @@ fun FilterBottomSheet(
                 originalFilter = filter,
                 sortBy = sortBy.value,
                 itemsOnSale = itemsOnSaleCurrent.value,
+                includeCategory = includeCategory,
                 categoriesSelected = categoriesSelectedCurrent.value,
                 conditionSelected = conditionSelectedCurrent.value,
                 priceRange = priceRange.value,
@@ -157,6 +159,7 @@ private fun AllFilters(
     originalFilter: ResellFilter,
     sortBy: HomeViewModel.SortBy,
     itemsOnSale: Boolean,
+    includeCategory: Boolean,
     categoriesSelected: List<Category>,
     conditionSelected: Condition?,
     priceRange: IntRange,
@@ -211,7 +214,6 @@ private fun AllFilters(
             fontWeight = FontWeight.Normal,
             fontSize = 20.sp
         )
-        // Using Material 2 RangeSlider to match design
         val thumb: @Composable (RangeSliderState) -> Unit = {
             Box(
                 modifier = Modifier
@@ -272,30 +274,9 @@ private fun AllFilters(
             thickness = 1.dp,
             color = Stroke
         )
-        Text(
-            text = "Product Category",
-            style = Style.heading3,
-            modifier = Modifier.padding(bottom = 16.dp)
-        )
-        FlowRow(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
-            Category.entries.forEach { item ->
-                ResellChip(
-                    selected = categoriesSelected.contains(item),
-                    onClick = { toggleCategory(item) },
-                    labelText = item.label
-                )
-            }
+        if (includeCategory) {
+            CategoryFilters(categoriesSelected, toggleCategory)
         }
-        HorizontalDivider(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 24.dp),
-            thickness = 1.dp,
-            color = Stroke
-        )
         Text(
             text = "Condition",
             style = Style.heading3,
@@ -365,6 +346,38 @@ private fun AllFilters(
         }
 
     }
+}
+
+@Composable
+@OptIn(ExperimentalLayoutApi::class)
+private fun CategoryFilters(
+    categoriesSelected: List<Category>,
+    toggleCategory: (Category) -> Unit
+) {
+    Text(
+        text = "Product Category",
+        style = Style.heading3,
+        modifier = Modifier.padding(bottom = 16.dp)
+    )
+    FlowRow(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        Category.entries.forEach { item ->
+            ResellChip(
+                selected = categoriesSelected.contains(item),
+                onClick = { toggleCategory(item) },
+                labelText = item.label
+            )
+        }
+    }
+    HorizontalDivider(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 24.dp),
+        thickness = 1.dp,
+        color = Stroke
+    )
 }
 
 private fun checkIfFilterChanged(

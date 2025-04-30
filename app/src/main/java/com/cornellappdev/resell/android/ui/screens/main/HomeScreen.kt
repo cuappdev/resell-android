@@ -71,7 +71,7 @@ import com.cornellappdev.resell.android.ui.components.global.AnimatedClampedAsyn
 import com.cornellappdev.resell.android.ui.components.global.resellListingScroll
 import com.cornellappdev.resell.android.ui.components.global.resellLoadingListingScroll
 import com.cornellappdev.resell.android.ui.components.main.FilterBottomSheet
-import com.cornellappdev.resell.android.ui.components.main.SearchBar
+import com.cornellappdev.resell.android.ui.components.main.ResellSearchBar
 import com.cornellappdev.resell.android.ui.components.nav.NAVBAR_HEIGHT
 import com.cornellappdev.resell.android.ui.theme.Padding
 import com.cornellappdev.resell.android.ui.theme.ResellPreview
@@ -86,7 +86,8 @@ import kotlinx.coroutines.launch
 fun HomeScreen(
     homeViewModel: HomeViewModel = hiltViewModel(),
     onSavedPressed: () -> Unit,
-    setNavBarShown: (Boolean) -> Unit
+    setNavBarShown: (Boolean) -> Unit,
+    onCategoryPressed: (HomeViewModel.Category) -> Unit
 ) {
     val homeUiState = homeViewModel.collectUiStateValue()
     val sheetState = rememberModalBottomSheetState()
@@ -108,6 +109,7 @@ fun HomeScreen(
             }
         },
         sheetState = sheetState,
+        onCategoryPressed = onCategoryPressed,
         onSearchPressed = homeViewModel::onSearchPressed,
         savedListings = homeUiState.savedListings,
         onSavedPressed = onSavedPressed,
@@ -130,6 +132,7 @@ private fun HomeScreenHelper(
     onFilterPressed: () -> Unit,
     onFilterChanged: (HomeViewModel.ResellFilter) -> Unit,
     sheetState: SheetState,
+    onCategoryPressed: (HomeViewModel.Category) -> Unit,
     onSearchPressed: () -> Unit,
     savedListings: List<Listing>,
     onSavedPressed: () -> Unit,
@@ -157,6 +160,7 @@ private fun HomeScreenHelper(
             savedListings = savedListings,
             onSavedPressed = onSavedPressed,
             toPost = onListingPressed,
+            onCategoryPressed = onCategoryPressed,
             loadedState = loadedState,
             filteredListings = filteredListings,
             onListingPressed = onListingPressed,
@@ -200,7 +204,7 @@ private fun HomeHeader(
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            SearchBar(onClick = onSearchPressed, modifier = Modifier.weight(1f))
+            ResellSearchBar(onClick = onSearchPressed, modifier = Modifier.weight(1f))
             Icon(
                 painter = painterResource(R.drawable.ic_filter),
                 contentDescription = "Filter",
@@ -216,6 +220,7 @@ private fun MainContent(
     onSavedPressed: () -> Unit,
     toPost: (Listing) -> Unit,
     loadedState: ResellApiState,
+    onCategoryPressed: (HomeViewModel.Category) -> Unit,
     filteredListings: List<Listing>,
     onListingPressed: (Listing) -> Unit,
     savedImagesResponses: List<MutableState<ResellApiResponse<ImageBitmap>>>
@@ -237,7 +242,7 @@ private fun MainContent(
         item(span = StaggeredGridItemSpan.FullLine) {
             Spacer(Modifier.height(24.dp))
         }
-        shopByCategory()
+        shopByCategory(onCategoryPressed = onCategoryPressed)
         item(span = StaggeredGridItemSpan.FullLine) {
             Spacer(Modifier.height(24.dp))
         }
@@ -400,45 +405,53 @@ private enum class CategoryItem(
     val image: Int,
     val label: String,
     val backgroundColor: Color,
+    val category: HomeViewModel.Category
 ) {
     CLOTHING(
         image = R.drawable.shoes,
         label = "Clothing",
-        backgroundColor = Color(0x80CA95A3)
+        backgroundColor = Color(0x80CA95A3),
+        category = HomeViewModel.Category.CLOTHING
     ),
     BOOKS(
         image = R.drawable.books,
         label = "Books",
-        backgroundColor = Color(0x80316054)
+        backgroundColor = Color(0x80316054),
+        category = HomeViewModel.Category.BOOKS
     ),
     SCHOOL(
         image = R.drawable.pencilcase,
         label = "School",
-        backgroundColor = Color(0x80A4B7AB)
+        backgroundColor = Color(0x80A4B7AB),
+        category = HomeViewModel.Category.SCHOOL
     ),
     ELECTRONICS(
         image = R.drawable.airpods_max,
         label = "Electronics",
-        backgroundColor = Color(0x80D795AB)
+        backgroundColor = Color(0x80D795AB),
+        category = HomeViewModel.Category.ELECTRONICS
     ),
     HANDMADE(
         image = R.drawable.color_palette,
         label = "Handmade",
-        backgroundColor = Color(0x80E3B570)
+        backgroundColor = Color(0x80E3B570),
+        category = HomeViewModel.Category.HANDMADE
     ),
     SPORTS(
         image = R.drawable.football,
         label = "Sports & Outdoors",
-        backgroundColor = Color(0x8073A2AB)
+        backgroundColor = Color(0x8073A2AB),
+        category = HomeViewModel.Category.SPORTS
     ),
     OTHER(
         image = R.drawable.gift,
         label = "Other",
-        backgroundColor = Color(0x80E2B56E)
+        backgroundColor = Color(0x80E2B56E),
+        category = HomeViewModel.Category.OTHER
     )
 }
 
-private fun LazyStaggeredGridScope.shopByCategory() {
+private fun LazyStaggeredGridScope.shopByCategory(onCategoryPressed: (HomeViewModel.Category) -> Unit) {
     item(span = StaggeredGridItemSpan.FullLine) {
         Row(
             modifier = Modifier
@@ -453,13 +466,13 @@ private fun LazyStaggeredGridScope.shopByCategory() {
     }
     item(span = StaggeredGridItemSpan.FullLine) {
         ForceHorizontalOffset(offset = Padding.leftRight) { modifier ->
-            CategoryRow(modifier)
+            CategoryRow(modifier, onCategoryPressed)
         }
     }
 }
 
 @Composable
-private fun CategoryRow(modifier: Modifier) {
+private fun CategoryRow(modifier: Modifier, onCategoryPressed: (HomeViewModel.Category) -> Unit) {
     LazyRow(
         horizontalArrangement = Arrangement.spacedBy(16.dp),
         contentPadding = PaddingValues(horizontal = 24.dp),
@@ -476,7 +489,10 @@ private fun CategoryRow(modifier: Modifier) {
                         .size(80.dp)
                         .clip(CircleShape)
                         .background(color = category.backgroundColor)
-                        .align(alignment = Alignment.CenterHorizontally),
+                        .align(alignment = Alignment.CenterHorizontally)
+                        .clickable {
+                            onCategoryPressed(category.category)
+                        },
                     contentAlignment = Alignment.Center
                 ) {
                     Image(
@@ -555,7 +571,7 @@ private fun ResellSavedCard(
     )
 }
 
-private val dumbListing = Listing(
+val dumbListing = Listing(
     id = "1",
     title = "Dumb Listing",
     images = listOf(""),
@@ -585,14 +601,15 @@ private fun HomeScreenPreview() = ResellPreview {
         sheetState = rememberModalBottomSheetState(),
         onSearchPressed = {},
         savedListings = List(5) { dumbListing },
-        onSavedPressed = { },
+        onSavedPressed = {},
         loadedState = ResellApiState.Loading,
         filteredListings = List(10) { dumbListing },
         onListingPressed = {},
         savedImagesResponses = List(5) {
             mutableStateOf(ResellApiResponse.Pending)
         },
-        onDismissRequest = {}
+        onDismissRequest = {},
+        onCategoryPressed = {}
     )
 }
 
@@ -613,6 +630,7 @@ private fun SavedEmptyStatePreview() = ResellPreview {
         filteredListings = List(10) { dumbListing },
         onListingPressed = {},
         savedImagesResponses = emptyList(),
-        onDismissRequest = {}
+        onDismissRequest = {},
+        onCategoryPressed = {}
     )
 }

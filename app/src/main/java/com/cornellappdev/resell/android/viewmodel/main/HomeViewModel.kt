@@ -1,6 +1,5 @@
 package com.cornellappdev.resell.android.viewmodel.main
 
-import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.lifecycle.viewModelScope
@@ -45,8 +44,7 @@ class HomeViewModel @Inject constructor(
         val page: Int,
         val bottomLoading: Boolean,
         val savedImageResponses: List<MutableState<ResellApiResponse<ImageBitmap>>>
-    ) {
-    }
+    )
 
     init {
         getPosts(ResellFilter())
@@ -110,7 +108,6 @@ class HomeViewModel @Inject constructor(
         OTHER("Other")
     }
 
-
     fun onListingPressed(listing: Listing) {
         rootNavigationRepository.navigate(
             ResellRootRoute.PDP(
@@ -126,7 +123,6 @@ class HomeViewModel @Inject constructor(
     private fun getPosts(filter: ResellFilter) {
         viewModelScope.launch {
             try {
-//                val posts = resellPostRepository.getPostsByPage(1)
                 val posts = resellPostRepository.getFilteredPosts(filter)
                 applyMutation {
                     copy(
@@ -135,7 +131,6 @@ class HomeViewModel @Inject constructor(
                     )
                 }
             } catch (e: Exception) {
-                Log.e("HomeViewModel", "Error fetching posts: ", e)
                 applyMutation {
                     copy(
                         loadedState = ResellApiState.Error
