@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -45,15 +46,17 @@ fun ReportDetailsScreen(
             onDetailsChanged = reportDetailsViewModel::onTypedContentChanged,
         )
 
-        ResellTextButton(
-            text = "Submit",
-            state = uiState.buttonState,
-            onClick = {
-                reportDetailsViewModel.onSubmitPressed()
-            },
-            modifier = Modifier
-                .padding(bottom = 46.dp)
-        )
+        Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxSize()) {
+            ResellTextButton(
+                text = "Submit",
+                state = uiState.buttonState,
+                onClick = {
+                    reportDetailsViewModel.onSubmitPressed()
+                },
+                modifier = Modifier
+                    .padding(bottom = 46.dp)
+            )
+        }
     }
 }
 
@@ -68,7 +71,7 @@ private fun Content(
 ) {
     Column(
         modifier = Modifier
-            .fillMaxSize()
+            .fillMaxWidth()
             .background(Color.White)
             .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally
