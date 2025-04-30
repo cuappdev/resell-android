@@ -33,7 +33,6 @@ import com.cornellappdev.resell.android.ui.screens.onboarding.OnboardingNavigati
 import com.cornellappdev.resell.android.ui.screens.pdp.PostDetailPage
 import com.cornellappdev.resell.android.ui.screens.reporting.ReportNavigation
 import com.cornellappdev.resell.android.ui.screens.settings.SettingsNavigation
-import com.cornellappdev.resell.android.viewmodel.main.HomeViewModel
 import com.cornellappdev.resell.android.viewmodel.root.RootNavigationViewModel
 import com.cornellappdev.resell.android.viewmodel.root.RootSheet
 import kotlinx.coroutines.launch
@@ -240,7 +239,7 @@ sealed class ResellRootRoute {
     ) : ResellRootRoute()
 
     @Serializable
-    data class SEARCH(val category: HomeViewModel.Category? = null) : ResellRootRoute()
+    data object SEARCH : ResellRootRoute()
 
     @Serializable
     data class REQUEST_MATCHES(
