@@ -7,6 +7,7 @@ import com.cornellappdev.resell.android.model.CoilRepository
 import com.cornellappdev.resell.android.model.classes.Listing
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.model.classes.ResellApiState
+import com.cornellappdev.resell.android.model.classes.ResellFilter
 import com.cornellappdev.resell.android.model.classes.toResellApiState
 import com.cornellappdev.resell.android.model.posts.ResellPostRepository
 import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
@@ -75,37 +76,6 @@ class HomeViewModel @Inject constructor(
     // todo delete
     enum class HomeFilter {
         RECENT, CLOTHING, BOOKS, SCHOOL, ELECTRONICS, HOUSEHOLD, HANDMADE, SPORTS, OTHER
-    }
-
-    data class ResellFilter(
-        val priceRange: IntRange = 0..1000,
-        val itemsOnSale: Boolean = false,
-        val categoriesSelected: List<Category> = emptyList(),
-        val conditionSelected: Condition? = null,
-        val sortBy: SortBy = SortBy.ANY
-    )
-
-    enum class SortBy(val label: String) {
-        ANY("Any"),
-        NEWLY_LISTED("Newly Listed"),
-        PRICE_HIGH_TO_LOW("Price: High to Low"),
-        PRICE_LOW_TO_HIGH("Price: Low to High")
-    }
-
-    enum class Condition(val label: String) {
-        GENTLY_USED("Gently Used"),
-        WORN("Worn"),
-        NEVER_USED("Never Used")
-    }
-
-    enum class Category(val label: String) {
-        CLOTHING("Clothing"),
-        BOOKS("Books"),
-        SCHOOL("School"),
-        ELECTRONICS("Electronics"),
-        HANDMADE("Handmade"),
-        SPORTS("Sports & Outdoors"),
-        OTHER("Other")
     }
 
     fun onListingPressed(listing: Listing) {

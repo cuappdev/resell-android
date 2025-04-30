@@ -57,6 +57,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cornellappdev.resell.android.R
+import com.cornellappdev.resell.android.model.classes.FilterCategory
+import com.cornellappdev.resell.android.model.classes.FilterCondition
+import com.cornellappdev.resell.android.model.classes.ResellFilter
+import com.cornellappdev.resell.android.model.classes.SortBy
 import com.cornellappdev.resell.android.ui.theme.IconInactive
 import com.cornellappdev.resell.android.ui.theme.PurpleWash
 import com.cornellappdev.resell.android.ui.theme.ResellPurple
@@ -65,10 +69,6 @@ import com.cornellappdev.resell.android.ui.theme.ResellTheme
 import com.cornellappdev.resell.android.ui.theme.Secondary
 import com.cornellappdev.resell.android.ui.theme.Stroke
 import com.cornellappdev.resell.android.ui.theme.Style
-import com.cornellappdev.resell.android.viewmodel.main.HomeViewModel
-import com.cornellappdev.resell.android.viewmodel.main.HomeViewModel.Category
-import com.cornellappdev.resell.android.viewmodel.main.HomeViewModel.Condition
-import com.cornellappdev.resell.android.viewmodel.main.HomeViewModel.ResellFilter
 import kotlinx.coroutines.launch
 
 @Composable
@@ -83,7 +83,7 @@ fun FilterBottomSheet(
     val conditionSelectedCurrent = remember { mutableStateOf(filter.conditionSelected) }
     val itemsOnSaleCurrent = remember { mutableStateOf(filter.itemsOnSale) }
     val priceRange = remember { mutableStateOf(filter.priceRange) }
-    val sortBy = remember { mutableStateOf(HomeViewModel.SortBy.ANY) }
+    val sortBy = remember { mutableStateOf(SortBy.ANY) }
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
     LazyColumn(
@@ -157,20 +157,20 @@ fun FilterBottomSheet(
 @Composable
 private fun AllFilters(
     originalFilter: ResellFilter,
-    sortBy: HomeViewModel.SortBy,
+    sortBy: SortBy,
     itemsOnSale: Boolean,
     includeCategory: Boolean,
-    categoriesSelected: List<Category>,
-    conditionSelected: Condition?,
+    categoriesSelected: List<FilterCategory>,
+    conditionSelected: FilterCondition?,
     priceRange: IntRange,
     lowestPrice: Int,
     highestPrice: Int,
     onFilterChanged: (ResellFilter) -> Unit,
-    onSelectSortBy: (HomeViewModel.SortBy) -> Unit,
+    onSelectSortBy: (SortBy) -> Unit,
     onPriceRangeChanged: (ClosedFloatingPointRange<Float>) -> Unit,
     onItemsOnSaleChanged: (Boolean) -> Unit,
-    toggleCondition: (Condition) -> Unit,
-    toggleCategory: (Category) -> Unit
+    toggleCondition: (FilterCondition) -> Unit,
+    toggleCategory: (FilterCategory) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -286,7 +286,7 @@ private fun AllFilters(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            Condition.entries.forEach { condition ->
+            FilterCondition.entries.forEach { condition ->
                 ResellChip(
                     selected = conditionSelected == condition,
                     onClick = {
@@ -303,12 +303,12 @@ private fun AllFilters(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(text = "Reset", style = Style.title1, modifier = Modifier.clickable {
-                Category.entries.forEach { item ->
+                FilterCategory.entries.forEach { item ->
                     if (categoriesSelected.contains(item)) {
                         toggleCategory(item)
                     }
                 }
-                Condition.entries.forEach { condition ->
+                FilterCondition.entries.forEach { condition ->
                     if (condition == conditionSelected) {
                         toggleCondition(condition)
                     }
@@ -351,8 +351,8 @@ private fun AllFilters(
 @Composable
 @OptIn(ExperimentalLayoutApi::class)
 private fun CategoryFilters(
-    categoriesSelected: List<Category>,
-    toggleCategory: (Category) -> Unit
+    categoriesSelected: List<FilterCategory>,
+    toggleCategory: (FilterCategory) -> Unit
 ) {
     Text(
         text = "Product Category",
@@ -363,7 +363,7 @@ private fun CategoryFilters(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        Category.entries.forEach { item ->
+        FilterCategory.entries.forEach { item ->
             ResellChip(
                 selected = categoriesSelected.contains(item),
                 onClick = { toggleCategory(item) },
@@ -381,10 +381,10 @@ private fun CategoryFilters(
 }
 
 private fun checkIfFilterChanged(
-    sortBy: HomeViewModel.SortBy,
+    sortBy: SortBy,
     priceRange: IntRange,
-    categoriesSelected: List<Category>,
-    conditionSelected: Condition?,
+    categoriesSelected: List<FilterCategory>,
+    conditionSelected: FilterCondition?,
     originalFilter: ResellFilter
 ): Boolean {
     return sortBy != originalFilter.sortBy ||
@@ -480,7 +480,7 @@ private fun ResellChip(selected: Boolean, onClick: () -> Unit, labelText: String
 }
 
 @Composable
-fun Dropdown(onSelectSortBy: (HomeViewModel.SortBy) -> Unit) {
+fun Dropdown(onSelectSortBy: (SortBy) -> Unit) {
     var expanded by remember { mutableStateOf(false) }
     Box {
         Icon(
@@ -498,7 +498,7 @@ fun Dropdown(onSelectSortBy: (HomeViewModel.SortBy) -> Unit) {
                 shape = RoundedCornerShape(13.dp)
             )
         ) {
-            for (sortBy in HomeViewModel.SortBy.entries) {
+            for (sortBy in SortBy.entries) {
                 DropdownMenuItem(
                     text = {
                         Text(

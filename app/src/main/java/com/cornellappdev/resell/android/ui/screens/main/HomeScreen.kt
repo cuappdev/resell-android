@@ -63,9 +63,11 @@ import androidx.compose.ui.unit.offset
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.resell.android.R
+import com.cornellappdev.resell.android.model.classes.FilterCategory
 import com.cornellappdev.resell.android.model.classes.Listing
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.model.classes.ResellApiState
+import com.cornellappdev.resell.android.model.classes.ResellFilter
 import com.cornellappdev.resell.android.model.classes.UserInfo
 import com.cornellappdev.resell.android.ui.components.global.AnimatedClampedAsyncImage
 import com.cornellappdev.resell.android.ui.components.global.resellListingScroll
@@ -87,7 +89,7 @@ fun HomeScreen(
     homeViewModel: HomeViewModel = hiltViewModel(),
     onSavedPressed: () -> Unit,
     setNavBarShown: (Boolean) -> Unit,
-    onCategoryPressed: (HomeViewModel.Category) -> Unit
+    onCategoryPressed: (FilterCategory) -> Unit
 ) {
     val homeUiState = homeViewModel.collectUiStateValue()
     val sheetState = rememberModalBottomSheetState()
@@ -128,11 +130,11 @@ fun HomeScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun HomeScreenHelper(
-    filter: HomeViewModel.ResellFilter,
+    filter: ResellFilter,
     onFilterPressed: () -> Unit,
-    onFilterChanged: (HomeViewModel.ResellFilter) -> Unit,
+    onFilterChanged: (ResellFilter) -> Unit,
     sheetState: SheetState,
-    onCategoryPressed: (HomeViewModel.Category) -> Unit,
+    onCategoryPressed: (FilterCategory) -> Unit,
     onSearchPressed: () -> Unit,
     savedListings: List<Listing>,
     onSavedPressed: () -> Unit,
@@ -220,7 +222,7 @@ private fun MainContent(
     onSavedPressed: () -> Unit,
     toPost: (Listing) -> Unit,
     loadedState: ResellApiState,
-    onCategoryPressed: (HomeViewModel.Category) -> Unit,
+    onCategoryPressed: (FilterCategory) -> Unit,
     filteredListings: List<Listing>,
     onListingPressed: (Listing) -> Unit,
     savedImagesResponses: List<MutableState<ResellApiResponse<ImageBitmap>>>
@@ -405,53 +407,53 @@ private enum class CategoryItem(
     val image: Int,
     val label: String,
     val backgroundColor: Color,
-    val category: HomeViewModel.Category
+    val category: FilterCategory
 ) {
     CLOTHING(
         image = R.drawable.shoes,
         label = "Clothing",
         backgroundColor = Color(0x80CA95A3),
-        category = HomeViewModel.Category.CLOTHING
+        category = FilterCategory.CLOTHING
     ),
     BOOKS(
         image = R.drawable.books,
         label = "Books",
         backgroundColor = Color(0x80316054),
-        category = HomeViewModel.Category.BOOKS
+        category = FilterCategory.BOOKS
     ),
     SCHOOL(
         image = R.drawable.pencilcase,
         label = "School",
         backgroundColor = Color(0x80A4B7AB),
-        category = HomeViewModel.Category.SCHOOL
+        category = FilterCategory.SCHOOL
     ),
     ELECTRONICS(
         image = R.drawable.airpods_max,
         label = "Electronics",
         backgroundColor = Color(0x80D795AB),
-        category = HomeViewModel.Category.ELECTRONICS
+        category = FilterCategory.ELECTRONICS
     ),
     HANDMADE(
         image = R.drawable.color_palette,
         label = "Handmade",
         backgroundColor = Color(0x80E3B570),
-        category = HomeViewModel.Category.HANDMADE
+        category = FilterCategory.HANDMADE
     ),
     SPORTS(
         image = R.drawable.football,
         label = "Sports & Outdoors",
         backgroundColor = Color(0x8073A2AB),
-        category = HomeViewModel.Category.SPORTS
+        category = FilterCategory.SPORTS
     ),
     OTHER(
         image = R.drawable.gift,
         label = "Other",
         backgroundColor = Color(0x80E2B56E),
-        category = HomeViewModel.Category.OTHER
+        category = FilterCategory.OTHER
     )
 }
 
-private fun LazyStaggeredGridScope.shopByCategory(onCategoryPressed: (HomeViewModel.Category) -> Unit) {
+private fun LazyStaggeredGridScope.shopByCategory(onCategoryPressed: (FilterCategory) -> Unit) {
     item(span = StaggeredGridItemSpan.FullLine) {
         Row(
             modifier = Modifier
@@ -472,7 +474,7 @@ private fun LazyStaggeredGridScope.shopByCategory(onCategoryPressed: (HomeViewMo
 }
 
 @Composable
-private fun CategoryRow(modifier: Modifier, onCategoryPressed: (HomeViewModel.Category) -> Unit) {
+private fun CategoryRow(modifier: Modifier, onCategoryPressed: (FilterCategory) -> Unit) {
     LazyRow(
         horizontalArrangement = Arrangement.spacedBy(16.dp),
         contentPadding = PaddingValues(horizontal = 24.dp),
@@ -595,7 +597,7 @@ val dumbListing = Listing(
 @Composable
 private fun HomeScreenPreview() = ResellPreview {
     HomeScreenHelper(
-        filter = HomeViewModel.ResellFilter(),
+        filter = ResellFilter(),
         onFilterPressed = {},
         onFilterChanged = {},
         sheetState = rememberModalBottomSheetState(),
@@ -619,7 +621,7 @@ private fun HomeScreenPreview() = ResellPreview {
 @Composable
 private fun SavedEmptyStatePreview() = ResellPreview {
     HomeScreenHelper(
-        filter = HomeViewModel.ResellFilter(),
+        filter = ResellFilter(),
         onFilterPressed = {},
         onFilterChanged = {},
         sheetState = rememberModalBottomSheetState(),

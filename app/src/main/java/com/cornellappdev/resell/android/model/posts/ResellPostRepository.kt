@@ -8,9 +8,11 @@ import com.cornellappdev.resell.android.model.api.Post
 import com.cornellappdev.resell.android.model.api.PostResponse
 import com.cornellappdev.resell.android.model.api.PriceRange
 import com.cornellappdev.resell.android.model.api.RetrofitInstance
+import com.cornellappdev.resell.android.model.classes.FilterCondition
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
+import com.cornellappdev.resell.android.model.classes.ResellFilter
+import com.cornellappdev.resell.android.model.classes.SortBy
 import com.cornellappdev.resell.android.util.toNetworkingString
-import com.cornellappdev.resell.android.viewmodel.main.HomeViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -36,7 +38,7 @@ class ResellPostRepository @Inject constructor(
         return posts
     }
 
-    suspend fun getFilteredPosts(filter: HomeViewModel.ResellFilter): List<Post> {
+    suspend fun getFilteredPosts(filter: ResellFilter): List<Post> {
         val lowerPrice = filter.priceRange.first
         val higherPrice = filter.priceRange.last
         val categories = filter.categoriesSelected
@@ -49,19 +51,19 @@ class ResellPostRepository @Inject constructor(
                     upperBound = higherPrice.toDouble()
                 ),
                 condition = when (condition) {
-                    HomeViewModel.Condition.GENTLY_USED -> "gentlyUsed"
-                    HomeViewModel.Condition.NEVER_USED -> "new"
-                    HomeViewModel.Condition.WORN -> "worn"
+                    FilterCondition.GENTLY_USED -> "gentlyUsed"
+                    FilterCondition.NEVER_USED -> "new"
+                    FilterCondition.WORN -> "worn"
                     null -> null
                 },
                 categories = if (categories.isEmpty()) null else categories.map {
                     it.label
                 },
                 sortField = when (sortBy) {
-                    HomeViewModel.SortBy.ANY -> "any"
-                    HomeViewModel.SortBy.PRICE_LOW_TO_HIGH -> "priceLowToHigh"
-                    HomeViewModel.SortBy.PRICE_HIGH_TO_LOW -> "priceHighToLow"
-                    HomeViewModel.SortBy.NEWLY_LISTED -> "newlyListed"
+                    SortBy.ANY -> "any"
+                    SortBy.PRICE_LOW_TO_HIGH -> "priceLowToHigh"
+                    SortBy.PRICE_HIGH_TO_LOW -> "priceHighToLow"
+                    SortBy.NEWLY_LISTED -> "newlyListed"
                 }
             )
         ).posts

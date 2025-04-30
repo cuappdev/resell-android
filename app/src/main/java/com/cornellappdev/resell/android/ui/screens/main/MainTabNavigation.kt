@@ -33,13 +33,13 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.cornellappdev.resell.android.R
+import com.cornellappdev.resell.android.model.classes.FilterCategory
 import com.cornellappdev.resell.android.ui.components.main.FloatingActionExpandingCTA
 import com.cornellappdev.resell.android.ui.components.main.PostFloatingActionButton
 import com.cornellappdev.resell.android.ui.components.main.ShadeOverlay
 import com.cornellappdev.resell.android.ui.components.nav.NavBar
 import com.cornellappdev.resell.android.ui.screens.main.ResellMainScreen.Home.toResellMainScreen
 import com.cornellappdev.resell.android.util.closeApp
-import com.cornellappdev.resell.android.viewmodel.main.HomeViewModel
 import com.cornellappdev.resell.android.viewmodel.navigation.MainNavigationViewModel
 import kotlinx.serialization.Serializable
 
@@ -88,10 +88,7 @@ fun MainTabNavigation(
 
             composable<ResellMainScreen.ByCategory> { backStackEntry ->
                 val category: ResellMainScreen.ByCategory = backStackEntry.toRoute()
-                CategoryScreen(
-                    category.category,
-                    goBack = mainNav::popBackStack
-                )
+                CategoryScreen(category.category, onExit = mainNav::popBackStack)
             }
 
             composable<ResellMainScreen.Bookmarks> {
@@ -220,7 +217,7 @@ sealed class ResellMainScreen {
     data object Home : ResellMainScreen()
 
     @Serializable
-    data class ByCategory(val category: HomeViewModel.Category) : ResellMainScreen()
+    data class ByCategory(val category: FilterCategory) : ResellMainScreen()
 
     @Serializable
     data object Bookmarks : ResellMainScreen()
