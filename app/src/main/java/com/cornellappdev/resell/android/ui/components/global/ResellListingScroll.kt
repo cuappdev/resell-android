@@ -1,14 +1,15 @@
 package com.cornellappdev.resell.android.ui.components.global
 
-import android.util.Log
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridScope
 import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
-import androidx.compose.foundation.lazy.staggeredgrid.items
+import androidx.compose.foundation.lazy.staggeredgrid.itemsIndexed
 import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -17,7 +18,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.cornellappdev.resell.android.model.classes.Listing
-import com.cornellappdev.resell.android.ui.theme.Padding
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 
@@ -26,8 +26,8 @@ import kotlinx.coroutines.flow.map
 fun ResellListingsScroll(
     listings: List<Listing>,
     onListingPressed: (Listing) -> Unit,
-    listState: LazyStaggeredGridState = rememberLazyStaggeredGridState(),
     modifier: Modifier = Modifier,
+    listState: LazyStaggeredGridState = rememberLazyStaggeredGridState(),
     paddedTop: Dp = 0.dp,
     emptyState: @Composable () -> Unit = { },
     header: @Composable () -> Unit = {},
@@ -62,26 +62,39 @@ fun ResellListingsScroll(
             bottom = 100.dp,
             top = paddedTop,
         ),
-        verticalItemSpacing = Padding.medium,
-        modifier = modifier.fillMaxWidth(),
+        verticalItemSpacing = 24.dp,
+        horizontalArrangement = Arrangement.spacedBy(20.dp),
+        modifier = modifier.fillMaxWidth()
     ) {
         item(span = StaggeredGridItemSpan.FullLine) {
             header()
         }
+        resellListingScroll(listings, onListingPressed, footer)
+    }
+}
 
-        items(items = listings) { item ->
-            ResellCard(
-                imageUrl = item.image,
-                title = item.title,
-                price = item.price,
-                modifier = Modifier.padding(horizontal = Padding.medium / 2f)
-            ) {
-                onListingPressed(item)
-            }
-        }
+fun calculateItemPadding(addVerticalPadding: Boolean): PaddingValues =
+    if (addVerticalPadding) PaddingValues(bottom = 24.dp) else PaddingValues()
 
-        item(span = StaggeredGridItemSpan.FullLine) {
-            footer()
+
+fun LazyStaggeredGridScope.resellListingScroll(
+    listings: List<Listing>,
+    onListingPressed: (Listing) -> Unit,
+    footer: @Composable () -> Unit = {},
+    addVerticalPadding: Boolean = false
+) {
+    itemsIndexed(items = listings) { _, item ->
+        val padding = calculateItemPadding(addVerticalPadding)
+        ResellCard(
+            imageUrl = item.image,
+            title = item.title,
+            price = item.price,
+            modifier = Modifier.padding(padding)
+        ) {
+            onListingPressed(item)
         }
+    }
+    item(span = StaggeredGridItemSpan.FullLine) {
+        footer()
     }
 }

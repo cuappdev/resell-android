@@ -39,6 +39,7 @@ fun SavedScreen(
 
     Column(
         modifier = Modifier
+            .defaultHorizontalPadding()
             .fillMaxSize()
     ) {
         Header(
@@ -52,8 +53,8 @@ fun SavedScreen(
             is ResellApiState.Success -> {
                 ResellListingsScroll(
                     listings = savedUiState.listings,
-                    listState = listState,
-                    onListingPressed = savedViewModel::onListingPressed
+                    onListingPressed = savedViewModel::onListingPressed,
+                    listState = listState
                 )
             }
 
@@ -80,7 +81,6 @@ private fun Header(
                 ) {
                     onTopPressed()
                 }
-                .defaultHorizontalPadding()
                 .windowInsetsPadding(WindowInsets.statusBars),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
