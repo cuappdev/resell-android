@@ -11,6 +11,7 @@ class SearchRepository @Inject constructor(
     private val retrofitInstance: RetrofitInstance
 ) {
 
+    // TODO need to search within category
     suspend fun searchPostByUser(uid: String?, keywords: String): List<Listing> {
         // TODO Backend should improve this and make a new endpoint just for this.
         val search = retrofitInstance.postsApi.getPostsBySearch(

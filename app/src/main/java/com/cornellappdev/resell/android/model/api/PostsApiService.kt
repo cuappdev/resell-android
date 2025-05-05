@@ -41,6 +41,9 @@ interface PostsApiService {
     @POST("post/search")
     suspend fun getPostsBySearch(@Body searchRequest: SearchRequest): PostsResponse
 
+    @POST("post/filter")
+    suspend fun getFilteredPosts(@Body filterRequest: FilterRequest): PostsResponse
+
     @POST("post")
     suspend fun createPost(@Body newPostBody: NewPostBody): PostResponse
 
@@ -79,6 +82,18 @@ data class PostsResponse(
 data class PostResponse(
     val post: Post
 )
+
+data class PriceRange(
+    val lowerBound: Double? = null,
+    val upperBound: Double? = null
+)
+data class FilterRequest(
+    val sortField: String? = null,
+    val price: PriceRange? = null,
+    val categories: List<String>? = null,
+    val condition: String? = null,
+)
+
 
 @Serializable
 data class Category(

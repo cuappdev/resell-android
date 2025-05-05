@@ -1,14 +1,9 @@
 package com.cornellappdev.resell.android.viewmodel.main
 
-import androidx.compose.runtime.MutableState
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.lifecycle.viewModelScope
-import com.cornellappdev.resell.android.model.CoilRepository
 import com.cornellappdev.resell.android.model.classes.Listing
-import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.model.classes.ResellApiState
 import com.cornellappdev.resell.android.model.classes.ResellFilter
-import com.cornellappdev.resell.android.model.classes.toResellApiState
 import com.cornellappdev.resell.android.model.posts.ResellPostRepository
 import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
@@ -20,62 +15,24 @@ import kotlinx.serialization.json.Json
 import javax.inject.Inject
 
 @HiltViewModel
-class HomeViewModel @Inject constructor(
+class CategoryViewModel @Inject constructor(
     private val rootNavigationRepository: RootNavigationRepository,
     private val resellPostRepository: ResellPostRepository,
-    private val coilRepository: CoilRepository
-) :
-    ResellViewModel<HomeViewModel.HomeUiState>(
-        initialUiState = HomeUiState(
-            listings = emptyList(),
-            savedListings = emptyList(),
-            activeFilter = ResellFilter(),
-            loadedState = ResellApiState.Loading,
-            savedImageResponses = emptyList(),
-            page = 1,
-            bottomLoading = false
-        )
-    ) {
-
-    data class HomeUiState(
+) : ResellViewModel<CategoryViewModel.CategoryUiState>(
+    initialUiState = CategoryUiState(
+        loadedState = ResellApiState.Loading,
+        listings = emptyList(),
+        filter = ResellFilter()
+    )
+) {
+    data class CategoryUiState(
         val loadedState: ResellApiState,
         val listings: List<Listing>,
-        val savedListings: List<Listing>,
-        val activeFilter: ResellFilter,
-        val page: Int,
-        val bottomLoading: Boolean,
-        val savedImageResponses: List<MutableState<ResellApiResponse<ImageBitmap>>>
+        val filter: ResellFilter
     )
 
     init {
         getPosts(ResellFilter())
-        resellPostRepository.fetchSavedPosts()
-        asyncCollect(resellPostRepository.savedPosts) { response ->
-            applyMutation {
-                copy(
-                    loadedState = response.toResellApiState(),
-                    savedListings = response.asSuccessOrNull()?.data?.map { it.toListing() }
-                        ?: emptyList(),
-                    savedImageResponses = when (response) {
-                        is ResellApiResponse.Success -> {
-                            response.data.map { listing ->
-                                coilRepository.getUrlState(listing.images.firstOrNull() ?: "")
-                            }
-                        }
-
-                        else -> {
-                            emptyList()
-                        }
-                    }
-                )
-            }
-        }
-
-    }
-
-    // todo delete
-    enum class HomeFilter {
-        RECENT, CLOTHING, BOOKS, SCHOOL, ELECTRONICS, HOUSEHOLD, HANDMADE, SPORTS, OTHER
     }
 
     fun onListingPressed(listing: Listing) {
@@ -91,6 +48,9 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun getPosts(filter: ResellFilter) {
+        // Ignore initial call which does not have the category. Avoids race condition
+        if (filter.categoriesSelected.isEmpty()) return
+
         viewModelScope.launch {
             try {
                 val posts = resellPostRepository.getFilteredPosts(filter)
@@ -111,15 +71,16 @@ class HomeViewModel @Inject constructor(
     }
 
     fun onFilterChanged(filter: ResellFilter) {
-        applyMutation {
-            copy(
-                activeFilter = filter,
-                loadedState = ResellApiState.Loading,
-            )
+        if (filter != uiStateFlow.value.filter) {
+            applyMutation {
+                copy(
+                    filter = filter,
+                    loadedState = ResellApiState.Loading,
+                )
+            }
+            getPosts(filter)
         }
-        getPosts(filter)
     }
-
 
     fun onSearchPressed() {
         rootNavigationRepository.navigate(ResellRootRoute.SEARCH)

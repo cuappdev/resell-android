@@ -2,12 +2,16 @@ package com.cornellappdev.resell.android.model.posts
 
 import android.util.Log
 import androidx.compose.ui.graphics.ImageBitmap
-import com.cornellappdev.resell.android.model.api.CategoriesRequest
+import com.cornellappdev.resell.android.model.api.FilterRequest
 import com.cornellappdev.resell.android.model.api.NewPostBody
 import com.cornellappdev.resell.android.model.api.Post
 import com.cornellappdev.resell.android.model.api.PostResponse
+import com.cornellappdev.resell.android.model.api.PriceRange
 import com.cornellappdev.resell.android.model.api.RetrofitInstance
+import com.cornellappdev.resell.android.model.classes.FilterCondition
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
+import com.cornellappdev.resell.android.model.classes.ResellFilter
+import com.cornellappdev.resell.android.model.classes.SortBy
 import com.cornellappdev.resell.android.util.toNetworkingString
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -23,7 +27,8 @@ class ResellPostRepository @Inject constructor(
     private val retrofitInstance: RetrofitInstance,
 ) {
 
-    private val _savedPosts = MutableStateFlow<ResellApiResponse<List<Post>>>(ResellApiResponse.Pending)
+    private val _savedPosts =
+        MutableStateFlow<ResellApiResponse<List<Post>>>(ResellApiResponse.Pending)
     val savedPosts = _savedPosts.asStateFlow()
 
     private var recentBitmaps: List<ImageBitmap>? = null
@@ -33,19 +38,38 @@ class ResellPostRepository @Inject constructor(
         return posts
     }
 
-    suspend fun getPostsByFilter(category: String): List<Post> {
+    suspend fun getFilteredPosts(filter: ResellFilter): List<Post> {
+        val lowerPrice = filter.priceRange.first
+        val higherPrice = filter.priceRange.last
+        val categories = filter.categoriesSelected
+        val condition = filter.conditionSelected
+        val sortBy = filter.sortBy
         return retrofitInstance.postsApi.getFilteredPosts(
-            CategoriesRequest(
-                listOf(
-                    category.lowercase().replaceFirstChar {
-                        if (it.isLowerCase()) it.titlecase(
-                            Locale.US
-                        ) else it.toString()
-                    }
-                )
+            FilterRequest(
+                price = PriceRange(
+                    lowerBound = lowerPrice.toDouble(),
+                    upperBound = higherPrice.toDouble()
+                ),
+                condition = when (condition) {
+                    FilterCondition.GENTLY_USED -> "gentlyUsed"
+                    FilterCondition.NEVER_USED -> "new"
+                    FilterCondition.WORN -> "worn"
+                    null -> null
+                },
+                categories = if (categories.isEmpty()) null else categories.map {
+                    it.label
+                },
+                sortField = when (sortBy) {
+                    SortBy.ANY -> "any"
+                    SortBy.PRICE_LOW_TO_HIGH -> "priceLowToHigh"
+                    SortBy.PRICE_HIGH_TO_LOW -> "priceHighToLow"
+                    SortBy.NEWLY_LISTED -> "newlyListed"
+                }
             )
         ).posts
+        // TODO: need a route for items on sale
     }
+
 
     suspend fun uploadPost(
         title: String,
