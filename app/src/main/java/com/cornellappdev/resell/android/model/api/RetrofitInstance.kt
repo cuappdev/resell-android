@@ -4,11 +4,17 @@ import android.util.Log
 import com.cornellappdev.resell.android.BuildConfig
 import com.cornellappdev.resell.android.model.core.UserInfoRepository
 import com.cornellappdev.resell.android.model.login.FirebaseAuthRepository
+import com.cornellappdev.resell.android.model.login.GoogleAuthRepository
+import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
+import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepository
+import com.cornellappdev.resell.android.viewmodel.root.RootConfirmationRepository
 import kotlinx.coroutines.runBlocking
 import okhttp3.Authenticator
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
+import okhttp3.Response
 import okhttp3.ResponseBody
+import okhttp3.ResponseBody.Companion.toResponseBody
 import okhttp3.logging.HttpLoggingInterceptor
 import org.json.JSONObject
 import retrofit2.Retrofit
@@ -20,6 +26,9 @@ import javax.inject.Singleton
 class RetrofitInstance @Inject constructor(
     private val firebaseAuthRepository: FirebaseAuthRepository,
     private val userInfoRepository: UserInfoRepository,
+    private val googleAuthRepository: GoogleAuthRepository,
+    private val rootNavigationRepository: RootNavigationRepository,
+    private val rootConfirmationRepository: RootConfirmationRepository,
 ) {
     private var cachedToken: String? = null
 
@@ -65,7 +74,7 @@ class RetrofitInstance @Inject constructor(
 
             // Get the `errors` response
             try {
-                val jsonObject = JSONObject(responseBody)
+                val jsonObject = JSONObject(responseBody ?: "")
                 val errors = jsonObject.optJSONArray("errors")
                 if (errors != null) {
                     Log.e("OkHttpErrorResponse", "Errors: $errors")
@@ -76,13 +85,25 @@ class RetrofitInstance @Inject constructor(
         }
 
         response.newBuilder()
-            .body(ResponseBody.create(response.body?.contentType(), responseBody ?: ""))
+            .body((responseBody ?: "").toResponseBody(response.body?.contentType()))
             .build()
     }
 
     private val authenticator = Authenticator { _, response ->
-        // Ping firebase for a refresh.
-        val accessToken = runBlocking { firebaseAuthRepository.getFirebaseAccessToken() }
+        if (responseCount(response) >= 2) {
+            // Already retried once, still getting 401 — force sign out
+            runBlocking {
+                googleAuthRepository.signOut()
+                rootNavigationRepository.navigate(ResellRootRoute.LANDING)
+                rootConfirmationRepository.showError(
+                    message = "Authentication Failed. Please try signing in again!"
+                )
+            }
+            return@Authenticator null // Give up — don't retry again
+        }
+
+        // Ping firebase for a refresh. Force refresh.
+        val accessToken = runBlocking { firebaseAuthRepository.getFirebaseAccessToken(true) }
         cachedToken = accessToken
         if (accessToken != null) {
             response.request.newBuilder()
@@ -92,6 +113,19 @@ class RetrofitInstance @Inject constructor(
             Log.e("RetrofitInstance", "No access token found, even on refresh.")
             null
         }
+    }
+
+    /**
+     * Helper to count how many times we've already retried this request.
+     */
+    private fun responseCount(response: Response): Int {
+        var count = 1
+        var priorResponse = response.priorResponse
+        while (priorResponse != null) {
+            count++
+            priorResponse = priorResponse.priorResponse
+        }
+        return count
     }
 
     // Build OkHttpClient with the dynamic auth interceptor

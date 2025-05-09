@@ -6,6 +6,7 @@ import com.cornellappdev.resell.android.model.api.Feedback
 import com.cornellappdev.resell.android.model.api.ReportPostBody
 import com.cornellappdev.resell.android.model.api.ReportProfileBody
 import com.cornellappdev.resell.android.model.api.RetrofitInstance
+import com.cornellappdev.resell.android.model.api.UserResponse
 import com.cornellappdev.resell.android.model.core.UserInfoRepository
 import com.cornellappdev.resell.android.model.login.FireStoreRepository
 import com.cornellappdev.resell.android.model.profile.ProfileRepository
@@ -64,8 +65,8 @@ class SettingsRepository @Inject constructor(
         venmo: String,
         bio: String,
         image: ImageBitmap?
-    ) {
-        retrofitInstance.settingsApi.editUser(
+    ): UserResponse {
+        val response = retrofitInstance.settingsApi.editUser(
             EditUser(
                 username = username,
                 venmoHandle = venmo,
@@ -75,5 +76,7 @@ class SettingsRepository @Inject constructor(
         )
 
         profileRepository.fetchInternalProfile(userInfoRepository.getUserId()!!)
+
+        return response
     }
 }
