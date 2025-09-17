@@ -22,9 +22,8 @@ For AppDev members, you can find the files from the `#resell-frontend` Slack cha
 
 (Outdated info from react native; TODO to fix)
 
-1. Create a `.env` file in the **root directory** and copy/paste the values from the pinned message.
-   1. Note that there are two different `.env` files: development and production.
-2. Download `GoogleService-Info.plist` and `google-services.json` and place both files in the `/config` folder.
-3. Also, drag `GoogleService-Info.plist` into `ios/Resell` folder. DO NOT do this through Xcode.
+1. Download `resell-keystore.jks`, `resell-mock-keystore.jks`, and `secrets.properties` and place them in the root directory.
+2. Download `resell-service.json`. This goes in `app/src/main/assets`, used for chat.
+3. Download `google-services.json`. This goes in `app` directory.
 
-3. A GitHub Actions workflow should automatically run. Note that EAS Build and EAS Submit can be quite buggy sometimes so manual deployment may need to be done. If that's the case, make sure that you update the versions properly through the native files (such as Xcode).
+(These files can be found pinned in the `#resell-frontend` Slack channel)
