@@ -26,4 +26,4 @@ For AppDev members, you can find the files from the `#resell-frontend` Slack cha
 2. Download `resell-service.json`. This goes in `app/src/main/assets`, used for chat.
 3. Download `google-services.json`. This goes in `app` directory.
 
-(These filed can be found pinned in the `#resell-frontend` Slack channel)
+(These files can be found pinned in the `#resell-frontend` Slack channel)
