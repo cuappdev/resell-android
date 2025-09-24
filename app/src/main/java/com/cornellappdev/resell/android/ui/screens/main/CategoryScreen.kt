@@ -29,7 +29,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.resell.android.R
-import com.cornellappdev.resell.android.model.classes.FilterCategory
 import com.cornellappdev.resell.android.model.classes.Listing
 import com.cornellappdev.resell.android.model.classes.ResellApiState
 import com.cornellappdev.resell.android.model.classes.ResellFilter
@@ -46,7 +45,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CategoryScreen(
-    category: FilterCategory,
+    // category: ResellFilter.FilterCategory,
     categoryViewModel: CategoryViewModel = hiltViewModel(),
     onExit: () -> Unit
 ) {
@@ -55,13 +54,13 @@ fun CategoryScreen(
     val coroutineScope = rememberCoroutineScope()
 
     // Initially apply the category to the filter
-    if (uiState.filter.categoriesSelected != listOf(category)) {
-        categoryViewModel.onFilterChanged(uiState.filter.copy(categoriesSelected = listOf(category)))
-    }
+//    if (uiState.filter.categoriesSelected != listOf(category)) {
+//        categoryViewModel.onFilterChanged(uiState.filter.copy(categoriesSelected = listOf(category)))
+//    }
 
-    CategoryScreenHelper(
+    CategoryScreenContent(
         loadedState = uiState.loadedState,
-        category = category,
+        category = uiState.filter.categoriesSelected.firstOrNull() ?: ResellFilter.FilterCategory.OTHER,
         onSearchPressed = categoryViewModel::onSearchPressed,
         onFilter = {
             coroutineScope.launch {
@@ -89,9 +88,9 @@ fun CategoryScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun CategoryScreenHelper(
+private fun CategoryScreenContent(
     loadedState: ResellApiState,
-    category: FilterCategory,
+    category: ResellFilter.FilterCategory,
     onSearchPressed: () -> Unit,
     onFilter: () -> Unit,
     sheetState: SheetState,
@@ -149,7 +148,7 @@ private fun CategoryScreenHelper(
 }
 
 @Composable
-private fun Header(category: FilterCategory, onExit: () -> Unit) {
+private fun Header(category: ResellFilter.FilterCategory, onExit: () -> Unit) {
     Box(
         modifier = Modifier
             .defaultHorizontalPadding()
@@ -172,12 +171,12 @@ private fun Header(category: FilterCategory, onExit: () -> Unit) {
 @Preview(showBackground = true)
 @Composable
 private fun CategoryScreenPreview() = ResellPreview {
-    CategoryScreenHelper(
-        category = FilterCategory.CLOTHING,
+    CategoryScreenContent(
+        category = ResellFilter.FilterCategory.CLOTHING,
         onSearchPressed = {},
         onFilter = {},
         sheetState = rememberModalBottomSheetState(),
-        filter = ResellFilter(categoriesSelected = listOf(FilterCategory.CLOTHING)),
+        filter = ResellFilter(categoriesSelected = listOf(ResellFilter.FilterCategory.CLOTHING)),
         onFilterChanged = {},
         listings = List(5) { dumbListing },
         onListingPressed = {},

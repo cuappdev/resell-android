@@ -88,6 +88,7 @@ data class PriceRange(
     val upperBound: Double? = null
 )
 data class FilterRequest(
+    // TODO: need a route for items on sale
     val sortField: String? = null,
     val price: PriceRange? = null,
     val categories: List<String>? = null,

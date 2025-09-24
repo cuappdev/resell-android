@@ -33,7 +33,6 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.cornellappdev.resell.android.R
-import com.cornellappdev.resell.android.model.classes.FilterCategory
 import com.cornellappdev.resell.android.ui.components.main.FloatingActionExpandingCTA
 import com.cornellappdev.resell.android.ui.components.main.PostFloatingActionButton
 import com.cornellappdev.resell.android.ui.components.main.ShadeOverlay
@@ -81,14 +80,14 @@ fun MainTabNavigation(
                         navBarShown.value = it
                     },
                     onCategoryPressed = { category ->
-                        mainNav.navigate(ResellMainScreen.ByCategory(category))
+                        mainNav.navigate(ResellMainScreen.ByCategory(category.name))
                     },
                 )
             }
 
             composable<ResellMainScreen.ByCategory> { backStackEntry ->
                 val category: ResellMainScreen.ByCategory = backStackEntry.toRoute()
-                CategoryScreen(category.category, onExit = mainNav::popBackStack)
+                CategoryScreen(onExit = mainNav::popBackStack)
             }
 
             composable<ResellMainScreen.Bookmarks> {
@@ -217,7 +216,7 @@ sealed class ResellMainScreen {
     data object Home : ResellMainScreen()
 
     @Serializable
-    data class ByCategory(val category: FilterCategory) : ResellMainScreen()
+    data class ByCategory(val category: String) : ResellMainScreen()
 
     @Serializable
     data object Bookmarks : ResellMainScreen()

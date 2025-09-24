@@ -2,16 +2,13 @@ package com.cornellappdev.resell.android.model.posts
 
 import android.util.Log
 import androidx.compose.ui.graphics.ImageBitmap
-import com.cornellappdev.resell.android.model.api.FilterRequest
 import com.cornellappdev.resell.android.model.api.NewPostBody
 import com.cornellappdev.resell.android.model.api.Post
 import com.cornellappdev.resell.android.model.api.PostResponse
-import com.cornellappdev.resell.android.model.api.PriceRange
 import com.cornellappdev.resell.android.model.api.RetrofitInstance
-import com.cornellappdev.resell.android.model.classes.FilterCondition
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.model.classes.ResellFilter
-import com.cornellappdev.resell.android.model.classes.SortBy
+import com.cornellappdev.resell.android.model.classes.toFilterRequest
 import com.cornellappdev.resell.android.util.toNetworkingString
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -39,35 +36,8 @@ class ResellPostRepository @Inject constructor(
     }
 
     suspend fun getFilteredPosts(filter: ResellFilter): List<Post> {
-        val lowerPrice = filter.priceRange.first
-        val higherPrice = filter.priceRange.last
-        val categories = filter.categoriesSelected
-        val condition = filter.conditionSelected
-        val sortBy = filter.sortBy
-        return retrofitInstance.postsApi.getFilteredPosts(
-            FilterRequest(
-                price = PriceRange(
-                    lowerBound = lowerPrice.toDouble(),
-                    upperBound = higherPrice.toDouble()
-                ),
-                condition = when (condition) {
-                    FilterCondition.GENTLY_USED -> "gentlyUsed"
-                    FilterCondition.NEVER_USED -> "new"
-                    FilterCondition.WORN -> "worn"
-                    null -> null
-                },
-                categories = if (categories.isEmpty()) null else categories.map {
-                    it.label
-                },
-                sortField = when (sortBy) {
-                    SortBy.ANY -> "any"
-                    SortBy.PRICE_LOW_TO_HIGH -> "priceLowToHigh"
-                    SortBy.PRICE_HIGH_TO_LOW -> "priceHighToLow"
-                    SortBy.NEWLY_LISTED -> "newlyListed"
-                }
-            )
-        ).posts
-        // TODO: need a route for items on sale
+        return retrofitInstance.postsApi.getFilteredPosts(filter.toFilterRequest()).posts
+
     }
 
 

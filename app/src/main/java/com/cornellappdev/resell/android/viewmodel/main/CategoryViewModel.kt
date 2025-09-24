@@ -1,5 +1,6 @@
 package com.cornellappdev.resell.android.viewmodel.main
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.cornellappdev.resell.android.model.classes.Listing
 import com.cornellappdev.resell.android.model.classes.ResellApiState
@@ -18,7 +19,8 @@ import javax.inject.Inject
 class CategoryViewModel @Inject constructor(
     private val rootNavigationRepository: RootNavigationRepository,
     private val resellPostRepository: ResellPostRepository,
-) : ResellViewModel<CategoryViewModel.CategoryUiState>(
+    savedStateHandle: SavedStateHandle,
+    ) : ResellViewModel<CategoryViewModel.CategoryUiState>(
     initialUiState = CategoryUiState(
         loadedState = ResellApiState.Loading,
         listings = emptyList(),
@@ -32,7 +34,13 @@ class CategoryViewModel @Inject constructor(
     )
 
     init {
-        getPosts(ResellFilter())
+        val categoryName: String? = savedStateHandle["category"]
+        val category = categoryName?.let { ResellFilter.FilterCategory.valueOf(it) }
+        if (category != null) {
+            val initialFilter = ResellFilter(categoriesSelected = listOf(category))
+            applyMutation { copy(filter = initialFilter) }
+            getPosts(initialFilter)
+        }
     }
 
     fun onListingPressed(listing: Listing) {
@@ -60,7 +68,7 @@ class CategoryViewModel @Inject constructor(
                         loadedState = ResellApiState.Success
                     )
                 }
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 applyMutation {
                     copy(
                         loadedState = ResellApiState.Error

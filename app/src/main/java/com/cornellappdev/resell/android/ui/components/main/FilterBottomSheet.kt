@@ -1,11 +1,8 @@
 package com.cornellappdev.resell.android.ui.components.main
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
@@ -15,28 +12,18 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.RangeSlider
-import androidx.compose.material3.RangeSliderState
-import androidx.compose.material3.SliderColors
-import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchColors
 import androidx.compose.material3.Text
@@ -51,21 +38,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.cornellappdev.resell.android.R
-import com.cornellappdev.resell.android.model.classes.FilterCategory
-import com.cornellappdev.resell.android.model.classes.FilterCondition
 import com.cornellappdev.resell.android.model.classes.ResellFilter
-import com.cornellappdev.resell.android.model.classes.SortBy
+import com.cornellappdev.resell.android.ui.components.global.Dropdown
+import com.cornellappdev.resell.android.ui.components.global.ResellSlider
 import com.cornellappdev.resell.android.ui.theme.IconInactive
 import com.cornellappdev.resell.android.ui.theme.PurpleWash
+import com.cornellappdev.resell.android.ui.theme.ResellPreview
 import com.cornellappdev.resell.android.ui.theme.ResellPurple
-import com.cornellappdev.resell.android.ui.theme.ResellPurpleTransparent
-import com.cornellappdev.resell.android.ui.theme.ResellTheme
 import com.cornellappdev.resell.android.ui.theme.Secondary
 import com.cornellappdev.resell.android.ui.theme.Stroke
 import com.cornellappdev.resell.android.ui.theme.Style
@@ -79,11 +62,11 @@ fun FilterBottomSheet(
     highestPrice: Int = 1000,
     includeCategory: Boolean = true
 ) {
-    val categoriesSelectedCurrent = remember { mutableStateOf(filter.categoriesSelected) }
-    val conditionSelectedCurrent = remember { mutableStateOf(filter.conditionSelected) }
-    val itemsOnSaleCurrent = remember { mutableStateOf(filter.itemsOnSale) }
-    val priceRange = remember { mutableStateOf(filter.priceRange) }
-    val sortBy = remember { mutableStateOf(SortBy.ANY) }
+    var categoriesSelectedCurrent by remember { mutableStateOf(filter.categoriesSelected) }
+    var conditionSelectedCurrent by remember { mutableStateOf(filter.conditionSelected) }
+    var itemsOnSaleCurrent by remember { mutableStateOf(filter.itemsOnSale) }
+    var priceRange by remember { mutableStateOf(filter.priceRange) }
+    var sortBy by remember { mutableStateOf(ResellFilter.SortBy.ANY) }
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
     LazyColumn(
@@ -108,12 +91,12 @@ fun FilterBottomSheet(
         item {
             AllFilters(
                 originalFilter = filter,
-                sortBy = sortBy.value,
-                itemsOnSale = itemsOnSaleCurrent.value,
+                sortBy = sortBy,
+                itemsOnSale = itemsOnSaleCurrent,
                 includeCategory = includeCategory,
-                categoriesSelected = categoriesSelectedCurrent.value,
-                conditionSelected = conditionSelectedCurrent.value,
-                priceRange = priceRange.value,
+                categoriesSelected = categoriesSelectedCurrent,
+                conditionSelected = conditionSelectedCurrent,
+                priceRange = priceRange,
                 lowestPrice = lowestPrice,
                 highestPrice = highestPrice,
                 onFilterChanged = {
@@ -123,23 +106,23 @@ fun FilterBottomSheet(
                     onFilterChanged(it)
                 },
                 onPriceRangeChanged = {
-                    priceRange.value = it.start.toInt()..it.endInclusive.toInt()
+                    priceRange = it.start.toInt()..it.endInclusive.toInt()
                 },
-                onItemsOnSaleChanged = { itemsOnSaleCurrent.value = it },
+                onItemsOnSaleChanged = { itemsOnSaleCurrent = it },
                 toggleCondition = {
-                    conditionSelectedCurrent.value =
-                        if (it == conditionSelectedCurrent.value) null else it
+                    conditionSelectedCurrent =
+                        if (it == conditionSelectedCurrent) null else it
                 },
                 toggleCategory = {
-                    if (categoriesSelectedCurrent.value.contains(it)) {
-                        categoriesSelectedCurrent.value =
-                            categoriesSelectedCurrent.value.filter { category -> category != it }
+                    if (categoriesSelectedCurrent.contains(it)) {
+                        categoriesSelectedCurrent =
+                            categoriesSelectedCurrent.filter { category -> category != it }
                     } else {
-                        categoriesSelectedCurrent.value += it
+                        categoriesSelectedCurrent += it
                     }
                 },
                 onSelectSortBy = {
-                    sortBy.value = it
+                    sortBy = it
                 }
             )
         }
@@ -157,158 +140,50 @@ fun FilterBottomSheet(
 @Composable
 private fun AllFilters(
     originalFilter: ResellFilter,
-    sortBy: SortBy,
+    sortBy: ResellFilter.SortBy,
     itemsOnSale: Boolean,
     includeCategory: Boolean,
-    categoriesSelected: List<FilterCategory>,
-    conditionSelected: FilterCondition?,
+    categoriesSelected: List<ResellFilter.FilterCategory>,
+    conditionSelected: ResellFilter.FilterCondition?,
     priceRange: IntRange,
     lowestPrice: Int,
     highestPrice: Int,
     onFilterChanged: (ResellFilter) -> Unit,
-    onSelectSortBy: (SortBy) -> Unit,
+    onSelectSortBy: (ResellFilter.SortBy) -> Unit,
     onPriceRangeChanged: (ClosedFloatingPointRange<Float>) -> Unit,
     onItemsOnSaleChanged: (Boolean) -> Unit,
-    toggleCondition: (FilterCondition) -> Unit,
-    toggleCategory: (FilterCategory) -> Unit
+    toggleCondition: (ResellFilter.FilterCondition) -> Unit,
+    toggleCategory: (ResellFilter.FilterCategory) -> Unit
 ) {
     Column(
-        modifier = Modifier
-            .padding(horizontal = 24.dp)
-            .fillMaxWidth()
+        modifier = Modifier.padding(horizontal = 24.dp).fillMaxWidth()
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text("Sort by", style = Style.heading3)
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = sortBy.label,
-                    color = Secondary,
-                    fontWeight = FontWeight.Normal,
-                    fontSize = 20.sp
-                )
-                Dropdown(onSelectSortBy = onSelectSortBy)
-            }
-        }
-        HorizontalDivider(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 24.dp),
-            thickness = 1.dp,
-            color = Stroke
+        SortBy(sortBy = sortBy, onSelectSortBy = onSelectSortBy)
+        PriceRangeFilter(
+            priceRange = priceRange,
+            lowestPrice = lowestPrice,
+            highestPrice = highestPrice,
+            onPriceRangeChanged = onPriceRangeChanged
         )
-        Text(
-            text = "Price Range",
-            style = Style.heading3,
-            modifier = Modifier.padding(bottom = 16.dp)
-        )
-        Text(
-            text = rangeString(priceRange, lowestPrice, highestPrice),
-            color = Secondary,
-            fontWeight = FontWeight.Normal,
-            fontSize = 20.sp
-        )
-        val thumb: @Composable (RangeSliderState) -> Unit = {
-            Box(
-                modifier = Modifier
-                    .size(16.dp)
-                    .background(color = Color.White, shape = CircleShape)
-                    .border(1.dp, Stroke, CircleShape)
-            )
-        }
-        RangeSlider(
-            value = priceRange.first.toFloat()..priceRange.last.toFloat(),
-            onValueChange = onPriceRangeChanged,
-            valueRange = lowestPrice.toFloat()..highestPrice.toFloat(),
-            colors = SliderDefaults.colors(
-                thumbColor = Color.White,
-                activeTrackColor = ResellPurple,
-                inactiveTrackColor = ResellPurpleTransparent,
-                activeTickColor = ResellPurpleTransparent,
-                inactiveTickColor = ResellPurpleTransparent
-            ),
-            steps = 0,
-            startThumb = thumb,
-            endThumb = thumb,
-            track = {
-                SliderDefaults.Track(
-                    rangeSliderState = it, colors = SliderColors(
-                        thumbColor = Color.White,
-                        activeTrackColor = ResellPurple,
-                        activeTickColor = ResellPurpleTransparent,
-                        inactiveTrackColor = ResellPurpleTransparent,
-                        inactiveTickColor = ResellPurpleTransparent,
-                        disabledThumbColor = Color.White,
-                        disabledActiveTrackColor = ResellPurple,
-                        disabledActiveTickColor = ResellPurpleTransparent,
-                        disabledInactiveTrackColor = ResellPurpleTransparent,
-                        disabledInactiveTickColor = ResellPurpleTransparent,
-                    ),
-                    modifier = Modifier.height(8.dp),
-                    thumbTrackGapSize = 0.dp,
-                    drawStopIndicator = {}
-                )
-            }
-        )
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text("\$${lowestPrice}", style = Style.title4, color = Secondary)
-            Text("\$${highestPrice}", style = Style.title4, color = Secondary)
-        }
-        // TODO - uncomment once backend handles items on sale
-//        ItemsOnSale(itemsOnSale, onItemsOnSaleChanged)
-        HorizontalDivider(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 24.dp),
-            thickness = 1.dp,
-            color = Stroke
-        )
+
         if (includeCategory) {
             CategoryFilters(categoriesSelected, toggleCategory)
         }
-        Text(
-            text = "Condition",
-            style = Style.heading3,
-            modifier = Modifier.padding(bottom = 16.dp)
-        )
-        FlowRow(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
-            FilterCondition.entries.forEach { condition ->
-                ResellChip(
-                    selected = conditionSelected == condition,
-                    onClick = {
-                        toggleCondition(condition)
-                    },
-                    labelText = condition.label
-                )
-            }
-        }
+        Condition(conditionSelected, toggleCondition)
+
         Spacer(modifier = Modifier.height(36.dp))
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(text = "Reset", style = Style.title1, modifier = Modifier.clickable {
-                FilterCategory.entries.forEach { item ->
+            Text(text = "Reset", style = Style.title1, color = ResellPurple, modifier = Modifier.clickable {
+                ResellFilter.FilterCategory.entries.forEach { item ->
                     if (categoriesSelected.contains(item)) {
                         toggleCategory(item)
                     }
                 }
-                FilterCondition.entries.forEach { condition ->
+                ResellFilter.FilterCondition.entries.forEach { condition ->
                     if (condition == conditionSelected) {
                         toggleCondition(condition)
                     }
@@ -348,11 +223,112 @@ private fun AllFilters(
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
+@Composable
+private fun SortBy(sortBy: ResellFilter.SortBy, onSelectSortBy: (ResellFilter.SortBy) -> Unit) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text("Sort by", style = Style.heading3)
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = sortBy.label,
+                color = Secondary,
+                fontWeight = FontWeight.Normal,
+                fontSize = 20.sp
+            )
+            Dropdown(onSelectSortBy = onSelectSortBy)
+        }
+    }
+    HorizontalDivider(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 24.dp),
+        thickness = 1.dp,
+        color = Stroke
+    )
+}
+
+@OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
+@Composable
+private fun PriceRangeFilter(
+    priceRange: IntRange,
+    lowestPrice: Int,
+    highestPrice: Int,
+    onPriceRangeChanged: (ClosedFloatingPointRange<Float>) -> Unit)
+{
+    Text(
+        text = "Price Range",
+        style = Style.heading3,
+        modifier = Modifier.padding(bottom = 16.dp)
+    )
+    Text(
+        text = rangeString(priceRange, lowestPrice, highestPrice),
+        color = Secondary,
+        fontWeight = FontWeight.Normal,
+        fontSize = 20.sp
+    )
+    ResellSlider(
+        range = priceRange,
+        lowestValue = lowestPrice,
+        highestValue = highestPrice,
+        onRangeChanged = onPriceRangeChanged
+    )
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 16.dp),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text("$$lowestPrice", style = Style.title4, color = Secondary)
+        Text("$$highestPrice", style = Style.title4, color = Secondary)
+    }
+    // TODO - uncomment once backend handles items on sale
+//        ItemsOnSale(itemsOnSale, onItemsOnSaleChanged)
+    HorizontalDivider(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 24.dp),
+        thickness = 1.dp,
+        color = Stroke
+    )
+}
+
+@OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
+@Composable
+private fun Condition(conditionSelected: ResellFilter.FilterCondition?, toggleCondition: (ResellFilter.FilterCondition) -> Unit) {
+    Text(
+        text = "Condition",
+        style = Style.heading3,
+        modifier = Modifier.padding(bottom = 16.dp)
+    )
+    FlowRow(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        ResellFilter.FilterCondition.entries.forEach { condition ->
+            ResellChip(
+                selected = conditionSelected == condition,
+                onClick = {
+                    toggleCondition(condition)
+                },
+                labelText = condition.label
+            )
+        }
+    }
+}
+
+
 @Composable
 @OptIn(ExperimentalLayoutApi::class)
 private fun CategoryFilters(
-    categoriesSelected: List<FilterCategory>,
-    toggleCategory: (FilterCategory) -> Unit
+    categoriesSelected: List<ResellFilter.FilterCategory>,
+    toggleCategory: (ResellFilter.FilterCategory) -> Unit
 ) {
     Text(
         text = "Product Category",
@@ -363,7 +339,7 @@ private fun CategoryFilters(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        FilterCategory.entries.forEach { item ->
+        ResellFilter.FilterCategory.entries.forEach { item ->
             ResellChip(
                 selected = categoriesSelected.contains(item),
                 onClick = { toggleCategory(item) },
@@ -381,10 +357,10 @@ private fun CategoryFilters(
 }
 
 private fun checkIfFilterChanged(
-    sortBy: SortBy,
+    sortBy: ResellFilter.SortBy,
     priceRange: IntRange,
-    categoriesSelected: List<FilterCategory>,
-    conditionSelected: FilterCondition?,
+    categoriesSelected: List<ResellFilter.FilterCategory>,
+    conditionSelected: ResellFilter.FilterCondition?,
     originalFilter: ResellFilter
 ): Boolean {
     return sortBy != originalFilter.sortBy ||
@@ -437,6 +413,9 @@ private fun ItemsOnSale(
     }
 }
 
+/**
+ * Returns a formatted price range string: "Any", "Up to $X", "$X +", or "$X to $Y".
+ */
 private fun rangeString(priceRange: IntRange, lowestPrice: Int, highestPrice: Int): String {
     val lowerBound = priceRange.first
     val upperBound = priceRange.last
@@ -479,50 +458,13 @@ private fun ResellChip(selected: Boolean, onClick: () -> Unit, labelText: String
     )
 }
 
-@Composable
-fun Dropdown(onSelectSortBy: (SortBy) -> Unit) {
-    var expanded by remember { mutableStateOf(false) }
-    Box {
-        Icon(
-            painter = painterResource(R.drawable.baseline_keyboard_arrow_down_24),
-            contentDescription = "More options",
-            tint = Secondary,
-            modifier = Modifier.clickable { expanded = !expanded }
-        )
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false },
-            shape = RoundedCornerShape(13.dp),
-            modifier = Modifier.background(
-                color = MaterialTheme.colorScheme.surface,
-                shape = RoundedCornerShape(13.dp)
-            )
-        ) {
-            for (sortBy in SortBy.entries) {
-                DropdownMenuItem(
-                    text = {
-                        Text(
-                            text = sortBy.label,
-                            fontSize = 17.sp,
-                            fontWeight = FontWeight.Normal
-                        )
-                    },
-                    onClick = {
-                        onSelectSortBy(sortBy)
-                        expanded = false
-                    }
-                )
-            }
-        }
-    }
-
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Composable
 private fun PreviewFilterBottomSheet() {
-    ResellTheme {
+    // Use interactive mode to see the bottom sheet in both its expanded and half-expanded states.
+    ResellPreview {
         val sheetState = rememberModalBottomSheetState()
         val coroutineScope = rememberCoroutineScope()
         ModalBottomSheet(

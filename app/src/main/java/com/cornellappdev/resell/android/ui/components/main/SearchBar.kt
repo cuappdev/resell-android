@@ -52,6 +52,6 @@ fun ResellSearchBar(
 
 @Preview(showBackground = true)
 @Composable
-private fun SearchBarPreview() {
+private fun ResellSearchBarPreview() {
     ResellSearchBar(onClick = {})
 }

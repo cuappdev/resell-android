@@ -63,7 +63,6 @@ import androidx.compose.ui.unit.offset
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.resell.android.R
-import com.cornellappdev.resell.android.model.classes.FilterCategory
 import com.cornellappdev.resell.android.model.classes.Listing
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.model.classes.ResellApiState
@@ -89,7 +88,7 @@ fun HomeScreen(
     homeViewModel: HomeViewModel = hiltViewModel(),
     onSavedPressed: () -> Unit,
     setNavBarShown: (Boolean) -> Unit,
-    onCategoryPressed: (FilterCategory) -> Unit
+    onCategoryPressed: (ResellFilter.FilterCategory) -> Unit
 ) {
     val homeUiState = homeViewModel.collectUiStateValue()
     val sheetState = rememberModalBottomSheetState()
@@ -134,7 +133,7 @@ private fun HomeScreenHelper(
     onFilterPressed: () -> Unit,
     onFilterChanged: (ResellFilter) -> Unit,
     sheetState: SheetState,
-    onCategoryPressed: (FilterCategory) -> Unit,
+    onCategoryPressed: (ResellFilter.FilterCategory) -> Unit,
     onSearchPressed: () -> Unit,
     savedListings: List<Listing>,
     onSavedPressed: () -> Unit,
@@ -222,7 +221,7 @@ private fun MainContent(
     onSavedPressed: () -> Unit,
     toPost: (Listing) -> Unit,
     loadedState: ResellApiState,
-    onCategoryPressed: (FilterCategory) -> Unit,
+    onCategoryPressed: (ResellFilter.FilterCategory) -> Unit,
     filteredListings: List<Listing>,
     onListingPressed: (Listing) -> Unit,
     savedImagesResponses: List<MutableState<ResellApiResponse<ImageBitmap>>>
@@ -407,53 +406,53 @@ private enum class CategoryItem(
     val image: Int,
     val label: String,
     val backgroundColor: Color,
-    val category: FilterCategory
+    val category: ResellFilter.FilterCategory
 ) {
     CLOTHING(
         image = R.drawable.shoes,
         label = "Clothing",
         backgroundColor = Color(0x80CA95A3),
-        category = FilterCategory.CLOTHING
+        category = ResellFilter.FilterCategory.CLOTHING
     ),
     BOOKS(
         image = R.drawable.books,
         label = "Books",
         backgroundColor = Color(0x80316054),
-        category = FilterCategory.BOOKS
+        category = ResellFilter.FilterCategory.BOOKS
     ),
     SCHOOL(
         image = R.drawable.pencilcase,
         label = "School",
         backgroundColor = Color(0x80A4B7AB),
-        category = FilterCategory.SCHOOL
+        category = ResellFilter.FilterCategory.SCHOOL
     ),
     ELECTRONICS(
         image = R.drawable.airpods_max,
         label = "Electronics",
         backgroundColor = Color(0x80D795AB),
-        category = FilterCategory.ELECTRONICS
+        category = ResellFilter.FilterCategory.ELECTRONICS
     ),
     HANDMADE(
         image = R.drawable.color_palette,
         label = "Handmade",
         backgroundColor = Color(0x80E3B570),
-        category = FilterCategory.HANDMADE
+        category = ResellFilter.FilterCategory.HANDMADE
     ),
     SPORTS(
         image = R.drawable.football,
         label = "Sports & Outdoors",
         backgroundColor = Color(0x8073A2AB),
-        category = FilterCategory.SPORTS
+        category = ResellFilter.FilterCategory.SPORTS
     ),
     OTHER(
         image = R.drawable.gift,
         label = "Other",
         backgroundColor = Color(0x80E2B56E),
-        category = FilterCategory.OTHER
+        category = ResellFilter.FilterCategory.OTHER
     )
 }
 
-private fun LazyStaggeredGridScope.shopByCategory(onCategoryPressed: (FilterCategory) -> Unit) {
+private fun LazyStaggeredGridScope.shopByCategory(onCategoryPressed: (ResellFilter.FilterCategory) -> Unit) {
     item(span = StaggeredGridItemSpan.FullLine) {
         Row(
             modifier = Modifier
@@ -474,7 +473,7 @@ private fun LazyStaggeredGridScope.shopByCategory(onCategoryPressed: (FilterCate
 }
 
 @Composable
-private fun CategoryRow(modifier: Modifier, onCategoryPressed: (FilterCategory) -> Unit) {
+private fun CategoryRow(modifier: Modifier, onCategoryPressed: (ResellFilter.FilterCategory) -> Unit) {
     LazyRow(
         horizontalArrangement = Arrangement.spacedBy(16.dp),
         contentPadding = PaddingValues(horizontal = 24.dp),
