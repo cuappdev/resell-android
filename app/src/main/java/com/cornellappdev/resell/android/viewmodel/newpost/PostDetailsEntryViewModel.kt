@@ -2,6 +2,7 @@ package com.cornellappdev.resell.android.viewmodel.newpost
 
 import android.util.Log
 import androidx.lifecycle.viewModelScope
+import com.cornellappdev.resell.android.model.classes.ResellFilter
 import com.cornellappdev.resell.android.model.core.UserInfoRepository
 import com.cornellappdev.resell.android.model.login.FirebaseMessagingRepository
 import com.cornellappdev.resell.android.model.posts.ResellPostRepository
@@ -33,7 +34,7 @@ class PostDetailsEntryViewModel @Inject constructor(
         val title: String = "",
         val description: String = "",
         val price: String = "",
-        val activeFilters: List<HomeViewModel.HomeFilter> = listOf(),
+        val activeFilters: List<ResellFilter.FilterCategory> = listOf(),
         val loadingPost: Boolean = false,
     ) {
         private val canConfirm
@@ -76,7 +77,7 @@ class PostDetailsEntryViewModel @Inject constructor(
         }
     }
 
-    fun onFilterPressed(filter: HomeViewModel.HomeFilter) {
+    fun onFilterPressed(filter: ResellFilter.FilterCategory) {
         if (stateValue().activeFilters.contains(filter)) {
             applyMutation {
                 copy(activeFilters = activeFilters - filter)

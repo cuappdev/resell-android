@@ -21,6 +21,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.cornellappdev.resell.android.model.classes.ResellFilter
 import com.cornellappdev.resell.android.ui.components.global.ResellHeader
 import com.cornellappdev.resell.android.ui.components.global.ResellTag
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButton
@@ -66,7 +67,7 @@ private fun PostDetailsContent(
     uiState: PostDetailsEntryViewModel.PostEntryUiState =
         PostDetailsEntryViewModel.PostEntryUiState(),
     onPricePressed: () -> Unit = {},
-    onHomeFilterPressed: (HomeViewModel.HomeFilter) -> Unit = {},
+    onHomeFilterPressed: (ResellFilter.FilterCategory) -> Unit = {},
     onTitleChanged: (String) -> Unit = {},
     onDescriptionChanged: (String) -> Unit = {},
 ) {
@@ -135,7 +136,7 @@ private fun PostDetailsContent(
             }
 
             items(
-                items = HomeViewModel.HomeFilter.entries.minus(HomeViewModel.HomeFilter.RECENT)
+                items = ResellFilter.FilterCategory.entries
             ) { filter ->
                 ResellTag(
                     text = filter.name.lowercase().replaceFirstChar {

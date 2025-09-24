@@ -73,11 +73,6 @@ class HomeViewModel @Inject constructor(
 
     }
 
-    // todo delete
-    enum class HomeFilter {
-        RECENT, CLOTHING, BOOKS, SCHOOL, ELECTRONICS, HOUSEHOLD, HANDMADE, SPORTS, OTHER
-    }
-
     fun onListingPressed(listing: Listing) {
         rootNavigationRepository.navigate(
             ResellRootRoute.PDP(
