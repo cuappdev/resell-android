@@ -30,7 +30,7 @@ interface UserApiService {
     suspend fun logoutUser(@Body body: LogoutBody)
 
     @POST("user/create")
-    suspend fun createUser(@Body createUserBody: CreateUserBody): UserResponse
+    suspend fun createUser(@Body createUserBody: CreateUserBody): User
 }
 
 data class LogoutBody(

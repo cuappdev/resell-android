@@ -89,13 +89,14 @@ class EditProfileViewModel @Inject constructor(
 
         viewModelScope.launch {
             try {
-                settingsRepository.editProfile(
+                val response = settingsRepository.editProfile(
                     username = stateValue().username,
                     venmo = stateValue().venmo,
                     bio = stateValue().bio,
                     image = stateValue().imageBitmap?.asImageBitmap()
                 )
                 settingsNavigationRepository.popBackStack()
+                userInfoRepository.storeUserFromUserObject(response.user)
                 confirmationRepository.showSuccess("Profile updated successfully!")
             } catch (e: Exception) {
                 applyMutation {

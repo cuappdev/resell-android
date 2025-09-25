@@ -108,6 +108,10 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val posts = resellPostRepository.getPostsByPage(1)
+
+                // if current filter changed since then, do nothing
+                if (stateValue().activeFilter != HomeFilter.RECENT) return@launch
+
                 applyMutation {
                     copy(
                         listings = posts.map { it.toListing() },
@@ -142,6 +146,10 @@ class HomeViewModel @Inject constructor(
                 val posts = resellPostRepository.getPostsByFilter(
                     filter.name
                 )
+
+                // if current filter changed since then, do nothing
+                if (stateValue().activeFilter != filter) return@launch
+
                 applyMutation {
                     copy(
                         listings = posts.map { it.toListing() },
@@ -179,6 +187,10 @@ class HomeViewModel @Inject constructor(
             val newPage = resellPostRepository.getPostsByPage(stateValue().page).map {
                 it.toListing()
             }
+
+            // if current filter changed since then, do nothing
+            if (stateValue().activeFilter != HomeFilter.RECENT) return@launch
+
             applyMutation {
                 copy(
                     listings = stateValue().listings + newPage,

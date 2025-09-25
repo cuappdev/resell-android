@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.resell.android.model.classes.ResellApiState
 import com.cornellappdev.resell.android.ui.components.chat.messages.MessageTag
+import com.cornellappdev.resell.android.ui.components.chat.messages.MessagesScrollLoading
 import com.cornellappdev.resell.android.ui.components.chat.messages.ResellMessagesScroll
 import com.cornellappdev.resell.android.ui.theme.Padding
 import com.cornellappdev.resell.android.ui.theme.Style
@@ -69,7 +70,10 @@ fun MessagesScreen(
         ) {
             when (chatUiState.loadedState) {
                 ResellApiState.Loading -> {
-                    // TODO Loading State
+                    MessagesScrollLoading(
+                        modifier = Modifier.fillMaxSize(),
+                        count = chatUiState.numLoadingChats
+                    )
                 }
 
                 ResellApiState.Error -> {
