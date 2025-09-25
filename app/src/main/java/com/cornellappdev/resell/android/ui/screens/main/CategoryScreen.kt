@@ -24,9 +24,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.model.classes.Listing
@@ -37,9 +44,11 @@ import com.cornellappdev.resell.android.ui.components.global.ResellLoadingListin
 import com.cornellappdev.resell.android.ui.components.main.FilterBottomSheet
 import com.cornellappdev.resell.android.ui.components.main.ResellSearchBar
 import com.cornellappdev.resell.android.ui.theme.ResellPreview
+import com.cornellappdev.resell.android.ui.theme.Style
 import com.cornellappdev.resell.android.ui.theme.Style.heading3
 import com.cornellappdev.resell.android.util.defaultHorizontalPadding
 import com.cornellappdev.resell.android.viewmodel.main.CategoryViewModel
+import com.google.common.io.Files.append
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -82,7 +91,8 @@ fun CategoryScreen(
                 sheetState.hide()
             }
         },
-        onExit = onExit
+        onExit = onExit,
+        navigateToSubmitRequest = categoryViewModel::navigateToSubmitRequest
     )
 }
 
@@ -99,6 +109,7 @@ private fun CategoryScreenContent(
     listings: List<Listing>,
     onListingPressed: (Listing) -> Unit,
     onDismissRequest: () -> Unit,
+    navigateToSubmitRequest: () -> Unit,
     onExit: () -> Unit
 ) {
     Column(
@@ -126,12 +137,17 @@ private fun CategoryScreenContent(
         Spacer(modifier = Modifier.height(24.dp))
         when (loadedState) {
             ResellApiState.Loading -> ResellLoadingListingScroll(modifier = Modifier.defaultHorizontalPadding())
-            ResellApiState.Success -> ResellListingsScroll(
-                listings = listings,
-                onListingPressed = onListingPressed,
-                modifier = Modifier
-                    .defaultHorizontalPadding()
-            )
+            ResellApiState.Success ->
+                if (listings.isEmpty()) {
+                    EmptyState(navigateToSubmitRequest)
+                }else {
+                    ResellListingsScroll(
+                        listings = listings,
+                        onListingPressed = onListingPressed,
+                        modifier = Modifier
+                            .defaultHorizontalPadding()
+                    )
+                }
 
             ResellApiState.Error -> {}
         }
@@ -147,6 +163,35 @@ private fun CategoryScreenContent(
     }
 }
 
+@Composable
+private fun EmptyState(onClick: () ->  Unit) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = "No results",
+            style = Style.heading2
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(
+            text = "Try again or",
+            style = Style.body1.copy(color = Color.Gray)
+        )
+        Text(
+            text = "submit a request",
+            style = Style.body1.copy(
+                color = Color.Gray,
+                textDecoration = TextDecoration.Underline
+            ),
+            modifier = Modifier.clickable {
+                onClick
+            },
+        )
+    }
+}
 @Composable
 private fun Header(category: ResellFilter.FilterCategory, onExit: () -> Unit) {
     Box(
@@ -178,10 +223,11 @@ private fun CategoryScreenPreview() = ResellPreview {
         sheetState = rememberModalBottomSheetState(),
         filter = ResellFilter(categoriesSelected = listOf(ResellFilter.FilterCategory.CLOTHING)),
         onFilterChanged = {},
-        listings = List(5) { dumbListing },
+        listings = emptyList() ,
         onListingPressed = {},
-        loadedState = ResellApiState.Loading,
+        loadedState = ResellApiState.Success,
         onDismissRequest = {},
-        onExit = {}
+        onExit = {},
+        navigateToSubmitRequest = {}
     )
 }
