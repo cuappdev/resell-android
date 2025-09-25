@@ -169,8 +169,12 @@ private fun HomeScreenHelper(
         )
     }
     if (sheetState.isVisible) {
-        ModalBottomSheet(onDismissRequest = onDismissRequest) {
-            FilterBottomSheet(filter = filter, onFilterChanged = onFilterChanged)
+        Column(
+            modifier = Modifier.windowInsetsPadding(WindowInsets.statusBars)
+        ) {
+            ModalBottomSheet(onDismissRequest = onDismissRequest) {
+                FilterBottomSheet(filter = filter, onFilterChanged = onFilterChanged)
+            }
         }
     }
 }
@@ -473,7 +477,10 @@ private fun LazyStaggeredGridScope.shopByCategory(onCategoryPressed: (ResellFilt
 }
 
 @Composable
-private fun CategoryRow(modifier: Modifier, onCategoryPressed: (ResellFilter.FilterCategory) -> Unit) {
+private fun CategoryRow(
+    modifier: Modifier,
+    onCategoryPressed: (ResellFilter.FilterCategory) -> Unit
+) {
     LazyRow(
         horizontalArrangement = Arrangement.spacedBy(16.dp),
         contentPadding = PaddingValues(horizontal = 24.dp),

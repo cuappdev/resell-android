@@ -63,7 +63,8 @@ fun CategoryScreen(
 
     CategoryScreenContent(
         loadedState = uiState.loadedState,
-        category = uiState.filter.categoriesSelected.firstOrNull() ?: ResellFilter.FilterCategory.OTHER,
+        category = uiState.filter.categoriesSelected.firstOrNull()
+            ?: ResellFilter.FilterCategory.OTHER,
         onSearchPressed = categoryViewModel::onSearchPressed,
         onFilter = {
             coroutineScope.launch {
@@ -134,7 +135,7 @@ private fun CategoryScreenContent(
             ResellApiState.Success ->
                 if (listings.isEmpty()) {
                     EmptyState(navigateToSubmitRequest)
-                }else {
+                } else {
                     ResellListingsScroll(
                         listings = listings,
                         onListingPressed = onListingPressed,
@@ -146,19 +147,23 @@ private fun CategoryScreenContent(
             ResellApiState.Error -> {}
         }
         if (sheetState.isVisible) {
-            ModalBottomSheet(onDismissRequest = onDismissRequest) {
-                FilterBottomSheet(
-                    filter = filter,
-                    onFilterChanged = onFilterChanged,
-                    includeCategory = false
-                )
+            Column(
+                modifier = Modifier.windowInsetsPadding(WindowInsets.statusBars)
+            ) {
+                ModalBottomSheet(onDismissRequest = onDismissRequest) {
+                    FilterBottomSheet(
+                        filter = filter,
+                        onFilterChanged = onFilterChanged,
+                        includeCategory = false
+                    )
+                }
             }
         }
     }
 }
 
 @Composable
-private fun EmptyState(onClick: () ->  Unit) {
+private fun EmptyState(onClick: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize(),
@@ -186,6 +191,7 @@ private fun EmptyState(onClick: () ->  Unit) {
         )
     }
 }
+
 @Composable
 private fun Header(category: ResellFilter.FilterCategory, onExit: () -> Unit) {
     Box(
@@ -217,7 +223,7 @@ private fun CategoryScreenPreview() = ResellPreview {
         sheetState = rememberModalBottomSheetState(),
         filter = ResellFilter(categoriesSelected = listOf(ResellFilter.FilterCategory.CLOTHING)),
         onFilterChanged = {},
-        listings = emptyList() ,
+        listings = emptyList(),
         onListingPressed = {},
         loadedState = ResellApiState.Success,
         onDismissRequest = {},
