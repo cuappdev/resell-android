@@ -156,7 +156,9 @@ private fun AllFilters(
     toggleCategory: (ResellFilter.FilterCategory) -> Unit
 ) {
     Column(
-        modifier = Modifier.padding(horizontal = 24.dp).fillMaxWidth()
+        modifier = Modifier
+            .padding(horizontal = 24.dp)
+            .fillMaxWidth()
     ) {
         SortBy(sortBy = sortBy, onSelectSortBy = onSelectSortBy)
         PriceRangeFilter(
@@ -177,20 +179,24 @@ private fun AllFilters(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(text = "Reset", style = Style.title1, color = ResellPurple, modifier = Modifier.clickable {
-                ResellFilter.FilterCategory.entries.forEach { item ->
-                    if (categoriesSelected.contains(item)) {
-                        toggleCategory(item)
+            Text(
+                text = "Reset",
+                style = Style.title1,
+                color = ResellPurple,
+                modifier = Modifier.clickable {
+                    ResellFilter.FilterCategory.entries.forEach { item ->
+                        if (categoriesSelected.contains(item)) {
+                            toggleCategory(item)
+                        }
                     }
-                }
-                ResellFilter.FilterCondition.entries.forEach { condition ->
-                    if (condition == conditionSelected) {
-                        toggleCondition(condition)
+                    ResellFilter.FilterCondition.entries.forEach { condition ->
+                        if (condition == conditionSelected) {
+                            toggleCondition(condition)
+                        }
                     }
-                }
-                onItemsOnSaleChanged(false)
-                onPriceRangeChanged(lowestPrice.toFloat()..highestPrice.toFloat())
-            })
+                    onItemsOnSaleChanged(false)
+                    onPriceRangeChanged(lowestPrice.toFloat()..highestPrice.toFloat())
+                })
             Button(
                 onClick = {
                     onFilterChanged(
@@ -260,8 +266,8 @@ private fun PriceRangeFilter(
     priceRange: IntRange,
     lowestPrice: Int,
     highestPrice: Int,
-    onPriceRangeChanged: (ClosedFloatingPointRange<Float>) -> Unit)
-{
+    onPriceRangeChanged: (ClosedFloatingPointRange<Float>) -> Unit
+) {
     Text(
         text = "Price Range",
         style = Style.heading3,
@@ -301,7 +307,10 @@ private fun PriceRangeFilter(
 
 @OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
 @Composable
-private fun Condition(conditionSelected: ResellFilter.FilterCondition?, toggleCondition: (ResellFilter.FilterCondition) -> Unit) {
+private fun Condition(
+    conditionSelected: ResellFilter.FilterCondition?,
+    toggleCondition: (ResellFilter.FilterCondition) -> Unit
+) {
     Text(
         text = "Condition",
         style = Style.heading3,

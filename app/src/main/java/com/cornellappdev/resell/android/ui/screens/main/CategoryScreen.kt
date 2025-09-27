@@ -147,16 +147,15 @@ private fun CategoryScreenContent(
             ResellApiState.Error -> {}
         }
         if (sheetState.isVisible) {
-            Column(
-                modifier = Modifier.windowInsetsPadding(WindowInsets.statusBars)
+            ModalBottomSheet(
+                onDismissRequest = onDismissRequest,
+                contentWindowInsets = { WindowInsets.statusBars }
             ) {
-                ModalBottomSheet(onDismissRequest = onDismissRequest) {
-                    FilterBottomSheet(
-                        filter = filter,
-                        onFilterChanged = onFilterChanged,
-                        includeCategory = false
-                    )
-                }
+                FilterBottomSheet(
+                    filter = filter,
+                    onFilterChanged = onFilterChanged,
+                    includeCategory = false,
+                )
             }
         }
     }

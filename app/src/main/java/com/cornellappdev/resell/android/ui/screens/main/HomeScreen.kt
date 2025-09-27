@@ -169,12 +169,11 @@ private fun HomeScreenHelper(
         )
     }
     if (sheetState.isVisible) {
-        Column(
-            modifier = Modifier.windowInsetsPadding(WindowInsets.statusBars)
-        ) {
-            ModalBottomSheet(onDismissRequest = onDismissRequest) {
-                FilterBottomSheet(filter = filter, onFilterChanged = onFilterChanged)
-            }
+
+        ModalBottomSheet(
+            onDismissRequest = onDismissRequest,
+            contentWindowInsets = { WindowInsets.statusBars }) {
+            FilterBottomSheet(filter = filter, onFilterChanged = onFilterChanged)
         }
     }
 }
