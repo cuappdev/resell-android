@@ -24,7 +24,7 @@ import com.cornellappdev.resell.android.ui.theme.Style
 import com.cornellappdev.resell.android.ui.theme.Wash
 
 @Composable
-fun SearchBar(
+fun ResellSearchBar(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -52,6 +52,6 @@ fun SearchBar(
 
 @Preview(showBackground = true)
 @Composable
-private fun SearchBarPreview() {
-    SearchBar(onClick = {})
+private fun ResellSearchBarPreview() {
+    ResellSearchBar(onClick = {})
 }

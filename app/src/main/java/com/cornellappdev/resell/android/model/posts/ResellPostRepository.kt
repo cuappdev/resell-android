@@ -2,12 +2,13 @@ package com.cornellappdev.resell.android.model.posts
 
 import android.util.Log
 import androidx.compose.ui.graphics.ImageBitmap
-import com.cornellappdev.resell.android.model.api.CategoriesRequest
 import com.cornellappdev.resell.android.model.api.NewPostBody
 import com.cornellappdev.resell.android.model.api.Post
 import com.cornellappdev.resell.android.model.api.PostResponse
 import com.cornellappdev.resell.android.model.api.RetrofitInstance
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
+import com.cornellappdev.resell.android.model.classes.ResellFilter
+import com.cornellappdev.resell.android.model.classes.toFilterRequest
 import com.cornellappdev.resell.android.util.toNetworkingString
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -23,7 +24,8 @@ class ResellPostRepository @Inject constructor(
     private val retrofitInstance: RetrofitInstance,
 ) {
 
-    private val _savedPosts = MutableStateFlow<ResellApiResponse<List<Post>>>(ResellApiResponse.Pending)
+    private val _savedPosts =
+        MutableStateFlow<ResellApiResponse<List<Post>>>(ResellApiResponse.Pending)
     val savedPosts = _savedPosts.asStateFlow()
 
     private var recentBitmaps: List<ImageBitmap>? = null
@@ -33,19 +35,11 @@ class ResellPostRepository @Inject constructor(
         return posts
     }
 
-    suspend fun getPostsByFilter(category: String): List<Post> {
-        return retrofitInstance.postsApi.getFilteredPosts(
-            CategoriesRequest(
-                listOf(
-                    category.lowercase().replaceFirstChar {
-                        if (it.isLowerCase()) it.titlecase(
-                            Locale.US
-                        ) else it.toString()
-                    }
-                )
-            )
-        ).posts
+    suspend fun getFilteredPosts(filter: ResellFilter): List<Post> {
+        return retrofitInstance.postsApi.getFilteredPosts(filter.toFilterRequest()).posts
+
     }
+
 
     suspend fun uploadPost(
         title: String,

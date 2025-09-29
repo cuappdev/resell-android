@@ -71,6 +71,8 @@ fun NavBar(
     }
 }
 
+const val NAVBAR_HEIGHT = 55
+
 @Composable
 private fun NavBarContent(
     onHomeClick: () -> Unit,
@@ -86,7 +88,7 @@ private fun NavBarContent(
             .fillMaxWidth()
             .clickable(enabled = false) {}
             .navigationBarsPadding()
-            .height(55.dp),
+            .height(NAVBAR_HEIGHT.dp),
         color = Color.White,
         shadowElevation = 10.dp,
         shape = RoundedCornerShape(topStart = Padding.xLarge, topEnd = Padding.xLarge),

@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
@@ -29,12 +30,18 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.foundation.text.appendInlineContent
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -59,45 +66,115 @@ import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.model.classes.Listing
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.model.classes.ResellApiState
+import com.cornellappdev.resell.android.model.classes.ResellFilter
 import com.cornellappdev.resell.android.model.classes.UserInfo
 import com.cornellappdev.resell.android.ui.components.global.AnimatedClampedAsyncImage
 import com.cornellappdev.resell.android.ui.components.global.resellListingScroll
 import com.cornellappdev.resell.android.ui.components.global.resellLoadingListingScroll
-import com.cornellappdev.resell.android.ui.components.main.SearchBar
+import com.cornellappdev.resell.android.ui.components.main.FilterBottomSheet
+import com.cornellappdev.resell.android.ui.components.main.ResellSearchBar
+import com.cornellappdev.resell.android.ui.components.nav.NAVBAR_HEIGHT
 import com.cornellappdev.resell.android.ui.theme.Padding
 import com.cornellappdev.resell.android.ui.theme.ResellPreview
 import com.cornellappdev.resell.android.ui.theme.Stroke
 import com.cornellappdev.resell.android.ui.theme.Style
 import com.cornellappdev.resell.android.util.defaultHorizontalPadding
 import com.cornellappdev.resell.android.viewmodel.main.HomeViewModel
+import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     homeViewModel: HomeViewModel = hiltViewModel(),
-    onSavedPressed: () -> Unit
+    onSavedPressed: () -> Unit,
+    setNavBarShown: (Boolean) -> Unit,
+    onCategoryPressed: (ResellFilter.FilterCategory) -> Unit
 ) {
     val homeUiState = homeViewModel.collectUiStateValue()
+    val sheetState = rememberModalBottomSheetState()
+    val coroutineScope = rememberCoroutineScope()
+    LaunchedEffect(sheetState.isVisible) {
+        setNavBarShown(!sheetState.isVisible)
+    }
+    HomeScreenHelper(
+        filter = homeUiState.activeFilter,
+        onFilterPressed = {
+            coroutineScope.launch {
+                sheetState.expand()
+            }
+        },
+        onFilterChanged = {
+            homeViewModel.onFilterChanged(it)
+            coroutineScope.launch {
+                sheetState.hide()
+            }
+        },
+        sheetState = sheetState,
+        onCategoryPressed = onCategoryPressed,
+        onSearchPressed = homeViewModel::onSearchPressed,
+        savedListings = homeUiState.savedListings,
+        onSavedPressed = onSavedPressed,
+        loadedState = homeUiState.loadedState,
+        filteredListings = homeUiState.listings,
+        onListingPressed = homeViewModel::onListingPressed,
+        savedImagesResponses = homeUiState.savedImageResponses,
+        onDismissRequest = {
+            coroutineScope.launch {
+                sheetState.hide()
+            }
+        }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun HomeScreenHelper(
+    filter: ResellFilter,
+    onFilterPressed: () -> Unit,
+    onFilterChanged: (ResellFilter) -> Unit,
+    sheetState: SheetState,
+    onCategoryPressed: (ResellFilter.FilterCategory) -> Unit,
+    onSearchPressed: () -> Unit,
+    savedListings: List<Listing>,
+    onSavedPressed: () -> Unit,
+    loadedState: ResellApiState,
+    filteredListings: List<Listing>,
+    onListingPressed: (Listing) -> Unit,
+    savedImagesResponses: List<MutableState<ResellApiResponse<ImageBitmap>>>,
+    onDismissRequest: () -> Unit
+) {
     Column(
         modifier = Modifier
-            .fillMaxSize(),
+            .fillMaxSize()
+            .windowInsetsPadding(WindowInsets.statusBars)
+            .padding(bottom = NAVBAR_HEIGHT.dp),
         verticalArrangement = Arrangement.spacedBy(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         HomeHeader(
-            onFilter = {},// TODO
-            onSearchPressed = homeViewModel::onSearchPressed,
+            onFilter = onFilterPressed,
+            onSearchPressed = onSearchPressed,
             modifier = Modifier.defaultHorizontalPadding()
         )
 
         MainContent(
-            savedListings = homeUiState.savedListings,
+            savedListings = savedListings,
             onSavedPressed = onSavedPressed,
-            toPost = homeViewModel::onListingPressed,
-            loadedState = homeUiState.loadedState,
-            filteredListings = homeUiState.filteredListings,
-            onListingPressed = homeViewModel::onListingPressed,
-            savedImagesResponses = homeUiState.savedImageResponses
+            toPost = onListingPressed,
+            onCategoryPressed = onCategoryPressed,
+            loadedState = loadedState,
+            filteredListings = filteredListings,
+            onListingPressed = onListingPressed,
+            savedImagesResponses = savedImagesResponses
         )
+    }
+    if (sheetState.isVisible) {
+
+        ModalBottomSheet(
+            onDismissRequest = onDismissRequest,
+            contentWindowInsets = { WindowInsets.statusBars }) {
+            FilterBottomSheet(filter = filter, onFilterChanged = onFilterChanged)
+        }
     }
 }
 
@@ -107,12 +184,12 @@ private fun HomeHeader(
     onSearchPressed: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column(modifier = modifier) {
+    Column(
+        modifier = modifier.fillMaxWidth()
+    ) {
         Row(
             modifier = Modifier
-                .fillMaxWidth()
-                .defaultHorizontalPadding()
-                .windowInsetsPadding(WindowInsets.statusBars),
+                .fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {
@@ -131,7 +208,7 @@ private fun HomeHeader(
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            SearchBar(onClick = onSearchPressed, modifier = Modifier.weight(1f))
+            ResellSearchBar(onClick = onSearchPressed, modifier = Modifier.weight(1f))
             Icon(
                 painter = painterResource(R.drawable.ic_filter),
                 contentDescription = "Filter",
@@ -147,6 +224,7 @@ private fun MainContent(
     onSavedPressed: () -> Unit,
     toPost: (Listing) -> Unit,
     loadedState: ResellApiState,
+    onCategoryPressed: (ResellFilter.FilterCategory) -> Unit,
     filteredListings: List<Listing>,
     onListingPressed: (Listing) -> Unit,
     savedImagesResponses: List<MutableState<ResellApiResponse<ImageBitmap>>>
@@ -157,7 +235,6 @@ private fun MainContent(
             .defaultHorizontalPadding()
             .fillMaxWidth(),
         columns = StaggeredGridCells.Fixed(2),
-        contentPadding = PaddingValues(bottom = 85.dp),
         horizontalArrangement = Arrangement.spacedBy(20.dp)
     ) {
         savedByYou(
@@ -169,7 +246,7 @@ private fun MainContent(
         item(span = StaggeredGridItemSpan.FullLine) {
             Spacer(Modifier.height(24.dp))
         }
-        shopByCategory()
+        shopByCategory(onCategoryPressed = onCategoryPressed)
         item(span = StaggeredGridItemSpan.FullLine) {
             Spacer(Modifier.height(24.dp))
         }
@@ -332,45 +409,53 @@ private enum class CategoryItem(
     val image: Int,
     val label: String,
     val backgroundColor: Color,
+    val category: ResellFilter.FilterCategory
 ) {
     CLOTHING(
         image = R.drawable.shoes,
         label = "Clothing",
-        backgroundColor = Color(0x80CA95A3)
+        backgroundColor = Color(0x80CA95A3),
+        category = ResellFilter.FilterCategory.CLOTHING
     ),
     BOOKS(
         image = R.drawable.books,
         label = "Books",
-        backgroundColor = Color(0x80316054)
+        backgroundColor = Color(0x80316054),
+        category = ResellFilter.FilterCategory.BOOKS
     ),
     SCHOOL(
         image = R.drawable.pencilcase,
         label = "School",
-        backgroundColor = Color(0x80A4B7AB)
+        backgroundColor = Color(0x80A4B7AB),
+        category = ResellFilter.FilterCategory.SCHOOL
     ),
     ELECTRONICS(
         image = R.drawable.airpods_max,
         label = "Electronics",
-        backgroundColor = Color(0x80D795AB)
+        backgroundColor = Color(0x80D795AB),
+        category = ResellFilter.FilterCategory.ELECTRONICS
     ),
     HANDMADE(
         image = R.drawable.color_palette,
         label = "Handmade",
-        backgroundColor = Color(0x80E3B570)
+        backgroundColor = Color(0x80E3B570),
+        category = ResellFilter.FilterCategory.HANDMADE
     ),
     SPORTS(
         image = R.drawable.football,
         label = "Sports & Outdoors",
-        backgroundColor = Color(0x8073A2AB)
+        backgroundColor = Color(0x8073A2AB),
+        category = ResellFilter.FilterCategory.SPORTS
     ),
     OTHER(
         image = R.drawable.gift,
         label = "Other",
-        backgroundColor = Color(0x80E2B56E)
+        backgroundColor = Color(0x80E2B56E),
+        category = ResellFilter.FilterCategory.OTHER
     )
 }
 
-private fun LazyStaggeredGridScope.shopByCategory() {
+private fun LazyStaggeredGridScope.shopByCategory(onCategoryPressed: (ResellFilter.FilterCategory) -> Unit) {
     item(span = StaggeredGridItemSpan.FullLine) {
         Row(
             modifier = Modifier
@@ -385,13 +470,16 @@ private fun LazyStaggeredGridScope.shopByCategory() {
     }
     item(span = StaggeredGridItemSpan.FullLine) {
         ForceHorizontalOffset(offset = Padding.leftRight) { modifier ->
-            CategoryRow(modifier)
+            CategoryRow(modifier, onCategoryPressed)
         }
     }
 }
 
 @Composable
-private fun CategoryRow(modifier: Modifier) {
+private fun CategoryRow(
+    modifier: Modifier,
+    onCategoryPressed: (ResellFilter.FilterCategory) -> Unit
+) {
     LazyRow(
         horizontalArrangement = Arrangement.spacedBy(16.dp),
         contentPadding = PaddingValues(horizontal = 24.dp),
@@ -408,7 +496,10 @@ private fun CategoryRow(modifier: Modifier) {
                         .size(80.dp)
                         .clip(CircleShape)
                         .background(color = category.backgroundColor)
-                        .align(alignment = Alignment.CenterHorizontally),
+                        .align(alignment = Alignment.CenterHorizontally)
+                        .clickable {
+                            onCategoryPressed(category.category)
+                        },
                     contentAlignment = Alignment.Center
                 ) {
                     Image(
@@ -487,73 +578,66 @@ private fun ResellSavedCard(
     )
 }
 
+val dumbListing = Listing(
+    id = "1",
+    title = "Dumb Listing",
+    images = listOf(""),
+    price = 100.0.toString(),
+    categories = listOf("Electronics"),
+    description = "This is a dumb listing",
+    user = UserInfo(
+        username = "Caleb",
+        name = "Caleb",
+        netId = "chs232",
+        venmoHandle = "-",
+        bio = "lol",
+        imageUrl = "",
+        id = "1",
+        email = ""
+    )
+)
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Composable
 private fun HomeScreenPreview() = ResellPreview {
-    val dumbListing = Listing(
-        id = "1",
-        title = "Dumb Listing",
-        images = listOf(""),
-        price = 100.0.toString(),
-        categories = listOf("Electronics"),
-        description = "This is a dumb listing",
-        user = UserInfo(
-            username = "Caleb",
-            name = "Caleb",
-            netId = "chs232",
-            venmoHandle = "-",
-            bio = "lol",
-            imageUrl = "",
-            id = "1",
-            email = ""
-        )
+    HomeScreenHelper(
+        filter = ResellFilter(),
+        onFilterPressed = {},
+        onFilterChanged = {},
+        sheetState = rememberModalBottomSheetState(),
+        onSearchPressed = {},
+        savedListings = List(5) { dumbListing },
+        onSavedPressed = {},
+        loadedState = ResellApiState.Loading,
+        filteredListings = List(10) { dumbListing },
+        onListingPressed = {},
+        savedImagesResponses = List(5) {
+            mutableStateOf(ResellApiResponse.Pending)
+        },
+        onDismissRequest = {},
+        onCategoryPressed = {}
     )
-    Column(
-        modifier = Modifier
-            .fillMaxSize(),
-        verticalArrangement = Arrangement.spacedBy(24.dp)
-    ) {
-        HomeHeader(
-            onFilter = {},
-            onSearchPressed = {},
-            modifier = Modifier.defaultHorizontalPadding()
-        )
-
-        MainContent(
-            List(5) { dumbListing },
-            onSavedPressed = {},
-            toPost = {},
-            loadedState = ResellApiState.Success,
-            filteredListings = List(10) { dumbListing },
-            onListingPressed = {},
-            savedImagesResponses = emptyList()
-        )
-    }
 }
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Composable
 private fun SavedEmptyStatePreview() = ResellPreview {
-    Column(
-        modifier = Modifier
-            .fillMaxSize(),
-        verticalArrangement = Arrangement.spacedBy(24.dp)
-    ) {
-        HomeHeader(
-            onFilter = {},
-            onSearchPressed = {},
-            modifier = Modifier.defaultHorizontalPadding()
-        )
-
-        MainContent(
-            savedListings = emptyList(),
-            onSavedPressed = {},
-            toPost = {},
-            loadedState = ResellApiState.Success,
-            filteredListings = emptyList(),
-            onListingPressed = {},
-            savedImagesResponses = emptyList()
-        )
-    }
+    HomeScreenHelper(
+        filter = ResellFilter(),
+        onFilterPressed = {},
+        onFilterChanged = {},
+        sheetState = rememberModalBottomSheetState(),
+        onSearchPressed = {},
+        savedListings = emptyList(),
+        onSavedPressed = { },
+        loadedState = ResellApiState.Loading,
+        filteredListings = List(10) { dumbListing },
+        onListingPressed = {},
+        savedImagesResponses = emptyList(),
+        onDismissRequest = {},
+        onCategoryPressed = {}
+    )
 }
