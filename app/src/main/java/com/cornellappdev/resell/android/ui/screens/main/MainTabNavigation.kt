@@ -109,7 +109,7 @@ fun MainTabNavigation(
             }
 
             composable<ResellMainScreen.FromPurchases> {
-                FromSearchScreen() //TODO: This is temporary
+                FromPurchasesScreen()
             }
         }
 
