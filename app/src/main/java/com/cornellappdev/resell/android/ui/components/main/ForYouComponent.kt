@@ -16,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
@@ -27,9 +28,16 @@ import com.cornellappdev.resell.android.ui.theme.Style
 
 @Composable
 fun ForYouComponent(text: String, amount: Int?, images: List<Painter?>, onClick: () -> Unit) {
+
     Box(
         modifier = Modifier
-            .size(220.dp)
+            .size(240.dp)
+            .shadow(
+                elevation = 5.dp,
+                shape = RoundedCornerShape(16.dp),
+                ambientColor = Color.Gray,
+                spotColor = Color.Black
+            )
             .clip(RoundedCornerShape(16.dp))
             .background(Color.LightGray)
             .clickable(onClick = onClick)
@@ -71,6 +79,7 @@ fun ForYouComponent(text: String, amount: Int?, images: List<Painter?>, onClick:
 
     }
 }
+
 
 @Composable
 fun ImageBox(painter: Painter?, modifier: Modifier = Modifier) {
