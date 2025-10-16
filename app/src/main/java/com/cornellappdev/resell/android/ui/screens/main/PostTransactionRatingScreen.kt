@@ -29,6 +29,9 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import androidx.wear.compose.material.Text
 import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.ui.components.global.ResellHeader
@@ -41,54 +44,101 @@ import com.cornellappdev.resell.android.ui.theme.Style.body2
 import com.cornellappdev.resell.android.ui.theme.Style.heading3
 import com.cornellappdev.resell.android.ui.theme.Style.title1
 
+import com.cornellappdev.resell.android.viewmodel.main.PostTransactionRatingViewModel
 @Composable
-fun PostTransactionRatingScreen() {
-    //TODO - is it necessary to make the background white
-    Column(modifier = Modifier.fillMaxSize().background(color = Color.White).padding(horizontal = 24.dp)) {
-        //TODO - add onClick to return back to chat screen?
-        ResellHeader(title = "Completed Transaction", leftPainter = R.drawable.ic_chevron_left)
-        ItemInfo("Item Name", painterResource(R.drawable.ic_appdev), "00.00", "Seller Name", "Month, 00, 0000")
+fun PostTransactionRatingScreen(
+    postTransactionRatingViewModel: PostTransactionRatingViewModel = hiltViewModel()
+) {
+
+    val postTransactionUiState = postTransactionRatingViewModel.collectUiStateValue()
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(color = Color.White)
+            .padding(horizontal = 24.dp)
+    ) {
+        ResellHeader(
+            title = "Completed Transaction",
+            leftPainter = R.drawable.ic_chevron_left,
+            onLeftClick = {
+                postTransactionRatingViewModel.onBackArrow()
+            }
+        )
+        ItemInfo(
+            "Item Name",
+            painterResource(R.drawable.ic_appdev),
+            "00.00",
+            "Seller Name",
+            "Month, 00, 0000"
+        )
         HorizontalDivider()
 
-        Text(text = "Transaction Review", style = heading3, modifier = Modifier.padding(top=16.dp, bottom = 12.dp))
-        ResellRatingBar(rating = 3, onRatingChanged = {})
+        Text(
+            text = "Transaction Review",
+            style = heading3,
+            modifier = Modifier.padding(top = 16.dp, bottom = 12.dp)
+        )
+        ResellRatingBar(
+            rating = postTransactionUiState.rating,
+            onRatingChanged = {
+                postTransactionRatingViewModel.onRatingChanged(it)
+            }
+        )
 
         ResellTextEntry(
-            text = "",
-            onTextChange = {},
+            text = postTransactionUiState.reviewText,
+            onTextChange = {
+                postTransactionRatingViewModel.onReviewTextChanged(it)
+            },
             inlineLabel = false,
             singleLine = false,
             placeholder = "How was your transaction experience with SELLER NAME? (Optional)",
             textFontStyle = body2,
             multiLineHeight = 117.dp,
-            modifier = Modifier.padding(top=16.dp,bottom=36.dp)
+            modifier = Modifier.padding(top = 16.dp, bottom = 36.dp)
         )
 
         val annotatedText = buildAnnotatedString {
             append("Had issues? Submit ")
 
             // Annotating the clickable part
-//            pushLink(
-//                LinkAnnotation.Url(
-//                    url = "" //TODO add call to report screen
-//                )
-//            )
+            pushStringAnnotation(
+                tag = "feedback_link",
+                annotation = "nav_to_feedback"
+            )
 
-
-            withStyle(style = SpanStyle(color = ResellPurple, textDecoration = TextDecoration.Underline)) {
+            withStyle(
+                style = SpanStyle(
+                    color = ResellPurple,
+                    textDecoration = TextDecoration.Underline
+                )
+            ) {
                 append("feedback")
             }
-           // pop() // End of the clickable part
+             pop() // End of the clickable part
         }
 
-       
-            Text(annotatedText, style = body2, modifier = Modifier.align(Alignment.CenterHorizontally))
-        
-
-
-        //TODO - add onClick to submit review
+        Text(
+            text = annotatedText,
+            style = body2,
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+                .clickable {
+                    annotatedText.getStringAnnotations(tag = "feedback_link", start = 0, end = annotatedText.length)
+                        .firstOrNull()?.let {
+                             postTransactionRatingViewModel.onFeedbackClicked()
+                        }
+                }
+        )
         Box(contentAlignment = Alignment.BottomCenter, modifier = Modifier.fillMaxSize()) {
-            ResellTextButton(text = "Submit Review", onClick = {}, modifier = Modifier.padding(bottom=44.dp))
+            ResellTextButton(
+                text = "Submit Review",
+                onClick = {
+                    postTransactionRatingViewModel.submitReview()
+                },
+                modifier = Modifier.padding(bottom = 44.dp)
+            )
         }
 
     }
@@ -96,22 +146,38 @@ fun PostTransactionRatingScreen() {
 
 @Composable
 //TODO - modify to pass in imageURL instead of painter when connecting to backend/viewmodel
-private fun ItemInfo(itemName: String, image: Painter, price: String, sellerName: String, date: String) {
+private fun ItemInfo(
+    itemName: String,
+    image: Painter,
+    price: String,
+    sellerName: String,
+    date: String
+) {
     Column {
-        Text(text = "Purchase Summary", style = heading3, modifier = Modifier.padding(top=36.dp))
+        Text(text = "Purchase Summary", style = heading3, modifier = Modifier.padding(top = 36.dp))
 
         Row(modifier = Modifier.padding(top = 16.dp, bottom = 32.dp)) {
             //TODO - plagiarize ResellCard AsyncImage when UI is done/backend connected
-            Image(painter = painterResource(R.drawable.ic_appdev),
+            Image(
+                painter = painterResource(R.drawable.ic_appdev),
                 contentDescription = null,
-                modifier = Modifier.size(75.dp))
-            Column(modifier = Modifier.padding(start = 16.dp)){
+                modifier = Modifier.size(75.dp)
+            )
+            Column(modifier = Modifier.padding(start = 16.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(text = itemName, style = title1)
-                    Image(painter = image, contentDescription = null, modifier = Modifier.padding(horizontal = 8.dp))
+                    Image(
+                        painter = image,
+                        contentDescription = null,
+                        modifier = Modifier.padding(horizontal = 8.dp)
+                    )
                     Text(text = "$$price", style = body1)
                 }
-                Text("Sold by $sellerName", style = body2, modifier = Modifier.padding(top = 8.dp, bottom = 4.dp))
+                Text(
+                    "Sold by $sellerName",
+                    style = body2,
+                    modifier = Modifier.padding(top = 8.dp, bottom = 4.dp)
+                )
                 Text("Purchased on $date", style = body2)
 
             }

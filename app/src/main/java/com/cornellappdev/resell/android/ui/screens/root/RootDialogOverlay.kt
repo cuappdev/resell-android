@@ -15,6 +15,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.resell.android.ui.components.global.dialog.CorrectAnswerDialog
 import com.cornellappdev.resell.android.ui.components.global.dialog.DialogWrapper
 import com.cornellappdev.resell.android.ui.components.global.dialog.TwoButtonDialog
+import com.cornellappdev.resell.android.ui.components.submitted.ConfettiCardWrapper
+import com.cornellappdev.resell.android.ui.components.submitted.ConfettiOverlay
 import com.cornellappdev.resell.android.util.clickableNoIndication
 import com.cornellappdev.resell.android.viewmodel.root.RootDialogContent
 import com.cornellappdev.resell.android.viewmodel.root.RootDialogViewModel
@@ -24,6 +26,8 @@ fun RootDialogOverlay(
     rootDialogViewModel: RootDialogViewModel = hiltViewModel()
 ) {
     val uiState = rootDialogViewModel.collectUiStateValue()
+
+    val isConfettiDialog = uiState.content is RootDialogContent.ReviewSubmittedDialog
 
     val showPercent by animateFloatAsState(
         if (uiState.showing) 1f else 0f,
@@ -93,7 +97,17 @@ fun RootDialogOverlay(
                         secondaryButtonState = uiState.content.secondaryButtonState
                     )
                 }
+
+                is RootDialogContent.ReviewSubmittedDialog -> {
+                    ConfettiCardWrapper(onDone = { rootDialogViewModel.onDismiss() })
+                }
             }
+        }
+
+        if (isConfettiDialog) {
+            ConfettiOverlay(
+                modifier = Modifier.fillMaxSize()
+            )
         }
     }
 
