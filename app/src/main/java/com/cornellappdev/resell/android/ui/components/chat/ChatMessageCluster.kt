@@ -20,6 +20,7 @@ import com.cornellappdev.resell.android.model.MessageType
 import com.cornellappdev.resell.android.model.api.Post
 import com.cornellappdev.resell.android.model.chats.AvailabilityDocument
 import com.cornellappdev.resell.android.model.chats.MeetingInfo
+import com.cornellappdev.resell.android.model.chats.TransactionInfo
 import com.cornellappdev.resell.android.ui.components.main.ProfilePictureView
 import com.cornellappdev.resell.android.ui.theme.ResellPreview
 
@@ -31,6 +32,7 @@ fun ChatMessageCluster(
     onPostClicked: (Post) -> Unit,
     onAvailabilityClicked: (AvailabilityDocument) -> Unit,
     onMeetingStateClicked: (MeetingInfo) -> Unit,
+    onTransactionStateClicked: (TransactionInfo) -> Unit,
     senderName: String
 ) {
     Row(
@@ -90,13 +92,13 @@ fun ChatMessageCluster(
                     }
 
                     MessageType.State -> {
-                        if (it.meetingInfo == null) {
+                        if (it.meetingInfo == null && it.transactionInfo == null) {
                             ChatMeetingState(
                                 text = it.content,
                                 enabled = true,
                                 actionText = null,
                             )
-                        } else {
+                        } else if (it.meetingInfo != null) {
                             ChatMeetingState(
                                 text = it.content,
                                 actionText = it.meetingInfo.actionText,
@@ -105,6 +107,16 @@ fun ChatMessageCluster(
                                 },
                                 icon = painterResource(id = it.meetingInfo.icon),
                                 enabled = it.meetingInfo.mostRecent
+                            )
+                        } else if (it.transactionInfo != null) {
+                            ChatTransactionState(
+                                text = it.content,
+                                actionText = it.transactionInfo.actionText,
+                                onActionTextClicked = {
+                                    onTransactionStateClicked(it.transactionInfo)
+                                },
+                                icon = painterResource(id = it.transactionInfo.icon),
+                                enabled = it.transactionInfo.mostRecent
                             )
                         }
                     }

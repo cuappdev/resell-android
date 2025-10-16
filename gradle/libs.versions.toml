@@ -1,6 +1,6 @@
 [versions]
 activityKtx = "1.10.0"
-agp = "8.5.1"
+agp = "8.13.0"
 animation = "1.7.8"
 coilCompose = "2.7.0"
 converterGson = "2.9.0"

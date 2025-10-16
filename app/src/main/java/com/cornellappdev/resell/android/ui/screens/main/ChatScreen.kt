@@ -30,6 +30,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -47,11 +49,14 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.model.Chat
 import com.cornellappdev.resell.android.model.api.Post
 import com.cornellappdev.resell.android.model.chats.AvailabilityDocument
 import com.cornellappdev.resell.android.model.chats.MeetingInfo
+import com.cornellappdev.resell.android.model.chats.TransactionInfo
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.ui.components.chat.ChatTag
 import com.cornellappdev.resell.android.ui.components.chat.ResellChatScroll
@@ -114,7 +119,9 @@ fun ChatScreen(
                     )
                 },
                 onMeetingStateClicked = chatViewModel::onMeetingStateClicked,
+                onTransactionStateClicked = chatViewModel::onTransactionStateClicked,
                 confirmedMeeting = chatUiState.confirmedMeeting,
+                onPTFClicked = chatViewModel::onPTFClicked,
                 onViewAvailabilityPressed = chatViewModel::onViewOtherAvailabilityPressed
             )
         }
@@ -129,6 +136,7 @@ private fun ChatLoadedContent(
     onBackPressed: () -> Unit,
     onNegotiatePressed: () -> Unit,
     onMeetingStateClicked: (MeetingInfo, Boolean) -> Unit,
+    onTransactionStateClicked: (TransactionInfo) -> Unit,
     onAvailabilityClicked: (AvailabilityDocument, Boolean) -> Unit,
     onViewAvailabilityPressed: () -> Unit,
     onSendAvailability: () -> Unit,
@@ -139,6 +147,7 @@ private fun ChatLoadedContent(
     showPayWithVenmo: Boolean,
     showNegotiate: Boolean,
     onPostClicked: (Post) -> Unit,
+    onPTFClicked: () -> Unit,
     confirmedMeeting: MeetingInfo?,
 ) {
     Column(
@@ -164,7 +173,8 @@ private fun ChatLoadedContent(
             modifier = Modifier.weight(1f),
             onPostClicked = onPostClicked,
             onAvailabilityClicked = onAvailabilityClicked,
-            onMeetingStateClicked = onMeetingStateClicked
+            onMeetingStateClicked = onMeetingStateClicked,
+            onTransactionStateClicked = onTransactionStateClicked
         )
         ChatFooter(
             chatType = chatUiState.chatType,
@@ -188,6 +198,18 @@ private fun ChatLoadedContent(
                 onViewAvailabilityPressed()
             }
         )
+
+        // TEST BUTTON (Remove after testing)
+        Button(
+            onClick = {
+                onPTFClicked()
+            },
+            modifier = Modifier
+                .padding(16.dp),
+            colors = ButtonDefaults.buttonColors(containerColor = ResellPurple)
+        ) {
+            Text("View Transaction", color = Color.White)
+        }
     }
 }
 
@@ -283,7 +305,6 @@ private fun ChatHeader(
                 )
             }
         }
-
     }
 }
 

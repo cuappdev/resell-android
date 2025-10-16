@@ -3,6 +3,7 @@ package com.cornellappdev.resell.android.model
 import com.cornellappdev.resell.android.model.api.Post
 import com.cornellappdev.resell.android.model.chats.AvailabilityDocument
 import com.cornellappdev.resell.android.model.chats.MeetingInfo
+import com.cornellappdev.resell.android.model.chats.TransactionInfo
 import com.cornellappdev.resell.android.util.justinMessages
 import com.cornellappdev.resell.android.util.richieMessages
 import com.google.firebase.Timestamp
@@ -37,6 +38,7 @@ data class ChatMessageData(
     val imageUrl: String = "",
     val availability: AvailabilityDocument? = null,
     val meetingInfo: MeetingInfo? = null,
+    val transactionInfo : TransactionInfo? = null,
     val post: Post? = null
 ) {
     /**

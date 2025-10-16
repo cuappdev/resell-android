@@ -26,6 +26,7 @@ import com.cornellappdev.resell.android.model.api.Post
 import com.cornellappdev.resell.android.model.chats.AvailabilityBlock
 import com.cornellappdev.resell.android.model.chats.AvailabilityDocument
 import com.cornellappdev.resell.android.model.chats.MeetingInfo
+import com.cornellappdev.resell.android.model.chats.TransactionInfo
 import com.cornellappdev.resell.android.model.classes.Listing
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.model.core.UserInfoRepository
@@ -121,6 +122,11 @@ class ChatViewModel @Inject constructor(
         Purchases, Offers
     }
 
+    fun onPTFClicked() {
+        navController.navigate(
+            ResellRootRoute.POST_TRANSACTION_RATING
+        )
+    }
     fun onBackPressed() {
         navController.popBackStack()
     }
@@ -593,6 +599,16 @@ class ChatViewModel @Inject constructor(
             } catch (e: Exception) {
                 rootConfirmationRepository.showError()
                 Log.e("ChatViewModel", "onMeetingCancelled: ", e)
+            }
+        }
+    }
+
+    fun onTransactionStateClicked(transactionInfo: TransactionInfo) {
+        viewModelScope.launch {
+            when (transactionInfo.state) {
+                "completed" -> {
+                    rootNavigationRepository.navigate(ResellRootRoute.POST_TRANSACTION_RATING)
+                }
             }
         }
     }
