@@ -71,7 +71,7 @@ private fun Content(
             modifier = Modifier.padding(start = 24.dp),
         )
 
-        Spacer(Modifier.height(16.dp))
+        Spacer(Modifier.height(20.dp))
 
         reasons.forEach {
             ReportRow(

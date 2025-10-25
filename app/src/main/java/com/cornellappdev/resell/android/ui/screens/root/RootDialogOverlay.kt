@@ -16,7 +16,6 @@ import com.cornellappdev.resell.android.ui.components.global.dialog.CorrectAnswe
 import com.cornellappdev.resell.android.ui.components.global.dialog.DialogWrapper
 import com.cornellappdev.resell.android.ui.components.global.dialog.TwoButtonDialog
 import com.cornellappdev.resell.android.ui.components.submitted.ConfettiCardWrapper
-import com.cornellappdev.resell.android.ui.components.submitted.ConfettiOverlay
 import com.cornellappdev.resell.android.util.clickableNoIndication
 import com.cornellappdev.resell.android.viewmodel.root.RootDialogContent
 import com.cornellappdev.resell.android.viewmodel.root.RootDialogViewModel
@@ -27,7 +26,8 @@ fun RootDialogOverlay(
 ) {
     val uiState = rootDialogViewModel.collectUiStateValue()
 
-    val isConfettiDialog = uiState.content is RootDialogContent.ReviewSubmittedDialog
+    // TODO: uncomment after confetti animation is finalized
+//    val isConfettiDialog = uiState.content is RootDialogContent.ReviewSubmittedDialog
 
     val showPercent by animateFloatAsState(
         if (uiState.showing) 1f else 0f,
@@ -104,11 +104,12 @@ fun RootDialogOverlay(
             }
         }
 
-        if (isConfettiDialog) {
-            ConfettiOverlay(
-                modifier = Modifier.fillMaxSize()
-            )
-        }
+        //TODO: uncomment after confetti animation implementation is finalized.
+//        if (isConfettiDialog) {
+//            ConfettiOverlay(
+//                modifier = Modifier.fillMaxSize()
+//            )
+//        }
     }
 
 }

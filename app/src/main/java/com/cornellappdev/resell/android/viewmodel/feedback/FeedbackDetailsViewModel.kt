@@ -84,14 +84,7 @@ class FeedbackDetailsViewModel @Inject constructor(
     }
 
     fun onBackArrow() {
-        val navArgs = savedStateHandle.toRoute<FeedbackScreen.Reason>()
-        feedbackNavigationRepository.navigate(
-            FeedbackScreen.Reason(
-                userId = navArgs.userId,
-                postId = navArgs.postId,
-                userName = navArgs.userName,
-            )
-        )
+        feedbackNavigationRepository.popBackStack()
     }
 
     fun onSubmitPressed() {
@@ -102,34 +95,19 @@ class FeedbackDetailsViewModel @Inject constructor(
                 )
             }
 
-            try {
-                // TODO add networking for feedback submission
+            // TODO add networking for feedback submission
+            // Navigate back to the home page and show the review submitted dialog
+            rootNavigationRepository.navigate(
+                ResellRootRoute.MAIN
+            )
 
-                // Navigate back to the home page and show the review submitted dialog
-                rootNavigationRepository.navigate(
-                    ResellRootRoute.MAIN
+            delay(100)
+
+            rootDialogRepository.showDialog(
+                RootDialogContent.ReviewSubmittedDialog(
+                    onDismiss = { rootDialogRepository.dismissDialog() }
                 )
-
-                delay(100)
-
-                rootDialogRepository.showDialog(
-                    RootDialogContent.ReviewSubmittedDialog(
-                        onDismiss = { rootDialogRepository.dismissDialog() }
-                    )
-                )
-
-                // TODO tix the exception here
-            } catch (e: Exception) {
-                Log.e("FeedbackDetailsViewModel", "Error submitting feedback", e)
-                rootConfirmationRepository.showError(
-                    message = "Error submitting feedback. Please try again later."
-                )
-                applyMutation {
-                    copy(
-                        loadingSubmit = false
-                    )
-                }
-            }
+            )
         }
     }
 }

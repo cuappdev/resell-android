@@ -1,13 +1,15 @@
 package com.cornellappdev.resell.android.viewmodel.feedback
 
 import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.cornellappdev.resell.android.ui.screens.feedback.FeedbackScreen
-import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
 import com.cornellappdev.resell.android.viewmodel.navigation.FeedbackNavigationRepository
 import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -17,14 +19,10 @@ class FeedbackReasonViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle
 ) :
     ResellViewModel<FeedbackReasonViewModel.FeedbackReasonUiState>(
-        initialUiState = FeedbackReasonUiState(
-            placeholder = Unit
-        )
+        initialUiState = FeedbackReasonUiState
     ) {
 
-    data class FeedbackReasonUiState(
-        val placeholder: Unit = Unit,
-    ) {
+    object FeedbackReasonUiState {
         val reasons: List<String>
             get() = FeedbackReason.entries.map { it.message }
 
@@ -33,17 +31,6 @@ class FeedbackReasonViewModel @Inject constructor(
 
         val subtitle: String
             get() = "Explain what happened"
-    }
-
-    // TODO fix this
-    init {
-        savedStateHandle.toRoute<FeedbackScreen.Reason>().let { navArgs ->
-            applyMutation {
-                copy(
-                    placeholder = Unit
-                )
-            }
-        }
     }
 
     fun onReasonPressed(reason: String) {
@@ -59,14 +46,18 @@ class FeedbackReasonViewModel @Inject constructor(
     }
 
     fun onBackArrow() {
-        rootNavigationRepository.popBackStack()
+        viewModelScope.launch {
+            // Small delay to let any pending navigation settle (prevent a blank FeedbackReasonScreen)
+            delay(50)
+            rootNavigationRepository.popBackStack()
+        }
     }
 }
 
 enum class FeedbackReason(
     val message: String
 ) {
-    STOPED_RESPONDING(
+    STOPPED_RESPONDING(
         message = "User Stopped Responding"
     ),
     ITEM_PROBLEM(
