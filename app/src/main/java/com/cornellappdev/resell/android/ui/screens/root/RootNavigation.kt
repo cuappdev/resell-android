@@ -265,5 +265,8 @@ sealed class ResellRootRoute {
     ) : ResellRootRoute()
 
     @Serializable
-    data object POST_TRANSACTION_RATING : ResellRootRoute()
+    data class POST_TRANSACTION_RATING(
+        val postId: String,
+        val userId: String
+    ) : ResellRootRoute()
 }
