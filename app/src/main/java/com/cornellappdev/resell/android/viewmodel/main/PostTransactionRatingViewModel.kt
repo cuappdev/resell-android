@@ -1,6 +1,5 @@
 package com.cornellappdev.resell.android.viewmodel.main
 
-import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
@@ -12,8 +11,8 @@ import com.cornellappdev.resell.android.viewmodel.root.RootDialogContent
 import com.cornellappdev.resell.android.viewmodel.root.RootDialogRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
-import javax.inject.Inject
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @HiltViewModel
 class PostTransactionRatingViewModel @Inject constructor(
@@ -21,29 +20,46 @@ class PostTransactionRatingViewModel @Inject constructor(
     private val rootNavigationRepository: RootNavigationRepository,
     private val rootDialogRepository: RootDialogRepository,
     private val rootConfirmationRepository: RootConfirmationRepository
-    ) : ResellViewModel<PostTransactionRatingViewModel.PostTransactionRatingUiState>(
-        initialUiState = PostTransactionRatingUiState(
-            submitted = false,
-            rating = 0,
-            reviewText = ""
-        )
-    ) {
+) : ResellViewModel<PostTransactionRatingViewModel.PostTransactionRatingUiState>(
+    initialUiState = PostTransactionRatingUiState()
+) {
 
-    data class PostTransactionRatingUiState (
-        val submitted : Boolean,
-        val rating : Int,
-        val reviewText : String
-    ) {
+    data class PostTransactionRatingUiState(
+        val imageUrl: String = "",
+        val itemName: String = "",
+        val price: String = "",
+        val sellerName: String = "",
+        val date: String = "",
+        val rating: Int = 0,
+        val reviewText: String = "",
+        val postId: String = "",
+        val userId: String = ""
+    )
 
+    init {
+        // Fetch arguments from navigation
+        val navArgs = savedStateHandle.toRoute<ResellRootRoute.POST_TRANSACTION_RATING>()
+        // TODO: Replace with actual data when backend is integrated
+        applyMutation {
+            copy(
+                itemName = "Item Name",
+                price = "00.00",
+                sellerName = "Seller Name",
+                date = "Month, 00, 0000",
+                imageUrl = "https://fakelink",
+                postId = navArgs.postId,
+                userId = navArgs.userId
+            )
+        }
     }
 
     // TODO add networking here
     fun onFeedbackClicked() {
         rootNavigationRepository.navigate(
             ResellRootRoute.FEEDBACK(
-                postId = "",
-                userId = "",
-                userName = "Test User",
+                postId = uiStateFlow.value.postId,
+                userId = uiStateFlow.value.userId,
+                userName = uiStateFlow.value.sellerName,
             )
         )
     }
@@ -52,38 +68,30 @@ class PostTransactionRatingViewModel @Inject constructor(
         rootNavigationRepository.popBackStack()
     }
 
-    fun onRatingChanged(newRating : Int) {
+    fun onRatingChanged(newRating: Int) {
         applyMutation { copy(rating = newRating) }
     }
 
-    fun onReviewTextChanged(newText : String) {
+    fun onReviewTextChanged(newText: String) {
         applyMutation { copy(reviewText = newText) }
     }
 
     fun submitReview() {
         viewModelScope.launch {
-            try {
-                // TODO: API/backend calls
+            // TODO: API/backend calls
+            
+            // Navigate back home
+            rootNavigationRepository.navigate(
+                ResellRootRoute.MAIN
+            )
 
-                // Navigate back home
-                rootNavigationRepository.navigate(
-                    ResellRootRoute.MAIN
-                )
+            delay(100)
 
-                delay(100)
-
-                rootDialogRepository.showDialog(
-                    RootDialogContent.ReviewSubmittedDialog(
-                        onDismiss = { rootDialogRepository.dismissDialog() }
-                    )
+            rootDialogRepository.showDialog(
+                RootDialogContent.ReviewSubmittedDialog(
+                    onDismiss = { rootDialogRepository.dismissDialog() }
                 )
-            }
-            catch (e: Exception) {
-                Log.e("PostTransactionRatingViewModel", "Error submitting review: ", e)
-                rootConfirmationRepository.showError(
-                    "Something went wrong with your submission. Please try again later."
-                )
-            }
+            )
         }
     }
 }

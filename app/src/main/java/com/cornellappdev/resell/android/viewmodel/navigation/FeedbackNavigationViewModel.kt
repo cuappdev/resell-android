@@ -22,6 +22,7 @@ class FeedbackNavigationViewModel @Inject constructor(
     ) {
     data class UiState(
         val route: UIEvent<FeedbackScreen>?,
+        val popBackStack: UIEvent<Unit>? = null,
         val initialPage: FeedbackScreen? = null,
     )
 
@@ -30,6 +31,14 @@ class FeedbackNavigationViewModel @Inject constructor(
             applyMutation {
                 copy(
                     route = route
+                )
+            }
+        }
+
+        asyncCollect(feedbackNavigationRepository.popBackStackFlow) { pop ->
+            applyMutation {
+                copy(
+                    popBackStack = pop
                 )
             }
         }

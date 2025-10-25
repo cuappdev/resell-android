@@ -24,12 +24,18 @@ fun FeedbackNavigation(
         }
     }
 
+    LaunchedEffect(uiState.popBackStack) {
+        uiState.popBackStack?.consumeSuspend {
+            navController.popBackStack()
+        }
+    }
+
     NavHost(
         navController = navController,
-        startDestination = uiState.initialPage ?: FeedbackScreen.Reason(
+        startDestination = FeedbackScreen.Reason(
             postId = "",
             userId = "",
-            userName = "",
+            userName = ""
         ),
         modifier = Modifier.fillMaxSize()
     ) {
