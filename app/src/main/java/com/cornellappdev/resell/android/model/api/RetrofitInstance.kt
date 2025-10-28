@@ -122,6 +122,15 @@ class RetrofitInstance @Inject constructor(
             .create(PostsApiService::class.java)
     }
 
+    val searchApi: SearchApiService by lazy {
+        Retrofit.Builder()
+            .baseUrl(BuildConfig.BASE_API_URL)
+            .client(okHttpClient)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(SearchApiService::class.java)
+    }
+
     val requestsApi: RequestsApiService by lazy {
         Retrofit.Builder()
             .baseUrl(BuildConfig.BASE_API_URL)

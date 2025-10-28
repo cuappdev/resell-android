@@ -5,15 +5,20 @@ import androidx.compose.ui.graphics.ImageBitmap
 import com.cornellappdev.resell.android.model.api.NewPostBody
 import com.cornellappdev.resell.android.model.api.Post
 import com.cornellappdev.resell.android.model.api.PostResponse
+import com.cornellappdev.resell.android.model.api.ResellSearchHistory
 import com.cornellappdev.resell.android.model.api.RetrofitInstance
+import com.cornellappdev.resell.android.model.classes.Listing
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.model.classes.ResellFilter
 import com.cornellappdev.resell.android.model.classes.toFilterRequest
 import com.cornellappdev.resell.android.util.toNetworkingString
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.Locale
 import javax.inject.Inject
@@ -28,6 +33,18 @@ class ResellPostRepository @Inject constructor(
         MutableStateFlow<ResellApiResponse<List<Post>>>(ResellApiResponse.Pending)
     val savedPosts = _savedPosts.asStateFlow()
 
+    private val _fromSearchedPosts =
+        MutableStateFlow<ResellApiResponse<List<Pair<String, List<Listing>>>>>(ResellApiResponse.Pending)
+    val fromSearchedPosts = _fromSearchedPosts.asStateFlow()
+
+    private val _fromPurchasedPosts =
+        MutableStateFlow<ResellApiResponse<List<String>>>(ResellApiResponse.Pending)
+    val fromPurchasedPosts = _fromPurchasedPosts.asStateFlow()
+
+    private val _searchHistory = MutableStateFlow<ResellApiResponse<List<ResellSearchHistory>>>(
+        ResellApiResponse.Pending
+    )
+
     private var recentBitmaps: List<ImageBitmap>? = null
 
     suspend fun getPostsByPage(page: Int): List<Post> {
@@ -39,7 +56,6 @@ class ResellPostRepository @Inject constructor(
         return retrofitInstance.postsApi.getFilteredPosts(filter.toFilterRequest()).posts
 
     }
-
 
     suspend fun uploadPost(
         title: String,
@@ -123,4 +139,78 @@ class ResellPostRepository @Inject constructor(
     suspend fun getPostById(id: String): Post {
         return retrofitInstance.postsApi.getPost(id).post
     }
+
+    fun fetchPostsFromSearch(history: List<ResellSearchHistory>) {
+        _fromSearchedPosts.value = ResellApiResponse.Pending
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                if (history.isNotEmpty()) {
+                    for (uuid in history) {
+                        if (uuid.id.isNotBlank()) {
+                            try {
+                                val fromSearched =
+                                    retrofitInstance.postsApi.getSearchSuggestions(id = uuid.id)
+                                val posts = fromSearched.postIds.map { id ->
+                                    async {
+                                        runCatching { getPostById(id).toListing() }
+                                            .getOrNull()
+                                    }
+                                }.awaitAll().filterNotNull()
+                                _fromSearchedPosts.update { current ->
+                                    val existing =
+                                        (current as? ResellApiResponse.Success<List<Pair<String, List<Listing>>>>)
+                                            ?.data ?: emptyList()
+                                    ResellApiResponse.Success(
+                                        existing + listOf(
+                                            Pair(
+                                                uuid.searchText,
+                                                posts
+                                            )
+                                        )
+                                    )
+                                }
+
+                            } catch (e: Exception) {
+                                Log.e("ResellPostRepository", "Error fetching searched posts: ", e)
+                            }
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("ResellPostRepository", "Error fetching searched posts: ", e)
+                _fromSearchedPosts.value = ResellApiResponse.Error
+            }
+        }
+    }
+
+    fun getSearchHistory() {
+        _searchHistory.value = ResellApiResponse.Pending
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val history = retrofitInstance.searchApi.getSearchHistory()
+                _searchHistory.value = ResellApiResponse.Success(history.searches)
+                fetchPostsFromSearch(history.searches)
+                Log.d("ResellPostRepository", "Fetched search history: ${history.searches.size}")
+            } catch (e: retrofit2.HttpException) {
+                val req = e.response()?.raw()?.request
+                val url = req?.url?.toString() ?: "unknown"
+                val method = req?.method ?: "unknown"
+                Log.e("ResellPostRepository", "HTTP ${e.code()} $method $url: ${e.message()}", e)
+                Log.e(
+                    "ResellPostRepository",
+                    "HTTP ${e.code()} fetching search history: ${e.message()}",
+                    e
+                )
+                if (e.code() == 404) {
+                    _searchHistory.value = ResellApiResponse.Success(emptyList())
+                } else {
+                    _searchHistory.value = ResellApiResponse.Error
+                }
+            } catch (e: Exception) {
+                Log.e("ResellPostRepository", "Error fetching search history: ", e)
+                _searchHistory.value = ResellApiResponse.Error
+            }
+        }
+    }
+
 }

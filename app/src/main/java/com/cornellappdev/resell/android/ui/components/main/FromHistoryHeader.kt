@@ -25,25 +25,21 @@ fun FromHistoryHeader(text: String, onBack: () -> Unit, onTopPressed: () -> Unit
             .fillMaxWidth()
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
-                indication = null,
-            ) {
-                onTopPressed()
-            }
+                indication = null
+            ) { onTopPressed() }
             .windowInsetsPadding(WindowInsets.statusBars),
+        contentAlignment = Alignment.Center
     ) {
+        Text(
+            text = text,
+            style = Style.heading2,
+        )
         Icon(
             painter = painterResource(R.drawable.ic_chevron_left),
             contentDescription = "back",
             modifier = Modifier
-                .clickable(
-                    onClick = onBack
-                )
                 .align(Alignment.CenterStart)
-        )
-        Text(
-            text = text,
-            style = Style.heading3,
-            modifier = Modifier.align(Alignment.Center)
+                .clickable(onClick = onBack)
         )
     }
 }
