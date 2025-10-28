@@ -97,7 +97,7 @@ fun FromHistoryBody(
                                     price = item.price,
                                     modifier = Modifier.padding(vertical = 8.dp)
                                 ) {
-                                    onListingPressed
+                                    onListingPressed(item)
                                 }
                             }
                         }
