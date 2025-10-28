@@ -26,6 +26,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.createBitmap
 import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.model.classes.Listing
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
@@ -101,11 +102,11 @@ fun drawableResToImageBitmap(@DrawableRes resId: Int): ImageBitmap {
     val context = LocalContext.current
     val drawable = ContextCompat.getDrawable(context, resId)
     val bitmap: Bitmap = if (drawable == null) {
-        Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)
+        createBitmap(1, 1)
     } else {
         val width = if (drawable.intrinsicWidth > 0) drawable.intrinsicWidth else 1
         val height = if (drawable.intrinsicHeight > 0) drawable.intrinsicHeight else 1
-        val bmp = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+        val bmp = createBitmap(width, height)
         val canvas = Canvas(bmp)
         drawable.setBounds(0, 0, canvas.width, canvas.height)
         drawable.draw(canvas)
