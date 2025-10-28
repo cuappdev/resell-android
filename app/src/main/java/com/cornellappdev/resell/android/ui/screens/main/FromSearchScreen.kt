@@ -41,7 +41,7 @@ fun FromSearchScreen(
                     listState.animateScrollToItem(0)
                 }
             })
-        
+
         Spacer(modifier = Modifier.height(Padding.medium))
 
         when (fromSearchUiState.loadedState) {
@@ -52,8 +52,10 @@ fun FromSearchScreen(
             ResellApiState.Error -> {}
             ResellApiState.Success -> FromHistoryBody(
                 modifier,
-                categories
-            ) { fromSearchViewModel.onListingPressed(it) }
+                categories,
+                { fromSearchViewModel.onListingPressed(it) },
+                { fromSearchViewModel.hideSearch(it) }
+            )
 
         }
 

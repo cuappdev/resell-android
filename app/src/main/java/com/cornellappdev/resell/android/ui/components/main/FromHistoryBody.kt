@@ -17,6 +17,8 @@ import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
@@ -33,13 +35,19 @@ import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.model.classes.UserInfo
 import com.cornellappdev.resell.android.ui.components.global.ResellCard
 import com.cornellappdev.resell.android.ui.components.global.ResellCardContent
+import com.cornellappdev.resell.android.ui.theme.Style
 
 @Composable
 fun FromHistoryBody(
     modifier: Modifier,
     categories: List<Pair<String, List<Listing>>>,
-    onListingPressed: (Listing) -> Unit
+    onListingPressed: (Listing) -> Unit,
+    onHidePressed: (String) -> Unit
 ) {
+
+    val visibleCategories = remember(categories) {
+        mutableStateListOf<Pair<String, List<Listing>>>().apply { addAll(categories) }
+    }
 
     val isPreview = LocalInspectionMode.current
     LazyVerticalStaggeredGrid(
@@ -49,7 +57,7 @@ fun FromHistoryBody(
         horizontalArrangement = Arrangement.spacedBy(20.dp),
         modifier = modifier.fillMaxWidth()
     ) {
-        categories.forEach { category ->
+        visibleCategories.forEach { category ->
             item(span = StaggeredGridItemSpan.FullLine) {
                 Column(modifier = Modifier.fillMaxWidth()) {
                     Row(
@@ -58,11 +66,14 @@ fun FromHistoryBody(
                             .padding(horizontal = 16.dp, vertical = 8.dp),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Text(text = category.first, fontSize = 18.sp)
+                        Text(text = category.first, style = Style.heading3)
                         Text(
                             text = "Hide",
                             fontSize = 14.sp,
-                            modifier = Modifier.clickable { }
+                            modifier = Modifier.clickable {
+                                onHidePressed(category.first)
+                                visibleCategories.remove(category)
+                            }
                         )
                     }
                     LazyRow(
@@ -297,7 +308,7 @@ private fun FromHistoryBodyPreview() {
                     ),
                 )
             )
-        )
-    ) { }
+        ), {}, { }
+    )
 }
 

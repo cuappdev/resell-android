@@ -13,7 +13,7 @@ import javax.inject.Inject
 @HiltViewModel
 class FromSearchesViewModel @Inject constructor(
     private val rootNavigationRepository: RootNavigationRepository,
-    resellPostRepository: ResellPostRepository
+    private val resellPostRepository: ResellPostRepository
 ) : ResellViewModel<FromSearchesViewModel.FromSearchesUiState>(
     initialUiState = FromSearchesUiState(
         listings = listOf(),
@@ -31,6 +31,10 @@ class FromSearchesViewModel @Inject constructor(
 
     fun onBackPressed() {
         rootNavigationRepository.navigate(ResellRootRoute.MAIN)
+    }
+
+    fun hideSearch(search: String) {
+        resellPostRepository.editHiddenSearches(search)
     }
 
     init {

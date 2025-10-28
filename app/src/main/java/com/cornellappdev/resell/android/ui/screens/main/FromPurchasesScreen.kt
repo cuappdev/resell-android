@@ -37,7 +37,7 @@ fun FromPurchasesScreen(
                 }
             })
 
-        FromHistoryBody(modifier, categories) { fromPurchasesViewModel.onListingPressed(it) }
+        FromHistoryBody(modifier, categories, {}, {})
 
     }
 }

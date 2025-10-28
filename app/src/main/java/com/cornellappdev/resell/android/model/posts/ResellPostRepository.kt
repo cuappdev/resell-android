@@ -2,6 +2,9 @@ package com.cornellappdev.resell.android.model.posts
 
 import android.util.Log
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.edit
 import com.cornellappdev.resell.android.model.api.NewPostBody
 import com.cornellappdev.resell.android.model.api.Post
 import com.cornellappdev.resell.android.model.api.PostResponse
@@ -11,6 +14,7 @@ import com.cornellappdev.resell.android.model.classes.Listing
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.model.classes.ResellFilter
 import com.cornellappdev.resell.android.model.classes.toFilterRequest
+import com.cornellappdev.resell.android.model.login.PreferencesKeys
 import com.cornellappdev.resell.android.util.toNetworkingString
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -18,6 +22,8 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.Locale
@@ -27,6 +33,7 @@ import javax.inject.Singleton
 @Singleton
 class ResellPostRepository @Inject constructor(
     private val retrofitInstance: RetrofitInstance,
+    private val dataStore: DataStore<Preferences>,
 ) {
 
     private val _savedPosts =
@@ -140,13 +147,28 @@ class ResellPostRepository @Inject constructor(
         return retrofitInstance.postsApi.getPost(id).post
     }
 
-    fun fetchPostsFromSearch(history: List<ResellSearchHistory>) {
+    suspend fun fetchPostsFromSearch(history: List<ResellSearchHistory>) {
         _fromSearchedPosts.value = ResellApiResponse.Pending
+        val hiddenSearchesJson = dataStore.data.map { preferences ->
+            preferences[PreferencesKeys.HIDDEN_SEARCHES]
+        }.firstOrNull()
+        val hiddenSearches = try {
+            if (!hiddenSearchesJson.isNullOrBlank()) {
+                val jsonArray = org.json.JSONArray(hiddenSearchesJson)
+                MutableList(jsonArray.length()) { i -> jsonArray.optString(i) }.toMutableList()
+            } else {
+                mutableListOf()
+            }
+        } catch (e: Exception) {
+            Log.e("ResellPostRepository", "Error editing hidden searches: ", e)
+            mutableListOf()
+        }
+
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 if (history.isNotEmpty()) {
                     for (uuid in history) {
-                        if (uuid.id.isNotBlank()) {
+                        if (uuid.id.isNotBlank() && !hiddenSearches.contains(uuid.searchText)) {
                             try {
                                 val fromSearched =
                                     retrofitInstance.postsApi.getSearchSuggestions(id = uuid.id)
@@ -209,6 +231,35 @@ class ResellPostRepository @Inject constructor(
             } catch (e: Exception) {
                 Log.e("ResellPostRepository", "Error fetching search history: ", e)
                 _searchHistory.value = ResellApiResponse.Error
+            }
+        }
+    }
+
+    fun editHiddenSearches(search: String) {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+
+                val currentJson = dataStore.data.map { preferences ->
+                    preferences[PreferencesKeys.HIDDEN_SEARCHES]
+                }.firstOrNull()
+                val currentList = try {
+                    if (!currentJson.isNullOrBlank()) {
+                        val jsonArray = org.json.JSONArray(currentJson)
+                        MutableList(jsonArray.length()) { i -> jsonArray.optString(i) }.toMutableList()
+                    } else {
+                        mutableListOf()
+                    }
+                } catch (e: Exception) {
+                    Log.e("ResellPostRepository", "Error editing hidden searches: ", e)
+                    mutableListOf()
+                }
+                currentList.add(search)
+                val newJson = org.json.JSONArray(currentList).toString()
+                dataStore.edit { prefs ->
+                    prefs[PreferencesKeys.HIDDEN_SEARCHES] = newJson
+                }
+            } catch (e: Exception) {
+                Log.e("ResellPostRepository", "Error editing hidden searches: ", e)
             }
         }
     }
