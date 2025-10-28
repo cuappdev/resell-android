@@ -66,7 +66,7 @@ fun ResellCard(
 }
 
 @Composable
-private fun ResellCardContent(
+fun ResellCardContent(
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
     image: ResellApiResponse<ImageBitmap>,
