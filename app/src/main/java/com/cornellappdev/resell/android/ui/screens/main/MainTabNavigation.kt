@@ -76,6 +76,8 @@ fun MainTabNavigation(
             composable<ResellMainScreen.Home> {
                 HomeScreen(
                     onSavedPressed = { mainNav.navigate(ResellMainScreen.Bookmarks) },
+                    onFromSearchPressed = { mainNav.navigate(ResellMainScreen.FromSearch) },
+                    onFromPurchasePressed = { mainNav.navigate(ResellMainScreen.FromPurchases) },
                     setNavBarShown = {
                         navBarShown.value = it
                     },
@@ -100,6 +102,14 @@ fun MainTabNavigation(
 
             composable<ResellMainScreen.User> {
                 ProfileScreen()
+            }
+
+            composable<ResellMainScreen.FromSearch> {
+                FromSearchScreen()
+            }
+
+            composable<ResellMainScreen.FromPurchases> {
+                FromPurchasesScreen()
             }
         }
 
@@ -227,12 +237,20 @@ sealed class ResellMainScreen {
     @Serializable
     data object User : ResellMainScreen()
 
+    @Serializable
+    data object FromSearch : ResellMainScreen()
+
+    @Serializable
+    data object FromPurchases : ResellMainScreen()
+
     fun String.toResellMainScreen(): ResellMainScreen {
         return when (this.substringAfterLast('.')) {
             "Home" -> Home
             "Bookmarks" -> Bookmarks
             "Messages" -> Messages
             "User" -> User
+            "FromSearch" -> FromSearch
+            "FromPurchases" -> FromPurchases
             else -> Home
         }
     }
