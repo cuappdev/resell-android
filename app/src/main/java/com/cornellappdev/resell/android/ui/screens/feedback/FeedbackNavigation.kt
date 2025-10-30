@@ -3,13 +3,19 @@ package com.cornellappdev.resell.android.ui.screens.feedback
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.cornellappdev.resell.android.viewmodel.navigation.FeedbackNavigationViewModel
+import kotlinx.coroutines.delay
 import kotlinx.serialization.Serializable
+import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
 fun FeedbackNavigation(
@@ -21,30 +27,32 @@ fun FeedbackNavigation(
     LaunchedEffect(uiState.route) {
         uiState.route?.consumeSuspend {
             navController.navigate(it)
+            feedbackNavigationViewModel.feedbackNavigationRepository.setCanNavigate(true)
         }
     }
 
     LaunchedEffect(uiState.popBackStack) {
         uiState.popBackStack?.consumeSuspend {
-            navController.popBackStack()
+            if (navController.previousBackStackEntry != null) {
+                navController.popBackStack()
+            }
+            feedbackNavigationViewModel.feedbackNavigationRepository.setCanNavigate(true)
         }
     }
 
-    NavHost(
-        navController = navController,
-        startDestination = FeedbackScreen.Reason(
-            postId = "",
-            userId = "",
-            userName = ""
-        ),
-        modifier = Modifier.fillMaxSize()
-    ) {
-        composable<FeedbackScreen.Reason> {
-            FeedbackReasonScreen()
-        }
+    uiState.initialPage?.let {
+        NavHost(
+            navController = navController,
+            startDestination = it,
+            modifier = Modifier.fillMaxSize()
+        ) {
+            composable<FeedbackScreen.Reason> {
+                FeedbackReasonScreen()
+            }
 
-        composable<FeedbackScreen.Details> {
-            FeedbackDetailsScreen()
+            composable<FeedbackScreen.Details> {
+                FeedbackDetailsScreen()
+            }
         }
     }
 }

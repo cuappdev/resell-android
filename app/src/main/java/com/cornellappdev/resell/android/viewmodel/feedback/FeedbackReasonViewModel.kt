@@ -11,6 +11,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.milliseconds
 
 @HiltViewModel
 class FeedbackReasonViewModel @Inject constructor(
@@ -31,6 +32,9 @@ class FeedbackReasonViewModel @Inject constructor(
 
         val subtitle: String
             get() = "Explain what happened"
+
+        val canNavigate: Boolean
+            get() = true
     }
 
     fun onReasonPressed(reason: String) {
@@ -47,9 +51,9 @@ class FeedbackReasonViewModel @Inject constructor(
 
     fun onBackArrow() {
         viewModelScope.launch {
-            // Small delay to let any pending navigation settle (prevent a blank FeedbackReasonScreen)
-            delay(50)
-            rootNavigationRepository.popBackStack()
+            if (feedbackNavigationRepository.canNavigateFlow.value) {
+                rootNavigationRepository.popBackStack()
+            }
         }
     }
 }
