@@ -12,6 +12,7 @@ import com.cornellappdev.resell.android.viewmodel.root.RootDialogRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.util.Date
 import javax.inject.Inject
 
 @HiltViewModel
@@ -29,7 +30,7 @@ class PostTransactionRatingViewModel @Inject constructor(
         val itemName: String = "",
         val price: String = "",
         val sellerName: String = "",
-        val date: String = "",
+        val date: Date? = null,
         val rating: Int = 0,
         val reviewText: String = "",
         val postId: String = "",
@@ -45,7 +46,7 @@ class PostTransactionRatingViewModel @Inject constructor(
                 itemName = "Item Name",
                 price = "00.00",
                 sellerName = "Seller Name",
-                date = "Month, 00, 0000",
+                date = Date(),
                 imageUrl = "https://fakelink",
                 postId = navArgs.postId,
                 userId = navArgs.userId

@@ -7,27 +7,36 @@ import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
 import com.cornellappdev.resell.android.util.UIEvent
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @HiltViewModel
 class FeedbackNavigationViewModel @Inject constructor(
-    feedbackNavigationRepository: FeedbackNavigationRepository,
+    val feedbackNavigationRepository: FeedbackNavigationRepository,
     savedStateHandle: SavedStateHandle
 ) :
     ResellViewModel<FeedbackNavigationViewModel.UiState>(
         initialUiState = UiState(
-            route = null
+            route = null,
+            initialPage = FeedbackScreen.Reason(
+                postId = savedStateHandle.toRoute<ResellRootRoute.FEEDBACK>().postId,
+                userId = savedStateHandle.toRoute<ResellRootRoute.FEEDBACK>().userId,
+                userName = savedStateHandle.toRoute<ResellRootRoute.FEEDBACK>().userName
+            )
         ),
     ) {
     data class UiState(
         val route: UIEvent<FeedbackScreen>?,
         val popBackStack: UIEvent<Unit>? = null,
-        val initialPage: FeedbackScreen? = null,
+        val initialPage: FeedbackScreen?
     )
 
     init {
         asyncCollect(feedbackNavigationRepository.routeFlow) { route ->
+            feedbackNavigationRepository.setCanNavigate(false)
             applyMutation {
                 copy(
                     route = route
@@ -36,26 +45,23 @@ class FeedbackNavigationViewModel @Inject constructor(
         }
 
         asyncCollect(feedbackNavigationRepository.popBackStackFlow) { pop ->
+            feedbackNavigationRepository.setCanNavigate(false)
             applyMutation {
                 copy(
                     popBackStack = pop
                 )
             }
         }
-
-        val navArgs = savedStateHandle.toRoute<ResellRootRoute.FEEDBACK>()
-        applyMutation {
-            copy(
-                initialPage = FeedbackScreen.Reason(
-                    postId = navArgs.postId,
-                    userId = navArgs.userId,
-                    userName = navArgs.userName,
-                )
-            )
-        }
     }
 }
 
 @Singleton
 class FeedbackNavigationRepository @Inject constructor() :
-    BaseNavigationRepository<FeedbackScreen>()
+    BaseNavigationRepository<FeedbackScreen>() {
+        private val _canNavigateFlow = MutableStateFlow(true)
+        val canNavigateFlow: StateFlow<Boolean> = _canNavigateFlow.asStateFlow()
+
+        fun setCanNavigate(canNavigate: Boolean) {
+            _canNavigateFlow.value = canNavigate
+        }
+    }

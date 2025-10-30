@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -29,6 +30,10 @@ import com.cornellappdev.resell.android.ui.components.global.ResellTextEntry
 import com.cornellappdev.resell.android.ui.theme.ResellPurple
 import com.cornellappdev.resell.android.ui.theme.Style
 import com.cornellappdev.resell.android.viewmodel.main.PostTransactionRatingViewModel
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+
 @Composable
 fun PostTransactionRatingScreen(
     postTransactionRatingViewModel: PostTransactionRatingViewModel = hiltViewModel()
@@ -120,8 +125,12 @@ private fun ItemInfo(
     imageUrl: String,
     price: String,
     sellerName: String,
-    date: String
+    date: Date?
 ) {
+    val formattedDate = remember(date) {
+        date.let { SimpleDateFormat("MMMM dd, yyyy", Locale.getDefault()).format(it) } ?: "Month 00, 0000"
+    }
+
     Column {
         Text(
             text = "Purchase Summary",
@@ -151,7 +160,7 @@ private fun ItemInfo(
                     style = Style.body2,
                     modifier = Modifier.padding(top = 8.dp, bottom = 4.dp)
                 )
-                Text("Purchased on $date", style = Style.body2)
+                Text("Purchased on $formattedDate", style = Style.body2)
 
             }
         }

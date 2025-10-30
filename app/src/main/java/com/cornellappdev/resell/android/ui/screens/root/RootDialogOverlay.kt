@@ -15,7 +15,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.resell.android.ui.components.global.dialog.CorrectAnswerDialog
 import com.cornellappdev.resell.android.ui.components.global.dialog.DialogWrapper
 import com.cornellappdev.resell.android.ui.components.global.dialog.TwoButtonDialog
-import com.cornellappdev.resell.android.ui.components.submitted.ConfettiCardWrapper
+import com.cornellappdev.resell.android.ui.components.submitted.FeedbackSubmittedCard
 import com.cornellappdev.resell.android.util.clickableNoIndication
 import com.cornellappdev.resell.android.viewmodel.root.RootDialogContent
 import com.cornellappdev.resell.android.viewmodel.root.RootDialogViewModel
@@ -99,7 +99,7 @@ fun RootDialogOverlay(
                 }
 
                 is RootDialogContent.ReviewSubmittedDialog -> {
-                    ConfettiCardWrapper(onDone = { rootDialogViewModel.onDismiss() })
+                    FeedbackSubmittedCard(onDone = { rootDialogViewModel.onDismiss() })
                 }
             }
         }

@@ -34,6 +34,7 @@ fun FeedbackReasonScreen(
         title = uiState.title,
         subtitle = uiState.subtitle,
         reasons = uiState.reasons,
+        canNavigate = uiState.canNavigate,
         onReasonSelected = feedbackReasonViewModel::onReasonPressed,
         onBackArrow = feedbackReasonViewModel::onBackArrow
     )
@@ -45,6 +46,7 @@ private fun Content(
     title: String = "title",
     subtitle: String = "subtitle",
     reasons: List<String> = listOf("reason1", "reason2"),
+    canNavigate: Boolean = true,
     onReasonSelected: (String) -> Unit = {},
     onBackArrow: () -> Unit = {}
 ) {
@@ -59,7 +61,9 @@ private fun Content(
             title = title,
             leftPainter = R.drawable.ic_chevron_left,
             onLeftClick = {
-                onBackArrow()
+                if (canNavigate) {
+                    onBackArrow()
+                }
             }
         )
 
@@ -77,7 +81,9 @@ private fun Content(
             ReportRow(
                 text = it
             ) {
-                onReasonSelected(it)
+                if (canNavigate) {
+                    onReasonSelected(it)
+                }
             }
         }
     }

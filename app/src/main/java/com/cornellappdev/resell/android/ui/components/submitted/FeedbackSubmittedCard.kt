@@ -6,7 +6,7 @@ import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonSta
 import com.cornellappdev.resell.android.ui.components.global.dialog.TwoButtonDialog
 
 @Composable
-fun ConfettiCardWrapper(onDone: () -> Unit) {
+fun FeedbackSubmittedCard(onDone: () -> Unit) {
     TwoButtonDialog(
         title = "Feedback Submitted",
         description = "Thank you for being a part of the Resell experience!",
