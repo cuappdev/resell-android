@@ -53,8 +53,8 @@ fun FromSearchScreen(
             ResellApiState.Success -> FromHistoryBody(
                 modifier,
                 categories,
-                { fromSearchViewModel.onListingPressed(it) },
-                { fromSearchViewModel.hideSearch(it) }
+                fromSearchViewModel::onListingPressed,
+                fromSearchViewModel::hideSearch
             )
 
         }

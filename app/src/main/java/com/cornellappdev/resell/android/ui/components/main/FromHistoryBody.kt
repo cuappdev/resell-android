@@ -17,8 +17,6 @@ import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
@@ -45,9 +43,6 @@ fun FromHistoryBody(
     onHidePressed: (String) -> Unit
 ) {
 
-    val visibleCategories = remember(categories) {
-        mutableStateListOf<Pair<String, List<Listing>>>().apply { addAll(categories) }
-    }
 
     val isPreview = LocalInspectionMode.current
     LazyVerticalStaggeredGrid(
@@ -57,7 +52,7 @@ fun FromHistoryBody(
         horizontalArrangement = Arrangement.spacedBy(20.dp),
         modifier = modifier.fillMaxWidth()
     ) {
-        visibleCategories.forEach { category ->
+        categories.forEach { category ->
             item(span = StaggeredGridItemSpan.FullLine) {
                 Column(modifier = Modifier.fillMaxWidth()) {
                     Row(
@@ -72,7 +67,6 @@ fun FromHistoryBody(
                             fontSize = 14.sp,
                             modifier = Modifier.clickable {
                                 onHidePressed(category.first)
-                                visibleCategories.remove(category)
                             }
                         )
                     }

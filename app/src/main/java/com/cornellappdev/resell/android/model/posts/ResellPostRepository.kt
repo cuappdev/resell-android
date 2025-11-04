@@ -152,55 +152,39 @@ class ResellPostRepository @Inject constructor(
         val hiddenSearchesJson = dataStore.data.map { preferences ->
             preferences[PreferencesKeys.HIDDEN_SEARCHES]
         }.firstOrNull()
-        val hiddenSearches = try {
+        val hiddenSearches = runCatching {
             if (!hiddenSearchesJson.isNullOrBlank()) {
                 val jsonArray = org.json.JSONArray(hiddenSearchesJson)
                 MutableList(jsonArray.length()) { i -> jsonArray.optString(i) }.toMutableList()
             } else {
                 mutableListOf()
             }
-        } catch (e: Exception) {
-            Log.e("ResellPostRepository", "Error editing hidden searches: ", e)
+        }.getOrElse { e ->
+            Log.e("ResellPostRepository", "Error fetching search hiddenSearches ", e)
             mutableListOf()
         }
 
         CoroutineScope(Dispatchers.IO).launch {
-            try {
-                if (history.isNotEmpty()) {
-                    for (uuid in history) {
-                        if (uuid.id.isNotBlank() && !hiddenSearches.contains(uuid.searchText)) {
-                            try {
-                                val fromSearched =
-                                    retrofitInstance.postsApi.getSearchSuggestions(id = uuid.id)
-                                val posts = fromSearched.postIds.map { id ->
-                                    async {
-                                        runCatching { getPostById(id).toListing() }
-                                            .getOrNull()
-                                    }
-                                }.awaitAll().filterNotNull()
-                                _fromSearchedPosts.update { current ->
-                                    val existing =
-                                        (current as? ResellApiResponse.Success<List<Pair<String, List<Listing>>>>)
-                                            ?.data ?: emptyList()
-                                    ResellApiResponse.Success(
-                                        existing + listOf(
-                                            Pair(
-                                                uuid.searchText,
-                                                posts
-                                            )
-                                        )
-                                    )
-                                }
+            //if (history.isEmpty()) return@launch
+            history.forEach { userSearch ->
+                if (userSearch.id.isBlank() || hiddenSearches.contains(userSearch.searchText)) return@forEach
+                runCatching {
+                    val fromSearched =
+                        retrofitInstance.postsApi.getSearchSuggestions(id = userSearch.id)
 
-                            } catch (e: Exception) {
-                                Log.e("ResellPostRepository", "Error fetching searched posts: ", e)
-                            }
+                    val posts = fromSearched.postIds.map { id ->
+                        async {
+                            runCatching { getPostById(id).toListing() }.getOrNull()
+                        }
+                    }.awaitAll().filterNotNull()
+                    _fromSearchedPosts.update { current ->
+                        if (current is ResellApiResponse.Success<List<Pair<String, List<Listing>>>>) {
+                            ResellApiResponse.Success(current.data + listOf(userSearch.searchText to posts))
+                        } else {
+                            ResellApiResponse.Success(listOf(userSearch.searchText to posts))
                         }
                     }
                 }
-            } catch (e: Exception) {
-                Log.e("ResellPostRepository", "Error fetching searched posts: ", e)
-                _fromSearchedPosts.value = ResellApiResponse.Error
             }
         }
     }
@@ -208,27 +192,11 @@ class ResellPostRepository @Inject constructor(
     fun getSearchHistory() {
         _searchHistory.value = ResellApiResponse.Pending
         CoroutineScope(Dispatchers.IO).launch {
-            try {
+            runCatching {
                 val history = retrofitInstance.searchApi.getSearchHistory()
                 _searchHistory.value = ResellApiResponse.Success(history.searches)
                 fetchPostsFromSearch(history.searches)
-                Log.d("ResellPostRepository", "Fetched search history: ${history.searches.size}")
-            } catch (e: retrofit2.HttpException) {
-                val req = e.response()?.raw()?.request
-                val url = req?.url?.toString() ?: "unknown"
-                val method = req?.method ?: "unknown"
-                Log.e("ResellPostRepository", "HTTP ${e.code()} $method $url: ${e.message()}", e)
-                Log.e(
-                    "ResellPostRepository",
-                    "HTTP ${e.code()} fetching search history: ${e.message()}",
-                    e
-                )
-                if (e.code() == 404) {
-                    _searchHistory.value = ResellApiResponse.Success(emptyList())
-                } else {
-                    _searchHistory.value = ResellApiResponse.Error
-                }
-            } catch (e: Exception) {
+            }.getOrElse { e ->
                 Log.e("ResellPostRepository", "Error fetching search history: ", e)
                 _searchHistory.value = ResellApiResponse.Error
             }
@@ -237,28 +205,38 @@ class ResellPostRepository @Inject constructor(
 
     fun editHiddenSearches(search: String) {
         CoroutineScope(Dispatchers.IO).launch {
-            try {
+            val currentJson = dataStore.data.map { preferences ->
+                preferences[PreferencesKeys.HIDDEN_SEARCHES]
+            }.firstOrNull()
 
-                val currentJson = dataStore.data.map { preferences ->
-                    preferences[PreferencesKeys.HIDDEN_SEARCHES]
-                }.firstOrNull()
-                val currentList = try {
-                    if (!currentJson.isNullOrBlank()) {
-                        val jsonArray = org.json.JSONArray(currentJson)
-                        MutableList(jsonArray.length()) { i -> jsonArray.optString(i) }.toMutableList()
-                    } else {
-                        mutableListOf()
-                    }
-                } catch (e: Exception) {
-                    Log.e("ResellPostRepository", "Error editing hidden searches: ", e)
-                    mutableListOf()
+            val currentList = runCatching {
+                if (!currentJson.isNullOrBlank()) {
+                    val jsonArray = org.json.JSONArray(currentJson)
+                    MutableList(jsonArray.length()) { i -> jsonArray.optString(i) }.toMutableList()
+                } else {
+                    mutableListOf<String>()
                 }
-                currentList.add(search)
-                val newJson = org.json.JSONArray(currentList).toString()
+            }.getOrElse { e ->
+                Log.e("ResellPostRepository", "Error getting hidden searches: ", e)
+                mutableListOf()
+            }
+
+            currentList.add(search)
+            val newJson = org.json.JSONArray(currentList).toString()
+
+            runCatching {
                 dataStore.edit { prefs ->
                     prefs[PreferencesKeys.HIDDEN_SEARCHES] = newJson
                 }
-            } catch (e: Exception) {
+            }.onSuccess {
+                _fromSearchedPosts.update { current ->
+                    if (current is ResellApiResponse.Success<List<Pair<String, List<Listing>>>>) {
+                        ResellApiResponse.Success(current.data.filter { it.first != search })
+                    } else {
+                        current
+                    }
+                }
+            }.getOrElse { e ->
                 Log.e("ResellPostRepository", "Error editing hidden searches: ", e)
             }
         }
