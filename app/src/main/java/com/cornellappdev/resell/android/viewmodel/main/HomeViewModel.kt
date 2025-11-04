@@ -14,6 +14,8 @@ import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
 import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -29,9 +31,12 @@ class HomeViewModel @Inject constructor(
         initialUiState = HomeUiState(
             listings = emptyList(),
             savedListings = emptyList(),
+            fromSearchListings = emptyList(),
+            fromPurchasesListings = emptyList(),
             activeFilter = ResellFilter(),
             loadedState = ResellApiState.Loading,
             savedImageResponses = emptyList(),
+            searchedImageResponses = emptyList(),
             page = 1,
             bottomLoading = false
         )
@@ -41,15 +46,19 @@ class HomeViewModel @Inject constructor(
         val loadedState: ResellApiState,
         val listings: List<Listing>,
         val savedListings: List<Listing>,
+        val fromSearchListings: List<Listing>,
+        val fromPurchasesListings: List<Listing>,
         val activeFilter: ResellFilter,
         val page: Int,
         val bottomLoading: Boolean,
-        val savedImageResponses: List<MutableState<ResellApiResponse<ImageBitmap>>>
+        val savedImageResponses: List<MutableState<ResellApiResponse<ImageBitmap>>>,
+        val searchedImageResponses: List<MutableState<ResellApiResponse<ImageBitmap>>>
     )
 
     init {
         getPosts(ResellFilter())
         resellPostRepository.fetchSavedPosts()
+        resellPostRepository.getSearchHistory()
         asyncCollect(resellPostRepository.savedPosts) { response ->
             applyMutation {
                 copy(
@@ -69,6 +78,27 @@ class HomeViewModel @Inject constructor(
                     }
                 )
             }
+        }
+
+        asyncCollect(resellPostRepository.fromSearchedPosts) { response ->
+            CoroutineScope(Dispatchers.Default).launch {
+                val fromSearchListings = response.asSuccessOrNull()?.data
+                    ?.flatMap { it.second }
+                    ?.take(4)
+                    ?: emptyList()
+
+                val searchImageResponses = fromSearchListings.map { listing ->
+                    coilRepository.getUrlState(listing.images.firstOrNull() ?: "")
+                }
+
+                applyMutation {
+                    copy(
+                        fromSearchListings = fromSearchListings,
+                        searchedImageResponses = searchImageResponses
+                    )
+                }
+            }
+
         }
 
     }

@@ -62,6 +62,11 @@ interface PostsApiService {
     @GET("post/save")
     suspend fun getSavedPosts(): PostsResponse
 
+    @GET("post/searchSuggestions/{searchIndex}")
+    suspend fun getSearchSuggestions(
+        @Path("searchIndex") id: String,
+    ): PostIdResponse
+
     @GET("post/isSaved/postId/{id}")
     suspend fun isPostSaved(@Path("id") id: String): IsSavedResponse
 }
@@ -79,6 +84,10 @@ data class PostsResponse(
     val posts: List<Post>
 )
 
+data class PostIdResponse(
+    val postIds: List<String>
+)
+
 data class PostResponse(
     val post: Post
 )
@@ -87,6 +96,7 @@ data class PriceRange(
     val lowerBound: Double? = null,
     val upperBound: Double? = null
 )
+
 data class FilterRequest(
     // TODO: need a route for items on sale
     val sortField: String? = null,

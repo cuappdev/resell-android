@@ -30,6 +30,7 @@ object PreferencesKeys {
     val EMAIL = stringPreferencesKey("email")
     val GCAL_SYNC = stringPreferencesKey("gcal_sync")
     val VENMO_HANDLE = stringPreferencesKey("venmo_handle")
+    val HIDDEN_SEARCHES = stringPreferencesKey("hidden_searches")
 }
 
 @Module

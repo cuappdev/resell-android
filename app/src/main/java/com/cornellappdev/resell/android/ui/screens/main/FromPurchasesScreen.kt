@@ -37,7 +37,8 @@ fun FromPurchasesScreen(
                 }
             })
 
-        FromHistoryBody(modifier, categories) { fromPurchasesViewModel.onListingPressed(it) }
+        //TODO: functionality to be added with purchase suggestions
+        FromHistoryBody(modifier, categories, {}, {})
 
     }
 }
