@@ -4,15 +4,8 @@ import androidx.compose.animation.core.LinearEasing
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -20,95 +13,136 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
+import com.cornellappdev.resell.android.viewmodel.submitted.ConfettiViewModel
 import kotlinx.coroutines.delay
 import kotlin.random.Random
 
 @Composable
 fun ConfettiOverlay(
+    confettiViewModel: ConfettiViewModel,
     modifier: Modifier = Modifier,
-    particleCount: Int = 40,
+    particleCount: Int = 30,
     colors: List<Color> = listOf(
         Color(0xFFAD68E3),
         Color(0xFFDE6CD3),
         Color(0xFFDF9856)
     )
 ) {
-    val screenWidth = LocalConfiguration.current.screenWidthDp
-    val screenHeight = LocalConfiguration.current.screenHeightDp
+    val uiState = confettiViewModel.collectUiStateValue()
 
-    val particles = remember {
+    if (!uiState.showing) {
+        return
+    }
+
+    val configuration = LocalConfiguration.current
+    val density = LocalDensity.current
+    val screenHeightPx = with(density) { configuration.screenHeightDp.dp.toPx() }
+
+    val particles = remember((uiState.showing)) {
         List(particleCount) {
             ConfettiParticle(
                 x = Random.nextFloat(),
-                size = Random.nextInt(10, 25),
+                size = Random.nextInt(30, 40),
                 color = colors.random(),
-                shape = if (Random.nextBoolean()) ConfettiShape.CIRCLE else ConfettiShape.RECTANGLE,
+                // 25% particles are circles and 75% particles are rectangles
+                shape = if (Random.nextFloat() < 0.25f) ConfettiShape.CIRCLE else ConfettiShape.RECTANGLE,
                 rotation = Random.nextFloat() * 360f,
                 speed = Random.nextFloat() * 150f + 100f
             )
         }
     }
 
-    var startFall by remember { mutableStateOf(false) }
-    var isAnimationFinished by remember { mutableStateOf(false) }
+    val maxDurationMs = 10_000
 
-    val MAX_DURATION_MS = 5_000
-
-    LaunchedEffect(Unit) {
-        startFall = true
-        delay(MAX_DURATION_MS.toLong())
-        isAnimationFinished = true
-    }
-
-    if (isAnimationFinished) {
-        return
-    }
-
-    Box(modifier.fillMaxSize()) {
-        particles.forEach { particle ->
-            val yOffset by animateFloatAsState(
-                targetValue = if (startFall) screenHeight.toFloat() + 50f else -50f,
-                animationSpec = tween(
-                    durationMillis = (particle.speed * 5).toInt(),
-                    easing = LinearEasing
-                )
-            )
-
-            val xPos = particle.x * screenWidth
-
-            // Define dimensions based on shape
-            val confettiSizeModifier = when (particle.shape) {
-                ConfettiShape.CIRCLE -> Modifier.size(particle.size.dp)
-                ConfettiShape.RECTANGLE -> Modifier
-                    .width((particle.size / 4f).coerceAtLeast(2f).dp)
-                    .height(particle.size.dp)
-            }
-
-            Box(
-                Modifier
-                    .offset(x = xPos.dp, y = yOffset.dp)
-                    .then(confettiSizeModifier)
-                    .graphicsLayer {
-                        rotationZ = if (particle.shape == ConfettiShape.RECTANGLE) particle.rotation else 0f
-                    }
-                    .background(
-                        color = particle.color,
-                        shape = if (particle.shape == ConfettiShape.CIRCLE) CircleShape else RoundedCornerShape(2.dp)
-                    )
-            )
+    LaunchedEffect(uiState.showing) {
+        if (uiState.showing) {
+            delay(maxDurationMs.toLong())
+            confettiViewModel.onAnimationFinished()
         }
     }
-}
 
-@Preview
-@Composable
-fun ConfettiPreview() {
-    ConfettiOverlay(
-        modifier = Modifier.fillMaxSize()
-    )
+    // Use a started flag to trigger animation
+    var startFall by remember(uiState.showing) { mutableStateOf(false) }
+
+    LaunchedEffect(uiState.showing) {
+        if (uiState.showing) {
+            startFall = true
+        }
+    }
+
+    val animatedYOffsets = particles.map { particle ->
+        animateFloatAsState(
+            targetValue = if (startFall) screenHeightPx + 200f else -50f,
+            animationSpec = tween(
+                durationMillis = (particle.speed * 5).toInt(),
+                easing = LinearEasing
+            ),
+            label = ""
+        ).value
+    }
+
+    Canvas(modifier = modifier.fillMaxSize()) {
+        val widthPx = size.width
+
+        particles.forEachIndexed { index, particle ->
+            val yOffset = animatedYOffsets[index]
+            val xPos = particle.x * widthPx
+
+            val particleRadius = particle.size.toFloat()
+
+            // Create a gradient brush per particle
+            val brush = Brush.linearGradient(
+                colors = colors,
+                start = Offset(xPos - particleRadius * 0.8f, yOffset - particleRadius * 0.8f),
+                end = Offset(xPos + particleRadius * 0.8f, yOffset + particleRadius * 0.8f)
+            )
+
+            // dimensions for rectangular particles
+            val thicknessType = Random.nextFloat()
+            val rectWidth = when {
+                thicknessType < 0.33f -> particle.size * 0.25f
+                thicknessType < 0.66f -> particle.size * 0.5f
+                else -> particle.size * 0.8f
+            }
+            val rectHeight = (particle.size * 1.5f + particle.size * Random.nextFloat() * 0.8f)
+
+            when (particle.shape) {
+                ConfettiShape.CIRCLE -> {
+                    drawCircle(
+                        brush = brush,
+                        radius = particle.size.toFloat(),
+                        center = Offset(xPos, yOffset)
+                    )
+                }
+
+                ConfettiShape.RECTANGLE -> {
+                    withTransform({
+                        rotate(degrees = particle.rotation, pivot = Offset(xPos, yOffset))
+                    }) {
+                        drawRoundRect(
+                            brush = brush,
+                            topLeft = Offset(
+                                xPos - (particle.size / 8f),
+                                yOffset - (particle.size / 2f)
+                            ),
+                            size = Size(
+                                width = rectWidth,
+                                height = rectHeight
+                            ),
+                            cornerRadius = CornerRadius(2f, 2f)
+                        )
+                    }
+                }
+            }
+        }
+    }
 }

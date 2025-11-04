@@ -1,5 +1,3 @@
-package com.cornellappdev.resell.android.ui.components.pdp
-
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -10,6 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import com.cornellappdev.resell.android.ui.theme.Style
 
+// TODO implemented but should test + integrate into pdp composable
 @Composable
 fun SoldOverlay(
     modifier: Modifier = Modifier,
