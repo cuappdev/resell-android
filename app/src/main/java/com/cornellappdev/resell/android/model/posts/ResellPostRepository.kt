@@ -147,6 +147,11 @@ class ResellPostRepository @Inject constructor(
         return retrofitInstance.postsApi.getPost(id).post
     }
 
+    /**
+     * Given user's search history, filters out item is HiddenSearches and gets suggestions for each
+     * search in search history
+     * @param history - User's search history
+     */
     suspend fun fetchPostsFromSearch(history: List<ResellSearchHistory>) {
         _fromSearchedPosts.value = ResellApiResponse.Pending
         val hiddenSearchesJson = dataStore.data.map { preferences ->
@@ -203,6 +208,12 @@ class ResellPostRepository @Inject constructor(
         }
     }
 
+    /**
+     * Adds the search to the hiddenSearches list: a list of searches of who's suggestions will not
+     * be displayed
+     *
+     * @param search - hidden search text
+     * **/
     fun editHiddenSearches(search: String) {
         CoroutineScope(Dispatchers.IO).launch {
             val currentJson = dataStore.data.map { preferences ->
