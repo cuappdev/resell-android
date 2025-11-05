@@ -117,6 +117,7 @@ fun HomeScreen(
         onListingPressed = homeViewModel::onListingPressed,
         savedImagesResponses = homeUiState.savedImageResponses,
         searchedImageResponses = homeUiState.searchedImageResponses,
+        purchasedImageResponses = homeUiState.purchasedImageResponses,
         onDismissRequest = {
             coroutineScope.launch {
                 sheetState.hide()
@@ -145,6 +146,7 @@ private fun HomeScreenHelper(
     onListingPressed: (Listing) -> Unit,
     savedImagesResponses: List<MutableState<ResellApiResponse<ImageBitmap>>>,
     searchedImageResponses: List<MutableState<ResellApiResponse<ImageBitmap>>>,
+    purchasedImageResponses: List<MutableState<ResellApiResponse<ImageBitmap>>>,
     onDismissRequest: () -> Unit
 ) {
     Column(
@@ -174,7 +176,8 @@ private fun HomeScreenHelper(
             filteredListings = filteredListings,
             onListingPressed = onListingPressed,
             savedImagesResponses = savedImagesResponses,
-            searchedImageResponses = searchedImageResponses
+            searchedImageResponses = searchedImageResponses,
+            purchasedImageResponses = purchasedImageResponses
         )
     }
     if (sheetState.isVisible) {
@@ -242,6 +245,7 @@ private fun MainContent(
     onListingPressed: (Listing) -> Unit,
     savedImagesResponses: List<MutableState<ResellApiResponse<ImageBitmap>>>,
     searchedImageResponses: List<MutableState<ResellApiResponse<ImageBitmap>>>,
+    purchasedImageResponses: List<MutableState<ResellApiResponse<ImageBitmap>>>
 ) {
     val preview = LocalInspectionMode.current
     LazyVerticalStaggeredGrid(
@@ -261,6 +265,7 @@ private fun MainContent(
             fromPurchasesListings,
             savedImagesResponses,
             searchedImageResponses,
+            purchasedImageResponses,
             onSavedPressed,
             onFromSearchPressed,
             onFromPurchasePressed
@@ -366,6 +371,7 @@ private fun LazyStaggeredGridScope.forYou(
     fromPurchasesListings: List<Listing>,
     savedImagesResponses: List<MutableState<ResellApiResponse<ImageBitmap>>>,
     searchedImageResponses: List<MutableState<ResellApiResponse<ImageBitmap>>>,
+    purchasedImageResponses: List<MutableState<ResellApiResponse<ImageBitmap>>>,
     onSavedPressed: () -> Unit,
     onFromSearchPressed: () -> Unit,
     onFromPurchasePressed: () -> Unit
@@ -388,8 +394,10 @@ private fun LazyStaggeredGridScope.forYou(
                 Modifier,
                 savedListings,
                 fromSearchedListings,
+                fromPurchasesListings,
                 savedImagesResponses,
                 searchedImageResponses,
+                purchasedImageResponses,
                 onSavedPressed,
                 onFromSearchPressed,
                 onFromPurchasePressed
@@ -423,8 +431,10 @@ private fun ForYouRow(
     modifier: Modifier,
     savedListings: List<Listing>,
     searchedListings: List<Listing>,
+    purchasedListings: List<Listing>,
     savedImagesResponses: List<MutableState<ResellApiResponse<ImageBitmap>>>,
     searchedImageResponses: List<MutableState<ResellApiResponse<ImageBitmap>>>,
+    purchasedImageResponses: List<MutableState<ResellApiResponse<ImageBitmap>>>,
     onSavedPressed: () -> Unit,
     onFromSearchPressed: () -> Unit,
     onFromPurchasePressed: () -> Unit
@@ -458,31 +468,48 @@ private fun ForYouRow(
             }
         }
 
-        item {
-            ForYouComponent(
-                text = "Your saved items",
-                amount = savedListings.size,
-                images = savedImages,
-                onClick = onSavedPressed
-            )
+        val purchasedImages = purchasedListings.mapIndexed { index, _ ->
+            if (isPreview) {
+                placeholder
+            } else {
+                when (val response = purchasedImageResponses[index].value) {
+                    is ResellApiResponse.Success -> BitmapPainter(response.data)
+                    else -> null
+                }
+            }
         }
 
-        item {
-            ForYouComponent(
-                text = "From your searches",
-                amount = null,
-                images = searchedImages,
-                onClick = onFromSearchPressed
-            )
+        if (savedImages.isNotEmpty()) {
+            item {
+                ForYouComponent(
+                    text = "Your saved items",
+                    amount = savedListings.size,
+                    images = savedImages,
+                    onClick = onSavedPressed
+                )
+            }
         }
 
-        item {
-            ForYouComponent(
-                text = "From your purchases",
-                amount = null,
-                images = List(4) { placeholder },
-                onClick = onFromPurchasePressed
-            )
+        if (searchedImages.isNotEmpty()) {
+            item {
+                ForYouComponent(
+                    text = "From your searches",
+                    amount = null,
+                    images = searchedImages,
+                    onClick = onFromSearchPressed
+                )
+            }
+        }
+
+        if (purchasedImages.isNotEmpty()) {
+            item {
+                ForYouComponent(
+                    text = "From your purchases",
+                    amount = null,
+                    images = purchasedImages,
+                    onClick = onFromPurchasePressed
+                )
+            }
         }
 
     }
@@ -635,6 +662,7 @@ private fun HomeScreenPreview() = ResellPreview {
         fromSearchedListings = emptyList(),
         fromPurchasesListings = emptyList(),
         searchedImageResponses = emptyList(),
+        purchasedImageResponses = emptyList()
     )
 }
 
@@ -662,6 +690,7 @@ private fun SavedEmptyStatePreview() = ResellPreview {
         onCategoryPressed = {},
         fromSearchedListings = emptyList(),
         fromPurchasesListings = emptyList(),
-        searchedImageResponses = emptyList()
+        searchedImageResponses = emptyList(),
+        purchasedImageResponses = emptyList()
     )
 }

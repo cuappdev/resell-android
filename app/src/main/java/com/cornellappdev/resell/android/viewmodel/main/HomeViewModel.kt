@@ -37,6 +37,7 @@ class HomeViewModel @Inject constructor(
             loadedState = ResellApiState.Loading,
             savedImageResponses = emptyList(),
             searchedImageResponses = emptyList(),
+            purchasedImageResponses = emptyList(),
             page = 1,
             bottomLoading = false
         )
@@ -52,13 +53,15 @@ class HomeViewModel @Inject constructor(
         val page: Int,
         val bottomLoading: Boolean,
         val savedImageResponses: List<MutableState<ResellApiResponse<ImageBitmap>>>,
-        val searchedImageResponses: List<MutableState<ResellApiResponse<ImageBitmap>>>
+        val searchedImageResponses: List<MutableState<ResellApiResponse<ImageBitmap>>>,
+        val purchasedImageResponses: List<MutableState<ResellApiResponse<ImageBitmap>>>
     )
 
     init {
         getPosts(ResellFilter())
         resellPostRepository.fetchSavedPosts()
         resellPostRepository.getSearchHistory()
+        resellPostRepository.fetchPostsFromPurchase()
         asyncCollect(resellPostRepository.savedPosts) { response ->
             applyMutation {
                 copy(
@@ -84,7 +87,27 @@ class HomeViewModel @Inject constructor(
             CoroutineScope(Dispatchers.Default).launch {
                 val fromSearchListings = response.asSuccessOrNull()?.data
                     ?.flatMap { it.second }
-                    ?.take(4)
+                    ?.take(5)
+                    ?: emptyList()
+
+                val searchImageResponses = fromSearchListings.map { listing ->
+                    coilRepository.getUrlState(listing.images.firstOrNull() ?: "")
+                }
+
+                applyMutation {
+                    copy(
+                        fromSearchListings = fromSearchListings,
+                        searchedImageResponses = searchImageResponses
+                    )
+                }
+            }
+
+        }
+
+        asyncCollect(resellPostRepository.fromPurchasedPosts) { response ->
+            CoroutineScope(Dispatchers.Default).launch {
+                val fromSearchListings = response.asSuccessOrNull()?.data
+                    ?.take(5)
                     ?: emptyList()
 
                 val searchImageResponses = fromSearchListings.map { listing ->

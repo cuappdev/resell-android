@@ -7,7 +7,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.cornellappdev.resell.android.ui.components.main.FromHistoryBody
+import com.cornellappdev.resell.android.model.classes.ResellApiState
+import com.cornellappdev.resell.android.ui.components.global.ResellListingsScroll
+import com.cornellappdev.resell.android.ui.components.global.ResellLoadingListingScroll
 import com.cornellappdev.resell.android.ui.components.main.FromHistoryHeader
 import com.cornellappdev.resell.android.util.defaultHorizontalPadding
 import com.cornellappdev.resell.android.viewmodel.main.FromPurchasesViewModel
@@ -21,7 +23,6 @@ fun FromPurchasesScreen(
     val fromPurchasesUiState = fromPurchasesViewModel.collectUiStateValue()
     val coroutineScope = rememberCoroutineScope()
     val listState = rememberLazyStaggeredGridState()
-    val categories = fromPurchasesUiState.listings
 
     Column(
         modifier = Modifier
@@ -37,8 +38,17 @@ fun FromPurchasesScreen(
                 }
             })
 
-        //TODO: functionality to be added with purchase suggestions
-        FromHistoryBody(modifier, categories, {}, {})
+        when (fromPurchasesUiState.loadedState) {
+            is ResellApiState.Loading -> {
+                ResellLoadingListingScroll()
+            }
 
+            ResellApiState.Error -> {}
+            ResellApiState.Success -> ResellListingsScroll(
+                listings = fromPurchasesUiState.listings,
+                onListingPressed = fromPurchasesViewModel::onListingPressed,
+            )
+
+        }
     }
 }

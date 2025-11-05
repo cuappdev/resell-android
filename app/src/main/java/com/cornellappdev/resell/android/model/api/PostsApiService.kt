@@ -67,6 +67,9 @@ interface PostsApiService {
         @Path("searchIndex") id: String,
     ): PostIdResponse
 
+    @GET("post/purchaseSuggestions")
+    suspend fun getPurchaseSuggestions(): PostIdResponse
+
     @GET("post/isSaved/postId/{id}")
     suspend fun isPostSaved(@Path("id") id: String): IsSavedResponse
 }

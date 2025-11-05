@@ -45,7 +45,7 @@ class ResellPostRepository @Inject constructor(
     val fromSearchedPosts = _fromSearchedPosts.asStateFlow()
 
     private val _fromPurchasedPosts =
-        MutableStateFlow<ResellApiResponse<List<String>>>(ResellApiResponse.Pending)
+        MutableStateFlow<ResellApiResponse<List<Listing>>>(ResellApiResponse.Pending)
     val fromPurchasedPosts = _fromPurchasedPosts.asStateFlow()
 
     private val _searchHistory = MutableStateFlow<ResellApiResponse<List<ResellSearchHistory>>>(
@@ -190,6 +190,22 @@ class ResellPostRepository @Inject constructor(
                         }
                     }
                 }
+            }
+        }
+    }
+
+    fun fetchPostsFromPurchase() {
+        CoroutineScope(Dispatchers.IO).launch {
+            runCatching {
+                val fromPurchases = retrofitInstance.postsApi.getPurchaseSuggestions()
+                val posts = fromPurchases.postIds.map { id ->
+                    async {
+                        runCatching { getPostById(id).toListing() }
+                            .getOrNull()
+                    }
+                }.awaitAll().filterNotNull()
+                Log.d("helpme", posts.toString())
+                _fromPurchasedPosts.value = ResellApiResponse.Success(posts)
             }
         }
     }
