@@ -119,4 +119,8 @@ sealed class RootDialogContent {
         val primaryButtonState: ResellTextButtonState = ResellTextButtonState.ENABLED,
         val secondaryButtonState: ResellTextButtonState = ResellTextButtonState.ENABLED
     ) : RootDialogContent()
+
+    data class ReviewSubmittedDialog (
+        val onDismiss: () -> Unit
+    ): RootDialogContent()
 }
