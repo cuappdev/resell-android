@@ -22,9 +22,11 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.cornellappdev.resell.android.MainActivity
 import com.cornellappdev.resell.android.ui.screens.externalprofile.ExternalProfileNavigation
+import com.cornellappdev.resell.android.ui.screens.feedback.FeedbackNavigation
 import com.cornellappdev.resell.android.ui.screens.main.AllSearchScreen
 import com.cornellappdev.resell.android.ui.screens.main.ChatScreen
 import com.cornellappdev.resell.android.ui.screens.main.MainTabNavigation
+import com.cornellappdev.resell.android.ui.screens.main.PostTransactionRatingScreen
 import com.cornellappdev.resell.android.ui.screens.main.RequestMatchesScreen
 import com.cornellappdev.resell.android.ui.screens.newpost.NewPostNavigation
 import com.cornellappdev.resell.android.ui.screens.newpost.RequestDetailsEntryScreen
@@ -152,6 +154,10 @@ fun RootNavigation(
             ReportNavigation()
         }
 
+        composable<ResellRootRoute.FEEDBACK> {
+            FeedbackNavigation()
+        }
+
         composable<ResellRootRoute.EXTERNAL_PROFILE> {
             ExternalProfileNavigation()
         }
@@ -162,6 +168,10 @@ fun RootNavigation(
 
         composable<ResellRootRoute.REQUEST_MATCHES> {
             RequestMatchesScreen()
+        }
+
+        composable<ResellRootRoute.POST_TRANSACTION_RATING> {
+            PostTransactionRatingScreen()
         }
     }
 
@@ -234,6 +244,13 @@ sealed class ResellRootRoute {
     ) : ResellRootRoute()
 
     @Serializable
+    data class FEEDBACK(
+        val postId: String,
+        val userId: String,
+        val userName: String
+    ) : ResellRootRoute()
+
+    @Serializable
     data class EXTERNAL_PROFILE(
         val id: String
     ) : ResellRootRoute()
@@ -245,5 +262,11 @@ sealed class ResellRootRoute {
     data class REQUEST_MATCHES(
         val id: String,
         val title: String,
+    ) : ResellRootRoute()
+
+    @Serializable
+    data class POST_TRANSACTION_RATING(
+        val postId: String,
+        val userId: String
     ) : ResellRootRoute()
 }
