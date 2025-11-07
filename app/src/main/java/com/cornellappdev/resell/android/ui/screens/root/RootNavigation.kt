@@ -35,6 +35,7 @@ import com.cornellappdev.resell.android.ui.screens.onboarding.OnboardingNavigati
 import com.cornellappdev.resell.android.ui.screens.pdp.PostDetailPage
 import com.cornellappdev.resell.android.ui.screens.reporting.ReportNavigation
 import com.cornellappdev.resell.android.ui.screens.settings.SettingsNavigation
+import com.cornellappdev.resell.android.viewmodel.report.ReportType
 import com.cornellappdev.resell.android.viewmodel.root.RootNavigationViewModel
 import com.cornellappdev.resell.android.viewmodel.root.RootSheet
 import kotlinx.coroutines.launch
@@ -238,7 +239,7 @@ sealed class ResellRootRoute {
 
     @Serializable
     data class REPORT(
-        val reportPost: Boolean,
+        val reportType: ReportType,
         val postId: String,
         val userId: String
     ) : ResellRootRoute()

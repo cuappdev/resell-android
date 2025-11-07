@@ -13,6 +13,7 @@ import com.cornellappdev.resell.android.ui.screens.externalprofile.ExternalProfi
 import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
 import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepository
+import com.cornellappdev.resell.android.viewmodel.report.ReportType
 import com.cornellappdev.resell.android.viewmodel.root.OptionType
 import com.cornellappdev.resell.android.viewmodel.root.RootConfirmationRepository
 import com.cornellappdev.resell.android.viewmodel.root.RootDialogRepository
@@ -92,7 +93,7 @@ class ExternalProfileViewModel @Inject constructor(
                 OptionType.REPORT -> {
                     rootNavigationRepository.navigate(
                         ResellRootRoute.REPORT(
-                            reportPost = false,
+                            reportType = ReportType.USER,
                             postId = "",
                             userId = stateValue().uid,
                         )
