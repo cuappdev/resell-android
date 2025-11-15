@@ -6,7 +6,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ConfettiViewModel @Inject constructor(
-    confettiRepository: ConfettiRepository
+    private val confettiRepository: ConfettiRepository
 ) :
     ResellViewModel<ConfettiViewModel.ConfettiUiState>(
         initialUiState = ConfettiUiState()

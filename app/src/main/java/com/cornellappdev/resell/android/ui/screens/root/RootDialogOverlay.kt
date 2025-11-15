@@ -25,12 +25,9 @@ import com.cornellappdev.resell.android.viewmodel.submitted.ConfettiViewModel
 
 @Composable
 fun RootDialogOverlay(
-    rootDialogViewModel: RootDialogViewModel = hiltViewModel(),
-    confettiViewModel: ConfettiViewModel = hiltViewModel()
+    rootDialogViewModel: RootDialogViewModel = hiltViewModel()
 ) {
     val uiState = rootDialogViewModel.collectUiStateValue()
-
-    val isConfettiDialog = uiState.content is RootDialogContent.ReviewSubmittedDialog
 
     val showPercent by animateFloatAsState(
         if (uiState.showing) 1f else 0f,
@@ -107,18 +104,8 @@ fun RootDialogOverlay(
             }
         }
 
-        LaunchedEffect(isConfettiDialog) {
-            if (isConfettiDialog) {
-                confettiViewModel.onShow()
-            }
-        }
-
-        if (isConfettiDialog) {
-            ConfettiOverlay(
-                modifier = Modifier.fillMaxSize(),
-                confettiViewModel = confettiViewModel
-            )
-        }
+        ConfettiOverlay(
+            modifier = Modifier.fillMaxSize()
+        )
     }
-
 }

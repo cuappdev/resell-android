@@ -8,11 +8,11 @@ import javax.inject.Singleton
 
 @Singleton
 class ConfettiRepository @Inject constructor() {
-    private val _showConfettiEvent: MutableStateFlow<UIEvent<ConfettiViewModel.ConfettiUiState>?> =
+    private val _showConfettiEvent: MutableStateFlow<UIEvent<Unit>?> =
         MutableStateFlow(null)
     val showConfettiEvent = _showConfettiEvent.asStateFlow()
 
-    fun showConfetti (event: ConfettiViewModel.ConfettiUiState) {
-        _showConfettiEvent.value = UIEvent(event)
+    fun showConfetti () {
+        _showConfettiEvent.value = UIEvent(Unit)
     }
 }

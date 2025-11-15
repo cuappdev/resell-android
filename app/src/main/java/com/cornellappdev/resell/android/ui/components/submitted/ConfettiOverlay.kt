@@ -1,6 +1,6 @@
 package com.cornellappdev.resell.android.ui.components.submitted
 
-import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.FastOutSlowInEasing
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -21,14 +21,19 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.resell.android.viewmodel.submitted.ConfettiViewModel
 import kotlinx.coroutines.delay
 import kotlin.random.Random
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.DurationUnit
 
 @Composable
 fun ConfettiOverlay(
-    confettiViewModel: ConfettiViewModel,
+    confettiViewModel: ConfettiViewModel = hiltViewModel(),
     modifier: Modifier = Modifier,
     particleCount: Int = 30,
     colors: List<Color> = listOf(
@@ -47,6 +52,7 @@ fun ConfettiOverlay(
     val density = LocalDensity.current
     val screenHeightPx = with(density) { configuration.screenHeightDp.dp.toPx() }
 
+    // Generate random particles with varied properties for visual diversity
     val particles = remember((uiState.showing)) {
         List(particleCount) {
             ConfettiParticle(
@@ -61,11 +67,12 @@ fun ConfettiOverlay(
         }
     }
 
-    val maxDurationMs = 10_000
+    val maxDurationMs : Duration = 10_000.milliseconds
 
+    // Hide confetti after animation completes
     LaunchedEffect(uiState.showing) {
         if (uiState.showing) {
-            delay(maxDurationMs.toLong())
+            delay(maxDurationMs.toLong(DurationUnit.MILLISECONDS))
             confettiViewModel.onAnimationFinished()
         }
     }
@@ -79,12 +86,14 @@ fun ConfettiOverlay(
         }
     }
 
+    // Animate each particle from above the screen to below it
+    // Multiplies the speed by 5 to convert from pixels to reasonable animation duration
     val animatedYOffsets = particles.map { particle ->
         animateFloatAsState(
             targetValue = if (startFall) screenHeightPx + 200f else -50f,
             animationSpec = tween(
                 durationMillis = (particle.speed * 5).toInt(),
-                easing = LinearEasing
+                easing = FastOutSlowInEasing
             ),
             label = ""
         ).value
@@ -102,19 +111,23 @@ fun ConfettiOverlay(
             // Create a gradient brush per particle
             val brush = Brush.linearGradient(
                 colors = colors,
+                // We're extending the gradient by 0.8x the radius to make sure all three colors are visible in the particles
                 start = Offset(xPos - particleRadius * 0.8f, yOffset - particleRadius * 0.8f),
                 end = Offset(xPos + particleRadius * 0.8f, yOffset + particleRadius * 0.8f)
             )
 
-            // dimensions for rectangular particles
+            // Create rectangle widths for visual diversity
             val thicknessType = Random.nextFloat()
             val rectWidth = when {
-                thicknessType < 0.33f -> particle.size * 0.25f
-                thicknessType < 0.66f -> particle.size * 0.5f
-                else -> particle.size * 0.8f
+                thicknessType < 0.33f -> particle.size * 0.25f // for thinner rectangles
+                thicknessType < 0.66f -> particle.size * 0.5f// for thicker rectangles
+                else -> particle.size * 0.8f// for THICK rectangles
             }
+
+            // Make rectangles taller to resemble more like confetti strips
             val rectHeight = (particle.size * 1.5f + particle.size * Random.nextFloat() * 0.8f)
 
+            // Where particles are actually drawn on the screen and rendered
             when (particle.shape) {
                 ConfettiShape.CIRCLE -> {
                     drawCircle(
@@ -128,6 +141,7 @@ fun ConfettiOverlay(
                     withTransform({
                         rotate(degrees = particle.rotation, pivot = Offset(xPos, yOffset))
                     }) {
+                        // Offset by half dimensions to center the rectangle on its position
                         drawRoundRect(
                             brush = brush,
                             topLeft = Offset(
@@ -145,4 +159,11 @@ fun ConfettiOverlay(
             }
         }
     }
+}
+
+// Note: This preview won't show animation since it requires a ViewModel.
+@Preview(showBackground = true)
+@Composable
+fun ConfettiOverlayPreview() {
+    ConfettiOverlay()
 }
