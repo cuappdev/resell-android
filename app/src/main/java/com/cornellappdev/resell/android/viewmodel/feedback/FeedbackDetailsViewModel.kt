@@ -1,6 +1,5 @@
 package com.cornellappdev.resell.android.viewmodel.feedback
 
-import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
@@ -14,6 +13,7 @@ import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepos
 import com.cornellappdev.resell.android.viewmodel.root.RootConfirmationRepository
 import com.cornellappdev.resell.android.viewmodel.root.RootDialogContent
 import com.cornellappdev.resell.android.viewmodel.root.RootDialogRepository
+import com.cornellappdev.resell.android.viewmodel.submitted.ConfettiRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -26,7 +26,8 @@ class FeedbackDetailsViewModel @Inject constructor(
     private val rootConfirmationRepository: RootConfirmationRepository,
     private val rootDialogRepository: RootDialogRepository,
     private val rootNavigationRepository: RootNavigationRepository,
-    private val feedbackNavigationRepository: FeedbackNavigationRepository
+    private val feedbackNavigationRepository: FeedbackNavigationRepository,
+    private val confettiRepository: ConfettiRepository
 ) :
     ResellViewModel<FeedbackDetailsViewModel.FeedbackDetailsUiState>(
         initialUiState = FeedbackDetailsUiState(
@@ -108,6 +109,8 @@ class FeedbackDetailsViewModel @Inject constructor(
                     onDismiss = { rootDialogRepository.dismissDialog() }
                 )
             )
+
+            confettiRepository.showConfetti()
         }
     }
 }
