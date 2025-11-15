@@ -103,9 +103,5 @@ fun RootDialogOverlay(
                 }
             }
         }
-
-        ConfettiOverlay(
-            modifier = Modifier.fillMaxSize()
-        )
     }
 }

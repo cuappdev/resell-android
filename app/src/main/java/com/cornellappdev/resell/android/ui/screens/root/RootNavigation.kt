@@ -21,6 +21,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.cornellappdev.resell.android.MainActivity
+import com.cornellappdev.resell.android.ui.components.submitted.ConfettiOverlay
 import com.cornellappdev.resell.android.ui.screens.externalprofile.ExternalProfileNavigation
 import com.cornellappdev.resell.android.ui.screens.feedback.FeedbackNavigation
 import com.cornellappdev.resell.android.ui.screens.main.AllSearchScreen
@@ -192,6 +193,8 @@ fun RootNavigation(
     RootOptionsMenuOverlay()
 
     RootDialogOverlay()
+
+    ConfettiOverlay()
 }
 
 
