@@ -128,20 +128,3 @@ fun closeApp(context: Context) {
     intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
     context.startActivity(intent)
 }
-
-fun isoToTimeAgo(isoString: String): String {
-    val date = parseIsoDateToDate(isoString)
-    val currentTimeMillis = System.currentTimeMillis()
-    val timestampMillis = date.time
-    val diff = currentTimeMillis - timestampMillis
-
-    val minutes = diff / (60 * 1000)
-    val hours = diff / (60 * 60 * 1000)
-    val days = diff / (24 * 60 * 60 * 1000)
-    return when {
-        days > 0 -> "$days day${if (days != 1L) "s" else ""} ago"
-        hours > 0 -> "$hours hour${if (hours != 1L) "s" else ""} ago"
-        minutes > 0 -> "$minutes min${if (minutes != 1L) "s" else ""} ago"
-        else -> "just now"
-    }
-}

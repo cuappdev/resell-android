@@ -1,6 +1,6 @@
 package com.cornellappdev.resell.android.viewmodel.notifications
 
-import com.cornellappdev.resell.android.model.classes.InAppNotif
+import com.cornellappdev.resell.android.model.classes.InAppNotification
 import com.cornellappdev.resell.android.model.classes.ResellApiState
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
 import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepository
@@ -9,9 +9,9 @@ import java.time.Instant
 import javax.inject.Inject
 
 @HiltViewModel
-class InAppNotifViewModel @Inject constructor(
+class InAppNotificationViewModel @Inject constructor(
     private val navController: RootNavigationRepository,
-) : ResellViewModel<InAppNotifViewModel.UiState>(
+) : ResellViewModel<InAppNotificationViewModel.UiState>(
     initialUiState = UiState(
         loadedState = ResellApiState.Loading,
         notifType = null,
@@ -21,7 +21,7 @@ class InAppNotifViewModel @Inject constructor(
     data class UiState(
         val loadedState: ResellApiState,
         val notifType: NotificationType?,
-        val notifs: List<InAppNotif>,
+        val notifs: List<InAppNotification>,
     ) {
 
 
@@ -69,7 +69,7 @@ class InAppNotifViewModel @Inject constructor(
         //TODO: Implement navigation
     }
 
-    fun onNotificationArchived(notif: InAppNotif) {
+    fun onNotificationArchived(notif: InAppNotification) {
         //TODO: Implement networking
     }
 }
