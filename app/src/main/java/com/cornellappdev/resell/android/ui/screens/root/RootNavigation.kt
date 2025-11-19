@@ -27,6 +27,7 @@ import com.cornellappdev.resell.android.ui.screens.feedback.FeedbackNavigation
 import com.cornellappdev.resell.android.ui.screens.main.AllSearchScreen
 import com.cornellappdev.resell.android.ui.screens.main.ChatScreen
 import com.cornellappdev.resell.android.ui.screens.main.MainTabNavigation
+import com.cornellappdev.resell.android.ui.screens.main.NotificationsHubScreen
 import com.cornellappdev.resell.android.ui.screens.main.PostTransactionRatingScreen
 import com.cornellappdev.resell.android.ui.screens.main.RequestMatchesScreen
 import com.cornellappdev.resell.android.ui.screens.newpost.NewPostNavigation
@@ -174,6 +175,10 @@ fun RootNavigation(
         composable<ResellRootRoute.POST_TRANSACTION_RATING> {
             PostTransactionRatingScreen()
         }
+
+        composable<ResellRootRoute.NOTIFS> {
+            NotificationsHubScreen()
+        }
     }
 
     RootConfirmationOverlay()
@@ -272,4 +277,8 @@ sealed class ResellRootRoute {
         val postId: String,
         val userId: String
     ) : ResellRootRoute()
+
+
+    @Serializable
+    data object NOTIFS : ResellRootRoute()
 }

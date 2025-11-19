@@ -149,4 +149,9 @@ class HomeViewModel @Inject constructor(
     fun onSearchPressed() {
         rootNavigationRepository.navigate(ResellRootRoute.SEARCH)
     }
+
+    fun onNotifPressed() {
+        rootNavigationRepository.navigate(ResellRootRoute.NOTIFS)
+    }
+
 }

@@ -109,6 +109,7 @@ fun HomeScreen(
         savedListings = homeUiState.savedListings,
         fromSearchedListings = homeUiState.fromSearchListings,
         fromPurchasesListings = homeUiState.fromPurchasesListings,
+        onNotifPressed = homeViewModel::onNotifPressed,
         onSavedPressed = onSavedPressed,
         onFromSearchPressed = onFromSearchPressed,
         onFromPurchasePressed = onFromPurchasePressed,
@@ -134,6 +135,7 @@ private fun HomeScreenHelper(
     sheetState: SheetState,
     onCategoryPressed: (ResellFilter.FilterCategory) -> Unit,
     onSearchPressed: () -> Unit,
+    onNotifPressed: () -> Unit,
     savedListings: List<Listing>,
     fromSearchedListings: List<Listing>,
     fromPurchasesListings: List<Listing>,
@@ -158,6 +160,7 @@ private fun HomeScreenHelper(
         HomeHeader(
             onFilter = onFilterPressed,
             onSearchPressed = onSearchPressed,
+            onNotifPressed = onNotifPressed,
             modifier = Modifier.defaultHorizontalPadding()
         )
 
@@ -191,6 +194,7 @@ private fun HomeScreenHelper(
 private fun HomeHeader(
     onFilter: () -> Unit,
     onSearchPressed: () -> Unit,
+    onNotifPressed: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -209,7 +213,7 @@ private fun HomeHeader(
             Icon(
                 painter = painterResource(R.drawable.bell),
                 contentDescription = "Notifications",
-                modifier = Modifier.clickable(onClick = {})//todo
+                modifier = Modifier.clickable(onClick = onNotifPressed)
             )
         }
         Spacer(modifier = Modifier.height(16.dp))
@@ -622,6 +626,7 @@ private fun HomeScreenPreview() = ResellPreview {
         onSearchPressed = {},
         savedListings = List(5) { dumbListing },
         onSavedPressed = {},
+        onNotifPressed = {},
         onFromSearchPressed = {},
         onFromPurchasePressed = {},
         loadedState = ResellApiState.Loading,
@@ -650,7 +655,7 @@ private fun SavedEmptyStatePreview() = ResellPreview {
         sheetState = rememberModalBottomSheetState(),
         onSearchPressed = {},
         savedListings = emptyList(),
-
+        onNotifPressed = { },
         onSavedPressed = { },
         onFromSearchPressed = {},
         onFromPurchasePressed = {},
