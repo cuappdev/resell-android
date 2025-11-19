@@ -9,6 +9,7 @@ import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepos
 import com.cornellappdev.resell.android.viewmodel.root.RootConfirmationRepository
 import com.cornellappdev.resell.android.viewmodel.root.RootDialogContent
 import com.cornellappdev.resell.android.viewmodel.root.RootDialogRepository
+import com.cornellappdev.resell.android.viewmodel.submitted.ConfettiRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -20,7 +21,8 @@ class PostTransactionRatingViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
     private val rootNavigationRepository: RootNavigationRepository,
     private val rootDialogRepository: RootDialogRepository,
-    private val rootConfirmationRepository: RootConfirmationRepository
+    private val rootConfirmationRepository: RootConfirmationRepository,
+    private val confettiRepository: ConfettiRepository
 ) : ResellViewModel<PostTransactionRatingViewModel.PostTransactionRatingUiState>(
     initialUiState = PostTransactionRatingUiState()
 ) {
@@ -93,6 +95,8 @@ class PostTransactionRatingViewModel @Inject constructor(
                     onDismiss = { rootDialogRepository.dismissDialog() }
                 )
             )
+
+            confettiRepository.showConfetti()
         }
     }
 }
