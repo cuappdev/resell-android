@@ -1,16 +1,26 @@
 package com.cornellappdev.resell.android.viewmodel.notifications
 
+import android.util.Log
+import androidx.lifecycle.viewModelScope
 import com.cornellappdev.resell.android.model.classes.InAppNotif
 import com.cornellappdev.resell.android.model.classes.ResellApiState
+import com.cornellappdev.resell.android.model.classes.toInAppNotif
+import com.cornellappdev.resell.android.model.classes.toResellApiState
+import com.cornellappdev.resell.android.model.notifications.InAppNotifRepository
+import com.cornellappdev.resell.android.model.posts.ResellPostRepository
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
 import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import java.time.Instant
 import javax.inject.Inject
 
 @HiltViewModel
 class InAppNotifViewModel @Inject constructor(
+    private val inAppNotifRepository: InAppNotifRepository,
     private val navController: RootNavigationRepository,
+    private val rootNavigationRepository: RootNavigationRepository,
+    private val resellPostRepository: ResellPostRepository
 ) : ResellViewModel<InAppNotifViewModel.UiState>(
     initialUiState = UiState(
         loadedState = ResellApiState.Loading,
@@ -54,23 +64,71 @@ class InAppNotifViewModel @Inject constructor(
     }
 
     init {
-        //TODO: Implement networking
+        viewModelScope.launch {
+            inAppNotifRepository.getRecentNotifs()
+        }
+        asyncCollect(inAppNotifRepository.recentNotifs) { response ->
+            applyMutation {
+                copy(
+                    loadedState = response.toResellApiState(),
+                    notifs = response.asSuccessOrNull()?.data?.map { it.toInAppNotif() }
+                        ?: emptyList()
+                )
+            }
+        }
     }
 
     fun onToggleFilter(filter: NotificationType?) {
-        //TODO: Implement networking
+        applyMutation {
+            copy(
+                loadedState = ResellApiState.Loading
+            )
+        }
+        if (filter == null) {
+            asyncCollect(inAppNotifRepository.recentNotifs) { response ->
+                applyMutation {
+                    copy(
+                        loadedState = response.toResellApiState(),
+                        notifs = response.asSuccessOrNull()?.data?.map { it.toInAppNotif() }
+                            ?: emptyList(),
+                        notifType = null
+                    )
+                }
+            }
+        } else {
+            asyncCollect(inAppNotifRepository.recentNotifs) { response ->
+                applyMutation {
+                    copy(
+                        loadedState = response.toResellApiState(),
+                        notifs = response.asSuccessOrNull()?.data?.map { it.toInAppNotif() }
+                            ?.filter { it.notificationType == filter }
+                            ?: emptyList(),
+                        notifType = filter
+                    )
+                }
+            }
+        }
     }
 
     fun onBackPressed() {
         navController.popBackStack()
     }
 
-    fun onNotificationPressed() {
-        //TODO: Implement navigation
+    fun onNotificationPressed(notif: InAppNotif) {
+        viewModelScope.launch {
+            runCatching {
+                val post = resellPostRepository.getPostById(notif.data.postId)
+                rootNavigationRepository.navigateToPdp(post.toListing())
+            }.getOrElse { e ->
+                Log.e("ResellPostRepository", "Error navigating to post ", e)
+            }
+        }
     }
 
     fun onNotificationArchived(notif: InAppNotif) {
-        //TODO: Implement networking
+        viewModelScope.launch {
+            inAppNotifRepository.onNotificationArchived(notif)
+        }
     }
 }
 

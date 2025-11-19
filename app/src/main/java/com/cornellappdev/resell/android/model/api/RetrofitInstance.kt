@@ -167,6 +167,15 @@ class RetrofitInstance @Inject constructor(
             .create(FcmApiService::class.java)
     }
 
+    val inAppNotifApi: NotifApiService by lazy {
+        Retrofit.Builder()
+            .baseUrl(BuildConfig.BASE_API_URL)
+            .client(okHttpClient)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(NotifApiService::class.java)
+    }
+
     val chatApi: ChatApiService by lazy {
         Retrofit.Builder()
             .baseUrl(BuildConfig.BASE_API_URL)
