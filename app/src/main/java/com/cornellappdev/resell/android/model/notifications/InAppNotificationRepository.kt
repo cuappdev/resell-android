@@ -12,11 +12,10 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class InAppNotifRepository @Inject constructor(
+class InAppNotificationRepository @Inject constructor(
     private val retrofitInstance: RetrofitInstance,
 ) {
 
-    val api = retrofitInstance.inAppNotifApi
     private val _recentNotifs = MutableStateFlow<ResellApiResponse<List<RecentNotifResponse>>>(
         ResellApiResponse.Pending
     )
@@ -25,7 +24,7 @@ class InAppNotifRepository @Inject constructor(
     suspend fun getRecentNotifs() {
         _recentNotifs.value = ResellApiResponse.Pending
         runCatching {
-            val notifs = retrofitInstance.inAppNotifApi.getRecentNotifs()
+            val notifs = retrofitInstance.inAppNotificationApi.getRecentNotifs()
             _recentNotifs.value = ResellApiResponse.Success(notifs)
         }.getOrElse { e ->
             _recentNotifs.value = ResellApiResponse.Error
@@ -33,17 +32,25 @@ class InAppNotifRepository @Inject constructor(
     }
 
     suspend fun onNotificationArchived(notif: InAppNotification) {
-        //TODO: implement when there an endpoint to archive a notification
+        //TODO: implement when there is an endpoint to archive a notification
     }
 
     //TODO: when should this be called
     suspend fun sendRequestMatchNotif(body: ListingRequestNotifBody) {
-        retrofitInstance.inAppNotifApi.sendRequestMatchNotif(body)
+        runCatching {
+            retrofitInstance.inAppNotificationApi.sendRequestMatchNotif(body)
+        }.onFailure { e ->
+            println("Error sending request match notification: ${e.message}")
+        }
     }
 
     //TODO: will be called when post price is changed, which doesn't have an implementation yet
     suspend fun sendDiscountNotification(body: DiscountNotifBody) {
-        retrofitInstance.inAppNotifApi.sendDiscountNotification(body)
+        runCatching {
+            retrofitInstance.inAppNotificationApi.sendDiscountNotification(body)
+        }.onFailure { e ->
+            println("Error sending discount notification: ${e.message}")
+        }
     }
 }
 

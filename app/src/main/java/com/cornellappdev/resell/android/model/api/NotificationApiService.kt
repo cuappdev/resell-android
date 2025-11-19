@@ -7,7 +7,7 @@ import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
 
-interface NotifApiService {
+interface NotificationApiService {
     @GET("notif/recent")
     suspend fun getRecentNotifs(): List<RecentNotifResponse>
 

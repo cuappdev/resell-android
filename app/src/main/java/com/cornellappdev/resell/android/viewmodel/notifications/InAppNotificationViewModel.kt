@@ -6,7 +6,7 @@ import com.cornellappdev.resell.android.model.classes.InAppNotification
 import com.cornellappdev.resell.android.model.classes.ResellApiState
 import com.cornellappdev.resell.android.model.classes.toInAppNotif
 import com.cornellappdev.resell.android.model.classes.toResellApiState
-import com.cornellappdev.resell.android.model.notifications.InAppNotifRepository
+import com.cornellappdev.resell.android.model.notifications.InAppNotificationRepository
 import com.cornellappdev.resell.android.model.posts.ResellPostRepository
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
 import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepository
@@ -17,7 +17,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class InAppNotificationViewModel @Inject constructor(
-    private val inAppNotifRepository: InAppNotifRepository,
+    private val inAppNotificationRepository: InAppNotificationRepository,
     private val navController: RootNavigationRepository,
     private val rootNavigationRepository: RootNavigationRepository,
     private val resellPostRepository: ResellPostRepository
@@ -65,9 +65,9 @@ class InAppNotificationViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            inAppNotifRepository.getRecentNotifs()
+            inAppNotificationRepository.getRecentNotifs()
         }
-        asyncCollect(inAppNotifRepository.recentNotifs) { response ->
+        asyncCollect(inAppNotificationRepository.recentNotifs) { response ->
             applyMutation {
                 copy(
                     loadedState = response.toResellApiState(),
@@ -80,32 +80,17 @@ class InAppNotificationViewModel @Inject constructor(
 
     fun onToggleFilter(filter: NotificationType?) {
         applyMutation {
-            copy(
-                loadedState = ResellApiState.Loading
-            )
+            copy(loadedState = ResellApiState.Loading)
         }
-        if (filter == null) {
-            asyncCollect(inAppNotifRepository.recentNotifs) { response ->
-                applyMutation {
-                    copy(
-                        loadedState = response.toResellApiState(),
-                        notifs = response.asSuccessOrNull()?.data?.map { it.toInAppNotif() }
-                            ?: emptyList(),
-                        notifType = null
-                    )
-                }
-            }
-        } else {
-            asyncCollect(inAppNotifRepository.recentNotifs) { response ->
-                applyMutation {
-                    copy(
-                        loadedState = response.toResellApiState(),
-                        notifs = response.asSuccessOrNull()?.data?.map { it.toInAppNotif() }
-                            ?.filter { it.notificationType == filter }
-                            ?: emptyList(),
-                        notifType = filter
-                    )
-                }
+        asyncCollect(inAppNotificationRepository.recentNotifs) { response ->
+            applyMutation {
+                copy(
+                    loadedState = response.toResellApiState(),
+                    notifs = response.asSuccessOrNull()?.data?.map { it.toInAppNotif() }
+                        ?.let { notifs -> if (filter != null) notifs.filter { it.notificationType == filter } else notifs }
+                        ?: emptyList(),
+                    notifType = filter
+                )
             }
         }
     }
@@ -130,7 +115,7 @@ class InAppNotificationViewModel @Inject constructor(
 
     fun onNotificationArchived(notif: InAppNotification) {
         viewModelScope.launch {
-            inAppNotifRepository.onNotificationArchived(notif)
+            inAppNotificationRepository.onNotificationArchived(notif)
         }
     }
 }
