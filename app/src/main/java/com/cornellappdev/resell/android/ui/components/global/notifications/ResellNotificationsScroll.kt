@@ -13,17 +13,17 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.cornellappdev.resell.android.model.classes.InAppNotif
+import com.cornellappdev.resell.android.model.classes.InAppNotification
 import com.cornellappdev.resell.android.ui.theme.Style
 
 @Composable
 fun ResellNotificationsScroll(
-    unreadNotifications: List<InAppNotif>,
-    weekNotifications: List<InAppNotif>,
-    monthNotifications: List<InAppNotif>,
-    otherNotifications: List<InAppNotif>,
-    onNotificationPressed: (InAppNotif) -> Unit,
-    onNotificationArchived: (InAppNotif) -> Unit,
+    unreadNotifications: List<InAppNotification>,
+    weekNotifications: List<InAppNotification>,
+    monthNotifications: List<InAppNotification>,
+    otherNotifications: List<InAppNotification>,
+    onNotificationPressed: (InAppNotification) -> Unit,
+    onNotificationArchived: (InAppNotification) -> Unit,
     listState: LazyListState,
     modifier: Modifier = Modifier,
 ) {
@@ -49,7 +49,7 @@ fun ResellNotificationsScroll(
                             imageUrl = notification.user.photoUrl, //TODO: use other applicable image data once added to the backend
                             body = notification.body,
                             timestamp = notification.timeState,
-                            unread = false,
+                            unread = true,
                             onArchive = {
                                 onNotificationArchived(notification)
                             },
@@ -98,7 +98,7 @@ fun ResellNotificationsScroll(
                 monthNotifications.forEach {
                     NotificationCard(
                         imageUrl = it.user.photoUrl, //TODO: use other applicable image data once added to the backend
-                        body = it.title,
+                        body = it.body,
                         timestamp = it.timeState,
                         unread = it.unread,
                     ) {
@@ -120,7 +120,7 @@ fun ResellNotificationsScroll(
                 otherNotifications.forEach {
                     NotificationCard(
                         imageUrl = it.user.photoUrl, //TODO: use other applicable image data once added to the backend
-                        body = it.title,
+                        body = it.body,
                         timestamp = it.timeState,
                         unread = it.unread,
                     ) {

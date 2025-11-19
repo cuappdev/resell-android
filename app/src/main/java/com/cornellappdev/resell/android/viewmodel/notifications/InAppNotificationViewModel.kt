@@ -2,7 +2,7 @@ package com.cornellappdev.resell.android.viewmodel.notifications
 
 import android.util.Log
 import androidx.lifecycle.viewModelScope
-import com.cornellappdev.resell.android.model.classes.InAppNotif
+import com.cornellappdev.resell.android.model.classes.InAppNotification
 import com.cornellappdev.resell.android.model.classes.ResellApiState
 import com.cornellappdev.resell.android.model.classes.toInAppNotif
 import com.cornellappdev.resell.android.model.classes.toResellApiState
@@ -16,12 +16,12 @@ import java.time.Instant
 import javax.inject.Inject
 
 @HiltViewModel
-class InAppNotifViewModel @Inject constructor(
+class InAppNotificationViewModel @Inject constructor(
     private val inAppNotifRepository: InAppNotifRepository,
     private val navController: RootNavigationRepository,
     private val rootNavigationRepository: RootNavigationRepository,
     private val resellPostRepository: ResellPostRepository
-) : ResellViewModel<InAppNotifViewModel.UiState>(
+) : ResellViewModel<InAppNotificationViewModel.UiState>(
     initialUiState = UiState(
         loadedState = ResellApiState.Loading,
         notifType = null,
@@ -31,7 +31,7 @@ class InAppNotifViewModel @Inject constructor(
     data class UiState(
         val loadedState: ResellApiState,
         val notifType: NotificationType?,
-        val notifs: List<InAppNotif>,
+        val notifs: List<InAppNotification>,
     ) {
 
 
@@ -114,18 +114,21 @@ class InAppNotifViewModel @Inject constructor(
         navController.popBackStack()
     }
 
-    fun onNotificationPressed(notif: InAppNotif) {
+    fun onNotificationPressed(notif: InAppNotification) {
         viewModelScope.launch {
             runCatching {
-                val post = resellPostRepository.getPostById(notif.data.postId)
-                rootNavigationRepository.navigateToPdp(post.toListing())
+                if (notif.data.postId != null) {
+                    val post = resellPostRepository.getPostById(notif.data.postId)
+                    rootNavigationRepository.navigateToPdp(post.toListing())
+                }
             }.getOrElse { e ->
                 Log.e("ResellPostRepository", "Error navigating to post ", e)
+
             }
         }
     }
 
-    fun onNotificationArchived(notif: InAppNotif) {
+    fun onNotificationArchived(notif: InAppNotification) {
         viewModelScope.launch {
             inAppNotifRepository.onNotificationArchived(notif)
         }

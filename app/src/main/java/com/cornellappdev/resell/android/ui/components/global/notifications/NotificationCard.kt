@@ -35,11 +35,11 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.cornellappdev.resell.android.R
-import com.cornellappdev.resell.android.model.classes.InAppNotif
+import com.cornellappdev.resell.android.model.classes.InAppNotification
 import com.cornellappdev.resell.android.ui.theme.ResellPurple
 import com.cornellappdev.resell.android.ui.theme.ResellPurpleWash
 import com.cornellappdev.resell.android.ui.theme.Style
-import com.cornellappdev.resell.android.util.isoToTimeAgo
+import com.cornellappdev.resell.android.util.getRelativeTimeSpan
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
@@ -86,7 +86,7 @@ fun NotificationCard(
             )
             Text(
                 style = Style.title4,
-                text = isoToTimeAgo(timestamp),
+                text = getRelativeTimeSpan(timestamp),
                 color = Color.Gray
             )
 
@@ -96,12 +96,12 @@ fun NotificationCard(
 
 @Composable
 fun SwipeableNotificationCard(
-    notification: InAppNotif,
+    notification: InAppNotification,
     imageUrl: String,
     body: String,
     timestamp: String,
     unread: Boolean,
-    onArchive: (InAppNotif) -> Unit,
+    onArchive: (InAppNotification) -> Unit,
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
 ) {

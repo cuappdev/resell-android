@@ -3,10 +3,10 @@ package com.cornellappdev.resell.android.model.classes
 import com.cornellappdev.resell.android.model.api.User
 import com.cornellappdev.resell.android.viewmodel.notifications.NotificationType
 
-data class InAppNotif(
+data class InAppNotification(
     val body: String,
     val timeState: String,
-    val data: AdditionalNotifData,
+    val data: AdditionalNotificationData,
     val id: String,
     val unread: Boolean,
     val title: String,
@@ -17,7 +17,7 @@ data class InAppNotif(
 data class RecentNotifResponse(
     val body: String,
     val createdAt: String,
-    val data: AdditionalNotifData,
+    val data: AdditionalNotificationData,
     val id: String,
     val read: Boolean,
     val title: String,
@@ -26,18 +26,18 @@ data class RecentNotifResponse(
     val userId: String
 )
 
-data class AdditionalNotifData(
-    val postId: String,
-    val postTitle: String,
-    val price: String,
-    val requestId: String,
-    val requestTitle: String,
-    val sellerId: String,
-    val sellerUsername: String
+data class AdditionalNotificationData(
+    val postId: String?,
+    val postTitle: String?,
+    val price: String?,
+    val requestId: String?,
+    val requestTitle: String?,
+    val sellerId: String?,
+    val sellerUsername: String?
 )
 
 fun RecentNotifResponse.toInAppNotif() =
-    InAppNotif(
+    InAppNotification(
         body = this.body,
         timeState = this.createdAt,
         data = this.data,

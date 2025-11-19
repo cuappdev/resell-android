@@ -2,7 +2,7 @@ package com.cornellappdev.resell.android.model.notifications
 
 import com.cornellappdev.resell.android.model.api.RetrofitInstance
 import com.cornellappdev.resell.android.model.classes.DiscountNotifBody
-import com.cornellappdev.resell.android.model.classes.InAppNotif
+import com.cornellappdev.resell.android.model.classes.InAppNotification
 import com.cornellappdev.resell.android.model.classes.ListingRequestNotifBody
 import com.cornellappdev.resell.android.model.classes.RecentNotifResponse
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
@@ -32,7 +32,7 @@ class InAppNotifRepository @Inject constructor(
         }
     }
 
-    suspend fun onNotificationArchived(notif: InAppNotif) {
+    suspend fun onNotificationArchived(notif: InAppNotification) {
         //TODO: implement when there an endpoint to archive a notification
     }
 

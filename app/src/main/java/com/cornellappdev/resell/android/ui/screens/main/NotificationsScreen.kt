@@ -31,15 +31,15 @@ import com.cornellappdev.resell.android.ui.components.global.notifications.Resel
 import com.cornellappdev.resell.android.ui.theme.Padding
 import com.cornellappdev.resell.android.ui.theme.Style
 import com.cornellappdev.resell.android.util.clickableNoIndication
-import com.cornellappdev.resell.android.viewmodel.notifications.InAppNotifViewModel
+import com.cornellappdev.resell.android.viewmodel.notifications.InAppNotificationViewModel
 import com.cornellappdev.resell.android.viewmodel.notifications.NotificationType
 import kotlinx.coroutines.launch
 
 @Composable
 fun NotificationsHubScreen(
-    inAppNotifViewModel: InAppNotifViewModel = hiltViewModel(),
+    inAppNotificationViewModel: InAppNotificationViewModel = hiltViewModel(),
 ) {
-    val notificationsHubUiState = inAppNotifViewModel.collectUiStateValue()
+    val notificationsHubUiState = inAppNotificationViewModel.collectUiStateValue()
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
 
@@ -49,13 +49,13 @@ fun NotificationsHubScreen(
     ) {
         NotificationsHubHeader(
             notificationType = notificationsHubUiState.notifType,
-            onFilterPressed = inAppNotifViewModel::onToggleFilter,
+            onFilterPressed = inAppNotificationViewModel::onToggleFilter,
             onTopPressed = {
                 coroutineScope.launch {
                     listState.animateScrollToItem(0)
                 }
             },
-            onBackPressed = inAppNotifViewModel::onBackPressed
+            onBackPressed = inAppNotificationViewModel::onBackPressed
         )
 
         Column(
@@ -87,10 +87,10 @@ fun NotificationsHubScreen(
                             monthNotifications = notificationsHubUiState.monthNotifications,
                             otherNotifications = notificationsHubUiState.otherNotifications,
                             onNotificationPressed = {
-                                inAppNotifViewModel.onNotificationPressed(it)
+                                inAppNotificationViewModel.onNotificationPressed(it)
                             },
                             onNotificationArchived = {
-                                inAppNotifViewModel.onNotificationArchived(it)
+                                inAppNotificationViewModel.onNotificationArchived(it)
                             },
                             listState = listState,
                         )
