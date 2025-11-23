@@ -43,7 +43,7 @@ fun ResellNotificationsScroll(
                 Spacer(modifier = Modifier.height(12.dp))
                 val currUnreads by remember { mutableStateOf(unreadNotifications) }
                 currUnreads.mapIndexed { i, notification ->
-                    if (notification.unread) {
+                    if (notification.isUnread) {
                         SwipeableNotificationCard(
                             notification = notification,
                             imageUrl = notification.user.photoUrl, //TODO: use other applicable image data once added to the backend
@@ -77,7 +77,7 @@ fun ResellNotificationsScroll(
                         imageUrl = it.user.photoUrl, //TODO: use other applicable image data once added to the backend
                         body = it.body,
                         timestamp = it.timeState,
-                        unread = it.unread,
+                        unread = it.isUnread,
                     ) {
                         onNotificationPressed(it)
                     }
@@ -100,7 +100,7 @@ fun ResellNotificationsScroll(
                         imageUrl = it.user.photoUrl, //TODO: use other applicable image data once added to the backend
                         body = it.body,
                         timestamp = it.timeState,
-                        unread = it.unread,
+                        unread = it.isUnread,
                     ) {
                         onNotificationPressed(it)
                     }
@@ -122,7 +122,7 @@ fun ResellNotificationsScroll(
                         imageUrl = it.user.photoUrl, //TODO: use other applicable image data once added to the backend
                         body = it.body,
                         timestamp = it.timeState,
-                        unread = it.unread,
+                        unread = it.isUnread,
                     ) {
                         onNotificationPressed(it)
                     }

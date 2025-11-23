@@ -8,7 +8,7 @@ data class InAppNotification(
     val timeState: String,
     val data: AdditionalNotificationData,
     val id: String,
-    val unread: Boolean,
+    val isUnread: Boolean,
     val title: String,
     val user: User,
     val notificationType: NotificationType
@@ -19,7 +19,7 @@ data class RecentNotifResponse(
     val createdAt: String,
     val data: AdditionalNotificationData,
     val id: String,
-    val read: Boolean,
+    val isRead: Boolean,
     val title: String,
     val updatedAt: String,
     val user: User,
@@ -36,13 +36,13 @@ data class AdditionalNotificationData(
     val sellerUsername: String?
 )
 
-fun RecentNotifResponse.toInAppNotif() =
+fun RecentNotifResponse.toInAppNotification() =
     InAppNotification(
         body = this.body,
         timeState = this.createdAt,
         data = this.data,
         id = this.id,
-        unread = !this.read,
+        isUnread = !this.isRead,
         title = this.title,
         user = this.user,
         notificationType = when {
@@ -59,13 +59,13 @@ fun RecentNotifResponse.toInAppNotif() =
 
     )
 
-data class ListingRequestNotifBody(
+data class ListingRequestNotificationBody(
     val requestId: String,
     val listingId: String,
     val userId: String
 )
 
-data class DiscountNotifBody(
+data class DiscountNotificationBody(
     val sellerId: String,
     val listingId: String,
     val oldPrice: Int,

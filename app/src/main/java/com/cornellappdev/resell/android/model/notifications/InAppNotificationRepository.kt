@@ -1,9 +1,8 @@
 package com.cornellappdev.resell.android.model.notifications
 
 import com.cornellappdev.resell.android.model.api.RetrofitInstance
-import com.cornellappdev.resell.android.model.classes.DiscountNotifBody
+import com.cornellappdev.resell.android.model.classes.DiscountNotificationBody
 import com.cornellappdev.resell.android.model.classes.InAppNotification
-import com.cornellappdev.resell.android.model.classes.ListingRequestNotifBody
 import com.cornellappdev.resell.android.model.classes.RecentNotifResponse
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,18 +15,19 @@ class InAppNotificationRepository @Inject constructor(
     private val retrofitInstance: RetrofitInstance,
 ) {
 
-    private val _recentNotifs = MutableStateFlow<ResellApiResponse<List<RecentNotifResponse>>>(
-        ResellApiResponse.Pending
-    )
-    val recentNotifs = _recentNotifs.asStateFlow()
+    private val _recentNotifications =
+        MutableStateFlow<ResellApiResponse<List<RecentNotifResponse>>>(
+            ResellApiResponse.Pending
+        )
+    val recentNotifs = _recentNotifications.asStateFlow()
 
-    suspend fun getRecentNotifs() {
-        _recentNotifs.value = ResellApiResponse.Pending
+    suspend fun getRecentNotifications() {
+        _recentNotifications.value = ResellApiResponse.Pending
         runCatching {
-            val notifs = retrofitInstance.inAppNotificationApi.getRecentNotifs()
-            _recentNotifs.value = ResellApiResponse.Success(notifs)
-        }.getOrElse { e ->
-            _recentNotifs.value = ResellApiResponse.Error
+            val notifs = retrofitInstance.inAppNotificationApi.getRecentNotifications()
+            _recentNotifications.value = ResellApiResponse.Success(notifs)
+        }.getOrElse { _ ->
+            _recentNotifications.value = ResellApiResponse.Error
         }
     }
 
@@ -35,17 +35,8 @@ class InAppNotificationRepository @Inject constructor(
         //TODO: implement when there is an endpoint to archive a notification
     }
 
-    //TODO: when should this be called
-    suspend fun sendRequestMatchNotif(body: ListingRequestNotifBody) {
-        runCatching {
-            retrofitInstance.inAppNotificationApi.sendRequestMatchNotif(body)
-        }.onFailure { e ->
-            println("Error sending request match notification: ${e.message}")
-        }
-    }
-
     //TODO: will be called when post price is changed, which doesn't have an implementation yet
-    suspend fun sendDiscountNotification(body: DiscountNotifBody) {
+    suspend fun sendDiscountNotification(body: DiscountNotificationBody) {
         runCatching {
             retrofitInstance.inAppNotificationApi.sendDiscountNotification(body)
         }.onFailure { e ->
