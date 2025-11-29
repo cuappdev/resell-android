@@ -87,7 +87,7 @@ fun NotificationsHubScreen(
                             monthNotifications = notificationsHubUiState.monthNotifications,
                             otherNotifications = notificationsHubUiState.otherNotifications,
                             onNotificationPressed = {
-                                inAppNotificationViewModel.onNotificationPressed()
+                                inAppNotificationViewModel.onNotificationPressed(it)
                             },
                             onNotificationArchived = {
                                 inAppNotificationViewModel.onNotificationArchived(it)
