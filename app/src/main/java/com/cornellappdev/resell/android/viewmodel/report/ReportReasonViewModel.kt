@@ -2,6 +2,7 @@ package com.cornellappdev.resell.android.viewmodel.report
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.navigation.toRoute
+import com.cornellappdev.resell.android.model.api.Report
 import com.cornellappdev.resell.android.ui.screens.reporting.ReportScreen
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
 import com.cornellappdev.resell.android.viewmodel.navigation.ReportNavigationRepository
@@ -15,7 +16,7 @@ class ReportReasonViewModel @Inject constructor(
 ) :
     ResellViewModel<ReportReasonViewModel.ReportReasonUiState>(
         initialUiState = ReportReasonUiState(
-            reportPost = true
+            reportType = ReportType.POST
         )
     ) {
 
@@ -23,28 +24,45 @@ class ReportReasonViewModel @Inject constructor(
      * @param reportPost True if it's a report of a post, false if it's a report of a user.
      */
     data class ReportReasonUiState(
-        private val reportPost: Boolean,
+        private val reportType: ReportType,
     ) {
+        val user_reasons : List<ReportReason> = listOf(ReportReason.FRAUD, ReportReason.ILLEGAL, ReportReason.HATE_SPEECH, ReportReason.BULLYING, ReportReason.SEXUAL_MISCONDUCT, ReportReason.INTELLECTUAL_PROPERTY, ReportReason.OTHER)
+        val post_reasons : List<ReportReason> = listOf(ReportReason.ILLEGAL, ReportReason.HATE_SPEECH, ReportReason.BULLYING, ReportReason.SEXUAL_MISCONDUCT, ReportReason.SPAM, ReportReason.OTHER)
+        val ptf_reasons : List<ReportReason> = listOf(ReportReason.STOPPED_RESPONDING, ReportReason.ITEM_DAMAGED, ReportReason.ITEM_DIFFERENT, ReportReason.APP_ERROR, ReportReason.OTHER)
+
+
         val reasons: List<String>
-            get() = ReportReason.entries.filter {
-                if (reportPost) {
-                    it.appliesToPost
-                } else {
-                    it.appliesToUser
+            get() =
+                if(reportType == ReportType.POST_TRANSACTION) {
+                    ptf_reasons.map { it.message }
                 }
-            }.map { it.message }
+                else if (reportType == ReportType.POST) {
+                    post_reasons.map { it.message }
+                }
+                else {
+                    user_reasons.map { it.message }
+                }
+
 
         val title: String
-            get() = if (reportPost) {
+            get() = if(reportType == ReportType.POST_TRANSACTION) {
+                "Submit Feedback"
+            }
+            else if (reportType == ReportType.POST) {
                 "Report Post"
-            } else {
+            }
+            else {
                 "Report Account"
             }
 
         val subtitle: String
-            get() = if (reportPost) {
+            get() = if(reportType == ReportType.POST_TRANSACTION) {
+                "Explain what happened:"
+            }
+            else if (reportType == ReportType.POST) {
                 "Why do you want to report this post?"
-            } else {
+            }
+            else {
                 "Why do you want to report this account?"
             }
     }
@@ -54,7 +72,7 @@ class ReportReasonViewModel @Inject constructor(
         savedStateHandle.toRoute<ReportScreen.Reason>().let { navArgs ->
             applyMutation {
                 copy(
-                    reportPost = navArgs.reportPost
+                    reportType = ReportType.POST
                 )
             }
         }
@@ -65,7 +83,7 @@ class ReportReasonViewModel @Inject constructor(
         val navArgs = savedStateHandle.toRoute<ReportScreen.Reason>()
         reportNavigationRepository.navigate(
             ReportScreen.Details(
-                reportPost = navArgs.reportPost,
+                reportType = navArgs.reportType,
                 postId = navArgs.postId,
                 userId = navArgs.userId,
                 reason = reason
@@ -74,13 +92,25 @@ class ReportReasonViewModel @Inject constructor(
     }
 }
 
+// TODO: make hardcoded list of report reasons for each type (user/post/ptf)
+// TODO: use enum for the text stuff later in ReportDetailsViewModel
+// TODO: delete all the bools
 enum class ReportReason(
-    val appliesToPost: Boolean = true,
-    val appliesToUser: Boolean = true,
     val message: String
 ) {
+    STOPPED_RESPONDING(
+        message = "User stopped responding"
+    ),
+    ITEM_DAMAGED(
+        message = "Item arrived damaged"
+    ),
+    ITEM_DIFFERENT(
+        message = "Item is different than what I expected"
+    ),
+    APP_ERROR(
+        message = "There was an error on the app"
+    ),
     FRAUD(
-        appliesToPost = false,
         message = "Fraudulent behavior"
     ),
     ILLEGAL(
@@ -96,14 +126,19 @@ enum class ReportReason(
         message = "Sexual misconduct or nudity"
     ),
     SPAM(
-        appliesToUser = false,
         message = "Spam"
     ),
     INTELLECTUAL_PROPERTY(
-        appliesToPost = false,
         message = "Unauthorized use of intellectual property"
     ),
     OTHER(
         message = "Other"
     )
+}
+
+//TODO : add enum params
+enum class ReportType {
+    POST,
+    USER,
+    POST_TRANSACTION
 }

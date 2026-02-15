@@ -9,6 +9,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.cornellappdev.resell.android.viewmodel.navigation.ReportNavigationViewModel
+import com.cornellappdev.resell.android.viewmodel.report.ReportType
 import kotlinx.serialization.Serializable
 
 @Composable
@@ -27,7 +28,7 @@ fun ReportNavigation(
     NavHost(
         navController = navController,
         startDestination = uiState.initialPage ?: ReportScreen.Reason(
-            reportPost = true,
+            reportType = ReportType.POST,
             postId = "",
             userId = ""
         ),
@@ -51,14 +52,14 @@ fun ReportNavigation(
 sealed class ReportScreen {
     @Serializable
     data class Reason(
-        val reportPost: Boolean,
+        val reportType: ReportType,
         val postId: String,
         val userId: String
     ) : ReportScreen()
 
     @Serializable
     data class Details(
-        val reportPost: Boolean,
+        val reportType: ReportType,
         val postId: String,
         val userId: String,
         val reason: String,
@@ -66,7 +67,7 @@ sealed class ReportScreen {
 
     @Serializable
     data class Confirmation(
-        val reportPost: Boolean,
+        val reportType: ReportType,
         val userId: String,
     ) : ReportScreen()
 }
