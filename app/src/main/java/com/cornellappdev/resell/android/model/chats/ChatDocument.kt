@@ -24,6 +24,7 @@ data class ChatDocument(
     val cancellation: Boolean?,
     val startDate: Timestamp?,
     val endDate: Timestamp?,
+    val transactionId: String?
 )
 
 /**
@@ -123,6 +124,37 @@ data class MeetingInfo(
         return "$first - $second"
     }
 }
+
+data class TransactionInfo(
+    val completeTime: Timestamp,
+    val state: String,
+    var mostRecent: Boolean
+) {
+    val actionText
+        get() = when (state) {
+            "completed" -> "Leave Review"
+            else -> ""
+        }
+
+    val icon
+        get() = when (state) {
+            "canceled" -> R.drawable.ic_slash
+            else -> R.drawable.ic_bag
+        }
+
+    fun convertToUtcMinusFiveDate(): Date {
+        val calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT-5"))
+        calendar.time = completeTime.toDate()
+        return calendar.time
+    }
+
+    fun convertToTransactionString(): String {
+        val date = convertToUtcMinusFiveDate()
+        val formatter = SimpleDateFormat("EEEE, MMMM dd · h:mm a", Locale.ENGLISH)
+        return formatter.format(date)
+    }
+}
+
 
 data class AvailabilityDocument(
     val availabilities: List<AvailabilityBlock>

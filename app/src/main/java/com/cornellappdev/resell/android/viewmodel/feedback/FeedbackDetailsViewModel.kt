@@ -3,14 +3,13 @@ package com.cornellappdev.resell.android.viewmodel.feedback
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
-import com.cornellappdev.resell.android.model.settings.SettingsRepository
+import com.cornellappdev.resell.android.model.ptf.FeedbackRepository
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonState
 import com.cornellappdev.resell.android.ui.screens.feedback.FeedbackScreen
 import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
 import com.cornellappdev.resell.android.viewmodel.navigation.FeedbackNavigationRepository
 import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepository
-import com.cornellappdev.resell.android.viewmodel.root.RootConfirmationRepository
 import com.cornellappdev.resell.android.viewmodel.root.RootDialogContent
 import com.cornellappdev.resell.android.viewmodel.root.RootDialogRepository
 import com.cornellappdev.resell.android.viewmodel.submitted.ConfettiRepository
@@ -22,11 +21,10 @@ import javax.inject.Inject
 @HiltViewModel
 class FeedbackDetailsViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
-    private val settingsRepository: SettingsRepository,
-    private val rootConfirmationRepository: RootConfirmationRepository,
     private val rootDialogRepository: RootDialogRepository,
     private val rootNavigationRepository: RootNavigationRepository,
     private val feedbackNavigationRepository: FeedbackNavigationRepository,
+    private val feedbackRepository: FeedbackRepository,
     private val confettiRepository: ConfettiRepository
 ) :
     ResellViewModel<FeedbackDetailsViewModel.FeedbackDetailsUiState>(
@@ -96,7 +94,11 @@ class FeedbackDetailsViewModel @Inject constructor(
                 )
             }
 
-            // TODO add networking for feedback submission
+            feedbackRepository.createFeedback(
+                description = stateValue().typedContent,
+                uid = stateValue().userId
+            )
+
             // Navigate back to the home page and show the review submitted dialog
             rootNavigationRepository.navigate(
                 ResellRootRoute.MAIN

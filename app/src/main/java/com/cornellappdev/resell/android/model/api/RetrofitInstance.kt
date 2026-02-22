@@ -158,6 +158,33 @@ class RetrofitInstance @Inject constructor(
             .create(SettingsApiService::class.java)
     }
 
+    val transactionApi: TransactionApiService by lazy {
+        Retrofit.Builder()
+            .baseUrl(BuildConfig.BASE_API_URL)
+            .client(okHttpClient)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(TransactionApiService::class.java)
+    }
+
+    val transactionReviewApi: TransactionReviewApiService by lazy {
+        Retrofit.Builder()
+            .baseUrl(BuildConfig.BASE_API_URL)
+            .client(okHttpClient)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(TransactionReviewApiService::class.java)
+    }
+
+    val feedbackApi: FeedbackApiService by lazy {
+        Retrofit.Builder()
+            .baseUrl(BuildConfig.BASE_API_URL)
+            .client(okHttpClient)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(FeedbackApiService::class.java)
+    }
+
     val notificationsApi: FcmApiService by lazy {
         Retrofit.Builder()
             .baseUrl(BuildConfig.FCM_URL)

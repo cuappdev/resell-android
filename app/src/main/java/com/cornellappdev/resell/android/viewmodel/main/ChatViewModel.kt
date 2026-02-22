@@ -26,11 +26,13 @@ import com.cornellappdev.resell.android.model.api.Post
 import com.cornellappdev.resell.android.model.chats.AvailabilityBlock
 import com.cornellappdev.resell.android.model.chats.AvailabilityDocument
 import com.cornellappdev.resell.android.model.chats.MeetingInfo
+import com.cornellappdev.resell.android.model.chats.TransactionInfo
 import com.cornellappdev.resell.android.model.classes.Listing
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.model.core.UserInfoRepository
 import com.cornellappdev.resell.android.model.login.FireStoreRepository
 import com.cornellappdev.resell.android.model.login.FirebaseMessagingRepository
+import com.cornellappdev.resell.android.model.ptf.PostTransactionRatingRepository
 import com.cornellappdev.resell.android.ui.components.availability.helper.GridSelectionType
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonContainer
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonState
@@ -70,6 +72,7 @@ class ChatViewModel @Inject constructor(
     private val fireStoreRepository: FireStoreRepository,
     private val rootDialogRepository: RootDialogRepository,
     private val rootNavigationRepository: RootNavigationRepository,
+    private val postTransactionRatingRepository: PostTransactionRatingRepository,
     @ApplicationContext private val context: Context
 ) :
     ResellViewModel<ChatViewModel.MessagesUiState>(
@@ -86,6 +89,7 @@ class ChatViewModel @Inject constructor(
         val typedMessage: String = "",
         val scrollBottom: UIEvent<Unit>? = null,
         val mostRecentOtherAvailability: AvailabilityDocument? = null,
+        val hasCompletedTransaction: Boolean = false
     ) {
         val showNegotiate
             get() = true
@@ -597,6 +601,21 @@ class ChatViewModel @Inject constructor(
         }
     }
 
+    fun onTransactionStateClicked(transactionInfo: TransactionInfo, isSelf: Boolean) {
+        viewModelScope.launch {
+            when (transactionInfo.state) {
+                "completed" -> {
+                    rootNavigationRepository.navigate(
+                        ResellRootRoute.POST_TRANSACTION_RATING(
+                            postId = listing.id,
+                            userId = navArgs.otherUserId
+                        )
+                    )
+                }
+            }
+        }
+    }
+
     init {
         firebaseMessagingRepository.requestNotificationsPermission()
 
@@ -673,6 +692,27 @@ class ChatViewModel @Inject constructor(
                         copy(
                             mostRecentOtherAvailability = data?.availability
                         )
+                    }
+                }
+            }
+
+            // Checks if any message has a [transactionId] and if so, verify the completion of a transaction.
+            viewModelScope.launch {
+                if (response is ResellApiResponse.Success) {
+                    val transactionId = response.data.chatHistory
+                        .flatMap { it.messages }
+                        .firstOrNull { it.transactionId != null }
+                        ?. transactionId
+
+                    if (transactionId != null) {
+                        try {
+                            val transaction = postTransactionRatingRepository.getTransactionById(transactionId)
+                            if (transaction.completed) {
+                                applyMutation { copy(hasCompletedTransaction = true) }
+                            }
+                        } catch (e: Exception) {
+                            Log.e("ChatViewModel", "Error checking transaction: ", e)
+                        }
                     }
                 }
             }

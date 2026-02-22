@@ -10,18 +10,21 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import coil.compose.AsyncImage
 import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.ui.components.global.ResellHeader
 import com.cornellappdev.resell.android.ui.components.global.ResellRatingBar
@@ -115,7 +118,6 @@ fun PostTransactionRatingScreen(
                 modifier = Modifier.padding(bottom = 44.dp)
             )
         }
-
     }
 }
 
@@ -125,7 +127,7 @@ private fun ItemInfo(
     imageUrl: String,
     price: String,
     sellerName: String,
-    date: Date?
+    date: Date
 ) {
     val formattedDate = remember(date) {
         date.let { SimpleDateFormat("MMMM dd, yyyy", Locale.getDefault()).format(it) } ?: "Month 00, 0000"
@@ -139,19 +141,21 @@ private fun ItemInfo(
         )
 
         Row(modifier = Modifier.padding(top = 16.dp, bottom = 32.dp)) {
-            //TODO - plagiarize ResellCard AsyncImage when UI is done/backend connected
-            Image(
-                painter = painterResource(R.drawable.ic_appdev),
-                contentDescription = null,
-                modifier = Modifier.size(75.dp)
+            AsyncImage(
+                model = imageUrl,
+                contentDescription = "Item image",
+                modifier = Modifier
+                    .size(75.dp)
+                    .clip(RoundedCornerShape(8.dp)),
+                contentScale = ContentScale.Crop
             )
+
             Column(modifier = Modifier.padding(start = 16.dp)) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Text(text = itemName, style = Style.title1)
-                    // TODO : make this look better
                     Text(text = "•", color = Color.Black)
                     Text(text = "$$price", style = Style.body1)
                 }
