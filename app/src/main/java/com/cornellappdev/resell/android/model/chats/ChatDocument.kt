@@ -125,36 +125,27 @@ data class MeetingInfo(
     }
 }
 
+enum class TransactionState(val value: String) {
+    COMPLETED("completed"),
+    CANCELED("canceled");
+}
+
 data class TransactionInfo(
     val completeTime: Timestamp,
-    val state: String,
+    val state: TransactionState,
     var mostRecent: Boolean
 ) {
     val actionText
         get() = when (state) {
-            "completed" -> "Leave Review"
+            TransactionState.COMPLETED -> "Leave Review"
             else -> ""
         }
-
     val icon
         get() = when (state) {
-            "canceled" -> R.drawable.ic_slash
+            TransactionState.CANCELED -> R.drawable.ic_slash
             else -> R.drawable.ic_bag
         }
-
-    fun convertToUtcMinusFiveDate(): Date {
-        val calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT-5"))
-        calendar.time = completeTime.toDate()
-        return calendar.time
-    }
-
-    fun convertToTransactionString(): String {
-        val date = convertToUtcMinusFiveDate()
-        val formatter = SimpleDateFormat("EEEE, MMMM dd · h:mm a", Locale.ENGLISH)
-        return formatter.format(date)
-    }
 }
-
 
 data class AvailabilityDocument(
     val availabilities: List<AvailabilityBlock>

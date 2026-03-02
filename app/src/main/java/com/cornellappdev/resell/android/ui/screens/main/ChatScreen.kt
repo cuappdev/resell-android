@@ -167,7 +167,7 @@ private fun ChatLoadedContent(
             }
         )
         ResellChatScroll(
-            chatClusters = chat.chatHistory + if (chatUiState.hasCompletedTransaction) {
+            chatClusters = chat.chatHistory + if (chatUiState.completedTransactionInfo != null) {
                 listOf(
                     ChatMessageCluster(
                         fromUser = false,
@@ -176,12 +176,8 @@ private fun ChatLoadedContent(
                             ChatMessageData(
                                 messageType = MessageType.State,
                                 content = "This transaction has been completed",
-                                transactionInfo = TransactionInfo(
-                                    completeTime = Timestamp(Date()),
-                                    state = "completed",
-                                    mostRecent = true
-                                ),
-                                timestamp = Timestamp(Date()),
+                                transactionInfo = chatUiState.completedTransactionInfo,
+                                timestamp = chatUiState.completedTransactionInfo.completeTime,
                                 senderId = "",
                                 id = ""
                             )

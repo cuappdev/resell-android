@@ -6,7 +6,6 @@ import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.cornellappdev.resell.android.model.ptf.PostTransactionRatingRepository
 import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
-import com.cornellappdev.resell.android.util.parseIsoDateToDate
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
 import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepository
 import com.cornellappdev.resell.android.viewmodel.root.RootConfirmationRepository
@@ -59,10 +58,13 @@ class PostTransactionRatingViewModel @Inject constructor(
                 val transactionFromPostId = postTransactionRatingRepository.getTransactionByPostId(navArgs.postId)
                 val transaction = postTransactionRatingRepository.getTransactionById(transactionFromPostId.id)
 
-                val date = transaction.transactionDate?.let { parseIsoDateToDate(it) }
-                    ?: parseIsoDateToDate(transaction.createdAt)
+                val date = transaction.transactionDate
 
-                val sellerFullName = transaction.seller?.givenName + " " + transaction.seller?.familyName
+                val sellerFullName = transaction.seller?.let { seller ->
+                    listOfNotNull(seller.givenName, seller.familyName)
+                        .joinToString(" ")
+                        .ifBlank{"Unknown Seller"}
+                } ?: "Unknown Seller"
 
                 applyMutation {
                     copy(
@@ -127,9 +129,10 @@ class PostTransactionRatingViewModel @Inject constructor(
                 )
                 confettiRepository.showConfetti()
             } catch (e: Exception) {
-                Log.e("PostTransactionRatingViewModel", "Error subtmiting review.", e)
+                Log.e("PostTransactionRatingViewModel", "Error submitting review.", e)
+                // Error code = 500 for all exceptions (including duplicate transaction reviews)
                 rootConfirmationRepository.showError(
-                    "Failed to submit review. Please try again later."
+                    "Failed to submit review. A review may already exist, or please try again later."
                 )
             }
         }

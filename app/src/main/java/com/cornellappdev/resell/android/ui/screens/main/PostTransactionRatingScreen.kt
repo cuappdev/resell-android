@@ -1,13 +1,13 @@
 package com.cornellappdev.resell.android.ui.screens.main
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -41,83 +41,104 @@ import java.util.Locale
 fun PostTransactionRatingScreen(
     postTransactionRatingViewModel: PostTransactionRatingViewModel = hiltViewModel()
 ) {
-
     val postTransactionUiState = postTransactionRatingViewModel.collectUiStateValue()
+
+    PostTransactionRatingScreenContent(
+        uiState = postTransactionUiState,
+        onBackArrow = postTransactionRatingViewModel::onBackArrow,
+        onRatingChanged = postTransactionRatingViewModel::onRatingChanged,
+        onReviewTextChanged = postTransactionRatingViewModel::onReviewTextChanged,
+        onFeedbackClicked = postTransactionRatingViewModel::onFeedbackClicked,
+        onSubmitReview = postTransactionRatingViewModel::submitReview
+    )
+}
+
+@Composable
+private fun PostTransactionRatingScreenContent(
+    uiState: PostTransactionRatingViewModel.PostTransactionRatingUiState,
+    onBackArrow: () -> Unit,
+    onRatingChanged: (Int) -> Unit,
+    onReviewTextChanged: (String) -> Unit,
+    onFeedbackClicked: () -> Unit,
+    onSubmitReview: () -> Unit,
+) {
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(color = Color.White)
-            .padding(horizontal = 24.dp)
+            .padding(horizontal = 24.dp),
+        verticalArrangement = Arrangement.SpaceBetween,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        ResellHeader(
-            title = "Completed Transaction",
-            leftPainter = R.drawable.ic_chevron_left,
-            onLeftClick = {
-                postTransactionRatingViewModel.onBackArrow()
-            }
-        )
-        ItemInfo(
-            itemName = postTransactionUiState.itemName,
-            imageUrl = postTransactionUiState.imageUrl,
-            price = postTransactionUiState.price,
-            sellerName = postTransactionUiState.sellerName,
-            date = postTransactionUiState.date
-        )
-        HorizontalDivider()
+        Column {
+            ResellHeader(
+                title = "Completed Transaction",
+                leftPainter = R.drawable.ic_chevron_left,
+                onLeftClick = onBackArrow
+            )
+            ItemInfo(
+                itemName = uiState.itemName,
+                imageUrl = uiState.imageUrl,
+                price = uiState.price,
+                sellerName = uiState.sellerName,
+                date = uiState.date
+            )
+            HorizontalDivider()
 
-        Text(
-            text = "Transaction Review",
-            style = Style.heading3,
-            modifier = Modifier.padding(top = 16.dp, bottom = 12.dp)
-        )
-        ResellRatingBar(
-            rating = postTransactionUiState.rating,
-            onRatingChanged = {
-                postTransactionRatingViewModel.onRatingChanged(it)
-            }
-        )
+            Spacer(modifier = Modifier.height(16.dp))
 
-        ResellTextEntry(
-            text = postTransactionUiState.reviewText,
-            onTextChange = {
-                postTransactionRatingViewModel.onReviewTextChanged(it)
-            },
-            inlineLabel = false,
-            singleLine = false,
-            placeholder = "How was your transaction experience with ${postTransactionUiState.sellerName}? (Optional)",
-            textFontStyle = Style.body2,
-            multiLineHeight = 117.dp,
-            modifier = Modifier.padding(top = 16.dp, bottom = 36.dp)
-        )
-
-        Row(
-            modifier = Modifier.align(Alignment.CenterHorizontally)
-        ) {
             Text(
-                text = "Had issues? Submit ",
-                style = Style.body2
+                text = "Transaction Review",
+                style = Style.heading3
             )
-            Text(
-                text = "feedback",
-                style = Style.body2.copy(
-                    color = ResellPurple,
-                    textDecoration = TextDecoration.Underline
-                ),
-                modifier = Modifier.clickable {
-                    postTransactionRatingViewModel.onFeedbackClicked()
-                }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            ResellRatingBar(
+                rating = uiState.rating,
+                onRatingChanged = onRatingChanged
             )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            ResellTextEntry(
+                text = uiState.reviewText,
+                onTextChange = onReviewTextChanged,
+                inlineLabel = false,
+                singleLine = false,
+                placeholder = "How was your transaction experience with ${uiState.sellerName}? (Optional)",
+                textFontStyle = Style.body2,
+                multiLineHeight = 117.dp
+            )
+
+            Spacer(modifier = Modifier.height(36.dp))
+
+            Row(
+                modifier = Modifier.align(Alignment.CenterHorizontally)
+            ) {
+                Text(
+                    text = "Had issues? Submit ",
+                    style = Style.body2
+                )
+                Text(
+                    text = "feedback",
+                    style = Style.body2.copy(
+                        color = ResellPurple,
+                        textDecoration = TextDecoration.Underline
+                    ),
+                    modifier = Modifier.clickable {
+                        onFeedbackClicked()
+                    }
+                )
+            }
         }
-        Box(contentAlignment = Alignment.BottomCenter, modifier = Modifier.fillMaxSize()) {
-            ResellTextButton(
-                text = "Submit Review",
-                onClick = {
-                    postTransactionRatingViewModel.submitReview()
-                },
-                modifier = Modifier.padding(bottom = 44.dp)
-            )
-        }
+
+        ResellTextButton(
+            text = "Submit Review",
+            onClick = onSubmitReview,
+            modifier = Modifier.padding(bottom = 44.dp)
+        )
     }
 }
 
@@ -134,13 +155,15 @@ private fun ItemInfo(
     }
 
     Column {
+        Spacer(modifier = Modifier.height(36.dp))
         Text(
             text = "Purchase Summary",
             style = Style.heading3,
-            modifier = Modifier.padding(top = 36.dp)
         )
-
-        Row(modifier = Modifier.padding(top = 16.dp, bottom = 32.dp)) {
+        Row(
+            modifier = Modifier.padding(top = 16.dp, bottom = 32.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             AsyncImage(
                 model = imageUrl,
                 contentDescription = "Item image",
@@ -159,11 +182,12 @@ private fun ItemInfo(
                     Text(text = "•", color = Color.Black)
                     Text(text = "$$price", style = Style.body1)
                 }
+                Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     "Sold by $sellerName",
                     style = Style.body2,
-                    modifier = Modifier.padding(top = 8.dp, bottom = 4.dp)
                 )
+                Spacer(modifier = Modifier.height(4.dp))
                 Text("Purchased on $formattedDate", style = Style.body2)
 
             }
@@ -175,5 +199,20 @@ private fun ItemInfo(
 @Preview
 @Composable
 private fun RatingScreenPreview() {
-    PostTransactionRatingScreen()
+    PostTransactionRatingScreenContent(
+        uiState = PostTransactionRatingViewModel.PostTransactionRatingUiState(
+            itemName = "Item Name",
+            imageUrl = "",
+            price = "10.00",
+            sellerName = "Seller Name",
+            date = Date(),
+            rating = 0,
+            reviewText = ""
+        ),
+        onBackArrow = {},
+        onRatingChanged = {},
+        onReviewTextChanged = {},
+        onFeedbackClicked = {},
+        onSubmitReview = {}
+    )
 }

@@ -107,15 +107,15 @@ fun ChatMessageCluster(
                                 icon = painterResource(id = it.meetingInfo.icon),
                                 enabled = it.meetingInfo.mostRecent
                             )
-                        } else if (it.transactionInfo != null) {
+                        } else {
                             ChatTransactionState(
                                 text = it.content,
-                                actionText = it.transactionInfo.actionText,
+                                actionText = it.transactionInfo?.actionText,
                                 onActionTextClicked = {
-                                    onTransactionStateClicked(it.transactionInfo)
+                                    it.transactionInfo?.let { info -> onTransactionStateClicked(info) }
                                 },
-                                icon = painterResource(id = it.transactionInfo.icon),
-                                enabled = it.transactionInfo.mostRecent
+                                icon = painterResource(id = it.transactionInfo?.icon ?: 0),
+                                enabled = it.transactionInfo?.mostRecent ?: false
                             )
                         }
                     }

@@ -27,6 +27,7 @@ import com.cornellappdev.resell.android.model.chats.AvailabilityBlock
 import com.cornellappdev.resell.android.model.chats.AvailabilityDocument
 import com.cornellappdev.resell.android.model.chats.MeetingInfo
 import com.cornellappdev.resell.android.model.chats.TransactionInfo
+import com.cornellappdev.resell.android.model.chats.TransactionState
 import com.cornellappdev.resell.android.model.classes.Listing
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.model.core.UserInfoRepository
@@ -78,7 +79,8 @@ class ChatViewModel @Inject constructor(
     ResellViewModel<ChatViewModel.MessagesUiState>(
         initialUiState = MessagesUiState(
             chatType = ChatType.Purchases,
-            currentChat = ResellApiResponse.Pending
+            currentChat = ResellApiResponse.Pending,
+            completedTransactionInfo = null
         )
     ) {
     data class MessagesUiState(
@@ -89,7 +91,7 @@ class ChatViewModel @Inject constructor(
         val typedMessage: String = "",
         val scrollBottom: UIEvent<Unit>? = null,
         val mostRecentOtherAvailability: AvailabilityDocument? = null,
-        val hasCompletedTransaction: Boolean = false
+        val completedTransactionInfo: TransactionInfo?
     ) {
         val showNegotiate
             get() = true
@@ -604,7 +606,7 @@ class ChatViewModel @Inject constructor(
     fun onTransactionStateClicked(transactionInfo: TransactionInfo, isSelf: Boolean) {
         viewModelScope.launch {
             when (transactionInfo.state) {
-                "completed" -> {
+                TransactionState.COMPLETED -> {
                     rootNavigationRepository.navigate(
                         ResellRootRoute.POST_TRANSACTION_RATING(
                             postId = listing.id,
@@ -612,6 +614,7 @@ class ChatViewModel @Inject constructor(
                         )
                     )
                 }
+                TransactionState.CANCELED -> {}
             }
         }
     }
@@ -708,10 +711,21 @@ class ChatViewModel @Inject constructor(
                         try {
                             val transaction = postTransactionRatingRepository.getTransactionById(transactionId)
                             if (transaction.completed) {
-                                applyMutation { copy(hasCompletedTransaction = true) }
+                                applyMutation {
+                                    copy(
+                                        completedTransactionInfo = TransactionInfo(
+                                            completeTime = Timestamp(transaction.transactionDate),
+                                            state = TransactionState.COMPLETED,
+                                            mostRecent = true
+                                        )
+                                    )
+                                }
                             }
                         } catch (e: Exception) {
                             Log.e("ChatViewModel", "Error checking transaction: ", e)
+                            rootConfirmationRepository.showError(
+                                "Failed to load transaction. Please come back and try again later."
+                            )
                         }
                     }
                 }

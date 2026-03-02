@@ -13,8 +13,7 @@ class FeedbackRepository @Inject constructor(
         retrofitInstance.feedbackApi.createFeedback(
             FeedbackBody(
                 description = description,
-                userId = uid,
-                images = emptyList()
+                userId = uid
             )
         )
     }

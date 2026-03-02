@@ -1,5 +1,6 @@
 package com.cornellappdev.resell.android.viewmodel.feedback
 
+import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
@@ -10,6 +11,7 @@ import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
 import com.cornellappdev.resell.android.viewmodel.navigation.FeedbackNavigationRepository
 import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepository
+import com.cornellappdev.resell.android.viewmodel.root.RootConfirmationRepository
 import com.cornellappdev.resell.android.viewmodel.root.RootDialogContent
 import com.cornellappdev.resell.android.viewmodel.root.RootDialogRepository
 import com.cornellappdev.resell.android.viewmodel.submitted.ConfettiRepository
@@ -22,6 +24,7 @@ import javax.inject.Inject
 class FeedbackDetailsViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
     private val rootDialogRepository: RootDialogRepository,
+    private val rootConfirmationRepository: RootConfirmationRepository,
     private val rootNavigationRepository: RootNavigationRepository,
     private val feedbackNavigationRepository: FeedbackNavigationRepository,
     private val feedbackRepository: FeedbackRepository,
@@ -94,10 +97,23 @@ class FeedbackDetailsViewModel @Inject constructor(
                 )
             }
 
-            feedbackRepository.createFeedback(
-                description = stateValue().typedContent,
-                uid = stateValue().userId
-            )
+            try {
+                feedbackRepository.createFeedback(
+                    description = stateValue().typedContent,
+                    uid = stateValue().userId
+                )
+            } catch (e : Exception) {
+                Log.e("FeedbackDetailsViewModel", "Error submitting feedback: ", e)
+                rootConfirmationRepository.showError(
+                    "Failed to submit feedback. Please try again later."
+                )
+
+                applyMutation {
+                    copy(
+                        loadingSubmit = false
+                    )
+                }
+            }
 
             // Navigate back to the home page and show the review submitted dialog
             rootNavigationRepository.navigate(
