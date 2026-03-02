@@ -253,7 +253,8 @@ class ChatRepository @Inject constructor(
                         messageType = messageType,
                         imageUrl = document.images?.firstOrNull() ?: "",
                         availability = availability,
-                        meetingInfo = meetingInfo
+                        meetingInfo = meetingInfo,
+                        transactionId = document.transactionId
                     ),
                     document.senderId
                 )
@@ -320,6 +321,7 @@ class ChatRepository @Inject constructor(
                                 timestamp = messageData.timestamp,
                                 messageType = MessageType.State,
                                 senderId = currentSenderId,
+                                transactionId = messageData.transactionId
                             )
                         )
                         newCluster = newCluster.copy(messages = newMessages.toImmutableList())

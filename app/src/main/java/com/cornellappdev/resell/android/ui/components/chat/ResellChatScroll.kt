@@ -15,6 +15,7 @@ import com.cornellappdev.resell.android.model.ChatMessageCluster
 import com.cornellappdev.resell.android.model.api.Post
 import com.cornellappdev.resell.android.model.chats.AvailabilityDocument
 import com.cornellappdev.resell.android.model.chats.MeetingInfo
+import com.cornellappdev.resell.android.model.chats.TransactionInfo
 
 @Composable
 fun ResellChatScroll(
@@ -23,7 +24,8 @@ fun ResellChatScroll(
     modifier: Modifier = Modifier,
     onPostClicked: (Post) -> Unit,
     onAvailabilityClicked: (AvailabilityDocument, isSelf: Boolean) -> Unit,
-    onMeetingStateClicked: (MeetingInfo, isSelf: Boolean) -> Unit
+    onMeetingStateClicked: (MeetingInfo, isSelf: Boolean) -> Unit,
+    onTransactionStateClicked: (TransactionInfo, isSelf: Boolean) -> Unit,
 ) {
     LazyColumn(
         state = listState,
@@ -51,6 +53,12 @@ fun ResellChatScroll(
                     },
                     onMeetingStateClicked = {
                         onMeetingStateClicked(
+                            it,
+                            cluster.fromUser
+                        )
+                    },
+                    onTransactionStateClicked = {
+                        onTransactionStateClicked(
                             it,
                             cluster.fromUser
                         )

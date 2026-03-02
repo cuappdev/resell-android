@@ -120,7 +120,7 @@ data class Post(
     val categories: List<Category>?,
     val archive: Boolean,
     private val created: String,
-    @SerializedName("altered_price") val alteredPrice: String,
+    @SerializedName("alteredPrice") val alteredPrice: String,
     val images: List<String>,
     val location: String?,
     val user: User? // Reusing the User class from before
@@ -161,7 +161,7 @@ data class NewPostBody(
     val description: String,
     val categories: List<String>,
     val condition: String,
-    @SerializedName("original_price") val originalPrice: Double,
+    @SerializedName("originalPrice") val originalPrice: Double,
     val imagesBase64: List<String>,
     val userId: String
 )

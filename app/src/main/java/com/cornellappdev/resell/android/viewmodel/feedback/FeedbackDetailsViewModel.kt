@@ -1,9 +1,10 @@
 package com.cornellappdev.resell.android.viewmodel.feedback
 
+import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
-import com.cornellappdev.resell.android.model.settings.SettingsRepository
+import com.cornellappdev.resell.android.model.ptf.FeedbackRepository
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonState
 import com.cornellappdev.resell.android.ui.screens.feedback.FeedbackScreen
 import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
@@ -22,11 +23,11 @@ import javax.inject.Inject
 @HiltViewModel
 class FeedbackDetailsViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
-    private val settingsRepository: SettingsRepository,
-    private val rootConfirmationRepository: RootConfirmationRepository,
     private val rootDialogRepository: RootDialogRepository,
+    private val rootConfirmationRepository: RootConfirmationRepository,
     private val rootNavigationRepository: RootNavigationRepository,
     private val feedbackNavigationRepository: FeedbackNavigationRepository,
+    private val feedbackRepository: FeedbackRepository,
     private val confettiRepository: ConfettiRepository
 ) :
     ResellViewModel<FeedbackDetailsViewModel.FeedbackDetailsUiState>(
@@ -96,7 +97,24 @@ class FeedbackDetailsViewModel @Inject constructor(
                 )
             }
 
-            // TODO add networking for feedback submission
+            try {
+                feedbackRepository.createFeedback(
+                    description = stateValue().typedContent,
+                    uid = stateValue().userId
+                )
+            } catch (e : Exception) {
+                Log.e("FeedbackDetailsViewModel", "Error submitting feedback: ", e)
+                rootConfirmationRepository.showError(
+                    "Failed to submit feedback. Please try again later."
+                )
+
+                applyMutation {
+                    copy(
+                        loadingSubmit = false
+                    )
+                }
+            }
+
             // Navigate back to the home page and show the review submitted dialog
             rootNavigationRepository.navigate(
                 ResellRootRoute.MAIN

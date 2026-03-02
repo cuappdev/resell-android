@@ -49,9 +49,13 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.model.Chat
+import com.cornellappdev.resell.android.model.ChatMessageCluster
+import com.cornellappdev.resell.android.model.ChatMessageData
+import com.cornellappdev.resell.android.model.MessageType
 import com.cornellappdev.resell.android.model.api.Post
 import com.cornellappdev.resell.android.model.chats.AvailabilityDocument
 import com.cornellappdev.resell.android.model.chats.MeetingInfo
+import com.cornellappdev.resell.android.model.chats.TransactionInfo
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.ui.components.chat.ChatTag
 import com.cornellappdev.resell.android.ui.components.chat.ResellChatScroll
@@ -62,6 +66,8 @@ import com.cornellappdev.resell.android.ui.theme.Wash
 import com.cornellappdev.resell.android.util.clickableNoIndication
 import com.cornellappdev.resell.android.util.singlePhotoPicker
 import com.cornellappdev.resell.android.viewmodel.main.ChatViewModel
+import com.google.firebase.Timestamp
+import java.util.Date
 
 @SuppressLint("CoroutineCreationDuringComposition")
 @Composable
@@ -114,6 +120,7 @@ fun ChatScreen(
                     )
                 },
                 onMeetingStateClicked = chatViewModel::onMeetingStateClicked,
+                onTransactionStateClicked = chatViewModel::onTransactionStateClicked,
                 confirmedMeeting = chatUiState.confirmedMeeting,
                 onViewAvailabilityPressed = chatViewModel::onViewOtherAvailabilityPressed
             )
@@ -129,6 +136,7 @@ private fun ChatLoadedContent(
     onBackPressed: () -> Unit,
     onNegotiatePressed: () -> Unit,
     onMeetingStateClicked: (MeetingInfo, Boolean) -> Unit,
+    onTransactionStateClicked: (TransactionInfo, Boolean) -> Unit,
     onAvailabilityClicked: (AvailabilityDocument, Boolean) -> Unit,
     onViewAvailabilityPressed: () -> Unit,
     onSendAvailability: () -> Unit,
@@ -159,12 +167,32 @@ private fun ChatLoadedContent(
             }
         )
         ResellChatScroll(
-            chatClusters = chat.chatHistory,
+            chatClusters = chat.chatHistory + if (chatUiState.completedTransactionInfo != null) {
+                listOf(
+                    ChatMessageCluster(
+                        fromUser = false,
+                        senderImage = "",
+                        messages = listOf(
+                            ChatMessageData(
+                                messageType = MessageType.State,
+                                content = "This transaction has been completed",
+                                transactionInfo = chatUiState.completedTransactionInfo,
+                                timestamp = chatUiState.completedTransactionInfo.completeTime,
+                                senderId = "",
+                                id = ""
+                            )
+                        ),
+                        senderName = "System",
+                        senderId = ""
+                    )
+                )
+            } else emptyList(),
             listState = listState,
             modifier = Modifier.weight(1f),
             onPostClicked = onPostClicked,
             onAvailabilityClicked = onAvailabilityClicked,
-            onMeetingStateClicked = onMeetingStateClicked
+            onMeetingStateClicked = onMeetingStateClicked,
+            onTransactionStateClicked = onTransactionStateClicked
         )
         ChatFooter(
             chatType = chatUiState.chatType,
@@ -283,7 +311,6 @@ private fun ChatHeader(
                 )
             }
         }
-
     }
 }
 

@@ -24,6 +24,7 @@ data class ChatDocument(
     val cancellation: Boolean?,
     val startDate: Timestamp?,
     val endDate: Timestamp?,
+    val transactionId: String?
 )
 
 /**
@@ -122,6 +123,28 @@ data class MeetingInfo(
         val second = SimpleDateFormat("h:mm a", Locale.ENGLISH).format(thirtyMinutesLater.time)
         return "$first - $second"
     }
+}
+
+enum class TransactionState(val value: String) {
+    COMPLETED("completed"),
+    CANCELED("canceled");
+}
+
+data class TransactionInfo(
+    val completeTime: Timestamp,
+    val state: TransactionState,
+    var mostRecent: Boolean
+) {
+    val actionText
+        get() = when (state) {
+            TransactionState.COMPLETED -> "Leave Review"
+            else -> ""
+        }
+    val icon
+        get() = when (state) {
+            TransactionState.CANCELED -> R.drawable.ic_slash
+            else -> R.drawable.ic_bag
+        }
 }
 
 data class AvailabilityDocument(
