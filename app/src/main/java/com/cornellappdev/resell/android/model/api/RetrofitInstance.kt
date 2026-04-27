@@ -158,6 +158,15 @@ class RetrofitInstance @Inject constructor(
             .create(SettingsApiService::class.java)
     }
 
+    val availabilityApi: AvailabilityApiService by lazy {
+        Retrofit.Builder()
+            .baseUrl(BuildConfig.BASE_API_URL)
+            .client(okHttpClient)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(AvailabilityApiService::class.java)
+    }
+
     val transactionApi: TransactionApiService by lazy {
         Retrofit.Builder()
             .baseUrl(BuildConfig.BASE_API_URL)

@@ -22,6 +22,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.resell.android.ui.components.global.ResellHeader
+import com.cornellappdev.resell.android.ui.components.global.ResellSwitchRow
 import com.cornellappdev.resell.android.ui.theme.IconInactive
 import com.cornellappdev.resell.android.ui.theme.ResellPurple
 import com.cornellappdev.resell.android.ui.theme.Style
@@ -67,61 +68,28 @@ private fun NotificationsSettingsContent(
 
         Spacer(Modifier.height(24.dp))
 
-        SwitchRow(
+        ResellSwitchRow(
             title = "Pause All Notifications",
             checked = pause,
             enabled = true,
-            onCheckedChange = onPauseChange
+            onCheckedChange = onPauseChange,
+            modifier = Modifier.padding(vertical = 20.dp)
         )
 
-        SwitchRow(
+        ResellSwitchRow(
             title = "Chat Notifications",
             checked = chat,
             enabled = !pause,
-            onCheckedChange = onChatChange
+            onCheckedChange = onChatChange,
+            modifier = Modifier.padding(vertical = 20.dp)
         )
 
-        SwitchRow(
+        ResellSwitchRow(
             title = "Listings Notifications",
             checked = listings,
             enabled = !pause,
-            onCheckedChange = onListingsChange
-        )
-    }
-}
-
-@Composable
-private fun SwitchRow(
-    title: String,
-    checked: Boolean,
-    enabled: Boolean,
-    onCheckedChange: (Boolean) -> Unit,
-) {
-    Row(
-        horizontalArrangement = Arrangement.SpaceBetween,
-        modifier = Modifier
-            .padding(vertical = 20.dp)
-            .fillMaxWidth()
-            .defaultHorizontalPadding(),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            text = title,
-            style = Style.body1,
-        )
-
-        Switch(
-            checked = checked && enabled,
-            onCheckedChange = onCheckedChange,
-            colors = SwitchDefaults.colors(
-                checkedThumbColor = Color.White,
-                uncheckedThumbColor = IconInactive,
-                checkedTrackColor = ResellPurple,
-                uncheckedTrackColor = Color.White,
-                checkedBorderColor = ResellPurple,
-                uncheckedBorderColor = IconInactive
-            ),
-            enabled = enabled,
+            onCheckedChange = onListingsChange,
+            modifier = Modifier.padding(vertical = 20.dp)
         )
     }
 }
