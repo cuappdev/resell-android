@@ -19,7 +19,9 @@ import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -144,7 +146,8 @@ private fun Content(
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
 
     // TODO the plus at the end seems wrong. Test on other devices.
-    val peekHeight = screenHeight - imageHeight + 96.dp
+//    val peekHeight = screenHeight - imageHeight + 96.dp
+    val peekHeight = screenHeight - imageHeight
 
     Box(
         modifier = Modifier.fillMaxWidth()
@@ -225,7 +228,7 @@ private fun Content(
             selected = bookmarked,
             onClick = onBookmarkClick,
             modifier = Modifier
-                .align(Alignment.BottomStart)
+                .align(Alignment.BottomEnd)
                 .defaultHorizontalPadding()
                 .padding(bottom = sheetHeightFromBottom)
         )
@@ -315,11 +318,14 @@ private fun BottomSheetContent(
     // Calculate maximum height for the sheet content based on padding from top
     val maxSheetHeight = screenHeight - paddingTop
 
+//    val scrollState = rememberScrollState()
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .background(Color.White)
-            .height(maxSheetHeight)
+            .heightIn(max = maxSheetHeight)
+//            .verticalScroll(scrollState)
     ) {
         Row(
             modifier = Modifier
@@ -335,8 +341,12 @@ private fun BottomSheetContent(
                     val distanceFromBottomPx = screenHeightPx - (textPosition + textHeight)
                     val textDistanceFromBottom = with(density) { distanceFromBottomPx.toDp() }
 
+                    //Bookmark FAB size = 72.dp, plus 24 dp for bottom padding
+                    val bookmarkSize = 72.dp
+                    val bookmarkPadding = bookmarkSize + 24.dp
+
                     // Tell the parent that the height has changed.
-                    onHeightChanged(textDistanceFromBottom + 170.dp)
+                    onHeightChanged(textDistanceFromBottom + bookmarkPadding)
                 },
             verticalAlignment = Alignment.CenterVertically
         ) {
