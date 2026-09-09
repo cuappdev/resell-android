@@ -7,7 +7,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.resell.android.R
@@ -18,6 +21,7 @@ import com.cornellappdev.resell.android.ui.components.profile.ProfileEmptyState
 import com.cornellappdev.resell.android.ui.components.profile.ProfileHeader
 import com.cornellappdev.resell.android.ui.components.profile.ResellRequestsScroll
 import com.cornellappdev.resell.android.ui.theme.simpleFadeInOut
+import com.cornellappdev.resell.android.util.LocalInfiniteShimmer
 import com.cornellappdev.resell.android.viewmodel.main.ProfileViewModel
 
 @Composable
@@ -37,10 +41,13 @@ fun ProfileScreen(
             vendorName = uiState.vendorName,
             bio = uiState.bio,
             selectedTab = uiState.profileTab,
-            rightIcon = R.drawable.ic_settings,
+            leftIcon = R.drawable.ic_settings,
+            rightIcon = R.drawable.ic_calendar,
             onTabSelected = { profileViewModel.onTabSelected(it) },
-            onRightPressed = { profileViewModel.onSettingsPressed() },
-        )
+            onLeftPressed = { profileViewModel.onSettingsPressed() },
+            onRightPressed = { profileViewModel.onCalendarPressed() },
+
+            )
 
         AnimatedContent(
             targetState = uiState.profileTab,
@@ -145,5 +152,24 @@ fun ProfileScreen(
                 }
             }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun ProfileScreenPreview() {
+    CompositionLocalProvider(value = LocalInfiniteShimmer provides Color.LightGray) {
+        ProfileHeader(
+            imageUrl = "",
+            shopName = "ravina.shop",
+            vendorName = "Ravina Patel",
+            bio = "selling jin's stuff! selling jin's stuff!",
+            selectedTab = ProfileViewModel.ProfileTab.SHOP,
+            leftIcon = R.drawable.ic_settings,
+            rightIcon = R.drawable.ic_calendar,
+            onTabSelected = {},
+            onLeftPressed = {},
+            onRightPressed = {}
+        )
     }
 }

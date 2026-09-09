@@ -10,6 +10,7 @@ import com.cornellappdev.resell.android.model.core.UserInfoRepository
 import com.cornellappdev.resell.android.model.login.GoogleAuthRepository
 import com.cornellappdev.resell.android.model.profile.ProfileRepository
 import com.cornellappdev.resell.android.model.settings.BlockedUsersRepository
+import com.cornellappdev.resell.android.ui.components.availability.helper.GridSelectionType
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonContainer
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonState
 import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
@@ -18,7 +19,9 @@ import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepos
 import com.cornellappdev.resell.android.viewmodel.root.RootConfirmationRepository
 import com.cornellappdev.resell.android.viewmodel.root.RootDialogContent
 import com.cornellappdev.resell.android.viewmodel.root.RootDialogRepository
+import com.cornellappdev.resell.android.viewmodel.root.RootNavigationSheetRepository
 import com.cornellappdev.resell.android.viewmodel.root.RootOptionsMenuRepository
+import com.cornellappdev.resell.android.viewmodel.root.RootSheet
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import kotlinx.serialization.encodeToString
@@ -31,8 +34,9 @@ class ProfileViewModel @Inject constructor(
     private val rootDialogRepository: RootDialogRepository,
     private val rootConfirmationRepository: RootConfirmationRepository,
     private val profileRepository: ProfileRepository,
-    private val userInfoRepository: UserInfoRepository
-) : ResellViewModel<ProfileViewModel.ProfileUiState>(
+    private val userInfoRepository: UserInfoRepository,
+    private val rootNavigationSheetRepository: RootNavigationSheetRepository // add this
+): ResellViewModel<ProfileViewModel.ProfileUiState>(
     initialUiState = ProfileUiState(
         profileTab = ProfileTab.SHOP,
         loadedState = ResellApiState.Loading,
@@ -85,6 +89,18 @@ class ProfileViewModel @Inject constructor(
 
     fun onSettingsPressed() {
         rootNavigationRepository.navigate(ResellRootRoute.SETTINGS)
+    }
+    fun onCalendarPressed() {
+        rootNavigationSheetRepository.showBottomSheet(
+            RootSheet.Availability(
+                buttonString = "Propose",
+                title = "Availability",
+                description = "Propose a time to meet",
+                initialTimes = listOf(),
+                gridSelectionType = GridSelectionType.PROPOSAL,
+                callback = { /* TODO: handle selected times */ }
+            )
+        )
     }
 
     fun onRequestPressed(request: RequestListing) {

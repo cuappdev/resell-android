@@ -28,6 +28,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import retrofit2.HttpException
 import javax.inject.Inject
 
 @HiltViewModel
@@ -171,6 +172,12 @@ class LandingViewModel @Inject constructor(
                     rootNavigationRepository.navigate(ResellRootRoute.MAIN)
                 }
             } catch (e: Exception) {
+                if (e is HttpException && e.code() == 403) {
+                    Log.d("LandingViewModel", "User not found on backend; routing to onboarding.")
+                    rootNavigationRepository.navigate(ResellRootRoute.ONBOARDING)
+                    return@launch
+                }
+
                 Log.e("LandingViewModel", "Error getting user: ", e)
                 onSignInFailed(showSheet = false)
                 rootConfirmationRepository.showError(
