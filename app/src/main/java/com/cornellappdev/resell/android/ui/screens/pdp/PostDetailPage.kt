@@ -138,7 +138,7 @@ private fun Content(
 
     // Sheet starts collapsed so only a strip of details is visible; image fills the rest.
     val peekHeight = max(screenHeight - maxImageHeight, 200.dp)
-    val peekedImageHeight = screenHeight - peekHeight
+    val peekedImageHeight = max(screenHeight - peekHeight, 0.dp)
 
     val scaffoldState = rememberBottomSheetScaffoldState(
         bottomSheetState = rememberStandardBottomSheetState(
