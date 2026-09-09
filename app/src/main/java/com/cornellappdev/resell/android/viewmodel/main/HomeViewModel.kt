@@ -119,9 +119,11 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val posts = resellPostRepository.getFilteredPosts(filter)
+                val sortedPosts = posts.sortedByDescending { it.createdDate }
+
                 applyMutation {
                     copy(
-                        listings = posts.map { it.toListing() },
+                        listings = sortedPosts.map { it.toListing() },
                         loadedState = ResellApiState.Success
                     )
                 }
