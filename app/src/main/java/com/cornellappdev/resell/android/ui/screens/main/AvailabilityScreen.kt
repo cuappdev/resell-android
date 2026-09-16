@@ -51,6 +51,8 @@ import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonSta
 import com.cornellappdev.resell.android.ui.theme.Style
 import com.cornellappdev.resell.android.viewmodel.main.AvailabilityViewModel
 import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.YearMonth
 import java.time.format.DateTimeFormatter
 
 private enum class AvailabilityPanel {
@@ -64,10 +66,24 @@ private enum class AvailabilityPanel {
 fun AvailabilityScreen(
     availabilityViewModel: AvailabilityViewModel = hiltViewModel()
 ) {
-
     val availabilityUiState = availabilityViewModel.collectUiStateValue()
 
-    val firstOfWeek = availabilityUiState.currentMonth.atDay(1)
+    AvailabilityScreenContent(
+        uiState = availabilityUiState,
+        onSetSelectedAvailabilities = { availabilityViewModel.setSelectedAvailabilities(it) },
+        onSetCurrentMonth = { availabilityViewModel.setCurrentMonth(it) },
+        onSave = { availabilityViewModel.saveAvailability() },
+    )
+}
+
+@Composable
+fun AvailabilityScreenContent(
+    uiState: AvailabilityViewModel.AvailabilityUiState,
+    onSetSelectedAvailabilities: (List<LocalDateTime>) -> Unit,
+    onSetCurrentMonth: (YearMonth) -> Unit,
+    onSave: () -> Unit,
+) {
+    val firstOfWeek = uiState.currentMonth.atDay(1)
     val dates: List<LocalDate> = (0..2).map { firstOfWeek.plusDays(it.toLong()) }
 
     // just some UI logic to allow for smooth transitions between panels expanding on the screen.
@@ -118,7 +134,7 @@ fun AvailabilityScreen(
                             }
                     )
                     Text(
-                        text = availabilityUiState.currentMonth.format(DateTimeFormatter.ofPattern("MMMM")),
+                        text = uiState.currentMonth.format(DateTimeFormatter.ofPattern("MMMM")),
                         style = Style.heading3,
                         modifier = Modifier.clickable {
                             activePanel = if (activePanel == AvailabilityPanel.CALENDAR) {
@@ -139,8 +155,8 @@ fun AvailabilityScreen(
             ) {
                 SelectableAvailabilityGrid(
                     dates = dates,
-                    selectedAvailabilities = availabilityUiState.selectedAvailabilities,
-                    setSelectedAvailabilities = { availabilityViewModel.setSelectedAvailabilities(it) },
+                    selectedAvailabilities = uiState.selectedAvailabilities,
+                    setSelectedAvailabilities = onSetSelectedAvailabilities,
                     gridSelectionType = GridSelectionType.AVAILABILITY,
                     modifier = Modifier
                         .fillMaxSize()
@@ -172,9 +188,9 @@ fun AvailabilityScreen(
                     ) {
                         when (activePanel) {
                             AvailabilityPanel.CALENDAR -> MonthCalendar(
-                                currentMonth = availabilityUiState.currentMonth,
+                                currentMonth = uiState.currentMonth,
                                 selectedDates = dates,
-                                onMonthChange = { availabilityViewModel.setCurrentMonth(it) },
+                                onMonthChange = onSetCurrentMonth,
                                 modifier = Modifier.fillMaxWidth(),
                             )
                             AvailabilityPanel.FILTERS -> AvailabilityFilters(
@@ -203,7 +219,7 @@ fun AvailabilityScreen(
 
         ResellTextButton(
             text = "Save",
-            onClick = { availabilityViewModel.saveAvailability() },
+            onClick = onSave,
             state = ResellTextButtonState.ENABLED,
             modifier = Modifier
                 .align(Alignment.BottomCenter)
@@ -216,5 +232,20 @@ fun AvailabilityScreen(
 @Preview
 @Composable
 fun AvailabilityScreenPreview() {
-    AvailabilityScreen()
+    AvailabilityScreenContent(
+        uiState = AvailabilityViewModel.AvailabilityUiState(
+            selectedAvailabilities = emptyList(),
+            currentMonth = YearMonth.of(2026, 4),
+            googleCalendarEnabled = false,
+            availabilitySharingEnabled = false,
+            subCalendars = listOf("Personal", "Youtube", "Leetcode", "Capra"),
+            enabledSubCalendars = emptySet(),
+            isLoading = false,
+            saveSuccess = false,
+            errorMessage = null,
+        ),
+        onSetSelectedAvailabilities = {},
+        onSetCurrentMonth = {},
+        onSave = {},
+    )
 }
