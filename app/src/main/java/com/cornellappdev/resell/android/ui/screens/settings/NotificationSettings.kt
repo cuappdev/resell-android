@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Switch
@@ -60,7 +59,8 @@ private fun NotificationsSettingsContent(
             .fillMaxSize()
             .background(Color.White)
             .verticalScroll(rememberScrollState()),
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(20.dp)
     ) {
         ResellHeader(
             title = "Notification Preferences",
@@ -73,7 +73,6 @@ private fun NotificationsSettingsContent(
             checked = pause,
             enabled = true,
             onCheckedChange = onPauseChange,
-            modifier = Modifier.padding(vertical = 20.dp)
         )
 
         ResellSwitchRow(
@@ -81,7 +80,6 @@ private fun NotificationsSettingsContent(
             checked = chat,
             enabled = !pause,
             onCheckedChange = onChatChange,
-            modifier = Modifier.padding(vertical = 20.dp)
         )
 
         ResellSwitchRow(
@@ -89,7 +87,6 @@ private fun NotificationsSettingsContent(
             checked = listings,
             enabled = !pause,
             onCheckedChange = onListingsChange,
-            modifier = Modifier.padding(vertical = 20.dp)
         )
     }
 }
