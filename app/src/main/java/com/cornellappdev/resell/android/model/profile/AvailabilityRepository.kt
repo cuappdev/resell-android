@@ -22,7 +22,7 @@ class AvailabilityRepository @Inject constructor(
         val schedule = slots
             .groupBy { it.toLocalDate().toString() }
             .mapValues { (_, daySlots) ->
-                daySlots.sortedBy { it }.map { start ->
+                daySlots.sorted().map { start ->
                     AvailabilitySlot(
                         startDate = start.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
                         endDate = start.plusMinutes(30L)

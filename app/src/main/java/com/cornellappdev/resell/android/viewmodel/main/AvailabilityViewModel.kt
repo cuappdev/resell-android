@@ -75,7 +75,8 @@ class AvailabilityViewModel @Inject constructor(
                 applyMutation {
                     copy(
                         selectedAvailabilities = availability.toLocalDateTimes(),
-                        isLoading = false
+                        isLoading = false,
+                        errorMessage = null
                     )
                 }
             } catch (e: Exception) {
@@ -89,7 +90,7 @@ class AvailabilityViewModel @Inject constructor(
             applyMutation { copy(isLoading = true, saveSuccess = false) }
             try {
                 availabilityRepository.updateAvailability(stateValue().selectedAvailabilities)
-                applyMutation { copy(isLoading = false, saveSuccess = true) }
+                applyMutation { copy(isLoading = false, saveSuccess = true, errorMessage = null) }
             } catch (e: Exception) {
                 applyMutation { copy(isLoading = false, errorMessage = e.message) }
             }
@@ -104,6 +105,6 @@ class AvailabilityViewModel @Inject constructor(
  */
 private fun UserAvailability.toLocalDateTimes(): List<LocalDateTime> {
     return schedule.values.flatten().map { slot ->
-        LocalDateTime.parse(slot.startDate, DateTimeFormatter.ISO_DATE_TIME)
+        LocalDateTime.parse(slot.startDate, DateTimeFormatter.ISO_LOCAL_DATE_TIME)
     }
 }
