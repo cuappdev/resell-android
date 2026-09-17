@@ -57,11 +57,12 @@ import java.time.format.DateTimeFormatter
 
 private enum class AvailabilityPanel {
     NONE,
-    FILTERS,
+//    FILTERS,
     CALENDAR
 }
 
 // TODO: need to test this Screen once upstream Screen is fully implemented and networked (ProfileScreen)
+// TODO: Figure out if availability filters need to be deleted or just stashed for later
 @Composable
 fun AvailabilityScreen(
     availabilityViewModel: AvailabilityViewModel = hiltViewModel()
@@ -126,10 +127,10 @@ fun AvailabilityScreenContent(
                         modifier = Modifier
                             .size(36.dp)
                             .clickable {
-                                activePanel = if (activePanel == AvailabilityPanel.FILTERS) {
+                                activePanel = if (activePanel == AvailabilityPanel.CALENDAR) {
                                     AvailabilityPanel.NONE
                                 } else {
-                                    AvailabilityPanel.FILTERS
+                                    AvailabilityPanel.CALENDAR
                                 }
                             }
                     )
@@ -193,11 +194,11 @@ fun AvailabilityScreenContent(
                                 onMonthChange = onSetCurrentMonth,
                                 modifier = Modifier.fillMaxWidth(),
                             )
-                            AvailabilityPanel.FILTERS -> AvailabilityFilters(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .heightIn(max = 320.dp),
-                            )
+//                            AvailabilityPanel.FILTERS -> AvailabilityFilters(
+//                                modifier = Modifier
+//                                    .fillMaxWidth()
+//                                    .heightIn(max = 320.dp),
+//                            )
                             AvailabilityPanel.NONE -> Unit
                         }
                     }
