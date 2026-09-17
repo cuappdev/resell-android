@@ -25,6 +25,7 @@ import com.cornellappdev.resell.android.ui.components.global.ResellSwitchRow
 import com.cornellappdev.resell.android.ui.theme.Style
 
 // TODO: very hard coded right now, should integrate networking here + implement viewmodel
+// TODO: Figure out if we are still implementing this functionality
 @Composable
 fun AvailabilityFilters(
     modifier: Modifier = Modifier
