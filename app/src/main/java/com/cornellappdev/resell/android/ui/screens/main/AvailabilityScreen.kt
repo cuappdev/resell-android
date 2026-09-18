@@ -73,7 +73,7 @@ fun AvailabilityScreen(
 
     AvailabilityScreenContent(
         uiState = availabilityUiState,
-        onSetSelectedAvailabilities = { availabilityViewModel.setSelectedAvailabilities(it) },
+        onSetSelectedAvailabilities = { availabilityViewModel.setSelectedAvailabilities(it.toSet()) },
         onSetCurrentMonth = { availabilityViewModel.setCurrentMonth(it) },
         onSetVisibleDates = { availabilityViewModel.setVisibleDates(it) },
         onSave = { availabilityViewModel.saveAvailability() },
@@ -157,7 +157,7 @@ fun AvailabilityScreenContent(
             ) {
                 SelectableAvailabilityGrid(
                     dates = uiState.visibleDates,
-                    selectedAvailabilities = uiState.selectedAvailabilities,
+                    selectedAvailabilities = uiState.selectedAvailabilities.toList(),
                     setSelectedAvailabilities = onSetSelectedAvailabilities,
                     gridSelectionType = GridSelectionType.AVAILABILITY,
                     modifier = Modifier
@@ -167,6 +167,7 @@ fun AvailabilityScreenContent(
                     onProposalSelected = {}
                 )
 
+                // This explicit call is necessary because of strange scope issues
                 androidx.compose.animation.AnimatedVisibility(
                     visible = panelVisible,
                     modifier = Modifier
@@ -223,7 +224,7 @@ fun AvailabilityScreenContent(
         ResellTextButton(
             text = "Save",
             onClick = onSave,
-            state = ResellTextButtonState.ENABLED,
+            state = if (uiState.isLoading) ResellTextButtonState.SPINNING else ResellTextButtonState.ENABLED,
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .padding(bottom = 24.dp)
@@ -237,7 +238,7 @@ fun AvailabilityScreenContent(
 fun AvailabilityScreenPreview() {
     AvailabilityScreenContent(
         uiState = AvailabilityViewModel.AvailabilityUiState(
-            selectedAvailabilities = emptyList(),
+            selectedAvailabilities = emptySet(),
             currentMonth = YearMonth.of(2026, 4),
             visibleDates = dayGroupContaining(LocalDate.of(2026, 4, 1)),
             googleCalendarEnabled = false,
