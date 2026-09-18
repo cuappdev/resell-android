@@ -7,8 +7,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -46,9 +49,8 @@ fun MonthCalendar(
     val daysInMonth = currentMonth.lengthOfMonth()
     val dayLabels = listOf("Su", "Mo", "Tu", "We", "Th", "Fr", "Sa")
 
-    val sortedDates = selectedDates.sorted()
-    val rangeStart = sortedDates.firstOrNull()
-    val rangeEnd = sortedDates.lastOrNull()
+    val rangeStart = selectedDates.minOrNull()
+    val rangeEnd = selectedDates.maxOrNull()
 
     val swipeThresholdPx = with(LocalDensity.current) { MonthSwipeThreshold.toPx() }
 
@@ -91,43 +93,52 @@ fun MonthCalendar(
         val totalCells = firstDayOfWeek + daysInMonth
         val rows = (totalCells + 6) / 7
 
-        for (row in 0 until rows) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp)
-            ) {
-                for (col in 0..6) {
-                    val cellIndex = row * 7 + col
-                    val date = firstDayOfMonth.plusDays((cellIndex - firstDayOfWeek).toLong())
-                    val isInCurrentMonth = YearMonth.from(date) == currentMonth
-                    val isSelected = date in selectedDates
-                    val isRangeStart = date == rangeStart
-                    val isRangeEnd = date == rangeEnd
-                    val isMiddle = isSelected && !isRangeStart && !isRangeEnd
+        // Capped to the dominant 5-row case; a rare 6-row month scrolls here instead of
+        // growing past it, so the day-of-week header above stays pinned and the panel
+        // never has to resize.
+        Column(
+            modifier = Modifier
+                .heightIn(max = MonthCalendarGridMaxHeight)
+                .verticalScroll(rememberScrollState())
+        ) {
+            for (row in 0 until rows) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp)
+                ) {
+                    for (col in 0..6) {
+                        val cellIndex = row * 7 + col
+                        val date = firstDayOfMonth.plusDays((cellIndex - firstDayOfWeek).toLong())
+                        val isInCurrentMonth = YearMonth.from(date) == currentMonth
+                        val isSelected = date in selectedDates
+                        val isRangeStart = date == rangeStart
+                        val isRangeEnd = date == rangeEnd
+                        val isMiddle = isSelected && !isRangeStart && !isRangeEnd
 
-                    Box(
-                        modifier = Modifier
-                            .weight(1f)
-                            .background(
-                                color = if (isSelected) AvailabilitySelectedDate else Color.Transparent,
-                                shape = when {
-                                    isRangeStart && isRangeEnd -> RoundedCornerShape(4.dp)
-                                    isRangeStart -> RoundedCornerShape(topStart = 4.dp, bottomStart = 4.dp)
-                                    isRangeEnd -> RoundedCornerShape(topEnd = 4.dp, bottomEnd = 4.dp)
-                                    isMiddle -> RoundedCornerShape(0.dp)
-                                    else -> RoundedCornerShape(0.dp)
-                                }
+                        Box(
+                            modifier = Modifier
+                                .weight(1f)
+                                .background(
+                                    color = if (isSelected) AvailabilitySelectedDate else Color.Transparent,
+                                    shape = when {
+                                        isRangeStart && isRangeEnd -> RoundedCornerShape(4.dp)
+                                        isRangeStart -> RoundedCornerShape(topStart = 4.dp, bottomStart = 4.dp)
+                                        isRangeEnd -> RoundedCornerShape(topEnd = 4.dp, bottomEnd = 4.dp)
+                                        isMiddle -> RoundedCornerShape(0.dp)
+                                        else -> RoundedCornerShape(0.dp)
+                                    }
+                                )
+                                .clickable { onDaysSelected(dayGroupContaining(date)) }
+                                .padding(6.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = "${date.dayOfMonth}",
+                                style = Style.body2,
+                                color = if (isInCurrentMonth) Color.Unspecified else IconInactive
                             )
-                            .clickable { onDaysSelected(dayGroupContaining(date)) }
-                            .padding(6.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = "${date.dayOfMonth}",
-                            style = Style.body2,
-                            color = if (isInCurrentMonth) Color.Unspecified else IconInactive
-                        )
+                        }
                     }
                 }
             }
@@ -165,5 +176,17 @@ fun MonthCalendarThirtyOneDayMonthPreview() {
         selectedDates = selectedDates,
         onMonthChange = {},
         onDaysSelected = { selectedDates = it }
+    )
+}
+
+/** Showcase the 6-row edge case: should be scrollable. */
+@Preview
+@Composable
+fun MonthCalendarSixRowMonthPreview() {
+    MonthCalendar(
+        currentMonth = YearMonth.of(2026, 5),
+        selectedDates = emptyList(),
+        onMonthChange = {},
+        onDaysSelected = {}
     )
 }
