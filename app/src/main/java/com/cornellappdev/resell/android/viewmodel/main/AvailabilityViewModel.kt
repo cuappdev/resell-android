@@ -22,7 +22,7 @@ class AvailabilityViewModel @Inject constructor(
 ) {
 
     data class AvailabilityUiState(
-        val selectedAvailabilities: List<LocalDateTime> = emptyList(),
+        val selectedAvailabilities: Set<LocalDateTime> = emptySet(),
         val currentMonth: YearMonth = YearMonth.now(),
         val visibleDates: List<LocalDate> = dayGroupContaining(YearMonth.now().atDay(1)),
 
@@ -51,11 +51,11 @@ class AvailabilityViewModel @Inject constructor(
      * those days. Merge it in rather than overwriting [AvailabilityUiState.selectedAvailabilities]
      * outright, or every other day's saved availability would be lost.
      */
-    fun setSelectedAvailabilities(windowSlots: List<LocalDateTime>) {
+    fun setSelectedAvailabilities(windowSlots: Set<LocalDateTime>) {
         applyMutation {
             val visibleDateSet = visibleDates.toSet()
             val outsideWindow = selectedAvailabilities.filterNot { it.toLocalDate() in visibleDateSet }
-            copy(selectedAvailabilities = outsideWindow + windowSlots)
+            copy(selectedAvailabilities = outsideWindow.toSet() + windowSlots)
         }
     }
 
@@ -86,7 +86,7 @@ class AvailabilityViewModel @Inject constructor(
 
     private fun loadAvailability() {
         viewModelScope.launch {
-            applyMutation { copy(isLoading = true) }
+            applyMutation { copy(isLoading = true, errorMessage = null) }
             try {
                 val availability = availabilityRepository.getMyAvailability()
                 applyMutation {
@@ -104,9 +104,9 @@ class AvailabilityViewModel @Inject constructor(
 
     fun saveAvailability() {
         viewModelScope.launch {
-            applyMutation { copy(isLoading = true, saveSuccess = false) }
+            applyMutation { copy(isLoading = true, saveSuccess = false, errorMessage = null) }
             try {
-                availabilityRepository.updateAvailability(stateValue().selectedAvailabilities)
+                availabilityRepository.updateAvailability(stateValue().selectedAvailabilities.toList())
                 applyMutation { copy(isLoading = false, saveSuccess = true, errorMessage = null) }
             } catch (e: Exception) {
                 applyMutation { copy(isLoading = false, errorMessage = e.message) }
@@ -123,8 +123,8 @@ class AvailabilityViewModel @Inject constructor(
  * The backend sends startDate as a UTC instant (e.g. "2026-01-23T16:00:00.000Z"), so it's
  * parsed as an [Instant] and converted to the device's local wall-clock time.
  */
-private fun UserAvailability.toLocalDateTimes(): List<LocalDateTime> {
+private fun UserAvailability.toLocalDateTimes(): Set<LocalDateTime> {
     return schedule.values.flatten().map { slot ->
         Instant.parse(slot.startDate).atZone(ZoneId.systemDefault()).toLocalDateTime()
-    }
+    }.toSet()
 }

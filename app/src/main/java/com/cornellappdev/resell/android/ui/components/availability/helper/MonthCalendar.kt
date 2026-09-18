@@ -49,9 +49,6 @@ fun MonthCalendar(
     val daysInMonth = currentMonth.lengthOfMonth()
     val dayLabels = listOf("Su", "Mo", "Tu", "We", "Th", "Fr", "Sa")
 
-    val rangeStart = selectedDates.minOrNull()
-    val rangeEnd = selectedDates.maxOrNull()
-
     val swipeThresholdPx = with(LocalDensity.current) { MonthSwipeThreshold.toPx() }
 
     Column(
@@ -112,9 +109,13 @@ fun MonthCalendar(
                         val date = firstDayOfMonth.plusDays((cellIndex - firstDayOfWeek).toLong())
                         val isInCurrentMonth = YearMonth.from(date) == currentMonth
                         val isSelected = date in selectedDates
-                        val isRangeStart = date == rangeStart
-                        val isRangeEnd = date == rangeEnd
-                        val isMiddle = isSelected && !isRangeStart && !isRangeEnd
+                        // Rounding is per-row: a selected run can span multiple weeks or have
+                        // gaps, so "start"/"end" must mean the edges of the run *in this row*,
+                        // not the overall min/max of the whole selection.
+                        val hasSelectedLeftNeighbor = col > 0 && date.minusDays(1) in selectedDates
+                        val hasSelectedRightNeighbor = col < 6 && date.plusDays(1) in selectedDates
+                        val isRowStart = isSelected && !hasSelectedLeftNeighbor
+                        val isRowEnd = isSelected && !hasSelectedRightNeighbor
 
                         Box(
                             modifier = Modifier
@@ -122,10 +123,9 @@ fun MonthCalendar(
                                 .background(
                                     color = if (isSelected) AvailabilitySelectedDate else Color.Transparent,
                                     shape = when {
-                                        isRangeStart && isRangeEnd -> RoundedCornerShape(4.dp)
-                                        isRangeStart -> RoundedCornerShape(topStart = 4.dp, bottomStart = 4.dp)
-                                        isRangeEnd -> RoundedCornerShape(topEnd = 4.dp, bottomEnd = 4.dp)
-                                        isMiddle -> RoundedCornerShape(0.dp)
+                                        isRowStart && isRowEnd -> RoundedCornerShape(4.dp)
+                                        isRowStart -> RoundedCornerShape(topStart = 4.dp, bottomStart = 4.dp)
+                                        isRowEnd -> RoundedCornerShape(topEnd = 4.dp, bottomEnd = 4.dp)
                                         else -> RoundedCornerShape(0.dp)
                                     }
                                 )
@@ -186,6 +186,23 @@ fun MonthCalendarSixRowMonthPreview() {
     MonthCalendar(
         currentMonth = YearMonth.of(2026, 5),
         selectedDates = emptyList(),
+        onMonthChange = {},
+        onDaysSelected = {}
+    )
+}
+
+/**
+ * A 3-day group of Fri/Sat/Sun spans two calendar rows.
+ * Friday and Sunday should each round on the outer edge of their own row (not backwards),
+ * and Saturday, last in its row, with nothing selected after it, should round its right
+ * edge too, instead of being treated as a seamless "middle" cell.
+ */
+@Preview
+@Composable
+fun MonthCalendarRowSpanningSelectionPreview() {
+    MonthCalendar(
+        currentMonth = YearMonth.of(2026, 5),
+        selectedDates = dayGroupContaining(LocalDate.of(2026, 5, 1)),
         onMonthChange = {},
         onDaysSelected = {}
     )
