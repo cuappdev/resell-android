@@ -7,10 +7,11 @@ import com.cornellappdev.resell.android.ui.components.availability.helper.dayGro
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.YearMonth
-import java.time.format.DateTimeFormatter
+import java.time.ZoneId
 import javax.inject.Inject
 
 @HiltViewModel
@@ -45,8 +46,17 @@ class AvailabilityViewModel @Inject constructor(
 
     // grid interactions
 
-    fun setSelectedAvailabilities(slots: List<LocalDateTime>) {
-        applyMutation { copy(selectedAvailabilities = slots) }
+    /**
+     * The grid only shows and edits 3 days at a time, so [windowSlots] only contains slots for
+     * those days. Merge it in rather than overwriting [AvailabilityUiState.selectedAvailabilities]
+     * outright, or every other day's saved availability would be lost.
+     */
+    fun setSelectedAvailabilities(windowSlots: List<LocalDateTime>) {
+        applyMutation {
+            val visibleDateSet = visibleDates.toSet()
+            val outsideWindow = selectedAvailabilities.filterNot { it.toLocalDate() in visibleDateSet }
+            copy(selectedAvailabilities = outsideWindow + windowSlots)
+        }
     }
 
     fun setCurrentMonth(month: YearMonth) {
@@ -109,9 +119,12 @@ class AvailabilityViewModel @Inject constructor(
  * Converts the backend schedule (Map<dateString, List<AvailabilitySlot>>) back into
  * a flat list of LocalDateTimes for the grid to consume.
  * Each slot's startDate is used as the representative time for a cell.
+ *
+ * The backend sends startDate as a UTC instant (e.g. "2026-01-23T16:00:00.000Z"), so it's
+ * parsed as an [Instant] and converted to the device's local wall-clock time.
  */
 private fun UserAvailability.toLocalDateTimes(): List<LocalDateTime> {
     return schedule.values.flatten().map { slot ->
-        LocalDateTime.parse(slot.startDate, DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+        Instant.parse(slot.startDate).atZone(ZoneId.systemDefault()).toLocalDateTime()
     }
 }

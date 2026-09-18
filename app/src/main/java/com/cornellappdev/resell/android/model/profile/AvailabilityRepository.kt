@@ -5,7 +5,7 @@ import com.cornellappdev.resell.android.model.api.RetrofitInstance
 import com.cornellappdev.resell.android.model.api.UpdateAvailabilityRequest
 import com.cornellappdev.resell.android.model.api.UserAvailability
 import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
+import java.time.ZoneId
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -24,9 +24,8 @@ class AvailabilityRepository @Inject constructor(
             .mapValues { (_, daySlots) ->
                 daySlots.sorted().map { start ->
                     AvailabilitySlot(
-                        startDate = start.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
-                        endDate = start.plusMinutes(30L)
-                            .format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+                        startDate = start.toUtcInstantString(),
+                        endDate = start.plusMinutes(30L).toUtcInstantString()
                     )
                 }
             }
@@ -36,3 +35,8 @@ class AvailabilityRepository @Inject constructor(
         ).availability
     }
 }
+
+// The backend stores/returns dates as UTC instants (e.g. "2026-01-23T16:00:00.000Z"), so
+// device-local wall-clock times must be converted to an instant before sending.
+private fun LocalDateTime.toUtcInstantString(): String =
+    atZone(ZoneId.systemDefault()).toInstant().toString()
