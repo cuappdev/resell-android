@@ -15,6 +15,7 @@ import java.time.YearMonth
 import kotlin.math.floor
 
 const val GRID_HEIGHT = 24
+const val SLOT_DURATION_MINUTES = 30
 val gridStartTime: LocalTime = LocalTime.of(9, 0)
 val gridStroke = Stroke
 val fillColor = ResellPurple
@@ -52,7 +53,7 @@ fun rowColToLocalDateTime(row: Int, col: Int, dates: List<LocalDate>): LocalDate
         .withMinute(gridStartTime.minute)
         .withSecond(gridStartTime.second)
         .withNano(gridStartTime.nano)
-        .plusMinutes(30L * row)
+        .plusMinutes(SLOT_DURATION_MINUTES.toLong() * row)
 }
 
 fun getTimeForRow(row: Int): LocalTime {
@@ -68,7 +69,7 @@ fun List<LocalDateTime>.mapToGrid(dates: List<LocalDate>): List<BooleanArray> {
     forEach { date ->
         val column = dates.indexOfFirst { it.day == date.day }
         if (column == -1) return@forEach
-        val row = (date.hour * 60 + date.minute - gridStartTime.hour * 60) / 30
+        val row = (date.hour * 60 + date.minute - gridStartTime.hour * 60) / SLOT_DURATION_MINUTES
         if (row !in 0 until GRID_HEIGHT) return@forEach
         grid[row][column] = true
     }

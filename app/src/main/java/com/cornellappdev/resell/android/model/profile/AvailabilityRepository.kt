@@ -4,6 +4,7 @@ import com.cornellappdev.resell.android.model.api.AvailabilitySlot
 import com.cornellappdev.resell.android.model.api.RetrofitInstance
 import com.cornellappdev.resell.android.model.api.UpdateAvailabilityRequest
 import com.cornellappdev.resell.android.model.api.UserAvailability
+import com.cornellappdev.resell.android.ui.components.availability.helper.SLOT_DURATION_MINUTES
 import java.time.LocalDateTime
 import java.time.ZoneId
 import javax.inject.Inject
@@ -25,7 +26,7 @@ class AvailabilityRepository @Inject constructor(
                 daySlots.sorted().map { start ->
                     AvailabilitySlot(
                         startDate = start.toUtcInstantString(),
-                        endDate = start.plusMinutes(30L).toUtcInstantString()
+                        endDate = start.plusMinutes(SLOT_DURATION_MINUTES.toLong()).toUtcInstantString()
                     )
                 }
             }
