@@ -16,7 +16,7 @@ fun testAvailabilities(dates: List<LocalDate>): List<LocalDateTime> = dates.flat
         val startDate = LocalDateTime.of(date, gridStartTime)
         repeat(GRID_HEIGHT - 1) { i ->
             if (Math.random() < 0.25) {
-                add(startDate.plusMinutes(i * 30L))
+                add(startDate.plusMinutes(i * SLOT_DURATION_MINUTES.toLong()))
             }
         }
     }
