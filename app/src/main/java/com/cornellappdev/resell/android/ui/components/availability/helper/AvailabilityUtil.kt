@@ -25,6 +25,14 @@ val fillColor = ResellPurple
 /** Minimum horizontal drag distance before a swipe on [MonthCalendar] changes the month. */
 val MonthSwipeThreshold: Dp = 56.dp
 
+/**
+ * Caps [MonthCalendar]'s day-grid at the height of 5 rows (most common case).
+ * A 6-row month only occurs when the 1st falls on a Fri/Sat in a 30/31-day month,
+ * so in this case it scrolls internally instead of growing past this, so the
+ * header stays pinned and the surrounding panel never has to resize.
+ */
+val MonthCalendarGridMaxHeight: Dp = 248.dp
+
 /** Returns a fixed 3-day group containing [date] (1-3, 4-6, ...), rolling into next month if needed. */
 fun dayGroupContaining(date: LocalDate): List<LocalDate> {
     val month = YearMonth.from(date)
