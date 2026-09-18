@@ -5,6 +5,8 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import com.cornellappdev.resell.android.ui.theme.ResellPurple
 import com.cornellappdev.resell.android.ui.theme.Stroke
 import com.cornellappdev.resell.android.util.day
@@ -19,6 +21,9 @@ const val SLOT_DURATION_MINUTES = 30
 val gridStartTime: LocalTime = LocalTime.of(9, 0)
 val gridStroke = Stroke
 val fillColor = ResellPurple
+
+/** Minimum horizontal drag distance before a swipe on [MonthCalendar] changes the month. */
+val MonthSwipeThreshold: Dp = 56.dp
 
 /** Returns a fixed 3-day group containing [date] (1-3, 4-6, ...), rolling into next month if needed. */
 fun dayGroupContaining(date: LocalDate): List<LocalDate> {
