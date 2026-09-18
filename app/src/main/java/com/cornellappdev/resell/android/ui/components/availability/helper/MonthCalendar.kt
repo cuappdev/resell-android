@@ -2,6 +2,7 @@ package com.cornellappdev.resell.android.ui.components.availability.helper
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -17,6 +18,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -47,9 +50,27 @@ fun MonthCalendar(
     val rangeStart = sortedDates.firstOrNull()
     val rangeEnd = sortedDates.lastOrNull()
 
+    val swipeThresholdPx = with(LocalDensity.current) { MonthSwipeThreshold.toPx() }
+
     Column(
         modifier
             .background(color = AvailabilityPanelBackground)
+            .pointerInput(currentMonth) {
+                var totalDrag = 0f
+                detectHorizontalDragGestures(
+                    onDragEnd = {
+                        when {
+                            totalDrag <= -swipeThresholdPx -> onMonthChange(currentMonth.plusMonths(1))
+                            totalDrag >= swipeThresholdPx -> onMonthChange(currentMonth.minusMonths(1))
+                        }
+                        totalDrag = 0f
+                    },
+                    onDragCancel = { totalDrag = 0f }
+                ) { change, dragAmount ->
+                    change.consume()
+                    totalDrag += dragAmount
+                }
+            }
             .padding(16.dp)
     ) {
         Row(
@@ -114,17 +135,19 @@ fun MonthCalendar(
     }
 }
 
+/** Interactive so left/right swipes to change month can be tested by hand. */
 @Preview
 @Composable
 fun MonthCalendarPreview() {
+    var currentMonth by remember { mutableStateOf(YearMonth.of(2026, 4)) }
     MonthCalendar(
-        currentMonth = YearMonth.of(2026, 4),
+        currentMonth = currentMonth,
         selectedDates = listOf(
             LocalDate.of(2026, 4, 16),
             LocalDate.of(2026, 4, 17),
             LocalDate.of(2026, 4, 18),
         ),
-        onMonthChange = {},
+        onMonthChange = { currentMonth = it },
         onDaysSelected = {}
     )
 }
