@@ -11,12 +11,21 @@ import com.cornellappdev.resell.android.util.day
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
+import java.time.YearMonth
 import kotlin.math.floor
 
 const val GRID_HEIGHT = 24
 val gridStartTime: LocalTime = LocalTime.of(9, 0)
 val gridStroke = Stroke
 val fillColor = ResellPurple
+
+/** Returns a fixed 3-day group containing [date] (1-3, 4-6, ...), rolling into next month if needed. */
+fun dayGroupContaining(date: LocalDate): List<LocalDate> {
+    val month = YearMonth.from(date)
+    val groupIndex = (date.dayOfMonth - 1) / 3
+    val groupStart = month.atDay(groupIndex * 3 + 1)
+    return (0..2).map { groupStart.plusDays(it.toLong()) }
+}
 
 
 fun getGridCell(offset: Offset, canvasSize: Size, width: Int, height: Int): Pair<Int, Int> {

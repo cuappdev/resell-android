@@ -44,10 +44,12 @@ import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.ui.components.availability.helper.AvailabilityFilters
 import com.cornellappdev.resell.android.ui.components.availability.helper.GridSelectionType
 import com.cornellappdev.resell.android.ui.components.availability.helper.MonthCalendar
+import com.cornellappdev.resell.android.ui.components.availability.helper.dayGroupContaining
 import com.cornellappdev.resell.android.ui.components.availability.helper.SelectableAvailabilityGrid
 import com.cornellappdev.resell.android.ui.components.global.ResellHeader
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButton
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonState
+import com.cornellappdev.resell.android.ui.theme.AvailabilityPanelBackground
 import com.cornellappdev.resell.android.ui.theme.Style
 import com.cornellappdev.resell.android.viewmodel.main.AvailabilityViewModel
 import java.time.LocalDate
@@ -73,6 +75,7 @@ fun AvailabilityScreen(
         uiState = availabilityUiState,
         onSetSelectedAvailabilities = { availabilityViewModel.setSelectedAvailabilities(it) },
         onSetCurrentMonth = { availabilityViewModel.setCurrentMonth(it) },
+        onSetVisibleDates = { availabilityViewModel.setVisibleDates(it) },
         onSave = { availabilityViewModel.saveAvailability() },
     )
 }
@@ -82,16 +85,14 @@ fun AvailabilityScreenContent(
     uiState: AvailabilityViewModel.AvailabilityUiState,
     onSetSelectedAvailabilities: (List<LocalDateTime>) -> Unit,
     onSetCurrentMonth: (YearMonth) -> Unit,
+    onSetVisibleDates: (List<LocalDate>) -> Unit,
     onSave: () -> Unit,
 ) {
-    val firstOfWeek = uiState.currentMonth.atDay(1)
-    val dates: List<LocalDate> = (0..2).map { firstOfWeek.plusDays(it.toLong()) }
-
     // just some UI logic to allow for smooth transitions between panels expanding on the screen.
     var activePanel by remember { mutableStateOf(AvailabilityPanel.NONE) }
     val panelVisible = activePanel != AvailabilityPanel.NONE
 
-    val panelBackgroundColor = Color(0xFFF7F3F9)
+    val panelBackgroundColor = AvailabilityPanelBackground
     var panelHeightPx by remember { mutableIntStateOf(0) }
     val density = LocalDensity.current
     val gridOffsetY by animateDpAsState(
@@ -155,7 +156,7 @@ fun AvailabilityScreenContent(
                     .clipToBounds()
             ) {
                 SelectableAvailabilityGrid(
-                    dates = dates,
+                    dates = uiState.visibleDates,
                     selectedAvailabilities = uiState.selectedAvailabilities,
                     setSelectedAvailabilities = onSetSelectedAvailabilities,
                     gridSelectionType = GridSelectionType.AVAILABILITY,
@@ -190,8 +191,9 @@ fun AvailabilityScreenContent(
                         when (activePanel) {
                             AvailabilityPanel.CALENDAR -> MonthCalendar(
                                 currentMonth = uiState.currentMonth,
-                                selectedDates = dates,
+                                selectedDates = uiState.visibleDates,
                                 onMonthChange = onSetCurrentMonth,
+                                onDaysSelected = onSetVisibleDates,
                                 modifier = Modifier.fillMaxWidth(),
                             )
 //                            AvailabilityPanel.FILTERS -> AvailabilityFilters(
@@ -237,6 +239,7 @@ fun AvailabilityScreenPreview() {
         uiState = AvailabilityViewModel.AvailabilityUiState(
             selectedAvailabilities = emptyList(),
             currentMonth = YearMonth.of(2026, 4),
+            visibleDates = dayGroupContaining(LocalDate.of(2026, 4, 1)),
             googleCalendarEnabled = false,
             availabilitySharingEnabled = false,
             subCalendars = listOf("Personal", "Youtube", "Leetcode", "Capra"),
@@ -247,6 +250,7 @@ fun AvailabilityScreenPreview() {
         ),
         onSetSelectedAvailabilities = {},
         onSetCurrentMonth = {},
+        onSetVisibleDates = {},
         onSave = {},
     )
 }
