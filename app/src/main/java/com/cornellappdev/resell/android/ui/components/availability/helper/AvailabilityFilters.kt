@@ -16,12 +16,12 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.cornellappdev.resell.android.ui.components.global.ResellCheckboxRow
 import com.cornellappdev.resell.android.ui.components.global.ResellSwitchRow
+import com.cornellappdev.resell.android.ui.theme.AvailabilityPanelBackground
 import com.cornellappdev.resell.android.ui.theme.Style
 
 // TODO: very hard coded right now, should integrate networking here + implement viewmodel
@@ -33,7 +33,7 @@ fun AvailabilityFilters(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .background(color = Color(0xFFF7F3F9))
+            .background(color = AvailabilityPanelBackground)
             .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(12.dp),
         horizontalAlignment = Alignment.Start

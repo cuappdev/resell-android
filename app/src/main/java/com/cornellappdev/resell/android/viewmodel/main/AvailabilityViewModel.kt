@@ -3,9 +3,11 @@ package com.cornellappdev.resell.android.viewmodel.main
 import androidx.lifecycle.viewModelScope
 import com.cornellappdev.resell.android.model.profile.AvailabilityRepository
 import com.cornellappdev.resell.android.model.api.UserAvailability
+import com.cornellappdev.resell.android.ui.components.availability.helper.dayGroupContaining
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
@@ -21,6 +23,7 @@ class AvailabilityViewModel @Inject constructor(
     data class AvailabilityUiState(
         val selectedAvailabilities: List<LocalDateTime> = emptyList(),
         val currentMonth: YearMonth = YearMonth.now(),
+        val visibleDates: List<LocalDate> = dayGroupContaining(YearMonth.now().atDay(1)),
 
         // TODO: googleCalendarEnabled and availabilitySharingEnabled are not yet wired in.
         //  Need to check how/where it is in the backend
@@ -47,7 +50,11 @@ class AvailabilityViewModel @Inject constructor(
     }
 
     fun setCurrentMonth(month: YearMonth) {
-        applyMutation { copy(currentMonth = month) }
+        applyMutation { copy(currentMonth = month, visibleDates = dayGroupContaining(month.atDay(1))) }
+    }
+
+    fun setVisibleDates(dates: List<LocalDate>) {
+        applyMutation { copy(visibleDates = dates) }
     }
 
     fun setGoogleCalendarEnabled(enabled: Boolean) {
