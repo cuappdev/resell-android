@@ -37,7 +37,9 @@ class AvailabilitySheetViewModel @Inject constructor(
         val initialAvailabilities: List<LocalDateTime>,
         val textButtonState: ResellTextButtonState = ResellTextButtonState.ENABLED,
         val gridSelectionType: GridSelectionType,
-        val proposedTime: LocalDateTime? = null
+        val proposedTime: LocalDateTime? = null,
+        val overlapTimes: List<LocalDateTime>? = null,
+        val onEditAvailability: (() -> Unit)? = null,
     )
 
     fun onAvailabilityChanged(availability: List<LocalDateTime>) {
@@ -80,7 +82,9 @@ class AvailabilitySheetViewModel @Inject constructor(
                     callback = uiEvent.payload.callback,
                     initialAvailabilities = uiEvent.payload.initialTimes,
                     textButtonState = uiEvent.payload.initialButtonState,
-                    gridSelectionType = uiEvent.payload.gridSelectionType
+                    gridSelectionType = uiEvent.payload.gridSelectionType,
+                    overlapTimes = uiEvent.payload.overlapTimes,
+                    onEditAvailability = uiEvent.payload.onEditAvailability
                 )
             }
         }

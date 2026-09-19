@@ -32,6 +32,7 @@ import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.model.core.UserInfoRepository
 import com.cornellappdev.resell.android.model.login.FireStoreRepository
 import com.cornellappdev.resell.android.model.login.FirebaseMessagingRepository
+import com.cornellappdev.resell.android.model.profile.AvailabilityRepository
 import com.cornellappdev.resell.android.model.ptf.PostTransactionRatingRepository
 import com.cornellappdev.resell.android.ui.components.availability.helper.GridSelectionType
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonContainer
@@ -72,6 +73,7 @@ class ChatViewModel @Inject constructor(
     private val rootDialogRepository: RootDialogRepository,
     private val rootNavigationRepository: RootNavigationRepository,
     private val postTransactionRatingRepository: PostTransactionRatingRepository,
+    private val availabilityRepository: AvailabilityRepository,
     @ApplicationContext private val context: Context
 ) :
     ResellViewModel<ChatViewModel.MessagesUiState>(
@@ -247,23 +249,47 @@ class ChatViewModel @Inject constructor(
     fun onSendAvailabilityPressed() {
         val canPropose = mostRecentMeetingStateIs("confirmed") == null
 
-        rootNavigationSheetRepository.showBottomSheet(
-            sheet = RootSheet.Availability(
-                title = "When are you free to meet?",
-                buttonString = "Propose",
-                description = "Select a 30-minute block to propose a meeting",
-                callback = {
-                    if (canPropose && it.isNotEmpty()) {
-                        onMeetingProposal(it.first())
-                    } else {
-                        rootConfirmationRepository.showError(
-                            "Please select a 30-minute block to propose a meeting, and ensure there is no current meeting."
-                        )
+        viewModelScope.launch {
+            // Grey out everything but the overlap between both people's saved availability, so
+            // the proposer only sees times that could actually work for both of them. If either
+            // side hasn't saved availability (or the fetch fails), fall back to an ungreyed grid.
+            val overlapTimes = try {
+                val myId = userInfoRepository.getUserId()
+                if (myId == null) {
+                    null
+                } else {
+                    val mine = availabilityRepository.getMyAvailability()
+                    val theirs = availabilityRepository.getUserAvailability(navArgs.otherUserId)
+                    mine.intersect(theirs).toList()
+                }
+            } catch (e: Exception) {
+                Log.e("ChatViewModel", "Error loading combined availability: ", e)
+                null
+            }
+
+            rootNavigationSheetRepository.showBottomSheet(
+                sheet = RootSheet.Availability(
+                    title = "When are you free to meet?",
+                    buttonString = "Propose",
+                    description = "Select a 30 minute block",
+                    callback = {
+                        if (canPropose && it.isNotEmpty()) {
+                            onMeetingProposal(it.first())
+                        } else {
+                            rootConfirmationRepository.showError(
+                                "Please select a 30-minute block to propose a meeting, and ensure there is no current meeting."
+                            )
+                        }
+                    },
+                    gridSelectionType = if (canPropose) GridSelectionType.PROPOSAL else GridSelectionType.NONE,
+                    overlapTimes = overlapTimes,
+                    onEditAvailability = {
+                        rootNavigationSheetRepository.hideSheet()
+                        rootNavigationRepository.navigate(ResellRootRoute.AVAILABILITY)
                     }
-                },
-                gridSelectionType = if (canPropose) GridSelectionType.PROPOSAL else GridSelectionType.NONE
+                )
             )
-        )
+        }
     }
 
     fun payWithVenmoPressed() = viewModelScope.launch {

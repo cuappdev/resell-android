@@ -2,17 +2,14 @@ package com.cornellappdev.resell.android.viewmodel.main
 
 import androidx.lifecycle.viewModelScope
 import com.cornellappdev.resell.android.model.profile.AvailabilityRepository
-import com.cornellappdev.resell.android.model.api.UserAvailability
 import com.cornellappdev.resell.android.ui.components.availability.helper.dayGroupContaining
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
 import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.YearMonth
-import java.time.ZoneId
 import javax.inject.Inject
 
 @HiltViewModel
@@ -26,7 +23,7 @@ class AvailabilityViewModel @Inject constructor(
     data class AvailabilityUiState(
         val selectedAvailabilities: Set<LocalDateTime> = emptySet(),
         val currentMonth: YearMonth = YearMonth.now(),
-        val visibleDates: List<LocalDate> = dayGroupContaining(YearMonth.now().atDay(1)),
+        val visibleDates: List<LocalDate> = dayGroupContaining(LocalDate.now()),
 
         // TODO: googleCalendarEnabled and availabilitySharingEnabled are not yet wired in.
         //  Need to check how/where it is in the backend
@@ -97,7 +94,7 @@ class AvailabilityViewModel @Inject constructor(
                 val availability = availabilityRepository.getMyAvailability()
                 applyMutation {
                     copy(
-                        selectedAvailabilities = availability.toLocalDateTimes(),
+                        selectedAvailabilities = availability,
                         isLoading = false,
                         errorMessage = null
                     )
@@ -119,18 +116,4 @@ class AvailabilityViewModel @Inject constructor(
             }
         }
     }
-}
-
-/**
- * Converts the backend schedule (Map<dateString, List<AvailabilitySlot>>) back into
- * a flat list of LocalDateTimes for the grid to consume.
- * Each slot's startDate is used as the representative time for a cell.
- *
- * The backend sends startDate as a UTC instant (e.g. "2026-01-23T16:00:00.000Z"), so it's
- * parsed as an [Instant] and converted to the device's local wall-clock time.
- */
-private fun UserAvailability.toLocalDateTimes(): Set<LocalDateTime> {
-    return schedule.values.flatten().map { slot ->
-        Instant.parse(slot.startDate).atZone(ZoneId.systemDefault()).toLocalDateTime()
-    }.toSet()
 }

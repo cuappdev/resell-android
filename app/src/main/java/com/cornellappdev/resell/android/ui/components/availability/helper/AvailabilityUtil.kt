@@ -9,6 +9,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.cornellappdev.resell.android.ui.theme.ResellPurple
 import com.cornellappdev.resell.android.ui.theme.Stroke
+import com.cornellappdev.resell.android.ui.theme.Wash
 import com.cornellappdev.resell.android.util.day
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -87,6 +88,27 @@ fun List<LocalDateTime>.mapToGrid(dates: List<LocalDate>): List<BooleanArray> {
         grid[row][column] = true
     }
     return grid
+}
+
+/**
+ * Greys out every cell where [unavailableGrid] is true, so only cells left white/normal
+ * represent times available to both parties.
+ */
+fun DrawScope.drawUnavailableCells(unavailableGrid: List<BooleanArray>, rectWidth: Float, rectHeight: Float) {
+    for (row in unavailableGrid.indices) {
+        for (col in unavailableGrid[row].indices) {
+            if (unavailableGrid[row][col]) {
+                val position = Offset(rectWidth * col, rectHeight * row)
+
+                drawRect(
+                    size = Size(rectWidth, rectHeight),
+                    topLeft = position,
+                    color = Wash,
+                    style = Fill
+                )
+            }
+        }
+    }
 }
 
 fun DrawScope.drawBorder(grid: List<BooleanArray>, rectWidth: Float, rectHeight: Float) {
