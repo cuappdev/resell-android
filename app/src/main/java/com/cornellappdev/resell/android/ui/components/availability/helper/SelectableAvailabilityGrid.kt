@@ -44,6 +44,7 @@ private fun SelectableGrid(
     updateGrid: ((List<BooleanArray>) -> List<BooleanArray>) -> Unit,
     gridSelectionType: GridSelectionType,
     modifier: Modifier = Modifier,
+    unavailableGrid: List<BooleanArray>? = null,
     onProposalSelected: (Pair<Int, Int>) -> Unit
 ) {
     var isRemoving by remember { mutableStateOf(false) }
@@ -160,6 +161,9 @@ private fun SelectableGrid(
          * in.
          */
 
+        // Grey out cells not available to both parties, before the border/selection layers.
+        unavailableGrid?.let { drawUnavailableCells(it, rectWidth, rectHeight) }
+
         // Draw border
         drawBorder(grid, rectWidth, rectHeight)
 
@@ -216,9 +220,18 @@ fun SelectableAvailabilityGrid(
     setSelectedAvailabilities: (List<LocalDateTime>) -> Unit,
     gridSelectionType: GridSelectionType,
     modifier: Modifier = Modifier,
+    /**
+     * When non-null, cells NOT in this list are greyed out — e.g. the intersection of two
+     * people's saved availability, so only times that work for both are shown as normal/white.
+     * Null means the greying feature isn't used for this grid.
+     */
+    availableAvailabilities: List<LocalDateTime>? = null,
     onProposalSelected: (LocalDateTime) -> Unit,
 ) {
     val grid = selectedAvailabilities.mapToGrid(dates)
+    val unavailableGrid = availableAvailabilities?.mapToGrid(dates)?.map { row ->
+        BooleanArray(row.size) { col -> !row[col] }
+    }
 
     AvailabilityGridContainer(dates, modifier) {
         SelectableGrid(
@@ -228,6 +241,7 @@ fun SelectableAvailabilityGrid(
                 setSelectedAvailabilities(newGrid.toAvailabilities(dates))
             },
             gridSelectionType = gridSelectionType,
+            unavailableGrid = unavailableGrid,
             onProposalSelected = {
                 val (row, col) = it
                 onProposalSelected(rowColToLocalDateTime(row, col, dates))
