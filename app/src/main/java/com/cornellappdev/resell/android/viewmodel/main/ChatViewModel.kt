@@ -23,7 +23,6 @@ import com.cornellappdev.resell.android.model.Chat
 import com.cornellappdev.resell.android.model.ChatMessageData
 import com.cornellappdev.resell.android.model.api.ChatRepository
 import com.cornellappdev.resell.android.model.api.Post
-import com.cornellappdev.resell.android.model.chats.AvailabilityBlock
 import com.cornellappdev.resell.android.model.chats.AvailabilityDocument
 import com.cornellappdev.resell.android.model.chats.MeetingInfo
 import com.cornellappdev.resell.android.model.chats.TransactionInfo
@@ -41,7 +40,6 @@ import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
 import com.cornellappdev.resell.android.ui.theme.Style
 import com.cornellappdev.resell.android.ui.theme.Style.heading3
 import com.cornellappdev.resell.android.util.UIEvent
-import com.cornellappdev.resell.android.util.convertToFirestoreTimestamp
 import com.cornellappdev.resell.android.util.loadBitmapFromUri
 import com.cornellappdev.resell.android.util.toNetworkingString
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
@@ -247,49 +245,25 @@ class ChatViewModel @Inject constructor(
     }
 
     fun onSendAvailabilityPressed() {
+        val canPropose = mostRecentMeetingStateIs("confirmed") == null
+
         rootNavigationSheetRepository.showBottomSheet(
             sheet = RootSheet.Availability(
                 title = "When are you free to meet?",
-                buttonString = "Continue",
-                description = "Drag across the grid to add/remove availability",
-                callback = ::availabilityCallback,
-                gridSelectionType = GridSelectionType.AVAILABILITY
+                buttonString = "Propose",
+                description = "Select a 30-minute block to propose a meeting",
+                callback = {
+                    if (canPropose && it.isNotEmpty()) {
+                        onMeetingProposal(it.first())
+                    } else {
+                        rootConfirmationRepository.showError(
+                            "Please select a 30-minute block to propose a meeting, and ensure there is no current meeting."
+                        )
+                    }
+                },
+                gridSelectionType = if (canPropose) GridSelectionType.PROPOSAL else GridSelectionType.NONE
             )
         )
-    }
-
-    private fun availabilityCallback(availability: List<LocalDateTime>) {
-        viewModelScope.launch {
-            try {
-                val myInfo = userInfoRepository.getUserInfo()
-
-                val asTimeStamp = availability.map {
-                    it.convertToFirestoreTimestamp()
-                }
-
-                chatRepository.sendAvailability(
-                    selfIsBuyer = navArgs.isBuyer,
-                    listingId = listing.id,
-                    myId = myInfo.id,
-                    otherId = navArgs.otherUserId,
-                    availability = AvailabilityDocument(
-                        asTimeStamp.mapIndexed { index, it ->
-                            AvailabilityBlock(
-                                startDate = it,
-                                id = index
-                            )
-                        }
-                    ),
-                    chatId = navArgs.chatId
-                )
-                rootNavigationSheetRepository.hideSheet()
-            } catch (e: Exception) {
-                Log.e("ChatViewModel", "Error sending availability: ", e)
-                rootConfirmationRepository.showError(
-                    "Something went wrong while sending your availability. Please try again later."
-                )
-            }
-        }
     }
 
     fun payWithVenmoPressed() = viewModelScope.launch {

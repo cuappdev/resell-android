@@ -5,6 +5,7 @@ import com.cornellappdev.resell.android.model.profile.AvailabilityRepository
 import com.cornellappdev.resell.android.model.api.UserAvailability
 import com.cornellappdev.resell.android.ui.components.availability.helper.dayGroupContaining
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
+import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import java.time.Instant
@@ -16,7 +17,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AvailabilityViewModel @Inject constructor(
-    private val availabilityRepository: AvailabilityRepository
+    private val availabilityRepository: AvailabilityRepository,
+    private val rootNavigationRepository: RootNavigationRepository
 ) : ResellViewModel<AvailabilityViewModel.AvailabilityUiState>(
     initialUiState = AvailabilityUiState()
 ) {
@@ -42,6 +44,10 @@ class AvailabilityViewModel @Inject constructor(
 
     init {
         loadAvailability()
+    }
+
+    fun onBackPressed() {
+        rootNavigationRepository.popBackStack()
     }
 
     // grid interactions
