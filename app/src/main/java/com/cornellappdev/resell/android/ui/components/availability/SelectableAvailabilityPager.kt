@@ -23,9 +23,11 @@ fun SelectableAvailabilityPager(
     title: String,
     subtitle: String,
     initialSelectedAvailabilities: List<LocalDateTime> = emptyList(),
+    availableAvailabilities: List<LocalDateTime>? = null,
     scrollRange: Pair<Int, Int> = 0 to 6,
     modifier: Modifier = Modifier,
     gridSelectionType: GridSelectionType,
+    onEditAvailabilityClicked: (() -> Unit)? = null,
     setProposalTime: (LocalDateTime) -> Unit,
     setSelectedAvailabilities: (List<LocalDateTime>) -> Unit,
 ) {
@@ -65,6 +67,7 @@ fun SelectableAvailabilityPager(
         modifier = modifier,
         title = title,
         subtitle = subtitle,
+        onEditAvailabilityClicked = onEditAvailabilityClicked,
     ) { dates, page ->
         SelectableAvailabilityGrid(
             dates = dates,
@@ -81,6 +84,7 @@ fun SelectableAvailabilityPager(
                 setSelectedAvailabilities(updatedDates.values.flatten())
             },
             gridSelectionType = gridSelectionType,
+            availableAvailabilities = availableAvailabilities,
             onProposalSelected = setProposalTime
         )
     }
