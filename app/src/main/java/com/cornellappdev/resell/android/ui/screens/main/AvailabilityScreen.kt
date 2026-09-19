@@ -73,6 +73,7 @@ fun AvailabilityScreen(
         onSetCurrentMonth = { availabilityViewModel.setCurrentMonth(it) },
         onSetVisibleDates = { availabilityViewModel.setVisibleDates(it) },
         onSave = { availabilityViewModel.saveAvailability() },
+        onBackPressed = { availabilityViewModel.onBackPressed() },
     )
 }
 
@@ -83,6 +84,7 @@ fun AvailabilityScreenContent(
     onSetCurrentMonth: (YearMonth) -> Unit,
     onSetVisibleDates: (List<LocalDate>) -> Unit,
     onSave: () -> Unit,
+    onBackPressed: () -> Unit = {},
 ) {
     // just some UI logic to allow for smooth transitions between panels expanding on the screen.
     var activePanel by remember { mutableStateOf(AvailabilityPanel.NONE) }
@@ -106,6 +108,7 @@ fun AvailabilityScreenContent(
             ResellHeader(
                 title = "Availability",
                 leftPainter = R.drawable.ic_chevron_left,
+                onLeftClick = onBackPressed,
             )
             Column(
                 modifier = Modifier
@@ -240,5 +243,6 @@ fun AvailabilityScreenPreview() = ResellPreview {
         onSetCurrentMonth = {},
         onSetVisibleDates = {},
         onSave = {},
+        onBackPressed = {},
     )
 }
