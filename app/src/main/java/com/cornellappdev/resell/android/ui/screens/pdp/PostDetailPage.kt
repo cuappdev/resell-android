@@ -65,6 +65,7 @@ import com.cornellappdev.resell.android.ui.components.main.ProfilePictureView
 import com.cornellappdev.resell.android.ui.components.newpost.WhichPage
 import com.cornellappdev.resell.android.ui.components.pdp.BookmarkFAB
 import com.cornellappdev.resell.android.ui.theme.IconInactive
+import com.cornellappdev.resell.android.ui.theme.ResellPreview
 import com.cornellappdev.resell.android.ui.theme.Secondary
 import com.cornellappdev.resell.android.ui.theme.Style
 import com.cornellappdev.resell.android.util.clickableNoIndication
@@ -113,6 +114,19 @@ fun PostDetailPage(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview
+@Composable
+private fun PostDetailPagePreview() = ResellPreview {
+    Content(
+        title = "Vintage lamp",
+        price = "$45",
+        description = "Barely used. Pickup on North Campus.",
+        username = "ava.shop",
+        showContact = true,
+        similarImageUrls = ResellApiResponse.Success(emptyList()),
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun Content(
     maxImageHeight: Dp = 500.dp,
