@@ -272,6 +272,7 @@ class ChatViewModel @Inject constructor(
                     title = "When are you free to meet?",
                     buttonString = "Propose",
                     description = "Select a 30 minute block",
+                    initialButtonState = ResellTextButtonState.DISABLED,
                     callback = {
                         if (canPropose && it.isNotEmpty()) {
                             onMeetingProposal(it.first())
