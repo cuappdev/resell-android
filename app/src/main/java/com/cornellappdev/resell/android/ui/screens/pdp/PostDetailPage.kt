@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -149,10 +148,12 @@ private fun Content(
     val pagerState = rememberPagerState(pageCount = { images.size })
     val density = LocalDensity.current
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
+    val sheetBackground = Color.White
 
-    // Sheet starts collapsed so only a strip of details is visible; image fills the rest.
+    // Sheet starts collapsed so only a strip of details is visible; image fills the rest
+    // and stays that size while the sheet slides over it.
     val peekHeight = max(screenHeight - maxImageHeight, 200.dp)
-    val peekedImageHeight = max(screenHeight - peekHeight, 0.dp)
+    val imageHeight = max(screenHeight - peekHeight, 0.dp)
 
     val scaffoldState = rememberBottomSheetScaffoldState(
         bottomSheetState = rememberStandardBottomSheetState(
@@ -161,19 +162,13 @@ private fun Content(
         )
     )
 
-    // requireOffset() is the Y of the sheet top. Drive image height and overlay
-    // positions from that so they stay glued to the sheet while dragging.
+    // requireOffset() is the Y of the sheet top. Drive overlay positions from that so
+    // bookmark / pager dots stay glued to the sheet while dragging.
     val sheetTopOffsetPx by remember {
         derivedStateOf {
             runCatching { scaffoldState.bottomSheetState.requireOffset() }.getOrDefault(0f)
         }
     }
-    val liveImageHeight = if (sheetTopOffsetPx == 0f) {
-        peekedImageHeight
-    } else {
-        with(density) { sheetTopOffsetPx.toDp() }
-    }
-    // Bottom padding so overlays sit just above the sheet top.
     val overlayBottomPadding = if (sheetTopOffsetPx == 0f) {
         peekHeight + 24.dp
     } else {
@@ -199,27 +194,33 @@ private fun Content(
                 )
             },
             sheetPeekHeight = peekHeight,
-            sheetContainerColor = Color.White,
+            sheetContainerColor = sheetBackground,
             sheetShadowElevation = 12.dp,
-            containerColor = Color.White,
+            containerColor = sheetBackground,
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.White)
+                .background(sheetBackground)
         ) {
-            HorizontalPager(
-                state = pagerState,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(IconInactive),
-            ) {
-                Column(modifier = Modifier.fillMaxHeight()) {
+            Column(modifier = Modifier.fillMaxSize()) {
+                HorizontalPager(
+                    state = pagerState,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(imageHeight)
+                        .background(IconInactive),
+                ) {
                     PdpImageBlurredBackground(
-                        imageHeight = liveImageHeight,
+                        imageHeight = imageHeight,
                         bitmap = images[it]
                     )
-
-                    Spacer(modifier = Modifier.weight(1f))
                 }
+
+                Spacer(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth()
+                        .background(sheetBackground)
+                )
             }
         }
 
