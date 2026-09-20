@@ -71,6 +71,13 @@ import com.cornellappdev.resell.android.util.clickableNoIndication
 import com.cornellappdev.resell.android.util.defaultHorizontalPadding
 import com.cornellappdev.resell.android.viewmodel.pdp.PostDetailViewModel
 
+private val MinSheetPeekHeight = 200.dp
+private val OverlayAboveSheetGap = 24.dp
+private val ContactSellerTopPadding = 24.dp
+private val ContactSellerBottomPadding = 45.dp
+// 14.dp vertical padding + 24.dp (18.sp text with font padding) + 14.dp = 52.dp
+private val ContactSellerButtonHeight = 52.dp
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PostDetailPage(
@@ -152,7 +159,7 @@ private fun Content(
 
     // Sheet starts collapsed so only a strip of details is visible; image fills the rest
     // and stays that size while the sheet slides over it.
-    val peekHeight = max(screenHeight - maxImageHeight, 200.dp)
+    val peekHeight = max(screenHeight - maxImageHeight, MinSheetPeekHeight)
     val imageHeight = max(screenHeight - peekHeight, 0.dp)
 
     val scaffoldState = rememberBottomSheetScaffoldState(
@@ -170,9 +177,9 @@ private fun Content(
         }
     }
     val overlayBottomPadding = if (sheetTopOffsetPx == 0f) {
-        peekHeight + 24.dp
+        peekHeight + OverlayAboveSheetGap
     } else {
-        with(density) { (screenHeight.toPx() - sheetTopOffsetPx).toDp() } + 24.dp
+        with(density) { (screenHeight.toPx() - sheetTopOffsetPx).toDp() } + OverlayAboveSheetGap
     }
 
     Box(
@@ -242,7 +249,7 @@ private fun Content(
                 onClick = onContactClick,
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
-                    .padding(bottom = 46.dp)
+                    .padding(bottom = ContactSellerBottomPadding)
                     .navigationBarsPadding(),
                 state = contactButtonState
             )
@@ -344,13 +351,13 @@ private fun BottomSheetContent(
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
     val maxSheetHeight = screenHeight - paddingTop
 
-    // Clear the floating Contact Seller button: nav bars + 46.dp offset for below button
+    // Clear the floating Contact Seller button: nav bars + ContactSellerBottomPadding
     // + ~52.dp button itself + gap between button and similar items.
     val navBottom = WindowInsets.navigationBars
         .asPaddingValues()
         .calculateBottomPadding()
     val bottomClearance = if (showContact) {
-        navBottom + 46.dp + 52.dp + 24.dp
+        navBottom + ContactSellerBottomPadding + ContactSellerButtonHeight + ContactSellerTopPadding
     } else {
         navBottom + 16.dp
     }
