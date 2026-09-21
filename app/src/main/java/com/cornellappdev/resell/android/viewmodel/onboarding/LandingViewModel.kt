@@ -174,6 +174,9 @@ class LandingViewModel @Inject constructor(
             } catch (e: Exception) {
                 if (e is HttpException && e.code() == 403) {
                     Log.d("LandingViewModel", "User not found on backend; routing to onboarding.")
+                    applyMutation {
+                        copy(buttonState = ResellTextButtonState.ENABLED)
+                    }
                     rootNavigationRepository.navigate(ResellRootRoute.ONBOARDING)
                     return@launch
                 }
@@ -208,4 +211,4 @@ class LandingViewModel @Inject constructor(
 
         return client
     }
-}   
+}
