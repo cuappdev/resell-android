@@ -21,16 +21,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.ui.theme.Secondary
-import com.cornellappdev.resell.android.ui.theme.Stroke
 import com.cornellappdev.resell.android.ui.theme.Style
-import com.cornellappdev.resell.android.ui.theme.Wash
 
 @Composable
 fun EmptyForYouComponent() {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(color = Wash, shape = RoundedCornerShape(8.dp))
+            .background(color = Color.White, shape = RoundedCornerShape(8.dp))
             .border(width = 1.dp,color = Secondary, shape = RoundedCornerShape(8.dp))
             .padding(vertical = 32.dp, horizontal = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,

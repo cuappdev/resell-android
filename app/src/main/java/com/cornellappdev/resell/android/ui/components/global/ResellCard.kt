@@ -98,6 +98,8 @@ fun ResellCardContent(
                 style = Style.title3,
                 text = title,
                 color = Color.Black,
+                maxLines = 1,
+                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
                 modifier = Modifier
                     .weight(1f)
                     .padding(end = 12.dp)

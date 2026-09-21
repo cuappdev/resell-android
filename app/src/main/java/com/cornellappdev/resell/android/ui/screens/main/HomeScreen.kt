@@ -66,7 +66,6 @@ import com.cornellappdev.resell.android.ui.components.global.resellLoadingListin
 import com.cornellappdev.resell.android.ui.components.main.EmptyForYouComponent
 import com.cornellappdev.resell.android.ui.components.main.FilterBottomSheet
 import com.cornellappdev.resell.android.ui.components.main.ForYouComponent
-import com.cornellappdev.resell.android.ui.components.main.ResellSearchBar
 import com.cornellappdev.resell.android.ui.components.nav.NAVBAR_HEIGHT
 import com.cornellappdev.resell.android.ui.theme.Padding
 import com.cornellappdev.resell.android.ui.theme.ResellPreview
@@ -333,7 +332,7 @@ private enum class CategoryItem(
         image = R.drawable.books,
         label = "Books",
         backgroundColor = Color(0x80316054),
-        category = ResellFilter.FilterCategory.BOOKS
+        category = ResellFilter.FilterCategory.BOOKS,
     ),
     SCHOOL(
         image = R.drawable.pencilcase,
@@ -438,37 +437,38 @@ private fun ForYouRow(
 ) {
     val isPreview = LocalInspectionMode.current
     val placeholder = painterResource(R.drawable.ic_appdev)
-    LazyRow(
-        horizontalArrangement = Arrangement.spacedBy(16.dp),
-        modifier = modifier
-    ) {
 
-        val savedImages = savedListings.mapIndexed { index, _ ->
-            if (isPreview) {
-                placeholder
-            } else {
-                when (val response = savedImagesResponses[index].value) {
-                    is ResellApiResponse.Success -> BitmapPainter(response.data)
-                    else -> null
-                }
+    val savedImages = savedListings.mapIndexed { index, _ ->
+        if (isPreview) {
+            placeholder
+        } else {
+            when (val response = savedImagesResponses[index].value) {
+                is ResellApiResponse.Success -> BitmapPainter(response.data)
+                else -> null
             }
         }
+    }
 
-        val searchedImages = searchedListings.mapIndexed { index, _ ->
-            if (isPreview) {
-                placeholder
-            } else {
-                when (val response = searchedImageResponses[index].value) {
-                    is ResellApiResponse.Success -> BitmapPainter(response.data)
-                    else -> null
-                }
+    val searchedImages = searchedListings.mapIndexed { index, _ ->
+        if (isPreview) {
+            placeholder
+        } else {
+            when (val response = searchedImageResponses[index].value) {
+                is ResellApiResponse.Success -> BitmapPainter(response.data)
+                else -> null
             }
         }
+    }
 
-        item {
-            if (savedImages.isEmpty()) {
-                EmptyForYouComponent()
-            } else {
+    if (savedImages.isEmpty()) {
+        EmptyForYouComponent()
+    } else {
+        LazyRow(
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            modifier = modifier
+        ) {
+
+            item {
                 ForYouComponent(
                     text = "Your saved items",
                     amount = savedListings.size,
@@ -476,7 +476,6 @@ private fun ForYouRow(
                     onClick = onSavedPressed
                 )
             }
-        }
 
 //        item {
 //            ForYouComponent(
@@ -496,6 +495,7 @@ private fun ForYouRow(
 //            )
 //        }
 
+        }
     }
 }
 
@@ -513,7 +513,7 @@ private fun CategoryRow(
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.width(80.dp)
+                modifier = Modifier.width(80.dp).height(120.dp),
             ) {
                 Box(
                     modifier = Modifier
