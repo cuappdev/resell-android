@@ -513,7 +513,9 @@ private fun CategoryRow(
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.width(80.dp).height(120.dp),
+                modifier = Modifier
+                    .width(80.dp)
+                    .height(120.dp),
             ) {
                 Box(
                     modifier = Modifier
@@ -554,6 +556,7 @@ private fun LazyStaggeredGridScope.recentListings(
     item(span = StaggeredGridItemSpan.FullLine) {
         Row(
             horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier.fillMaxWidth(),
         ) {
             Text(text = "Recent Listings", style = Style.heading3)
             Icon(
