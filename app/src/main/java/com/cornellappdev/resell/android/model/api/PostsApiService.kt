@@ -44,6 +44,12 @@ interface PostsApiService {
     @POST("post/filter")
     suspend fun getFilteredPosts(@Body filterRequest: FilterRequest): PostsResponse
 
+    @POST("post/filterNewlyListed/")
+    suspend fun getNewlyListedPosts(
+        @Query("page") page: Int = 1,
+        @Query("limit") size: Int = 10
+    ): PostsResponse
+
     @POST("post")
     suspend fun createPost(@Body newPostBody: NewPostBody): PostResponse
 

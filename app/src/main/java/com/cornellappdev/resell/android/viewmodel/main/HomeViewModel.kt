@@ -33,7 +33,7 @@ class HomeViewModel @Inject constructor(
             savedListings = emptyList(),
             fromSearchListings = emptyList(),
             fromPurchasesListings = emptyList(),
-            activeFilter = ResellFilter(),
+            activeFilter = ResellFilter(sortBy = ResellFilter.SortBy.NEWLY_LISTED),
             loadedState = ResellApiState.Loading,
             savedImageResponses = emptyList(),
             searchedImageResponses = emptyList(),
@@ -56,7 +56,7 @@ class HomeViewModel @Inject constructor(
     )
 
     init {
-        getPosts(ResellFilter())
+        getNewlyListedPosts()
         resellPostRepository.fetchSavedPosts()
         resellPostRepository.getSearchHistory()
         asyncCollect(resellPostRepository.savedPosts) { response ->
@@ -119,6 +119,26 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val posts = resellPostRepository.getFilteredPosts(filter)
+                applyMutation {
+                    copy(
+                        listings = posts.map { it.toListing() },
+                        loadedState = ResellApiState.Success
+                    )
+                }
+            } catch (e: Exception) {
+                applyMutation {
+                    copy(
+                        loadedState = ResellApiState.Error
+                    )
+                }
+            }
+        }
+    }
+
+    private fun getNewlyListedPosts() {
+        viewModelScope.launch {
+            try {
+                val posts = resellPostRepository.getNewlyListedPosts()
                 applyMutation {
                     copy(
                         listings = posts.map { it.toListing() },

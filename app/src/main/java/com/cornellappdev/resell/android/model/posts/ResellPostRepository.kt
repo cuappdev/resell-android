@@ -64,6 +64,10 @@ class ResellPostRepository @Inject constructor(
 
     }
 
+    suspend fun getNewlyListedPosts(page: Int = 1, limit: Int = 10): List<Post> {
+        return retrofitInstance.postsApi.getNewlyListedPosts(page = page, size = limit).posts
+    }
+
     suspend fun uploadPost(
         title: String,
         description: String,
