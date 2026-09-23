@@ -52,6 +52,15 @@ fun MainTabNavigation(
     val uiState = mainNavigationViewModel.collectUiStateValue()
     val navBarShown = remember { mutableStateOf(true) }
 
+    val currentTab =
+        navDestination?.destination?.route?.toResellMainScreen() ?: ResellMainScreen.Home
+
+    fun navigateToTab(tab: ResellMainScreen) {
+        if (currentTab != tab) {
+            mainNav.navigate(tab)
+        }
+    }
+
     LaunchedEffect(uiState.navEvent) {
         uiState.navEvent?.consumeSuspend {
             mainNav.navigate(it)
@@ -124,13 +133,12 @@ fun MainTabNavigation(
                     mainNav.navigate(ResellMainScreen.Home)
                 },
                 onMessagesClick = {
-                    mainNav.navigate(ResellMainScreen.Messages)
+                    navigateToTab(ResellMainScreen.Messages)
                 },
                 onUserClick = {
-                    mainNav.navigate(ResellMainScreen.User)
+                    navigateToTab(ResellMainScreen.User)
                 },
-                selectedTab = navDestination?.destination?.route?.toResellMainScreen()
-                    ?: ResellMainScreen.Home,
+                selectedTab = currentTab,
                 modifier = Modifier.align(Alignment.BottomCenter),
                 enabled = uiState.bottomBarEnabled
             )
