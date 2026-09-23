@@ -123,9 +123,6 @@ fun MainTabNavigation(
                 onHomeClick = {
                     mainNav.navigate(ResellMainScreen.Home)
                 },
-                onBookmarksClick = {
-                    mainNav.navigate(ResellMainScreen.Bookmarks)
-                },
                 onMessagesClick = {
                     mainNav.navigate(ResellMainScreen.Messages)
                 },
