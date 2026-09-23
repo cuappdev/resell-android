@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Resell</string>
+    <string name="empty_for_you">"You haven't saved any listing yet."</string>
 </resources>

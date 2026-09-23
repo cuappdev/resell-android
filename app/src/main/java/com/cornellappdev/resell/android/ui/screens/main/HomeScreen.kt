@@ -449,17 +449,6 @@ private fun ForYouRow(
         }
     }
 
-    val searchedImages = searchedListings.mapIndexed { index, _ ->
-        if (isPreview) {
-            placeholder
-        } else {
-            when (val response = searchedImageResponses[index].value) {
-                is ResellApiResponse.Success -> BitmapPainter(response.data)
-                else -> null
-            }
-        }
-    }
-
     if (savedImages.isEmpty()) {
         EmptyForYouComponent()
     } else {
@@ -476,24 +465,6 @@ private fun ForYouRow(
                     onClick = onSavedPressed
                 )
             }
-
-//        item {
-//            ForYouComponent(
-//                text = "From your searches",
-//                amount = null,
-//                images = searchedImages,
-//                onClick = onFromSearchPressed
-//            )
-//        }
-//
-//        item {
-//            ForYouComponent(
-//                text = "From your purchases",
-//                amount = null,
-//                images = List(4) { placeholder },
-//                onClick = onFromPurchasePressed
-//            )
-//        }
 
         }
     }
