@@ -2,7 +2,7 @@ package com.cornellappdev.resell.android.viewmodel.main
 
 import androidx.lifecycle.viewModelScope
 import com.cornellappdev.resell.android.model.profile.AvailabilityRepository
-import com.cornellappdev.resell.android.ui.components.availability.helper.dayGroupContaining
+import com.cornellappdev.resell.android.ui.components.availability.helper.dayWindowStartingAt
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
 import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -23,7 +23,7 @@ class AvailabilityViewModel @Inject constructor(
     data class AvailabilityUiState(
         val selectedAvailabilities: Set<LocalDateTime> = emptySet(),
         val currentMonth: YearMonth = YearMonth.now(),
-        val visibleDates: List<LocalDate> = dayGroupContaining(LocalDate.now()),
+        val visibleDates: List<LocalDate> = dayWindowStartingAt(LocalDate.now()),
 
         // TODO: googleCalendarEnabled and availabilitySharingEnabled are not yet wired in.
         //  Need to check how/where it is in the backend
@@ -62,12 +62,25 @@ class AvailabilityViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Past availability can never be proposed, so a month before the current one is rejected
+     * outright and the current month anchors on today rather than on the 1st.
+     */
     fun setCurrentMonth(month: YearMonth) {
-        applyMutation { copy(currentMonth = month, visibleDates = dayGroupContaining(month.atDay(1))) }
+        val today = LocalDate.now()
+        if (month.isBefore(YearMonth.from(today))) return
+        val anchor = maxOf(month.atDay(1), today)
+        applyMutation { copy(currentMonth = month, visibleDates = dayWindowStartingAt(anchor)) }
     }
 
-    fun setVisibleDates(dates: List<LocalDate>) {
-        applyMutation { copy(visibleDates = dates) }
+    /**
+     * [date] becomes the leftmost column of the grid, clamped forward to today so the window
+     * never backfills. [AvailabilityUiState.currentMonth] is deliberately left alone: tapping a
+     * trailing day of an adjacent month shouldn't reshuffle the calendar panel under the user.
+     */
+    fun setWindowStart(date: LocalDate) {
+        val anchor = maxOf(date, LocalDate.now())
+        applyMutation { copy(visibleDates = dayWindowStartingAt(anchor)) }
     }
 
     fun setGoogleCalendarEnabled(enabled: Boolean) {

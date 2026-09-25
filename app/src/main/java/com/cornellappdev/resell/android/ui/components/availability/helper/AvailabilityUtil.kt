@@ -14,7 +14,6 @@ import com.cornellappdev.resell.android.util.day
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
-import java.time.YearMonth
 import kotlin.math.floor
 
 const val GRID_HEIGHT = 24
@@ -34,13 +33,16 @@ val MonthSwipeThreshold: Dp = 56.dp
  */
 val MonthCalendarGridMaxHeight: Dp = 248.dp
 
-/** Returns a fixed 3-day group containing [date] (1-3, 4-6, ...), rolling into next month if needed. */
-fun dayGroupContaining(date: LocalDate): List<LocalDate> {
-    val month = YearMonth.from(date)
-    val groupIndex = (date.dayOfMonth - 1) / 3
-    val groupStart = month.atDay(groupIndex * 3 + 1)
-    return (0..2).map { groupStart.plusDays(it.toLong()) }
-}
+/** Number of day columns an availability grid shows at once. */
+const val DAY_WINDOW_SIZE = 3
+
+/**
+ * Returns the [DAY_WINDOW_SIZE]-day window whose first column is [startDate], rolling into the
+ * next month as needed. Deliberately does not snap to calendar buckets — the caller's date is
+ * always the leftmost column, so a window anchored at today never shows a past day.
+ */
+fun dayWindowStartingAt(startDate: LocalDate): List<LocalDate> =
+    (0 until DAY_WINDOW_SIZE).map { startDate.plusDays(it.toLong()) }
 
 
 fun getGridCell(offset: Offset, canvasSize: Size, width: Int, height: Int): Pair<Int, Int> {

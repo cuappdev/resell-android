@@ -44,7 +44,7 @@ import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.ui.components.availability.helper.AvailabilityFilters
 import com.cornellappdev.resell.android.ui.components.availability.helper.GridSelectionType
 import com.cornellappdev.resell.android.ui.components.availability.helper.MonthCalendar
-import com.cornellappdev.resell.android.ui.components.availability.helper.dayGroupContaining
+import com.cornellappdev.resell.android.ui.components.availability.helper.dayWindowStartingAt
 import com.cornellappdev.resell.android.ui.components.availability.helper.SelectableAvailabilityGrid
 import com.cornellappdev.resell.android.ui.components.global.ResellHeader
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButton
@@ -75,7 +75,7 @@ fun AvailabilityScreen(
         uiState = availabilityUiState,
         onSetSelectedAvailabilities = { availabilityViewModel.setSelectedAvailabilities(it.toSet()) },
         onSetCurrentMonth = { availabilityViewModel.setCurrentMonth(it) },
-        onSetVisibleDates = { availabilityViewModel.setVisibleDates(it) },
+        onSetWindowStart = { availabilityViewModel.setWindowStart(it) },
         onSave = { availabilityViewModel.saveAvailability() },
         onBackPressed = { availabilityViewModel.onBackPressed() },
     )
@@ -86,7 +86,7 @@ fun AvailabilityScreenContent(
     uiState: AvailabilityViewModel.AvailabilityUiState,
     onSetSelectedAvailabilities: (List<LocalDateTime>) -> Unit,
     onSetCurrentMonth: (YearMonth) -> Unit,
-    onSetVisibleDates: (List<LocalDate>) -> Unit,
+    onSetWindowStart: (LocalDate) -> Unit,
     onSave: () -> Unit,
     onBackPressed: () -> Unit = {},
 ) {
@@ -197,7 +197,7 @@ fun AvailabilityScreenContent(
                                 currentMonth = uiState.currentMonth,
                                 selectedDates = uiState.visibleDates,
                                 onMonthChange = onSetCurrentMonth,
-                                onDaysSelected = onSetVisibleDates,
+                                onDayStartSelected = onSetWindowStart,
                                 modifier = Modifier.fillMaxWidth(),
                             )
 //                            AvailabilityPanel.FILTERS -> AvailabilityFilters(
@@ -243,7 +243,7 @@ fun AvailabilityScreenPreview() {
         uiState = AvailabilityViewModel.AvailabilityUiState(
             selectedAvailabilities = emptySet(),
             currentMonth = YearMonth.of(2026, 4),
-            visibleDates = dayGroupContaining(LocalDate.of(2026, 4, 1)),
+            visibleDates = dayWindowStartingAt(LocalDate.of(2026, 4, 1)),
             googleCalendarEnabled = false,
             availabilitySharingEnabled = false,
             subCalendars = listOf("Personal", "Youtube", "Leetcode", "Capra"),
@@ -254,7 +254,7 @@ fun AvailabilityScreenPreview() {
         ),
         onSetSelectedAvailabilities = {},
         onSetCurrentMonth = {},
-        onSetVisibleDates = {},
+        onSetWindowStart = {},
         onSave = {},
         onBackPressed = {},
     )
