@@ -285,7 +285,7 @@ private fun AvailabilityGrid_RUNME_Preview() = ResellPreview {
 @Preview
 @Composable
 private fun SelectableAvailabilityGridRolloverPreview() = ResellPreview {
-    val rolloverDates = dayGroupContaining(LocalDate.of(2026, 10, 31))
+    val rolloverDates = dayWindowStartingAt(LocalDate.of(2026, 10, 30))
     var selectedAvailabilities by remember { mutableStateOf(testAvailabilities(rolloverDates)) }
     SelectableAvailabilityGrid(
         dates = rolloverDates,
