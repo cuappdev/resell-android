@@ -127,14 +127,9 @@ fun AvailabilityPagerContainer(
             state, userScrollEnabled = false
         ) { page ->
             Box(modifier = Modifier.padding(horizontal = 32.dp)) {
+                val offset = page - scrollRange.first
                 availabilityGrid(
-                    buildList {
-                        val offset = page - scrollRange.first
-                        val displayedStartDate = startDate.plusDays(offset * 3L)
-                        add(displayedStartDate)
-                        add(displayedStartDate.plusDays(1))
-                        add(displayedStartDate.plusDays(2))
-                    },
+                    dayWindowStartingAt(startDate.plusDays(offset * DAY_WINDOW_SIZE.toLong())),
                     page
                 )
             }
