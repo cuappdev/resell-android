@@ -150,6 +150,7 @@ abstract class ResellViewModel<UiState>(initialUiState: UiState) : ViewModel() {
      * @param name The name of the OTHER user.
      * @param email The email of the OTHER user.
      * @param pfp The profile picture of the OTHER user.
+     * @param otherId The id of the OTHER chat participant.
      * @param id The id of the post.
      */
     protected suspend fun contactSeller(
@@ -176,7 +177,7 @@ abstract class ResellViewModel<UiState>(initialUiState: UiState) : ViewModel() {
                 name = name,
                 pfp = pfp,
                 listingJson = Json.encodeToString(listing),
-                otherUserId = listing.user.id,
+                otherUserId = otherId,
                 otherVenmo = listing.user.venmoHandle,
                 chatId = chatId
             )
