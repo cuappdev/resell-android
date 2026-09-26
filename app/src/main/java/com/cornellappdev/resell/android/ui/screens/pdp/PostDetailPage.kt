@@ -7,11 +7,14 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -19,17 +22,21 @@ import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberBottomSheetScaffoldState
+import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.BlurredEdgeTreatment.Companion.Rectangle
@@ -39,8 +46,6 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
@@ -48,6 +53,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.max
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.cornellappdev.resell.android.R
@@ -58,11 +64,19 @@ import com.cornellappdev.resell.android.ui.components.main.ProfilePictureView
 import com.cornellappdev.resell.android.ui.components.newpost.WhichPage
 import com.cornellappdev.resell.android.ui.components.pdp.BookmarkFAB
 import com.cornellappdev.resell.android.ui.theme.IconInactive
+import com.cornellappdev.resell.android.ui.theme.ResellPreview
 import com.cornellappdev.resell.android.ui.theme.Secondary
 import com.cornellappdev.resell.android.ui.theme.Style
 import com.cornellappdev.resell.android.util.clickableNoIndication
 import com.cornellappdev.resell.android.util.defaultHorizontalPadding
 import com.cornellappdev.resell.android.viewmodel.pdp.PostDetailViewModel
+
+private val MinSheetPeekHeight = 200.dp
+private val OverlayAboveSheetGap = 24.dp
+private val ContactSellerTopPadding = 24.dp
+private val ContactSellerBottomPadding = 45.dp
+// 14.dp vertical padding + 24.dp (18.sp text with font padding) + 14.dp = 52.dp
+private val ContactSellerButtonHeight = 52.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -71,21 +85,9 @@ fun PostDetailPage(
 ) {
     val uiState = postDetailViewModel.collectUiStateValue()
 
-    // Image will take up at most this proportion of the screen
-    val imageProp = .75f
+    // Smaller value of imageProp results in less content being cut off
+    val imageProp = .70f
     val maxImageHeight = LocalConfiguration.current.screenHeightDp.dp * imageProp
-    val minAspectRatio = uiState.minAspectRatio
-    val screenWidth = LocalConfiguration.current.screenWidthDp.dp
-
-    // Preferred height of the tallest image, given the aspect ratio
-    val aspectRatioPreferredHeight = screenWidth / minAspectRatio
-
-    // Cap at the max image height.
-    val imageHeight = if (aspectRatioPreferredHeight > maxImageHeight) {
-        maxImageHeight
-    } else {
-        aspectRatioPreferredHeight
-    }
 
     LaunchedEffect(uiState.hideSheetEvent) {
         uiState.hideSheetEvent?.consumeSuspend {
@@ -98,7 +100,7 @@ fun PostDetailPage(
         onContactClick = postDetailViewModel::onContactClick,
         onEllipseClick = postDetailViewModel::onEllipseClick,
         images = uiState.images,
-        imageHeight = imageHeight,
+        maxImageHeight = maxImageHeight,
         userPfp = uiState.profileImageUrl,
         username = uiState.username,
         title = uiState.title,
@@ -119,8 +121,21 @@ fun PostDetailPage(
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Composable
+private fun PostDetailPagePreview() = ResellPreview {
+    Content(
+        title = "Vintage lamp",
+        price = "$45",
+        description = "Barely used. Pickup on North Campus.",
+        username = "ava.shop",
+        showContact = true,
+        similarImageUrls = ResellApiResponse.Success(emptyList()),
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
 private fun Content(
-    imageHeight: Dp = 500.dp,
+    maxImageHeight: Dp = 500.dp,
     images: List<ImageBitmap> = emptyList(),
     similarImageUrls: ResellApiResponse<List<String>> = ResellApiResponse.Pending,
     onContactClick: () -> Unit = {},
@@ -137,19 +152,41 @@ private fun Content(
     onUserClick: () -> Unit = {},
     showContact: Boolean = false,
 ) {
-    var sheetHeightFromBottom by remember { mutableStateOf(0.dp) }
     val pagerState = rememberPagerState(pageCount = { images.size })
-
-    // Derive peekHeight as screen height minus image height:
+    val density = LocalDensity.current
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
+    val sheetBackground = Color.White
 
-    // TODO the plus at the end seems wrong. Test on other devices.
-    val peekHeight = screenHeight - imageHeight + 96.dp
+    // Sheet starts collapsed so only a strip of details is visible; image fills the rest
+    // and stays that size while the sheet slides over it.
+    val peekHeight = max(screenHeight - maxImageHeight, MinSheetPeekHeight)
+    val imageHeight = max(screenHeight - peekHeight, 0.dp)
+
+    val scaffoldState = rememberBottomSheetScaffoldState(
+        bottomSheetState = rememberStandardBottomSheetState(
+            initialValue = SheetValue.PartiallyExpanded,
+            skipHiddenState = true,
+        )
+    )
+
+    // requireOffset() is the Y of the sheet top. Drive overlay positions from that so
+    // bookmark / pager dots stay glued to the sheet while dragging.
+    val sheetTopOffsetPx by remember {
+        derivedStateOf {
+            runCatching { scaffoldState.bottomSheetState.requireOffset() }.getOrDefault(0f)
+        }
+    }
+    val overlayBottomPadding = if (sheetTopOffsetPx == 0f) {
+        peekHeight + OverlayAboveSheetGap
+    } else {
+        with(density) { (screenHeight.toPx() - sheetTopOffsetPx).toDp() } + OverlayAboveSheetGap
+    }
 
     Box(
         modifier = Modifier.fillMaxWidth()
     ) {
         BottomSheetScaffold(
+            scaffoldState = scaffoldState,
             sheetContent = {
                 BottomSheetContent(
                     profilePictureUrl = userPfp,
@@ -157,36 +194,40 @@ private fun Content(
                     title = title,
                     price = price,
                     description = description,
-                    onHeightChanged = {
-                        sheetHeightFromBottom = it
-                    },
                     onSimilarClick = onSimilarClick,
                     similarImageUrls = similarImageUrls,
-                    onUserClick = onUserClick
+                    onUserClick = onUserClick,
+                    showContact = showContact,
                 )
             },
             sheetPeekHeight = peekHeight,
-            sheetContainerColor = Color.White,
+            sheetContainerColor = sheetBackground,
             sheetShadowElevation = 12.dp,
-            containerColor = Color.White,
+            containerColor = sheetBackground,
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.White)
+                .background(sheetBackground)
         ) {
-            HorizontalPager(
-                state = pagerState,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(IconInactive),
-            ) {
-                Column(modifier = Modifier.fillMaxHeight()) {
+            Column(modifier = Modifier.fillMaxSize()) {
+                HorizontalPager(
+                    state = pagerState,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(imageHeight)
+                        .background(IconInactive),
+                ) {
                     PdpImageBlurredBackground(
                         imageHeight = imageHeight,
                         bitmap = images[it]
                     )
-
-                    Spacer(modifier = Modifier.weight(1f))
                 }
+
+                Spacer(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth()
+                        .background(sheetBackground)
+                )
             }
         }
 
@@ -208,7 +249,7 @@ private fun Content(
                 onClick = onContactClick,
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
-                    .padding(bottom = 46.dp)
+                    .padding(bottom = ContactSellerBottomPadding)
                     .navigationBarsPadding(),
                 state = contactButtonState
             )
@@ -217,7 +258,7 @@ private fun Content(
         WhichPage(
             pagerState = pagerState,
             modifier = Modifier
-                .padding(bottom = sheetHeightFromBottom)
+                .padding(bottom = overlayBottomPadding)
                 .align(Alignment.BottomCenter)
         )
 
@@ -225,9 +266,9 @@ private fun Content(
             selected = bookmarked,
             onClick = onBookmarkClick,
             modifier = Modifier
-                .align(Alignment.BottomStart)
+                .align(Alignment.BottomEnd)
                 .defaultHorizontalPadding()
-                .padding(bottom = sheetHeightFromBottom)
+                .padding(bottom = overlayBottomPadding)
         )
     }
 }
@@ -257,7 +298,7 @@ private fun PdpImageBlurredBackground(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(imageHeight),
-            contentScale = ContentScale.FillWidth
+            contentScale = ContentScale.Crop
         )
     }
 }
@@ -303,41 +344,35 @@ private fun BottomSheetContent(
     username: String,
     paddingTop: Dp = 116.dp,
     similarImageUrls: ResellApiResponse<List<String>>,
-    onHeightChanged: (Dp) -> Unit,
     onSimilarClick: (Int) -> Unit,
     onUserClick: () -> Unit,
+    showContact: Boolean = false,
 ) {
-
-    // Get screen height
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
-    val density = LocalDensity.current
-
-    // Calculate maximum height for the sheet content based on padding from top
     val maxSheetHeight = screenHeight - paddingTop
+
+    // Clear the floating Contact Seller button: nav bars + ContactSellerBottomPadding
+    // + ~52.dp button itself + gap between button and similar items.
+    val navBottom = WindowInsets.navigationBars
+        .asPaddingValues()
+        .calculateBottomPadding()
+    val bottomClearance = if (showContact) {
+        navBottom + ContactSellerBottomPadding + ContactSellerButtonHeight + ContactSellerTopPadding
+    } else {
+        navBottom + 16.dp
+    }
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .background(Color.White)
-            .height(maxSheetHeight)
+            .heightIn(max = maxSheetHeight)
+            .verticalScroll(rememberScrollState())
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .defaultHorizontalPadding()
-                .onGloballyPositioned { layoutCoordinates ->
-                    val textPosition = layoutCoordinates.positionInRoot().y
-                    val textHeight = layoutCoordinates.size.height
-
-                    val screenHeightPx = with(density) { screenHeight.toPx() }
-
-                    // Calculate distance from bottom in px and convert to dp
-                    val distanceFromBottomPx = screenHeightPx - (textPosition + textHeight)
-                    val textDistanceFromBottom = with(density) { distanceFromBottomPx.toDp() }
-
-                    // Tell the parent that the height has changed.
-                    onHeightChanged(textDistanceFromBottom + 170.dp)
-                },
+                .defaultHorizontalPadding(),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
@@ -407,6 +442,8 @@ private fun BottomSheetContent(
                 )
             }
         }
+
+        Spacer(Modifier.height(bottomClearance))
     }
 }
 
