@@ -85,8 +85,8 @@ fun PostDetailPage(
 ) {
     val uiState = postDetailViewModel.collectUiStateValue()
 
-    // When the sheet is peeked (collapsed), the image may grow up to this fraction of the screen.
-    val imageProp = .75f
+    // Smaller value of imageProp results in less content being cut off
+    val imageProp = .70f
     val maxImageHeight = LocalConfiguration.current.screenHeightDp.dp * imageProp
 
     LaunchedEffect(uiState.hideSheetEvent) {
