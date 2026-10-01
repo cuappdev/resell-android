@@ -1,7 +1,6 @@
 package com.cornellappdev.resell.android.ui.components.main
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -26,12 +25,13 @@ import com.cornellappdev.resell.android.ui.theme.Secondary
 import com.cornellappdev.resell.android.ui.theme.Style
 
 @Composable
-fun EmptyForYouComponent() {
+fun EmptySavedComponent(
+    modifier: Modifier
+) {
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .background(color = Color.White, shape = RoundedCornerShape(8.dp))
-            .border(width = 1.dp, color = Secondary, shape = RoundedCornerShape(8.dp))
             .padding(vertical = 32.dp, horizontal = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
@@ -68,6 +68,8 @@ fun EmptyForYouComponent() {
 
 @Preview
 @Composable
-private fun EmptyForYouComponentPreview() = ResellPreview {
-    EmptyForYouComponent()
+private fun EmptySavedComponentPreview() = ResellPreview {
+    EmptySavedComponent(
+        modifier = Modifier
+    )
 }
