@@ -9,9 +9,39 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.Query
 import kotlinx.coroutines.tasks.await
+import java.time.Instant
+import java.time.OffsetDateTime
+import java.util.Date
 import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
+
+/**
+ * Reads a date out of a raw Firestore field, tolerating every shape the backend has stored one in.
+ * Returns null rather than throwing on an unrecognized shape because this runs inside a
+ * snapshot listener on the main thread, where an exception takes down the whole app.
+ */
+private fun parseFirestoreDate(value: Any?): Timestamp? =
+    when (value) {
+        null -> null
+        is Timestamp -> value
+        is Date -> Timestamp(value)
+
+        is String -> runCatching { OffsetDateTime.parse(value).toInstant() }
+            .recoverCatching { Instant.parse(value) }
+            .getOrNull()
+            ?.let { Timestamp(it.epochSecond, it.nano) }
+
+        is Map<*, *> -> (value["seconds"] as? Number)?.toLong()?.let { seconds ->
+            val nanos = (value["nanoseconds"] as? Number ?: value["nanos"] as? Number)?.toInt() ?: 0
+            Timestamp(seconds, nanos)
+        }
+
+        else -> {
+            Log.w("FireStoreRepository", "Unrecognized date shape: ${value::class.java.name}")
+            null
+        }
+    }
 
 @Singleton
 class FireStoreRepository @Inject constructor(
@@ -81,6 +111,7 @@ class FireStoreRepository @Inject constructor(
             }
 
             val messages = snapshot.documents.mapNotNull {
+                runCatching {
                 val docs = mutableListOf<ChatDocument>()
                 val images = it.get("images") as? List<String>
                 // Separate image message into separate messages
@@ -122,38 +153,16 @@ class FireStoreRepository @Inject constructor(
                     }
                 } else {
 
-                    val avail = (it.get("availabilities") as? List<Map<String, *>>)?.map {
-                        val startMap = it["startDate"] as Map<*, *>
-                        val startTime = Timestamp(
-                            (startMap["seconds"] as Number).toLong(),
-                            (startMap["nanoseconds"] as Number).toInt()
-                        )
-                        val endMap = it["endDate"] as Map<*, *>
-                        val endTime = Timestamp(
-                            (endMap["seconds"] as Number).toLong(),
-                            (endMap["nanoseconds"] as Number).toInt()
-                        )
-                        StartAndEnd(
-                            startDate = startTime,
-                            endDate = endTime
-                        )
+                    val avail = (it.get("availabilities") as? List<*>)?.mapNotNull { entry ->
+                        val block = entry as? Map<*, *> ?: return@mapNotNull null
+                        val start = parseFirestoreDate(block["startDate"])
+                        val end = parseFirestoreDate(block["endDate"])
+                        if (start == null || end == null) null else StartAndEnd(start, end)
                     }
 
                     // Create nullable start and end times, if they exist
-                    val startMap = it.get("startDate") as Map<*, *>?
-                    val startTime = startMap?.let {
-                        Timestamp(
-                            (startMap["seconds"] as Number).toLong(),
-                            (startMap["nanoseconds"] as Number).toInt()
-                        )
-                    }
-                    val endMap = it.get("endDate") as Map<*, *>?
-                    val endTime = endMap?.let {
-                        Timestamp(
-                            (endMap["seconds"] as Number).toLong(),
-                            (endMap["nanoseconds"] as Number).toInt()
-                        )
-                    }
+                    val startTime = parseFirestoreDate(it.get("startDate"))
+                    val endTime = parseFirestoreDate(it.get("endDate"))
                     val chatDoc = ChatDocument(
                         id = it.id,
                         timestamp = it.getTimestamp("timestamp") ?: Timestamp(0, 0),
@@ -171,7 +180,10 @@ class FireStoreRepository @Inject constructor(
 
                     docs += chatDoc
                 }
-                docs
+                docs.toList()
+                }.onFailure { e ->
+                    Log.e("FireStoreRepository", "Skipping unparseable chat message", e)
+                }.getOrNull()
             }.flatten()
             onSnapshotUpdate(messages)
         }
