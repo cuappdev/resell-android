@@ -266,3 +266,19 @@ private fun AvailabilityGrid_RUNME_Preview() = ResellPreview {
         )
     }
 }
+
+/** Test if availability grid can show days from two separate months */
+@Preview
+@Composable
+private fun SelectableAvailabilityGridRolloverPreview() = ResellPreview {
+    val rolloverDates = dayGroupContaining(LocalDate.of(2026, 10, 31))
+    var selectedAvailabilities by remember { mutableStateOf(testAvailabilities(rolloverDates)) }
+    SelectableAvailabilityGrid(
+        dates = rolloverDates,
+        selectedAvailabilities = selectedAvailabilities,
+        setSelectedAvailabilities = { selectedAvailabilities = it },
+        modifier = Modifier.fillMaxSize(),
+        gridSelectionType = GridSelectionType.AVAILABILITY,
+        onProposalSelected = {}
+    )
+}

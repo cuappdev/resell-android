@@ -65,7 +65,7 @@ fun ViewOnlyAvailabilityGrid(
             onSelectAvailability(
                 LocalDateTime.of(
                     dates[col],
-                    gridStartTime.plusMinutes(30L * row)
+                    gridStartTime.plusMinutes(SLOT_DURATION_MINUTES.toLong() * row)
                 )
             )
         })

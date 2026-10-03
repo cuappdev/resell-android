@@ -33,6 +33,9 @@ val Warning = Color(0xFFF20000)
 val Venmo = Color(0xFF3D95CE)
 val Overlay = Color(0xEEEDEDED)
 
+val AvailabilityPanelBackground = Color(0xFFF7F3F9)
+val AvailabilitySelectedDate = Color(0xFFE4E0E8)
+
 val LoginBlurBrushStart = Brush.radialGradient(
     colors = listOf(
         Color(0x338F00FF),
