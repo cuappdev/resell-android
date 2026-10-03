@@ -13,6 +13,7 @@ import com.cornellappdev.resell.android.model.chats.AvailabilityDocument
 import com.cornellappdev.resell.android.model.chats.ChatDocument
 import com.cornellappdev.resell.android.model.chats.ChatHeaderData
 import com.cornellappdev.resell.android.model.chats.MeetingInfo
+import com.cornellappdev.resell.android.model.chats.MeetingState
 import com.cornellappdev.resell.android.model.chats.RawChatHeaderData
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.model.core.UserInfoRepository
@@ -212,14 +213,16 @@ class ChatRepository @Inject constructor(
                 val meetingInfo = document.startDate?.let {
                     MeetingInfo(
                         proposeTime = it,
-                        state = if (document.accepted == true) {
-                            "confirmed"
+                        // Cancellation is checked first so a cancel document that carried over
+                        // `accepted = true` from the confirmation is correctly canceled instead.
+                        state = if (document.cancellation == true) {
+                            MeetingState.CANCELED
+                        } else if (document.accepted == true) {
+                            MeetingState.CONFIRMED
                         } else if (document.accepted == false) {
-                            "declined"
-                        } else if (document.cancellation == true) {
-                            "canceled"
+                            MeetingState.DECLINED
                         } else {
-                            "proposed"
+                            MeetingState.PROPOSED
                         },
                         mostRecent = false
                     )
@@ -379,41 +382,13 @@ class ChatRepository @Inject constructor(
         document: ChatDocument,
         myId: String,
         otherName: String
-    ) = when (meetingInfo.state) {
-        "proposed" -> {
-            if (document.senderId == myId) {
-                "You proposed a new meeting"
-            } else {
-                "$otherName proposed a new meeting"
-            }
-        }
-
-        "confirmed" -> {
-            if (document.senderId == myId) {
-                "You accepted a new meeting"
-            } else {
-                "$otherName accepted a new meeting"
-            }
-        }
-
-        "declined" -> {
-            if (document.senderId == myId) {
-                "You declined the meeting proposal"
-            } else {
-                "$otherName declined the meeting proposal"
-            }
-        }
-
-        "canceled" -> {
-            if (document.senderId == myId) {
-                "You canceled the meeting"
-            } else {
-                "$otherName canceled the meeting"
-            }
-        }
-
-        else -> {
-            ""
+    ): String {
+        val actor = if (document.senderId == myId) "You" else otherName
+        return when (meetingInfo.state) {
+            MeetingState.PROPOSED -> "$actor proposed a new meeting"
+            MeetingState.CONFIRMED -> "$actor accepted a new meeting"
+            MeetingState.DECLINED -> "$actor declined the meeting proposal"
+            MeetingState.CANCELED -> "$actor canceled the meeting"
         }
     }
 
@@ -428,6 +403,13 @@ class ChatRepository @Inject constructor(
         imageUrls: List<String>,
         chatId: String,
     ) {
+        // A chat has two distinct participants. If the two ids are the same,
+        // fail here where the message names the cause, rather than
+        // shipping a malformed request.
+        require(myId.isNotBlank() && otherId.isNotBlank() && myId != otherId) {
+            "Malformed chat participants: myId='$myId' otherId='$otherId'"
+        }
+
         val buyerId = if (selfIsBuyer) myId else otherId
         val sellerId = if (selfIsBuyer) otherId else myId
 
@@ -462,7 +444,7 @@ class ChatRepository @Inject constructor(
         } else if (meetingInfo != null) {
 
             when (meetingInfo.state) {
-                "proposed" -> {
+                MeetingState.PROPOSED -> {
                     retrofitInstance.chatApi.sendProposal(
                         proposalBody = ProposalBody(
                             buyerId = buyerId,
@@ -476,7 +458,7 @@ class ChatRepository @Inject constructor(
                     )
                 }
 
-                "confirmed", "declined" -> {
+                MeetingState.CONFIRMED, MeetingState.DECLINED -> {
                     retrofitInstance.chatApi.sendProposalResponse(
                         proposalResponseBody = ProposalResponseBody(
                             buyerId = buyerId,
@@ -485,13 +467,13 @@ class ChatRepository @Inject constructor(
                             senderId = myId,
                             startDate = meetingInfo.proposeTime,
                             endDate = meetingInfo.endTime,
-                            accepted = meetingInfo.state == "confirmed"
+                            accepted = meetingInfo.state == MeetingState.CONFIRMED
                         ),
                         chatId = chatId
                     )
                 }
 
-                "canceled" -> {
+                MeetingState.CANCELED -> {
                     retrofitInstance.chatApi.sendProposalCancel(
                         proposalCancelBody = ProposalCancelBody(
                             buyerId = buyerId,

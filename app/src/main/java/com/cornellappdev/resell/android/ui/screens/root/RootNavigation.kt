@@ -25,6 +25,7 @@ import com.cornellappdev.resell.android.ui.components.submitted.ConfettiOverlay
 import com.cornellappdev.resell.android.ui.screens.externalprofile.ExternalProfileNavigation
 import com.cornellappdev.resell.android.ui.screens.feedback.FeedbackNavigation
 import com.cornellappdev.resell.android.ui.screens.main.AllSearchScreen
+import com.cornellappdev.resell.android.ui.screens.main.AvailabilityScreen
 import com.cornellappdev.resell.android.ui.screens.main.ChatScreen
 import com.cornellappdev.resell.android.ui.screens.main.MainTabNavigation
 import com.cornellappdev.resell.android.ui.screens.main.NotificationsHubScreen
@@ -179,6 +180,10 @@ fun RootNavigation(
         composable<ResellRootRoute.NOTIFS> {
             NotificationsHubScreen()
         }
+
+        composable<ResellRootRoute.AVAILABILITY> {
+            AvailabilityScreen()
+        }
     }
 
     RootConfirmationOverlay()
@@ -281,4 +286,7 @@ sealed class ResellRootRoute {
 
     @Serializable
     data object NOTIFS : ResellRootRoute()
+
+    @Serializable
+    data object AVAILABILITY : ResellRootRoute()
 }

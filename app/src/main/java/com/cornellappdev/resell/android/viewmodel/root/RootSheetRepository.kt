@@ -72,7 +72,15 @@ sealed class RootSheet {
         val title: String,
         val description: String,
         val callback: (List<LocalDateTime>) -> Unit,
-        val gridSelectionType: GridSelectionType
+        val gridSelectionType: GridSelectionType,
+        /**
+         * When non-null, cells NOT in this list are greyed out on the grid — e.g. the
+         * intersection of both chat participants' saved availability, so only times that
+         * work for both show as normal/white. Null means this feature isn't used.
+         */
+        val overlapTimes: List<LocalDateTime>? = null,
+        /** When non-null, shows an "Edit Availability" link next to the description. */
+        val onEditAvailability: (() -> Unit)? = null,
     ) : RootSheet()
 
     data class MeetingCancel(
