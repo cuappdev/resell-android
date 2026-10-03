@@ -15,16 +15,12 @@ val LocalDateTime.day: Long get() = ChronoUnit.DAYS.between(LocalDate.ofEpochDay
 
 val LocalDate.day: Long get() = ChronoUnit.DAYS.between(LocalDate.ofEpochDay(0), this)
 
-fun Timestamp.toIsoString(): String {
-    // Convert Firebase Timestamp to Date
-    val date = this.toDate()
-
-    // Format Date to ISO 8601 string
-    val isoFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
-    isoFormat.timeZone = TimeZone.getTimeZone("UTC") // Ensure the output is in UTC
-
-    return isoFormat.format(date)
-}
+/**
+ * Formats as a UTC ISO-8601 instant, e.g. `2026-09-28T20:30:00Z`.
+ * Uses [java.time.Instant] rather than [SimpleDateFormat] so the result can't vary with the
+ * device locale.
+ */
+fun Timestamp.toIsoString(): String = toDate().toInstant().toString()
 
 /**
  * Returns the MONTH DAY, YEAR format.
