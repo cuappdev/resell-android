@@ -2,6 +2,7 @@ package com.cornellappdev.resell.android.ui.screens.main
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -63,7 +64,7 @@ import com.cornellappdev.resell.android.model.classes.UserInfo
 import com.cornellappdev.resell.android.ui.components.global.AnimatedClampedAsyncImage
 import com.cornellappdev.resell.android.ui.components.global.resellListingScroll
 import com.cornellappdev.resell.android.ui.components.global.resellLoadingListingScroll
-import com.cornellappdev.resell.android.ui.components.main.EmptyForYouComponent
+import com.cornellappdev.resell.android.ui.components.main.EmptySavedComponent
 import com.cornellappdev.resell.android.ui.components.main.FilterBottomSheet
 import com.cornellappdev.resell.android.ui.components.main.ForYouComponent
 import com.cornellappdev.resell.android.ui.components.nav.NAVBAR_HEIGHT
@@ -450,7 +451,13 @@ private fun ForYouRow(
     }
 
     if (savedImages.isEmpty()) {
-        EmptyForYouComponent()
+        EmptySavedComponent(
+            modifier = Modifier.border(
+                width = 1.dp,
+                color = Secondary,
+                shape = RoundedCornerShape(8.dp)
+            )
+        )
     } else {
         LazyRow(
             horizontalArrangement = Arrangement.spacedBy(16.dp),
@@ -462,7 +469,7 @@ private fun ForYouRow(
                     text = "Your saved items",
                     amount = savedListings.size,
                     images = savedImages,
-                    onClick = onSavedPressed
+                    onClick = onSavedPressed,
                 )
             }
 

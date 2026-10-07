@@ -36,7 +36,6 @@ import com.cornellappdev.resell.android.ui.theme.animateResellBrush
 fun NavBar(
     selectedTab: ResellMainScreen,
     onHomeClick: () -> Unit,
-    onBookmarksClick: () -> Unit,
     onMessagesClick: () -> Unit,
     onUserClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -50,9 +49,6 @@ fun NavBar(
                 {}
             } else onHomeClick,
             selectedTab = selectedTab,
-            onBookmarksClick = if (!enabled) {
-                {}
-            } else onBookmarksClick,
             onMessagesClick = if (!enabled) {
                 {}
             } else onMessagesClick,
@@ -77,7 +73,6 @@ const val NAVBAR_HEIGHT = 55
 private fun NavBarContent(
     onHomeClick: () -> Unit,
     selectedTab: ResellMainScreen,
-    onBookmarksClick: () -> Unit,
     onMessagesClick: () -> Unit,
     onUserClick: () -> Unit,
 ) {
@@ -110,17 +105,6 @@ private fun NavBarContent(
                     ) { onHomeClick() }
                     .size(27.dp),
                 brush = animateResellBrush(targetGradient = selectedTab == ResellMainScreen.Home)
-            )
-            BrushIcon(
-                painter = painterResource(id = R.drawable.ic_bookmark),
-                contentDescription = "bookmarks",
-                modifier = Modifier
-                    .clickable(
-                        indication = null,
-                        interactionSource = interactionSource
-                    ) { onBookmarksClick() }
-                    .size(27.dp),
-                brush = animateResellBrush(targetGradient = selectedTab == ResellMainScreen.Bookmarks)
             )
             BrushIcon(
                 painter = painterResource(id = R.drawable.ic_messages),
@@ -156,7 +140,6 @@ private fun NavBarPreview() {
 
     NavBar(
         onHomeClick = { selectedTab.value = ResellMainScreen.Home },
-        onBookmarksClick = { selectedTab.value = ResellMainScreen.Bookmarks },
         onMessagesClick = { selectedTab.value = ResellMainScreen.Messages },
         onUserClick = { selectedTab.value = ResellMainScreen.User },
         selectedTab = selectedTab.value
