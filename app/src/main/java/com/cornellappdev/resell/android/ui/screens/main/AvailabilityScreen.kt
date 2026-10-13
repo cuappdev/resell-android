@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -40,6 +41,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.resell.android.R
+import com.cornellappdev.resell.android.ui.components.availability.helper.AvailabilityFilters
 import com.cornellappdev.resell.android.ui.components.availability.helper.GridSelectionType
 import com.cornellappdev.resell.android.ui.components.availability.helper.MonthCalendar
 import com.cornellappdev.resell.android.ui.components.availability.helper.dayGroupContaining
@@ -57,10 +59,12 @@ import java.time.format.DateTimeFormatter
 
 private enum class AvailabilityPanel {
     NONE,
+//    FILTERS,
     CALENDAR
 }
 
 // TODO: need to test this Screen once upstream Screen is fully implemented and networked (ProfileScreen)
+// TODO: Figure out if availability filters need to be deleted or just stashed for later
 @Composable
 fun AvailabilityScreen(
     availabilityViewModel: AvailabilityViewModel = hiltViewModel()
@@ -193,6 +197,11 @@ fun AvailabilityScreenContent(
                                 onDaysSelected = onSetVisibleDates,
                                 modifier = Modifier.fillMaxWidth(),
                             )
+//                            AvailabilityPanel.FILTERS -> AvailabilityFilters(
+//                                modifier = Modifier
+//                                    .fillMaxWidth()
+//                                    .heightIn(max = 320.dp),
+//                            )
                             AvailabilityPanel.NONE -> Unit
                         }
                     }
@@ -232,6 +241,10 @@ fun AvailabilityScreenPreview() {
             selectedAvailabilities = emptySet(),
             currentMonth = YearMonth.of(2026, 4),
             visibleDates = dayGroupContaining(LocalDate.of(2026, 4, 1)),
+            googleCalendarEnabled = false,
+            availabilitySharingEnabled = false,
+            subCalendars = listOf("Personal", "Youtube", "Leetcode", "Capra"),
+            enabledSubCalendars = emptySet(),
             isLoading = false,
             saveSuccess = false,
             errorMessage = null,

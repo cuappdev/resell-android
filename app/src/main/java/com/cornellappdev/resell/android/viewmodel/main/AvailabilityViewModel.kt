@@ -26,6 +26,15 @@ class AvailabilityViewModel @Inject constructor(
         val currentMonth: YearMonth = YearMonth.now(),
         val visibleDates: List<LocalDate> = dayGroupContaining(YearMonth.now().atDay(1)),
 
+        // TODO: googleCalendarEnabled and availabilitySharingEnabled are not yet wired in.
+        //  Need to check how/where it is in the backend
+        val googleCalendarEnabled: Boolean = false,
+        val availabilitySharingEnabled: Boolean = false,
+
+        // TODO: subCalendars should come from Google Calendar API, not hardcoded.
+        val subCalendars: List<String> = emptyList(),
+        val enabledSubCalendars: Set<String> = emptySet(),
+
         val isLoading: Boolean = false,
         val saveSuccess: Boolean = false,
         val errorMessage: String? = null,
@@ -56,6 +65,23 @@ class AvailabilityViewModel @Inject constructor(
 
     fun setVisibleDates(dates: List<LocalDate>) {
         applyMutation { copy(visibleDates = dates) }
+    }
+
+    fun setGoogleCalendarEnabled(enabled: Boolean) {
+        // TODO: may need an OAuth scope check before enabling
+        applyMutation { copy(googleCalendarEnabled = enabled) }
+    }
+
+    fun setAvailabilitySharingEnabled(enabled: Boolean) {
+        applyMutation { copy(availabilitySharingEnabled = enabled) }
+    }
+
+    fun setSubCalendarEnabled(calendarName: String, enabled: Boolean) {
+        applyMutation {
+            val updated = if (enabled) enabledSubCalendars + calendarName
+            else enabledSubCalendars - calendarName
+            copy(enabledSubCalendars = updated)
+        }
     }
 
     private fun loadAvailability() {
