@@ -40,7 +40,6 @@ class AvailabilityViewModel @Inject constructor(
     /**
      * The grid only shows and edits 3 days at a time, so [windowSlots] only contains slots for
      * those days. Merge it in rather than overwriting [AvailabilityUiState.selectedAvailabilities]
-     * outright, or every other day's saved availability would be lost.
      */
     fun setSelectedAvailabilities(windowSlots: Set<LocalDateTime>) {
         applyMutation {

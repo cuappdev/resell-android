@@ -60,7 +60,6 @@ private enum class AvailabilityPanel {
     CALENDAR
 }
 
-// TODO: need to test this Screen once upstream Screen is fully implemented and networked (ProfileScreen)
 @Composable
 fun AvailabilityScreen(
     availabilityViewModel: AvailabilityViewModel = hiltViewModel()
