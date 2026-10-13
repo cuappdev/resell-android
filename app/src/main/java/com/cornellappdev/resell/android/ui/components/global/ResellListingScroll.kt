@@ -2,8 +2,10 @@ package com.cornellappdev.resell.android.ui.components.global
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridLayoutInfo
 import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridScope
 import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
@@ -33,20 +35,17 @@ fun ResellListingsScroll(
     header: @Composable () -> Unit = {},
     onScrollBottom: () -> Unit = {},
     footer: @Composable () -> Unit = {},
+    bottomLoading: Boolean = false,
 ) {
     if (listings.isEmpty()) {
         emptyState()
         return
     }
 
-    // Check if last visible item is the last in the list
+    // Check if the last real listing item is visible
     LaunchedEffect(listState) {
         snapshotFlow { listState.layoutInfo }
-            .map { layoutInfo ->
-                // -1 to account for the header and footer
-                val lastVisibleItemIndex = layoutInfo.visibleItemsInfo.lastOrNull()?.index
-                lastVisibleItemIndex == layoutInfo.totalItemsCount - 1
-            }
+            .map { layoutInfo -> layoutInfo.isItemWithKeyVisible(listings.lastOrNull()?.id) }
             .distinctUntilChanged()
             .collect { isAtBottom ->
                 if (isAtBottom) {
@@ -69,21 +68,24 @@ fun ResellListingsScroll(
         item(span = StaggeredGridItemSpan.FullLine) {
             header()
         }
-        resellListingScroll(listings, onListingPressed, footer)
+        resellListingScroll(listings, onListingPressed, footer, bottomLoading = bottomLoading)
     }
 }
 
 fun calculateItemPadding(addVerticalPadding: Boolean): PaddingValues =
     if (addVerticalPadding) PaddingValues(bottom = 24.dp) else PaddingValues()
 
+fun LazyStaggeredGridLayoutInfo.isItemWithKeyVisible(key: Any?): Boolean =
+    key != null && visibleItemsInfo.any { it.key == key }
 
 fun LazyStaggeredGridScope.resellListingScroll(
     listings: List<Listing>,
     onListingPressed: (Listing) -> Unit,
     footer: @Composable () -> Unit = {},
-    addVerticalPadding: Boolean = false
+    addVerticalPadding: Boolean = false,
+    bottomLoading: Boolean = false,
 ) {
-    itemsIndexed(items = listings) { _, item ->
+    itemsIndexed(items = listings, key = { _, item -> item.id }) { _, item ->
         val padding = calculateItemPadding(addVerticalPadding)
         ResellCard(
             imageUrl = item.image,
@@ -93,6 +95,9 @@ fun LazyStaggeredGridScope.resellListingScroll(
         ) {
             onListingPressed(item)
         }
+    }
+    if (bottomLoading) {
+        resellLoadingListingScroll(numCards = 2, addVerticalPadding = addVerticalPadding)
     }
     item(span = StaggeredGridItemSpan.FullLine) {
         footer()

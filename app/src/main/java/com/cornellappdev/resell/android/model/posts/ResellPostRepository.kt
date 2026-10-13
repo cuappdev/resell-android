@@ -59,8 +59,8 @@ class ResellPostRepository @Inject constructor(
         return posts
     }
 
-    suspend fun getFilteredPosts(filter: ResellFilter): List<Post> {
-        return retrofitInstance.postsApi.getFilteredPosts(filter.toFilterRequest()).posts
+    suspend fun getFilteredPosts(filter: ResellFilter, page: Int = 1, limit: Int = 10): List<Post> {
+        return retrofitInstance.postsApi.getFilteredPosts(filter.toFilterRequest(), page = page, size = limit).posts
 
     }
 

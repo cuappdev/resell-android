@@ -21,6 +21,8 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import javax.inject.Inject
 
+private const val HOME_PAGE_SIZE = 10
+
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val rootNavigationRepository: RootNavigationRepository,
@@ -38,7 +40,9 @@ class HomeViewModel @Inject constructor(
             savedImageResponses = emptyList(),
             searchedImageResponses = emptyList(),
             page = 1,
-            bottomLoading = false
+            bottomLoading = false,
+            endReached = false,
+            isDefaultFeed = true
         )
     ) {
 
@@ -51,6 +55,8 @@ class HomeViewModel @Inject constructor(
         val activeFilter: ResellFilter,
         val page: Int,
         val bottomLoading: Boolean,
+        val endReached: Boolean,
+        val isDefaultFeed: Boolean,
         val savedImageResponses: List<MutableState<ResellApiResponse<ImageBitmap>>>,
         val searchedImageResponses: List<MutableState<ResellApiResponse<ImageBitmap>>>
     )
@@ -118,11 +124,14 @@ class HomeViewModel @Inject constructor(
     private fun getPosts(filter: ResellFilter) {
         viewModelScope.launch {
             try {
-                val posts = resellPostRepository.getFilteredPosts(filter)
+                val posts = resellPostRepository.getFilteredPosts(filter, page = 1, limit = HOME_PAGE_SIZE)
                 applyMutation {
                     copy(
                         listings = posts.map { it.toListing() },
-                        loadedState = ResellApiState.Success
+                        loadedState = ResellApiState.Success,
+                        page = 1,
+                        endReached = posts.size < HOME_PAGE_SIZE,
+                        isDefaultFeed = false
                     )
                 }
             } catch (e: Exception) {
@@ -138,11 +147,14 @@ class HomeViewModel @Inject constructor(
     private fun getNewlyListedPosts() {
         viewModelScope.launch {
             try {
-                val posts = resellPostRepository.getNewlyListedPosts()
+                val posts = resellPostRepository.getNewlyListedPosts(page = 1, limit = HOME_PAGE_SIZE)
                 applyMutation {
                     copy(
                         listings = posts.map { it.toListing() },
-                        loadedState = ResellApiState.Success
+                        loadedState = ResellApiState.Success,
+                        page = 1,
+                        endReached = posts.size < HOME_PAGE_SIZE,
+                        isDefaultFeed = true
                     )
                 }
             } catch (e: Exception) {
@@ -151,6 +163,33 @@ class HomeViewModel @Inject constructor(
                         loadedState = ResellApiState.Error
                     )
                 }
+            }
+        }
+    }
+
+    fun onScrollBottom() {
+        val state = uiStateFlow.value
+        if (state.bottomLoading || state.endReached || state.loadedState !is ResellApiState.Success) return
+
+        applyMutation { copy(bottomLoading = true) }
+        viewModelScope.launch {
+            try {
+                val nextPage = state.page + 1
+                val posts = if (state.isDefaultFeed) {
+                    resellPostRepository.getNewlyListedPosts(page = nextPage, limit = HOME_PAGE_SIZE)
+                } else {
+                    resellPostRepository.getFilteredPosts(state.activeFilter, page = nextPage, limit = HOME_PAGE_SIZE)
+                }
+                applyMutation {
+                    copy(
+                        listings = listings + posts.map { it.toListing() },
+                        page = nextPage,
+                        endReached = posts.size < HOME_PAGE_SIZE,
+                        bottomLoading = false
+                    )
+                }
+            } catch (e: Exception) {
+                applyMutation { copy(bottomLoading = false) }
             }
         }
     }

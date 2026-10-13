@@ -1,5 +1,6 @@
 package com.cornellappdev.resell.android.viewmodel.main
 
+import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.cornellappdev.resell.android.model.classes.Listing
@@ -15,6 +16,8 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import javax.inject.Inject
 
+private const val CATEGORY_PAGE_SIZE = 10
+
 @HiltViewModel
 class CategoryViewModel @Inject constructor(
     private val rootNavigationRepository: RootNavigationRepository,
@@ -24,13 +27,19 @@ class CategoryViewModel @Inject constructor(
     initialUiState = CategoryUiState(
         loadedState = ResellApiState.Loading,
         listings = emptyList(),
-        filter = ResellFilter()
+        filter = ResellFilter(),
+        page = 1,
+        bottomLoading = false,
+        endReached = false
     )
 ) {
     data class CategoryUiState(
         val loadedState: ResellApiState,
         val listings: List<Listing>,
-        val filter: ResellFilter
+        val filter: ResellFilter,
+        val page: Int,
+        val bottomLoading: Boolean,
+        val endReached: Boolean
     )
 
     init {
@@ -65,11 +74,14 @@ class CategoryViewModel @Inject constructor(
 
         viewModelScope.launch {
             try {
-                val posts = resellPostRepository.getFilteredPosts(filter)
+                val posts =
+                    resellPostRepository.getFilteredPosts(filter, page = 1, limit = CATEGORY_PAGE_SIZE)
                 applyMutation {
                     copy(
                         listings = posts.map { it.toListing() },
-                        loadedState = ResellApiState.Success
+                        loadedState = ResellApiState.Success,
+                        page = 1,
+                        endReached = posts.size < CATEGORY_PAGE_SIZE
                     )
                 }
             } catch (_: Exception) {
@@ -78,6 +90,33 @@ class CategoryViewModel @Inject constructor(
                         loadedState = ResellApiState.Error
                     )
                 }
+            }
+        }
+    }
+
+    fun onScrollBottom() {
+        val state = uiStateFlow.value
+        if (state.bottomLoading || state.endReached || state.loadedState !is ResellApiState.Success) return
+
+        applyMutation { copy(bottomLoading = true) }
+        viewModelScope.launch {
+            try {
+                val nextPage = state.page + 1
+                val posts = resellPostRepository.getFilteredPosts(
+                    state.filter,
+                    page = nextPage,
+                    limit = CATEGORY_PAGE_SIZE
+                )
+                applyMutation {
+                    copy(
+                        listings = listings + posts.map { it.toListing() },
+                        page = nextPage,
+                        endReached = posts.size < CATEGORY_PAGE_SIZE,
+                        bottomLoading = false
+                    )
+                }
+            } catch (_: Exception) {
+                applyMutation { copy(bottomLoading = false) }
             }
         }
     }

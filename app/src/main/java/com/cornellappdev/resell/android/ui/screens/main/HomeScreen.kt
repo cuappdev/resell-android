@@ -24,8 +24,10 @@ import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridScope
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
+import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
@@ -37,6 +39,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -61,6 +64,7 @@ import com.cornellappdev.resell.android.model.classes.ResellApiState
 import com.cornellappdev.resell.android.model.classes.ResellFilter
 import com.cornellappdev.resell.android.model.classes.UserInfo
 import com.cornellappdev.resell.android.ui.components.global.AnimatedClampedAsyncImage
+import com.cornellappdev.resell.android.ui.components.global.isItemWithKeyVisible
 import com.cornellappdev.resell.android.ui.components.global.resellListingScroll
 import com.cornellappdev.resell.android.ui.components.global.resellLoadingListingScroll
 import com.cornellappdev.resell.android.ui.components.main.FilterBottomSheet
@@ -72,6 +76,8 @@ import com.cornellappdev.resell.android.ui.theme.ResellPreview
 import com.cornellappdev.resell.android.ui.theme.Style
 import com.cornellappdev.resell.android.util.defaultHorizontalPadding
 import com.cornellappdev.resell.android.viewmodel.main.HomeViewModel
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -116,6 +122,8 @@ fun HomeScreen(
         loadedState = homeUiState.loadedState,
         filteredListings = homeUiState.listings,
         onListingPressed = homeViewModel::onListingPressed,
+        bottomLoading = homeUiState.bottomLoading,
+        onScrollBottom = homeViewModel::onScrollBottom,
         savedImagesResponses = homeUiState.savedImageResponses,
         searchedImageResponses = homeUiState.searchedImageResponses,
         onDismissRequest = {
@@ -145,6 +153,8 @@ private fun HomeScreenHelper(
     loadedState: ResellApiState,
     filteredListings: List<Listing>,
     onListingPressed: (Listing) -> Unit,
+    bottomLoading: Boolean = false,
+    onScrollBottom: () -> Unit = {},
     savedImagesResponses: List<MutableState<ResellApiResponse<ImageBitmap>>>,
     searchedImageResponses: List<MutableState<ResellApiResponse<ImageBitmap>>>,
     onDismissRequest: () -> Unit
@@ -176,6 +186,8 @@ private fun HomeScreenHelper(
             loadedState = loadedState,
             filteredListings = filteredListings,
             onListingPressed = onListingPressed,
+            bottomLoading = bottomLoading,
+            onScrollBottom = onScrollBottom,
             savedImagesResponses = savedImagesResponses,
             searchedImageResponses = searchedImageResponses
         )
@@ -244,11 +256,28 @@ private fun MainContent(
     onCategoryPressed: (ResellFilter.FilterCategory) -> Unit,
     filteredListings: List<Listing>,
     onListingPressed: (Listing) -> Unit,
+    bottomLoading: Boolean = false,
+    onScrollBottom: () -> Unit = {},
     savedImagesResponses: List<MutableState<ResellApiResponse<ImageBitmap>>>,
     searchedImageResponses: List<MutableState<ResellApiResponse<ImageBitmap>>>,
 ) {
     val preview = LocalInspectionMode.current
+    val listState = rememberLazyStaggeredGridState()
+
+    // Check if the last real listing item is visible
+    LaunchedEffect(listState) {
+        snapshotFlow { listState.layoutInfo }
+            .map { layoutInfo -> layoutInfo.isItemWithKeyVisible(filteredListings.lastOrNull()?.id) }
+            .distinctUntilChanged()
+            .collect { isAtBottom ->
+                if (isAtBottom) {
+                    onScrollBottom()
+                }
+            }
+    }
+
     LazyVerticalStaggeredGrid(
+        state = listState,
         modifier = Modifier
             .defaultHorizontalPadding()
             .fillMaxWidth(),
@@ -276,6 +305,7 @@ private fun MainContent(
             loadedState = loadedState,
             filteredListings = filteredListings,
             onListingPressed = onListingPressed,
+            bottomLoading = bottomLoading,
             preview = preview
         )
     }
@@ -541,6 +571,7 @@ private fun LazyStaggeredGridScope.recentListings(
     loadedState: ResellApiState,
     filteredListings: List<Listing>,
     onListingPressed: (Listing) -> Unit,
+    bottomLoading: Boolean = false,
     preview: Boolean = false
 ) {
     item(span = StaggeredGridItemSpan.FullLine) {
@@ -567,8 +598,11 @@ private fun LazyStaggeredGridScope.recentListings(
                 resellListingScroll(
                     listings = filteredListings,
                     onListingPressed = onListingPressed,
-                    addVerticalPadding = true
+                    addVerticalPadding = true,
                 )
+                if (bottomLoading) {
+                    resellLoadingListingScroll(numCards = 2, addVerticalPadding = true)
+                }
             }
         }
 
