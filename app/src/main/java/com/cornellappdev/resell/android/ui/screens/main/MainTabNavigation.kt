@@ -55,8 +55,11 @@ fun MainTabNavigation(
     val currentTab =
         navDestination?.destination?.route?.toResellMainScreen() ?: ResellMainScreen.Home
 
-    fun navigateToTab(tab: ResellMainScreen) {
-        if (currentTab != tab) {
+    fun navigateToTab(
+        tab: ResellMainScreen,
+        reloadAllowed: Boolean = false,
+    ) {
+        if (currentTab != tab || reloadAllowed) {
             mainNav.navigate(tab)
         }
     }
@@ -130,7 +133,7 @@ fun MainTabNavigation(
         ) {
             NavBar(
                 onHomeClick = {
-                    mainNav.navigate(ResellMainScreen.Home)
+                    navigateToTab(ResellMainScreen.Home, reloadAllowed = true)
                 },
                 onMessagesClick = {
                     navigateToTab(ResellMainScreen.Messages)
