@@ -37,7 +37,7 @@ class AvailabilityRepository @Inject constructor(
     }
 }
 
-// The backend stores/returns dates as UTC instants (e.g. "2026-01-23T16:00:00.000Z"), so
-// device-local wall-clock times must be converted to an instant before sending.
+// The backend stores/returns dates as UTC instants (e.g. "2026-01-23T16:00:00.000Z"),
+// so device-local times must be converted to an instant before sending.
 private fun LocalDateTime.toUtcInstantString(): String =
     atZone(ZoneId.systemDefault()).toInstant().toString()

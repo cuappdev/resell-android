@@ -26,15 +26,23 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.cornellappdev.resell.android.ui.theme.AppDev
 import com.cornellappdev.resell.android.ui.theme.AvailabilityPanelBackground
 import com.cornellappdev.resell.android.ui.theme.AvailabilitySelectedDate
 import com.cornellappdev.resell.android.ui.theme.IconInactive
+import com.cornellappdev.resell.android.ui.theme.ResellPreview
 import com.cornellappdev.resell.android.ui.theme.Style
 import java.time.YearMonth
 import java.time.LocalDate
 
+/** Controls drag distance for swiping between months */
+val MonthSwipeThreshold: Dp = 56.dp
+
+
+/** Caps [MonthCalendar]'s day-grid at the height of 5 rows (most common) */
+val MonthCalendarGridMaxHeight: Dp = 248.dp
 
 @Composable
 fun MonthCalendar(
@@ -90,9 +98,7 @@ fun MonthCalendar(
         val totalCells = firstDayOfWeek + daysInMonth
         val rows = (totalCells + 6) / 7
 
-        // Capped to the dominant 5-row case; a rare 6-row month scrolls here instead of
-        // growing past it, so the day-of-week header above stays pinned and the panel
-        // never has to resize.
+        // Calendar displays with 6 rows become scrollable
         Column(
             modifier = Modifier
                 .heightIn(max = MonthCalendarGridMaxHeight)
@@ -109,9 +115,6 @@ fun MonthCalendar(
                         val date = firstDayOfMonth.plusDays((cellIndex - firstDayOfWeek).toLong())
                         val isInCurrentMonth = YearMonth.from(date) == currentMonth
                         val isSelected = date in selectedDates
-                        // Rounding is per-row: a selected run can span multiple weeks or have
-                        // gaps, so "start"/"end" must mean the edges of the run *in this row*,
-                        // not the overall min/max of the whole selection.
                         val hasSelectedLeftNeighbor = col > 0 && date.minusDays(1) in selectedDates
                         val hasSelectedRightNeighbor = col < 6 && date.plusDays(1) in selectedDates
                         val isRowStart = isSelected && !hasSelectedLeftNeighbor
@@ -146,10 +149,9 @@ fun MonthCalendar(
     }
 }
 
-/** Interactive so left/right swipes to change month can be tested by hand. */
 @Preview
 @Composable
-fun MonthCalendarPreview() {
+fun MonthCalendarPreview() = ResellPreview {
     var currentMonth by remember { mutableStateOf(YearMonth.of(2026, 4)) }
     MonthCalendar(
         currentMonth = currentMonth,
@@ -166,7 +168,7 @@ fun MonthCalendarPreview() {
 /** Testing display for month with 31 days. */
 @Preview
 @Composable
-fun MonthCalendarThirtyOneDayMonthPreview() {
+fun MonthCalendarThirtyOneDayMonthPreview() = ResellPreview {
     val month = YearMonth.of(2026, 7)
     var selectedDates by remember {
         mutableStateOf(dayGroupContaining(LocalDate.of(2026, 7, 31)))
@@ -179,10 +181,10 @@ fun MonthCalendarThirtyOneDayMonthPreview() {
     )
 }
 
-/** Showcase the 6-row edge case: should be scrollable. */
+/** Testing 6-row edge case (scrollable) */
 @Preview
 @Composable
-fun MonthCalendarSixRowMonthPreview() {
+fun MonthCalendarSixRowMonthPreview() = ResellPreview {
     MonthCalendar(
         currentMonth = YearMonth.of(2026, 5),
         selectedDates = emptyList(),
@@ -192,14 +194,13 @@ fun MonthCalendarSixRowMonthPreview() {
 }
 
 /**
- * A 3-day group of Fri/Sat/Sun spans two calendar rows.
- * Friday and Sunday should each round on the outer edge of their own row (not backwards),
- * and Saturday, last in its row, with nothing selected after it, should round its right
- * edge too, instead of being treated as a seamless "middle" cell.
+ * When a grouping of 3 spans 2 rows, with the middle element
+ * being on the first row, the middle element should be rounded
+ * correctly (not treated as a border, treated as a middle element)
  */
 @Preview
 @Composable
-fun MonthCalendarRowSpanningSelectionPreview() {
+fun MonthCalendarRowSpanningSelectionPreview() = ResellPreview {
     MonthCalendar(
         currentMonth = YearMonth.of(2026, 5),
         selectedDates = dayGroupContaining(LocalDate.of(2026, 5, 1)),

@@ -94,7 +94,7 @@ class AvailabilityViewModel @Inject constructor(
  * Each slot's startDate is used as the representative time for a cell.
  *
  * The backend sends startDate as a UTC instant (e.g. "2026-01-23T16:00:00.000Z"), so it's
- * parsed as an [Instant] and converted to the device's local wall-clock time.
+ * parsed as an [Instant] and converted to the device's local time.
  */
 private fun UserAvailability.toLocalDateTimes(): Set<LocalDateTime> {
     return schedule.values.flatten().map { slot ->
