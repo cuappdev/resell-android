@@ -1,5 +1,6 @@
 package com.cornellappdev.resell.android.viewmodel.onboarding
 
+import android.R.attr.data
 import android.content.Context
 import android.content.Intent
 import android.util.Log
@@ -9,6 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.lifecycle.viewModelScope
+import com.cornellappdev.resell.android.MainActivity
 import com.cornellappdev.resell.android.model.core.UserInfoRepository
 import com.cornellappdev.resell.android.model.login.FirebaseAuthRepository
 import com.cornellappdev.resell.android.model.login.GoogleAuthRepository
@@ -30,6 +32,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
 import javax.inject.Inject
+import kotlin.jvm.java
 
 @HiltViewModel
 class LandingViewModel @Inject constructor(
@@ -44,6 +47,11 @@ class LandingViewModel @Inject constructor(
 ) : ResellViewModel<LandingViewModel.LandingUiState>(
     initialUiState = LandingUiState()
 ) {
+
+
+    companion object {
+        private const val TAG = "LandingViewModel"
+    }
 
     data class LandingUiState(
         val showButton: Boolean = false,
@@ -173,7 +181,7 @@ class LandingViewModel @Inject constructor(
                 }
             } catch (e: Exception) {
                 if (e is HttpException && e.code() == 403) {
-                    Log.d("LandingViewModel", "User not found on backend; routing to onboarding.")
+                    Log.d(TAG, "User not found on backend; routing to onboarding.")
                     applyMutation {
                         copy(buttonState = ResellTextButtonState.ENABLED)
                     }
@@ -181,7 +189,7 @@ class LandingViewModel @Inject constructor(
                     return@launch
                 }
 
-                Log.e("LandingViewModel", "Error getting user: ", e)
+                Log.e(TAG, "Error getting user: ", e)
                 onSignInFailed(showSheet = false)
                 rootConfirmationRepository.showError(
                     "Your Google Account session has expired. Please sign in again!",

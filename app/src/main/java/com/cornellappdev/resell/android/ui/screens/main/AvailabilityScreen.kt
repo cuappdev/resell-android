@@ -48,6 +48,7 @@ import com.cornellappdev.resell.android.ui.components.global.ResellHeader
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButton
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonState
 import com.cornellappdev.resell.android.ui.theme.AvailabilityPanelBackground
+import com.cornellappdev.resell.android.ui.theme.ResellPreview
 import com.cornellappdev.resell.android.ui.theme.Style
 import com.cornellappdev.resell.android.viewmodel.main.AvailabilityViewModel
 import java.time.LocalDate
@@ -225,7 +226,7 @@ fun AvailabilityScreenContent(
 
 @Preview
 @Composable
-fun AvailabilityScreenPreview() {
+fun AvailabilityScreenPreview() = ResellPreview {
     AvailabilityScreenContent(
         uiState = AvailabilityViewModel.AvailabilityUiState(
             selectedAvailabilities = emptySet(),

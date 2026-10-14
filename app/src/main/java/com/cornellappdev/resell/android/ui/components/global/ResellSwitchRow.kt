@@ -13,6 +13,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import com.cornellappdev.resell.android.ui.theme.IconInactive
+import com.cornellappdev.resell.android.ui.theme.ResellPreview
 import com.cornellappdev.resell.android.ui.theme.ResellPurple
 import com.cornellappdev.resell.android.ui.theme.Style
 import com.cornellappdev.resell.android.util.defaultHorizontalPadding
@@ -57,7 +58,7 @@ fun ResellSwitchRow(
 
 @Preview
 @Composable
-private fun ResellSwitchRowPreview() {
+private fun ResellSwitchRowPreview() = ResellPreview {
     ResellSwitchRow(
         title = "Turn on notifications",
         checked = true,

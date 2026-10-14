@@ -23,6 +23,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.ui.components.global.BrushIcon
+import com.cornellappdev.resell.android.ui.theme.ResellPreview
 import com.cornellappdev.resell.android.ui.theme.Style
 import com.cornellappdev.resell.android.ui.theme.animateResellBrush
 
@@ -74,7 +75,7 @@ fun FloatingActionExpandingCTA(
 
 @Preview
 @Composable
-private fun FloatingActionExpandingCTAPreview() {
+private fun FloatingActionExpandingCTAPreview() = ResellPreview {
     var expanded by remember { mutableStateOf(false) }
 
     FloatingActionExpandingCTA(

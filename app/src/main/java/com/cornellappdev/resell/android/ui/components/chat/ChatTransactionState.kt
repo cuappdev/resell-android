@@ -23,6 +23,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cornellappdev.resell.android.R
+import com.cornellappdev.resell.android.ui.theme.ResellPreview
 import com.cornellappdev.resell.android.ui.theme.ResellPurple
 import com.cornellappdev.resell.android.ui.theme.Style
 import com.cornellappdev.resell.android.util.clickableNoIndication
@@ -75,7 +76,7 @@ fun ChatTransactionState(
 
 @Preview
 @Composable
-fun ChatTransactionStatePreview() {
+fun ChatTransactionStatePreview() = ResellPreview {
     ChatTransactionState(
         text = "This transaction has been completed",
         enabled = true,

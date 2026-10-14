@@ -22,6 +22,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.cornellappdev.resell.android.ui.theme.ResellPreview
 import com.cornellappdev.resell.android.ui.theme.ResellPurple
 import com.cornellappdev.resell.android.ui.theme.Style
 
@@ -76,7 +77,7 @@ fun ResellCheckboxRow(
 
 @Preview
 @Composable
-private fun ResellCheckboxPreview() {
+private fun ResellCheckboxPreview() = ResellPreview {
     ResellCheckboxRow(
         title = "Personal",
         checked = true,
