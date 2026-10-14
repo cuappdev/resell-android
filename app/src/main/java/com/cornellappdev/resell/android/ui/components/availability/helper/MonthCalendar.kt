@@ -29,8 +29,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.cornellappdev.resell.android.ui.theme.AppDev
-import com.cornellappdev.resell.android.ui.theme.AvailabilityPanelBackground
-import com.cornellappdev.resell.android.ui.theme.AvailabilitySelectedDate
+import com.cornellappdev.resell.android.ui.theme.AvailabilityPanelBackgroundColor
+import com.cornellappdev.resell.android.ui.theme.AvailabilitySelectedDateColor
 import com.cornellappdev.resell.android.ui.theme.IconInactive
 import com.cornellappdev.resell.android.ui.theme.ResellPreview
 import com.cornellappdev.resell.android.ui.theme.Style
@@ -61,7 +61,7 @@ fun MonthCalendar(
 
     Column(
         modifier
-            .background(color = AvailabilityPanelBackground)
+            .background(color = AvailabilityPanelBackgroundColor)
             .pointerInput(currentMonth) {
                 var totalDrag = 0f
                 detectHorizontalDragGestures(
@@ -124,7 +124,7 @@ fun MonthCalendar(
                             modifier = Modifier
                                 .weight(1f)
                                 .background(
-                                    color = if (isSelected) AvailabilitySelectedDate else Color.Transparent,
+                                    color = if (isSelected) AvailabilitySelectedDateColor else Color.Transparent,
                                     shape = when {
                                         isRowStart && isRowEnd -> RoundedCornerShape(4.dp)
                                         isRowStart -> RoundedCornerShape(topStart = 4.dp, bottomStart = 4.dp)

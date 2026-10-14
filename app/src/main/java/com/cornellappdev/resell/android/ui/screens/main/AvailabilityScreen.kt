@@ -47,7 +47,7 @@ import com.cornellappdev.resell.android.ui.components.availability.helper.Select
 import com.cornellappdev.resell.android.ui.components.global.ResellHeader
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButton
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonState
-import com.cornellappdev.resell.android.ui.theme.AvailabilityPanelBackground
+import com.cornellappdev.resell.android.ui.theme.AvailabilityPanelBackgroundColor
 import com.cornellappdev.resell.android.ui.theme.ResellPreview
 import com.cornellappdev.resell.android.ui.theme.Style
 import com.cornellappdev.resell.android.viewmodel.main.AvailabilityViewModel
@@ -88,7 +88,7 @@ fun AvailabilityScreenContent(
     var activePanel by remember { mutableStateOf(AvailabilityPanel.NONE) }
     val panelVisible = activePanel != AvailabilityPanel.NONE
 
-    val panelBackgroundColor = AvailabilityPanelBackground
+    val panelBackgroundColor = AvailabilityPanelBackgroundColor
     var panelHeightPx by remember { mutableIntStateOf(0) }
     val density = LocalDensity.current
     val gridOffsetY by animateDpAsState(
