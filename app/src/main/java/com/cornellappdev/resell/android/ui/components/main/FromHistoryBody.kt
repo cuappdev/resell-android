@@ -33,6 +33,7 @@ import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.model.classes.UserInfo
 import com.cornellappdev.resell.android.ui.components.global.ResellCard
 import com.cornellappdev.resell.android.ui.components.global.ResellCardContent
+import com.cornellappdev.resell.android.ui.theme.ResellPreview
 import com.cornellappdev.resell.android.ui.theme.Style
 
 @Composable
@@ -122,7 +123,7 @@ fun drawableResToImageBitmap(@DrawableRes resId: Int): ImageBitmap {
 
 @Preview
 @Composable
-private fun FromHistoryBodyPreview() {
+private fun FromHistoryBodyPreview() = ResellPreview {
     FromHistoryBody(
         Modifier, listOf(
             Pair(

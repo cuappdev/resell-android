@@ -5,18 +5,31 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import com.cornellappdev.resell.android.ui.theme.ResellPurple
 import com.cornellappdev.resell.android.ui.theme.Stroke
 import com.cornellappdev.resell.android.util.day
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
+import java.time.YearMonth
 import kotlin.math.floor
 
 const val GRID_HEIGHT = 24
+const val SLOT_DURATION_MINUTES = 30
 val gridStartTime: LocalTime = LocalTime.of(9, 0)
 val gridStroke = Stroke
 val fillColor = ResellPurple
+
+
+/** Returns a fixed 3-day group containing [date] (1-3, 4-6, ...), can roll over months. */
+fun dayGroupContaining(date: LocalDate): List<LocalDate> {
+    val month = YearMonth.from(date)
+    val groupIndex = (date.dayOfMonth - 1) / 3
+    val groupStart = month.atDay(groupIndex * 3 + 1)
+    return (0..2).map { groupStart.plusDays(it.toLong()) }
+}
 
 
 fun getGridCell(offset: Offset, canvasSize: Size, width: Int, height: Int): Pair<Int, Int> {
@@ -43,7 +56,7 @@ fun rowColToLocalDateTime(row: Int, col: Int, dates: List<LocalDate>): LocalDate
         .withMinute(gridStartTime.minute)
         .withSecond(gridStartTime.second)
         .withNano(gridStartTime.nano)
-        .plusMinutes(30L * row)
+        .plusMinutes(SLOT_DURATION_MINUTES.toLong() * row)
 }
 
 fun getTimeForRow(row: Int): LocalTime {
@@ -59,7 +72,7 @@ fun List<LocalDateTime>.mapToGrid(dates: List<LocalDate>): List<BooleanArray> {
     forEach { date ->
         val column = dates.indexOfFirst { it.day == date.day }
         if (column == -1) return@forEach
-        val row = (date.hour * 60 + date.minute - gridStartTime.hour * 60) / 30
+        val row = (date.hour * 60 + date.minute - gridStartTime.hour * 60) / SLOT_DURATION_MINUTES
         if (row !in 0 until GRID_HEIGHT) return@forEach
         grid[row][column] = true
     }

@@ -7,6 +7,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
+import com.cornellappdev.resell.android.ui.theme.ResellPreview
 import com.cornellappdev.resell.android.ui.theme.Style
 
 // TODO implemented but should test + integrate into pdp composable
@@ -33,14 +34,14 @@ fun SoldOverlay(
 
 @Preview
 @Composable
-fun SoldOverlayPreview() {
+fun SoldOverlayPreview() = ResellPreview {
     SoldOverlay()
 }
 
 // Preview simulating the overlay over an item
 @Preview
 @Composable
-fun SoldOverlayOnImagePreview() {
+fun SoldOverlayOnImagePreview() = ResellPreview {
     Box(modifier = Modifier.fillMaxSize()) {
         Box(
             modifier = Modifier

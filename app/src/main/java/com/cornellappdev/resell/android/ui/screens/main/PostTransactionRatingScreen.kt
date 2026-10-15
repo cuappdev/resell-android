@@ -30,6 +30,7 @@ import com.cornellappdev.resell.android.ui.components.global.ResellHeader
 import com.cornellappdev.resell.android.ui.components.global.ResellRatingBar
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButton
 import com.cornellappdev.resell.android.ui.components.global.ResellTextEntry
+import com.cornellappdev.resell.android.ui.theme.ResellPreview
 import com.cornellappdev.resell.android.ui.theme.ResellPurple
 import com.cornellappdev.resell.android.ui.theme.Style
 import com.cornellappdev.resell.android.viewmodel.main.PostTransactionRatingViewModel
@@ -198,7 +199,7 @@ private fun ItemInfo(
 
 @Preview
 @Composable
-private fun RatingScreenPreview() {
+private fun RatingScreenPreview() = ResellPreview {
     PostTransactionRatingScreenContent(
         uiState = PostTransactionRatingViewModel.PostTransactionRatingUiState(
             itemName = "Item Name",

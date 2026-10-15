@@ -30,13 +30,13 @@ import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.ui.components.global.BrushIcon
 import com.cornellappdev.resell.android.ui.screens.main.ResellMainScreen
 import com.cornellappdev.resell.android.ui.theme.Padding
+import com.cornellappdev.resell.android.ui.theme.ResellPreview
 import com.cornellappdev.resell.android.ui.theme.animateResellBrush
 
 @Composable
 fun NavBar(
     selectedTab: ResellMainScreen,
     onHomeClick: () -> Unit,
-    onBookmarksClick: () -> Unit,
     onMessagesClick: () -> Unit,
     onUserClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -50,9 +50,6 @@ fun NavBar(
                 {}
             } else onHomeClick,
             selectedTab = selectedTab,
-            onBookmarksClick = if (!enabled) {
-                {}
-            } else onBookmarksClick,
             onMessagesClick = if (!enabled) {
                 {}
             } else onMessagesClick,
@@ -77,7 +74,6 @@ const val NAVBAR_HEIGHT = 55
 private fun NavBarContent(
     onHomeClick: () -> Unit,
     selectedTab: ResellMainScreen,
-    onBookmarksClick: () -> Unit,
     onMessagesClick: () -> Unit,
     onUserClick: () -> Unit,
 ) {
@@ -112,17 +108,6 @@ private fun NavBarContent(
                 brush = animateResellBrush(targetGradient = selectedTab == ResellMainScreen.Home)
             )
             BrushIcon(
-                painter = painterResource(id = R.drawable.ic_bookmark),
-                contentDescription = "bookmarks",
-                modifier = Modifier
-                    .clickable(
-                        indication = null,
-                        interactionSource = interactionSource
-                    ) { onBookmarksClick() }
-                    .size(27.dp),
-                brush = animateResellBrush(targetGradient = selectedTab == ResellMainScreen.Bookmarks)
-            )
-            BrushIcon(
                 painter = painterResource(id = R.drawable.ic_messages),
                 contentDescription = "messages",
                 modifier = Modifier
@@ -150,13 +135,12 @@ private fun NavBarContent(
 
 @Preview
 @Composable
-private fun NavBarPreview() {
+private fun NavBarPreview() = ResellPreview {
     val selectedTab: MutableState<ResellMainScreen> =
         remember { mutableStateOf(ResellMainScreen.Home) }
 
     NavBar(
         onHomeClick = { selectedTab.value = ResellMainScreen.Home },
-        onBookmarksClick = { selectedTab.value = ResellMainScreen.Bookmarks },
         onMessagesClick = { selectedTab.value = ResellMainScreen.Messages },
         onUserClick = { selectedTab.value = ResellMainScreen.User },
         selectedTab = selectedTab.value

@@ -125,9 +125,10 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val posts = resellPostRepository.getFilteredPosts(filter, page = 1, limit = HOME_PAGE_SIZE)
+                val sortedPosts = posts.sortedByDescending { it.createdDate }
                 applyMutation {
                     copy(
-                        listings = posts.map { it.toListing() },
+                        listings = sortedPosts.map { it.toListing() },
                         loadedState = ResellApiState.Success,
                         page = 1,
                         endReached = posts.size < HOME_PAGE_SIZE,
@@ -148,9 +149,10 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val posts = resellPostRepository.getNewlyListedPosts(page = 1, limit = HOME_PAGE_SIZE)
+                val sortedPosts = posts.sortedByDescending { it.createdDate }
                 applyMutation {
                     copy(
-                        listings = posts.map { it.toListing() },
+                        listings = sortedPosts.map { it.toListing() },
                         loadedState = ResellApiState.Success,
                         page = 1,
                         endReached = posts.size < HOME_PAGE_SIZE,
@@ -180,9 +182,10 @@ class HomeViewModel @Inject constructor(
                 } else {
                     resellPostRepository.getFilteredPosts(state.activeFilter, page = nextPage, limit = HOME_PAGE_SIZE)
                 }
+                val sortedPosts = posts.sortedByDescending { it.createdDate }
                 applyMutation {
                     copy(
-                        listings = listings + posts.map { it.toListing() },
+                        listings = listings + sortedPosts.map { it.toListing() },
                         page = nextPage,
                         endReached = posts.size < HOME_PAGE_SIZE,
                         bottomLoading = false
