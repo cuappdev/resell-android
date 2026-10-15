@@ -42,7 +42,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.ui.components.availability.helper.GridSelectionType
 import com.cornellappdev.resell.android.ui.components.availability.helper.MonthCalendar
-import com.cornellappdev.resell.android.ui.components.availability.helper.dayGroupContaining
+import com.cornellappdev.resell.android.ui.components.availability.helper.dayWindowStartingAt
 import com.cornellappdev.resell.android.ui.components.availability.helper.SelectableAvailabilityGrid
 import com.cornellappdev.resell.android.ui.components.global.ResellHeader
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButton
@@ -71,8 +71,9 @@ fun AvailabilityScreen(
         uiState = availabilityUiState,
         onSetSelectedAvailabilities = { availabilityViewModel.setSelectedAvailabilities(it.toSet()) },
         onSetCurrentMonth = { availabilityViewModel.setCurrentMonth(it) },
-        onSetVisibleDates = { availabilityViewModel.setVisibleDates(it) },
+        onSetWindowStart = { availabilityViewModel.setWindowStart(it) },
         onSave = { availabilityViewModel.saveAvailability() },
+        onBackPressed = { availabilityViewModel.onBackPressed() },
     )
 }
 
@@ -81,8 +82,9 @@ fun AvailabilityScreenContent(
     uiState: AvailabilityViewModel.AvailabilityUiState,
     onSetSelectedAvailabilities: (List<LocalDateTime>) -> Unit,
     onSetCurrentMonth: (YearMonth) -> Unit,
-    onSetVisibleDates: (List<LocalDate>) -> Unit,
+    onSetWindowStart: (LocalDate) -> Unit,
     onSave: () -> Unit,
+    onBackPressed: () -> Unit = {},
 ) {
     // just some UI logic to allow for smooth transitions between panels expanding on the screen.
     var activePanel by remember { mutableStateOf(AvailabilityPanel.NONE) }
@@ -106,6 +108,7 @@ fun AvailabilityScreenContent(
             ResellHeader(
                 title = "Availability",
                 leftPainter = R.drawable.ic_chevron_left,
+                onLeftClick = onBackPressed,
             )
             Column(
                 modifier = Modifier
@@ -190,7 +193,7 @@ fun AvailabilityScreenContent(
                                 currentMonth = uiState.currentMonth,
                                 selectedDates = uiState.visibleDates,
                                 onMonthChange = onSetCurrentMonth,
-                                onDaysSelected = onSetVisibleDates,
+                                onDayStartSelected = onSetWindowStart,
                                 modifier = Modifier.fillMaxWidth(),
                             )
                             AvailabilityPanel.NONE -> Unit
@@ -231,14 +234,15 @@ fun AvailabilityScreenPreview() = ResellPreview {
         uiState = AvailabilityViewModel.AvailabilityUiState(
             selectedAvailabilities = emptySet(),
             currentMonth = YearMonth.of(2026, 4),
-            visibleDates = dayGroupContaining(LocalDate.of(2026, 4, 1)),
+            visibleDates = dayWindowStartingAt(LocalDate.of(2026, 4, 1)),
             isLoading = false,
             saveSuccess = false,
             errorMessage = null,
         ),
         onSetSelectedAvailabilities = {},
         onSetCurrentMonth = {},
-        onSetVisibleDates = {},
+        onSetWindowStart = {},
         onSave = {},
+        onBackPressed = {},
     )
 }
