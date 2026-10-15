@@ -84,6 +84,9 @@ class ChatViewModel @Inject constructor(
             completedTransactionInfo = null
         )
     ) {
+        companion object {
+            private const val TAG = "ChatViewModel"
+        }
     data class MessagesUiState(
         val chatType: ChatType,
         val currentChat: ResellApiResponse<Chat>,
@@ -201,7 +204,7 @@ class ChatViewModel @Inject constructor(
                     chatId = navArgs.chatId
                 )
             } catch (e: Exception) {
-                Log.e("ChatViewModel", "Error sending message: ", e)
+                Log.e(TAG, "Error sending message: ", e)
                 rootConfirmationRepository.showError(
                     "Something went wrong while sending your message."
                 )
@@ -251,9 +254,7 @@ class ChatViewModel @Inject constructor(
         val canPropose = mostRecentMeetingStateIs(MeetingState.CONFIRMED) == null
 
         viewModelScope.launch {
-            // Grey out everything but the overlap between both people's saved availability, so
-            // the proposer only sees times that could actually work for both of them. If either
-            // side hasn't saved availability (or the fetch fails), fall back to an ungreyed grid.
+            // Grey out everything but the overlap between both people's saved availability.
             val overlapTimes = try {
                 val myId = userInfoRepository.getUserId()
                 if (myId == null) {
@@ -264,7 +265,7 @@ class ChatViewModel @Inject constructor(
                     mine.intersect(theirs).toList()
                 }
             } catch (e: Exception) {
-                Log.e("ChatViewModel", "Error loading combined availability: ", e)
+                Log.e(TAG, "Error loading combined availability: ", e)
                 null
             }
 
@@ -309,7 +310,7 @@ class ChatViewModel @Inject constructor(
                 throw Exception("No Venmo handle found")
             }
         } catch (e: Exception) {
-            Log.e("ChatViewModel", "Error getting Venmo handle: ", e)
+            Log.e(TAG, "Error getting Venmo handle: ", e)
             rootDialogRepository.showDialog(
                 RootDialogContent.TwoButtonDialog(
                     title = "Venmo Not Set Up",
@@ -342,7 +343,7 @@ class ChatViewModel @Inject constructor(
                             chatId = navArgs.chatId
                         )
                     } catch (e: Exception) {
-                        Log.e("ChatViewModel", "Error sending message: ", e)
+                        Log.e(TAG, "Error sending message: ", e)
                         rootConfirmationRepository.showError(
                             "Something went wrong while sending your image."
                         )
@@ -536,7 +537,7 @@ class ChatViewModel @Inject constructor(
                 )
             } catch (e: Exception) {
                 rootConfirmationRepository.showError("Couldn't send your proposal. Please try again.")
-                Log.e("ChatViewModel", "onMeetingProposal: ", e)
+                Log.e(TAG, "onMeetingProposal: ", e)
             }
         }
     }
@@ -558,7 +559,7 @@ class ChatViewModel @Inject constructor(
                 rootNavigationSheetRepository.hideSheet()
             } catch (e: Exception) {
                 rootConfirmationRepository.showError("Couldn't confirm the meeting. Please try again.")
-                Log.e("ChatViewModel", "onMeetingConfirmed: ", e)
+                Log.e(TAG, "onMeetingConfirmed: ", e)
             }
         }
     }
@@ -580,7 +581,7 @@ class ChatViewModel @Inject constructor(
                 rootNavigationSheetRepository.hideSheet()
             } catch (e: Exception) {
                 rootConfirmationRepository.showError("Couldn't decline the proposal. Please try again.")
-                Log.e("ChatViewModel", "onMeetingDeclined: ", e)
+                Log.e(TAG, "onMeetingDeclined: ", e)
             }
         }
     }
@@ -602,7 +603,7 @@ class ChatViewModel @Inject constructor(
                 rootNavigationSheetRepository.hideSheet()
             } catch (e: Exception) {
                 rootConfirmationRepository.showError("Couldn't cancel the meeting. Please try again.")
-                Log.e("ChatViewModel", "onMeetingCancelled: ", e)
+                Log.e(TAG, "onMeetingCancelled: ", e)
             }
         }
     }
@@ -726,7 +727,7 @@ class ChatViewModel @Inject constructor(
                                 }
                             }
                         } catch (e: Exception) {
-                            Log.e("ChatViewModel", "Error checking transaction: ", e)
+                            Log.e(TAG, "Error checking transaction: ", e)
                             rootConfirmationRepository.showError(
                                 "Failed to load transaction. Please come back and try again later."
                             )

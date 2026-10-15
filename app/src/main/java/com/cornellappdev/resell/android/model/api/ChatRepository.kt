@@ -213,8 +213,6 @@ class ChatRepository @Inject constructor(
                 val meetingInfo = document.startDate?.let {
                     MeetingInfo(
                         proposeTime = it,
-                        // Cancellation is checked first so a cancel document that carried over
-                        // `accepted = true` from the confirmation is correctly canceled instead.
                         state = if (document.cancellation == true) {
                             MeetingState.CANCELED
                         } else if (document.accepted == true) {
@@ -403,9 +401,7 @@ class ChatRepository @Inject constructor(
         imageUrls: List<String>,
         chatId: String,
     ) {
-        // A chat has two distinct participants. If the two ids are the same,
-        // fail here where the message names the cause, rather than
-        // shipping a malformed request.
+        // Fail here rather than shipping a malformed request.
         require(myId.isNotBlank() && otherId.isNotBlank() && myId != otherId) {
             "Malformed chat participants: myId='$myId' otherId='$otherId'"
         }

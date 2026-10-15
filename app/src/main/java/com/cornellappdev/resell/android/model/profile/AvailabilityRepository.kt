@@ -42,13 +42,13 @@ class AvailabilityRepository @Inject constructor(
     }
 }
 
-// The backend stores/returns dates as UTC instants (e.g. "2026-01-23T16:00:00.000Z"),
-// so device-local times must be converted to an instant before sending.
+// The backend stores/returns dates as UTC instants, so local device times
+// must be converted to an instant before sending.
 private fun LocalDateTime.toUtcInstantString(): String =
     atZone(ZoneId.systemDefault()).toInstant().toString()
 
-// The backend sends startDate as a UTC instant (e.g. "2026-01-23T16:00:00.000Z"), so it's
-// parsed as an Instant and converted to the device's local wall-clock time.
+// The backend sends startDate as a UTC instant, so it's parsed as an Instant
+// and converted to the device's local time.
 private fun UserAvailability.toLocalDateTimes(): Set<LocalDateTime> {
     return schedule.values.flatten().map { slot ->
         Instant.parse(slot.startDate).atZone(ZoneId.systemDefault()).toLocalDateTime()

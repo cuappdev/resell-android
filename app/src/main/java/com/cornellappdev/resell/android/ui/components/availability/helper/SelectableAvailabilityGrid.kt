@@ -220,11 +220,7 @@ fun SelectableAvailabilityGrid(
     setSelectedAvailabilities: (List<LocalDateTime>) -> Unit,
     gridSelectionType: GridSelectionType,
     modifier: Modifier = Modifier,
-    /**
-     * When non-null, cells NOT in this list are greyed out — e.g. the intersection of two
-     * people's saved availability, so only times that work for both are shown as normal/white.
-     * Null means the greying feature isn't used for this grid.
-     */
+    /** Only times that work for both are shown as normal/white. */
     availableAvailabilities: List<LocalDateTime>? = null,
     onProposalSelected: (LocalDateTime) -> Unit,
 ) {

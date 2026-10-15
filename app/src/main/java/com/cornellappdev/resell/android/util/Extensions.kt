@@ -14,12 +14,6 @@ fun Pair<Int, Int>.toSortedPair() = if (first <= second) this else second to fir
 val LocalDateTime.day: Long get() = ChronoUnit.DAYS.between(LocalDate.ofEpochDay(0), this)
 
 val LocalDate.day: Long get() = ChronoUnit.DAYS.between(LocalDate.ofEpochDay(0), this)
-
-/**
- * Formats as a UTC ISO-8601 instant, e.g. `2026-09-28T20:30:00Z`.
- * Uses [java.time.Instant] rather than [SimpleDateFormat] so the result can't vary with the
- * device locale.
- */
 fun Timestamp.toIsoString(): String = toDate().toInstant().toString()
 
 /**
