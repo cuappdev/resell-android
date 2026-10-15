@@ -28,7 +28,7 @@ fun AvailabilitySheet(
             title = uiState.title,
             subtitle = uiState.subtitle,
             gridSelectionType = uiState.gridSelectionType,
-            availableAvailabilities = uiState.overlapTimes,
+            overlappingAvailabilities = uiState.overlapTimes,
             onEditAvailabilityClicked = uiState.onEditAvailability,
             setProposalTime = availabilitySheetViewModel::setProposalTime
         )

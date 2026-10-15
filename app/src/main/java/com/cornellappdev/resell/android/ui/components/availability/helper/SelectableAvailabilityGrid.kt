@@ -221,11 +221,11 @@ fun SelectableAvailabilityGrid(
     gridSelectionType: GridSelectionType,
     modifier: Modifier = Modifier,
     /** Only times that work for both are shown as normal/white. */
-    availableAvailabilities: List<LocalDateTime>? = null,
+    overlappingAvailabilities: List<LocalDateTime>? = null,
     onProposalSelected: (LocalDateTime) -> Unit,
 ) {
     val grid = selectedAvailabilities.mapToGrid(dates)
-    val unavailableGrid = availableAvailabilities?.mapToGrid(dates)?.map { row ->
+    val unavailableGrid = overlappingAvailabilities?.mapToGrid(dates)?.map { row ->
         BooleanArray(row.size) { col -> !row[col] }
     }
 
