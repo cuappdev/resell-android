@@ -1,6 +1,4 @@
 package com.cornellappdev.resell.android.viewmodel.onboarding
-
-import android.R.attr.data
 import android.content.Context
 import android.content.Intent
 import android.util.Log
@@ -10,7 +8,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.lifecycle.viewModelScope
-import com.cornellappdev.resell.android.MainActivity
 import com.cornellappdev.resell.android.model.core.UserInfoRepository
 import com.cornellappdev.resell.android.model.login.FirebaseAuthRepository
 import com.cornellappdev.resell.android.model.login.GoogleAuthRepository
@@ -32,7 +29,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
 import javax.inject.Inject
-import kotlin.jvm.java
 
 @HiltViewModel
 class LandingViewModel @Inject constructor(
