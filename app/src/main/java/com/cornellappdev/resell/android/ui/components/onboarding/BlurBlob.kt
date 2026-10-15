@@ -13,6 +13,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.cornellappdev.resell.android.ui.theme.LoginBlurBrushStart
+import com.cornellappdev.resell.android.ui.theme.ResellPreview
 
 
 enum class Corner {
@@ -49,7 +50,7 @@ fun BlurBlob(
 
 @Preview(apiLevel = 34)
 @Composable
-private fun PreviewBlurBlob() {
+private fun PreviewBlurBlob() = ResellPreview {
     Box(
         modifier = Modifier
             .fillMaxSize()

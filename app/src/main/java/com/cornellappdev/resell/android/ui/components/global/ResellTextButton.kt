@@ -32,6 +32,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.cornellappdev.resell.android.ui.theme.AppDev
 import com.cornellappdev.resell.android.ui.theme.Primary
+import com.cornellappdev.resell.android.ui.theme.ResellPreview
 import com.cornellappdev.resell.android.ui.theme.ResellPurple
 import com.cornellappdev.resell.android.ui.theme.Style
 import com.cornellappdev.resell.android.ui.theme.Warning
@@ -211,42 +212,42 @@ private fun ResellTextButtonPreview(
 
 @Preview
 @Composable
-private fun ResellPrimaryTextButtonPreview() {
+private fun ResellPrimaryTextButtonPreview() = ResellPreview {
     ResellTextButtonPreview()
 }
 
 @Preview
 @Composable
-private fun ResellSecondaryTextButtonPreview() {
+private fun ResellSecondaryTextButtonPreview() = ResellPreview {
     ResellTextButtonPreview(containerType = ResellTextButtonContainer.SECONDARY)
 }
 
 @Preview
 @Composable
-private fun ResellPrimaryRedTextButtonPreview() {
+private fun ResellPrimaryRedTextButtonPreview() = ResellPreview {
     ResellTextButtonPreview(containerType = ResellTextButtonContainer.PRIMARY_RED)
 }
 
 @Preview
 @Composable
-private fun ResellSecondaryRedTextButtonPreview() {
+private fun ResellSecondaryRedTextButtonPreview() = ResellPreview {
     ResellTextButtonPreview(containerType = ResellTextButtonContainer.SECONDARY_RED)
 }
 
 @Preview
 @Composable
-private fun ResellSecondaryNakedButtonPreview() {
+private fun ResellSecondaryNakedButtonPreview() = ResellPreview {
     ResellTextButtonPreview(containerType = ResellTextButtonContainer.NAKED)
 }
 
 @Preview
 @Composable
-private fun ResellSecondaryNakedRedTextButtonPreview() {
+private fun ResellSecondaryNakedRedTextButtonPreview() = ResellPreview {
     ResellTextButtonPreview(containerType = ResellTextButtonContainer.NAKED_RED)
 }
 
 @Preview
 @Composable
-private fun ResellPrimaryNakedButtonPreview() {
+private fun ResellPrimaryNakedButtonPreview() = ResellPreview {
     ResellTextButtonPreview(containerType = ResellTextButtonContainer.NAKED_PRIMARY)
 }

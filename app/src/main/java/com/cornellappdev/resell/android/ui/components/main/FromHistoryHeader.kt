@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.cornellappdev.resell.android.R
+import com.cornellappdev.resell.android.ui.theme.ResellPreview
 import com.cornellappdev.resell.android.ui.theme.Style
 
 @Composable
@@ -46,6 +47,6 @@ fun FromHistoryHeader(text: String, onBack: () -> Unit, onTopPressed: () -> Unit
 
 @Preview
 @Composable
-private fun FromHistoryHeaderPreview() {
+private fun FromHistoryHeaderPreview() = ResellPreview {
     FromHistoryHeader("From History", {}, {})
 }
