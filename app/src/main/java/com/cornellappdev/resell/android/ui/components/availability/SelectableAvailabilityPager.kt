@@ -24,7 +24,7 @@ fun SelectableAvailabilityPager(
     title: String,
     subtitle: String,
     initialSelectedAvailabilities: List<LocalDateTime> = emptyList(),
-    availableAvailabilities: List<LocalDateTime>? = null,
+    overlappingAvailabilities: List<LocalDateTime>? = null,
     scrollRange: Pair<Int, Int> = 0 to 6,
     modifier: Modifier = Modifier,
     gridSelectionType: GridSelectionType,
@@ -82,7 +82,7 @@ fun SelectableAvailabilityPager(
                 setSelectedAvailabilities(updatedDates.values.flatten())
             },
             gridSelectionType = gridSelectionType,
-            availableAvailabilities = availableAvailabilities,
+            overlappingAvailabilities = overlappingAvailabilities,
             onProposalSelected = setProposalTime
         )
     }
