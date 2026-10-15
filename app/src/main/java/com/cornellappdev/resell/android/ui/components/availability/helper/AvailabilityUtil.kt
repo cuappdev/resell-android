@@ -24,11 +24,6 @@ val fillColor = ResellPurple
 /** Number of day columns an availability grid shows at once. */
 const val DAY_WINDOW_SIZE = 3
 
-/**
- * Returns the [DAY_WINDOW_SIZE]-day window whose first column is [startDate], rolling into the
- * next month as needed. Deliberately does not snap to calendar buckets — the caller's date is
- * always the leftmost column, so a window anchored at today never shows a past day.
- */
 fun dayWindowStartingAt(startDate: LocalDate): List<LocalDate> =
     (0 until DAY_WINDOW_SIZE).map { startDate.plusDays(it.toLong()) }
 

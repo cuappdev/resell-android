@@ -157,11 +157,6 @@ fun MonthCalendar(
     }
 }
 
-/**
- * Interactive so left/right swipes to change month can be tested by hand. Past days grey out and
- * stop responding to taps, and the back-swipe dies once the current month is reached, so anchor
- * the preview on a month far enough ahead that the whole grid is live.
- */
 @Preview
 @Composable
 fun MonthCalendarPreview() = ResellPreview {
