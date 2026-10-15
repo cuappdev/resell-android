@@ -5,8 +5,6 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import com.cornellappdev.resell.android.ui.theme.ResellPurple
 import com.cornellappdev.resell.android.ui.theme.Stroke
 import com.cornellappdev.resell.android.ui.theme.Wash
@@ -22,14 +20,6 @@ val gridStartTime: LocalTime = LocalTime.of(9, 0)
 val gridStroke = Stroke
 val fillColor = ResellPurple
 
-
-/**
- * Caps [MonthCalendar]'s day-grid at the height of 5 rows (most common case).
- * A 6-row month only occurs when the 1st falls on a Fri/Sat in a 30/31-day month,
- * so in this case it scrolls internally instead of growing past this, so the
- * header stays pinned and the surrounding panel never has to resize.
- */
-val MonthCalendarGridMaxHeight: Dp = 248.dp
 
 /** Number of day columns an availability grid shows at once. */
 const val DAY_WINDOW_SIZE = 3
