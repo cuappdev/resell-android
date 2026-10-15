@@ -117,7 +117,6 @@ fun MonthCalendar(
                         val cellIndex = row * 7 + col
                         val date = firstDayOfMonth.plusDays((cellIndex - firstDayOfWeek).toLong())
                         val isInCurrentMonth = YearMonth.from(date) == currentMonth
-                        // Availability in the past can never be proposed, so past days are inert.
                         val isPast = date.isBefore(today)
                         val isSelected = date in selectedDates
                         val hasSelectedLeftNeighbor = col > 0 && date.minusDays(1) in selectedDates

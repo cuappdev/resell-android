@@ -17,10 +17,11 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * Reads a date out of a raw Firestore field, tolerating every shape the backend has stored one in.
- * Returns null rather than throwing on an unrecognized shape because this runs inside a
- * snapshot listener on the main thread, where an exception takes down the whole app.
+ * Returns null rather than throwing on an unrecognized shape so an exception
+ * does not kill the app.
  */
+
+private const val TAG = "FireStoreRepository"
 private fun parseFirestoreDate(value: Any?): Timestamp? =
     when (value) {
         null -> null
@@ -38,7 +39,7 @@ private fun parseFirestoreDate(value: Any?): Timestamp? =
         }
 
         else -> {
-            Log.w("FireStoreRepository", "Unrecognized date shape: ${value::class.java.name}")
+            Log.w(TAG, "Unrecognized date shape: ${value::class.java.name}")
             null
         }
     }
@@ -57,9 +58,9 @@ class FireStoreRepository @Inject constructor(
         try {
             val userDocRef = fireStore.collection("user").document(userEmail)
             userDocRef.update("notificationsEnabled", notificationsEnabled).await()
-            Log.d("FireStoreRepository", "Notifications enabled saved successfully")
+            Log.d(TAG, "Notifications enabled saved successfully")
         } catch (e: Exception) {
-            Log.e("FireStoreRepository", "Error saving notifications enabled: ", e)
+            Log.e(TAG, "Error saving notifications enabled: ", e)
             throw e
         }
     }
@@ -101,12 +102,12 @@ class FireStoreRepository @Inject constructor(
 
         lastSubscription = chatDocRef.addSnapshotListener { snapshot, e ->
             if (e != null) {
-                Log.e("FireStoreRepository", "Listen failed.", e)
+                Log.e(TAG, "Listen failed.", e)
                 return@addSnapshotListener
             }
 
             if (snapshot == null) {
-                Log.e("FireStoreRepository", "Current data null")
+                Log.e(TAG, "Current data null")
                 return@addSnapshotListener
             }
 
@@ -182,7 +183,7 @@ class FireStoreRepository @Inject constructor(
                 }
                 docs.toList()
                 }.onFailure { e ->
-                    Log.e("FireStoreRepository", "Skipping unparseable chat message", e)
+                    Log.e(TAG, "Skipping unparseable chat message", e)
                 }.getOrNull()
             }.flatten()
             onSnapshotUpdate(messages)

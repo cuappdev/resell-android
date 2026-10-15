@@ -209,10 +209,7 @@ class RetrofitInstance @Inject constructor(
             .create(FcmApiService::class.java)
     }
 
-    /**
-     * The chat endpoints persist meeting times as a SQL `timestamp with time zone`, so they need
-     * an ISO-8601 string.
-     */
+    /** The chat endpoints need a ISO-8601 string. */
     private val chatGson: Gson = GsonBuilder()
         .registerTypeAdapter(
             Timestamp::class.java,

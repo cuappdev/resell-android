@@ -44,13 +44,8 @@ fun SelectableAvailabilityPager(
     // Initialize the selected dates by page.
     LaunchedEffect(initialSelectedAvailabilities) {
         // Add each availability to the correct page based on its date.
-        //  Each page corresponds to an increment of DAY_WINDOW_SIZE days, and each
-        //  inner list corresponds the availabilities for that window.
-        //  Thus, we must add to the correct window.
         initialSelectedAvailabilities.forEach { availability ->
             val today = LocalDate.now()
-            // Period.days is the day-of-month remainder, not elapsed days, so it puts an
-            // availability on the wrong page as soon as it crosses a month boundary.
             val dayDifference = ChronoUnit.DAYS.between(today, availability.toLocalDate()).toInt()
             val pageIndex = Math.floorDiv(dayDifference, DAY_WINDOW_SIZE)
 

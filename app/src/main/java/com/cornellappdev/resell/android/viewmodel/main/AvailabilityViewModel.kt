@@ -52,10 +52,6 @@ class AvailabilityViewModel @Inject constructor(
         }
     }
 
-    /**
-     * Past availability can never be proposed, so a month before the current one is rejected
-     * outright and the current month anchors on today rather than on the 1st.
-     */
     fun setCurrentMonth(month: YearMonth) {
         val today = LocalDate.now()
         if (month.isBefore(YearMonth.from(today))) return
@@ -63,11 +59,6 @@ class AvailabilityViewModel @Inject constructor(
         applyMutation { copy(currentMonth = month, visibleDates = dayWindowStartingAt(anchor)) }
     }
 
-    /**
-     * [date] becomes the leftmost column of the grid, clamped forward to today so the window
-     * never backfills. [AvailabilityUiState.currentMonth] is deliberately left alone: tapping a
-     * trailing day of an adjacent month shouldn't reshuffle the calendar panel under the user.
-     */
     fun setWindowStart(date: LocalDate) {
         val anchor = maxOf(date, LocalDate.now())
         applyMutation { copy(visibleDates = dayWindowStartingAt(anchor)) }
