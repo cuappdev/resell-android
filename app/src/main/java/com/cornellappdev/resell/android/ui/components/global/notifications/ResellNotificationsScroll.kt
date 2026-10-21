@@ -41,8 +41,8 @@ fun ResellNotificationsScroll(
                     modifier = Modifier.padding(horizontal = 24.dp)
                 )
                 Spacer(modifier = Modifier.height(12.dp))
-                val currUnreads by remember { mutableStateOf(unreadNotifications) }
-                currUnreads.mapIndexed { i, notification ->
+                // val currUnreads by remember { mutableStateOf(unreadNotifications) }
+                unreadNotifications.forEach { notification ->
                     if (notification.unread) {
                         SwipeableNotificationCard(
                             notification = notification,

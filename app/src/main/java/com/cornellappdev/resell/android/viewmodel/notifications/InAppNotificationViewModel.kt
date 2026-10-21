@@ -1,16 +1,21 @@
 package com.cornellappdev.resell.android.viewmodel.notifications
 
+import androidx.lifecycle.viewModelScope
 import com.cornellappdev.resell.android.model.classes.InAppNotification
+import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.model.classes.ResellApiState
+import com.cornellappdev.resell.android.model.notifications.NotificationRepository
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
 import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import java.time.Instant
 import javax.inject.Inject
 
 @HiltViewModel
 class InAppNotificationViewModel @Inject constructor(
     private val navController: RootNavigationRepository,
+    private val notificationRepository: NotificationRepository,
 ) : ResellViewModel<InAppNotificationViewModel.UiState>(
     initialUiState = UiState(
         loadedState = ResellApiState.Loading,
@@ -26,8 +31,12 @@ class InAppNotificationViewModel @Inject constructor(
 
 
         private fun dayDifferenceFromIso(iso: String): Int {
-            val instant = Instant.parse(iso)
-            return ((Instant.now().toEpochMilli() - instant.toEpochMilli()) / 86_400_000).toInt()
+            return try {
+                val instant = Instant.parse(iso)
+                ((Instant.now().toEpochMilli() - instant.toEpochMilli()) / 86_400_000).toInt()
+            } catch (e: Exception) {
+                0
+            }
         }
 
         val categorizedNotifications
@@ -54,23 +63,73 @@ class InAppNotificationViewModel @Inject constructor(
     }
 
     init {
-        //TODO: Implement networking
+        fetchNotifications()
+    }
+
+    fun fetchNotifications() {
+        viewModelScope.launch {
+            applyMutation { copy(loadedState = ResellApiState.Loading) }
+            when (val response = notificationRepository.getNewNotifications()) {
+                is ResellApiResponse.Success -> {
+                    applyMutation {
+                        copy(
+                            loadedState = ResellApiState.Success,
+                            notifs = response.data
+                        )
+                    }
+                }
+
+                else -> {
+                    applyMutation {
+                        copy(
+                            loadedState = ResellApiState.Success,
+                            notifs = emptyList()
+                        )
+                    }
+                }
+            }
+        }
     }
 
     fun onToggleFilter(filter: NotificationType?) {
-        //TODO: Implement networking
+        applyMutation {
+            copy(notifType = if (notifType == filter) null else filter)
+        }
     }
 
     fun onBackPressed() {
         navController.popBackStack()
     }
 
-    fun onNotificationPressed() {
-        //TODO: Implement navigation
+    fun onNotificationPressed(notif: InAppNotification) {
+        applyMutation {
+            copy(
+                notifs = notifs.map {
+                    if (it.id == notif.id) it.copy(unread = false) else it
+                }
+            )
+        }
+        viewModelScope.launch {
+            try {
+                notificationRepository.markAsRead(notif.id)
+            } catch (e: Exception) {
+            }
+        }
     }
 
     fun onNotificationArchived(notif: InAppNotification) {
-        //TODO: Implement networking
+        applyMutation {
+            copy(
+                notifs = notifs.filter { it.id != notif.id }
+            )
+        }
+        viewModelScope.launch {
+            try {
+                notificationRepository.deleteNotification(notif.id)
+            } catch (e: Exception) {
+                // Keep local optimistic deletion
+            }
+        }
     }
 }
 
