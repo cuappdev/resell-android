@@ -10,6 +10,7 @@ import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepos
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import java.time.Instant
+import java.time.temporal.ChronoUnit
 import javax.inject.Inject
 
 @HiltViewModel
@@ -20,7 +21,7 @@ class InAppNotificationViewModel @Inject constructor(
     initialUiState = UiState(
         loadedState = ResellApiState.Loading,
         notifType = null,
-        notifs = listOf()
+        notifs = emptyList()
     )
 ) {
     data class UiState(
@@ -28,38 +29,36 @@ class InAppNotificationViewModel @Inject constructor(
         val notifType: NotificationType?,
         val notifs: List<InAppNotification>,
     ) {
-
-
-        private fun dayDifferenceFromIso(iso: String): Int {
-            return try {
-                val instant = Instant.parse(iso)
-                ((Instant.now().toEpochMilli() - instant.toEpochMilli()) / 86_400_000).toInt()
-            } catch (e: Exception) {
-                0
+        val filteredNotifications: List<InAppNotification>
+            get() = if (notifType == null) {
+                notifs
+            } else {
+                notifs.filter { it.notificationType == notifType }
             }
-        }
 
-        val categorizedNotifications
-            get() = notifs
-                .filter { it.notificationType == notifType || notifType == null }
-                .groupBy { notification ->
-                    when {
-                        notification.unread -> "new"
-                        dayDifferenceFromIso(notification.timeState) <= 7 -> "week"
-                        dayDifferenceFromIso(notification.timeState) in 8..30 -> "month"
-                        else -> "other"
-                    }
+        val categorizedNotifications: Map<String, List<InAppNotification>>
+            get() = filteredNotifications.groupBy { notification ->
+                val now = Instant.now()
+                val days = ChronoUnit.DAYS.between(notification.createdInstant, now)
+                when {
+                    notification.unread -> "new"
+                    days in 0..6 -> "week"
+                    days in 7..29 -> "month"
+                    else -> "other"
                 }
+            }
 
-        val unreadNotifications
+        val unreadNotifications: List<InAppNotification>
             get() = categorizedNotifications["new"].orEmpty()
-        val weekNotifications
-            get() = categorizedNotifications["week"].orEmpty()
-        val monthNotifications
-            get() = categorizedNotifications["month"].orEmpty()
-        val otherNotifications
-            get() = categorizedNotifications["other"].orEmpty()
 
+        val weekNotifications: List<InAppNotification>
+            get() = categorizedNotifications["week"].orEmpty()
+
+        val monthNotifications: List<InAppNotification>
+            get() = categorizedNotifications["month"].orEmpty()
+
+        val otherNotifications: List<InAppNotification>
+            get() = categorizedNotifications["other"].orEmpty()
     }
 
     init {
@@ -69,7 +68,7 @@ class InAppNotificationViewModel @Inject constructor(
     fun fetchNotifications() {
         viewModelScope.launch {
             applyMutation { copy(loadedState = ResellApiState.Loading) }
-            when (val response = notificationRepository.getNewNotifications()) {
+            when (val response = notificationRepository.getLast30DaysNotifications()) {
                 is ResellApiResponse.Success -> {
                     applyMutation {
                         copy(
@@ -105,7 +104,7 @@ class InAppNotificationViewModel @Inject constructor(
         applyMutation {
             copy(
                 notifs = notifs.map {
-                    if (it.id == notif.id) it.copy(unread = false) else it
+                    if (it.id == notif.id) it.copy(read = true) else it
                 }
             )
         }
@@ -119,15 +118,12 @@ class InAppNotificationViewModel @Inject constructor(
 
     fun onNotificationArchived(notif: InAppNotification) {
         applyMutation {
-            copy(
-                notifs = notifs.filter { it.id != notif.id }
-            )
+            copy(notifs = notifs.filter { it.id != notif.id })
         }
         viewModelScope.launch {
             try {
                 notificationRepository.deleteNotification(notif.id)
             } catch (e: Exception) {
-                // Keep local optimistic deletion
             }
         }
     }

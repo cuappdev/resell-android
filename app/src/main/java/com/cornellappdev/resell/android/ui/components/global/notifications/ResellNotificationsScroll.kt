@@ -8,13 +8,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.cornellappdev.resell.android.model.classes.InAppNotification
 import com.cornellappdev.resell.android.ui.theme.Style
+import com.cornellappdev.resell.android.util.getRelativeTimeSpan
 
 @Composable
 fun ResellNotificationsScroll(
@@ -41,22 +39,19 @@ fun ResellNotificationsScroll(
                     modifier = Modifier.padding(horizontal = 24.dp)
                 )
                 Spacer(modifier = Modifier.height(12.dp))
-                // val currUnreads by remember { mutableStateOf(unreadNotifications) }
                 unreadNotifications.forEach { notification ->
-                    if (notification.unread) {
-                        SwipeableNotificationCard(
-                            notification = notification,
-                            imageUrl = notification.user.photoUrl, //TODO: use other applicable image data once added to the backend
-                            body = notification.body,
-                            timestamp = notification.timeState,
-                            unread = true,
-                            onArchive = {
-                                onNotificationArchived(notification)
-                            },
-                            modifier = Modifier.animateItem(fadeInSpec = null, fadeOutSpec = null)
-                        ) {
-                            onNotificationPressed(notification)
-                        }
+                    SwipeableNotificationCard(
+                        notification = notification,
+                        imageUrl = notification.data.avatarUrl.ifBlank { notification.user?.photoUrl.orEmpty() },
+                        body = notification.body,
+                        timestamp = getRelativeTimeSpan(notification.createdInstant.toString()),
+                        unread = true,
+                        onArchive = {
+                            onNotificationArchived(notification)
+                        },
+                        modifier = Modifier.animateItem(fadeInSpec = null, fadeOutSpec = null)
+                    ) {
+                        onNotificationPressed(notification)
                     }
                 }
                 Spacer(modifier = Modifier.height(12.dp))
@@ -72,20 +67,19 @@ fun ResellNotificationsScroll(
                 )
                 Spacer(modifier = Modifier.height(12.dp))
 
-                weekNotifications.forEach { it ->
+                weekNotifications.forEach { notification ->
                     NotificationCard(
-                        imageUrl = it.user.photoUrl, //TODO: use other applicable image data once added to the backend
-                        body = it.body,
-                        timestamp = it.timeState,
-                        unread = it.unread,
+                        imageUrl = notification.data.avatarUrl.ifBlank { notification.user?.photoUrl.orEmpty() },
+                        body = notification.body,
+                        timestamp = getRelativeTimeSpan(notification.createdInstant.toString()),
+                        unread = false,
                     ) {
-                        onNotificationPressed(it)
+                        onNotificationPressed(notification)
                     }
                 }
                 Spacer(modifier = Modifier.height(12.dp))
             }
         }
-
 
         if (monthNotifications.isNotEmpty()) {
             item {
@@ -95,14 +89,14 @@ fun ResellNotificationsScroll(
                     modifier = Modifier.padding(horizontal = 24.dp)
                 )
                 Spacer(modifier = Modifier.height(12.dp))
-                monthNotifications.forEach {
+                monthNotifications.forEach { notification ->
                     NotificationCard(
-                        imageUrl = it.user.photoUrl, //TODO: use other applicable image data once added to the backend
-                        body = it.body,
-                        timestamp = it.timeState,
-                        unread = it.unread,
+                        imageUrl = notification.data.avatarUrl.ifBlank { notification.user?.photoUrl.orEmpty() },
+                        body = notification.body,
+                        timestamp = getRelativeTimeSpan(notification.createdInstant.toString()),
+                        unread = false,
                     ) {
-                        onNotificationPressed(it)
+                        onNotificationPressed(notification)
                     }
                 }
                 Spacer(modifier = Modifier.height(12.dp))
@@ -117,14 +111,14 @@ fun ResellNotificationsScroll(
                     modifier = Modifier.padding(horizontal = 24.dp)
                 )
                 Spacer(modifier = Modifier.height(12.dp))
-                otherNotifications.forEach {
+                otherNotifications.forEach { notification ->
                     NotificationCard(
-                        imageUrl = it.user.photoUrl, //TODO: use other applicable image data once added to the backend
-                        body = it.body,
-                        timestamp = it.timeState,
-                        unread = it.unread,
+                        imageUrl = notification.data.avatarUrl.ifBlank { notification.user?.photoUrl.orEmpty() },
+                        body = notification.body,
+                        timestamp = getRelativeTimeSpan(notification.createdInstant.toString()),
+                        unread = false,
                     ) {
-                        onNotificationPressed(it)
+                        onNotificationPressed(notification)
                     }
                 }
             }
