@@ -15,13 +15,13 @@ data class ChatDocument(
     val id: String,
     val timestamp: Timestamp,
     /** Urls **/
-    val images: List<String>?,
-    val text: String?,
+    val images: List<String> = emptyList(),
+    val text: String = "",
     val type: String,
     val senderId: String,
     val availabilities: List<StartAndEnd>?,
     val accepted: Boolean?,
-    val cancellation: Boolean?,
+    val cancellation: Boolean = false,
     val startDate: Timestamp?,
     val endDate: Timestamp?,
     val transactionId: String?

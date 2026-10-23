@@ -200,7 +200,7 @@ class ChatRepository @Inject constructor(
             // The String is the sender's id.
             val messageData = chatDocuments.map { document ->
                 val messageType =
-                    if (document.images?.isNotEmpty() == true) {
+                    if (document.images.isNotEmpty()) {
                         MessageType.Image
                     } else if (document.availabilities != null) {
                         MessageType.Availability
@@ -213,7 +213,7 @@ class ChatRepository @Inject constructor(
                 val meetingInfo = document.startDate?.let {
                     MeetingInfo(
                         proposeTime = it,
-                        state = if (document.cancellation == true) {
+                        state = if (document.cancellation) {
                             MeetingState.CANCELED
                         } else if (document.accepted == true) {
                             MeetingState.CONFIRMED
@@ -248,11 +248,11 @@ class ChatRepository @Inject constructor(
                                 myId = myId,
                                 otherName = otherName
                             )
-                        } else document.text ?: "",
+                        } else document.text,
                         timestamp = document.timestamp,
                         senderId = document.senderId,
                         messageType = messageType,
-                        imageUrl = document.images?.firstOrNull() ?: "",
+                        imageUrl = document.images.firstOrNull() ?: "",
                         availability = availability,
                         meetingInfo = meetingInfo,
                         transactionId = document.transactionId

@@ -123,13 +123,11 @@ class FireStoreRepository @Inject constructor(
                             images = listOf(url),
                             timestamp = it.getTimestamp("timestamp") ?: Timestamp(0, 0),
                             senderId = it.get("senderID") as? String ?: "",
-                            text = null,
                             accepted = null,
                             startDate = null,
                             endDate = null,
                             availabilities = null,
                             type = "chat",
-                            cancellation = null,
                             transactionId = null
                         )
                         docs += doc
@@ -146,8 +144,6 @@ class FireStoreRepository @Inject constructor(
                             availabilities = null,
                             type = "chat",
                             senderId = it.get("senderID") as? String ?: "",
-                            images = emptyList(),
-                            cancellation = null,
                             transactionId = null
                         )
                         docs += doc
@@ -171,11 +167,11 @@ class FireStoreRepository @Inject constructor(
                         accepted = it.get("accepted") as? Boolean,
                         startDate = startTime,
                         endDate = endTime,
-                        images = it.get("images") as? List<String>,
+                        images = it.get("images") as? List<String> ?: emptyList(),
                         availabilities = avail,
                         type = it.get("type") as? String ?: "",
                         senderId = it.get("senderID") as? String ?: "",
-                        cancellation = it.get("cancellation") as? Boolean,
+                        cancellation = it.get("cancellation") as? Boolean ?: false,
                         transactionId = it.get("transactionId") as? String
                     )
 
