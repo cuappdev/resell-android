@@ -21,8 +21,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.cornellappdev.resell.android.R
+import com.cornellappdev.resell.android.ui.theme.ResellPreview
 import com.cornellappdev.resell.android.ui.theme.ResellPurple
 import com.cornellappdev.resell.android.ui.theme.Secondary
 import com.cornellappdev.resell.android.ui.theme.Style
@@ -134,5 +136,23 @@ fun AvailabilityPagerContainer(
                 )
             }
         }
+    }
+}
+
+@Preview
+@Composable
+private fun AvailabilityPagerContainerPreview() = ResellPreview {
+    AvailabilityPagerContainer(
+        title = "Title",
+        subtitle = "Subtitle",
+        startDate = LocalDate.now(),
+        scrollRange = 1 to 1,
+        onEditAvailabilityClicked = {}
+    ) { dates, _ ->
+        ViewOnlyAvailabilityGrid(
+            dates,
+            testAvailabilities(dates),
+            onSelectAvailability = {}
+        )
     }
 }

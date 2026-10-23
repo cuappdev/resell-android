@@ -23,11 +23,11 @@ import java.time.temporal.ChronoUnit
 fun SelectableAvailabilityPager(
     title: String,
     subtitle: String,
+    gridSelectionType: GridSelectionType,
+    modifier: Modifier = Modifier,
     initialSelectedAvailabilities: List<LocalDateTime> = emptyList(),
     overlappingAvailabilities: List<LocalDateTime>? = null,
     scrollRange: Pair<Int, Int> = 0 to 6,
-    modifier: Modifier = Modifier,
-    gridSelectionType: GridSelectionType,
     onEditAvailabilityClicked: (() -> Unit)? = null,
     setProposalTime: (LocalDateTime) -> Unit,
     setSelectedAvailabilities: (List<LocalDateTime>) -> Unit,

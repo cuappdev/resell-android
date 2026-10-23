@@ -16,12 +16,12 @@ import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
 
-/**
- * Returns null rather than throwing on an unrecognized shape so an exception
- * does not kill the app.
- */
 
 private const val TAG = "FireStoreRepository"
+
+/**
+ * Returns null when there is an invalid value.
+ */
 private fun parseFirestoreDate(value: Any?): Timestamp? =
     when (value) {
         null -> null
