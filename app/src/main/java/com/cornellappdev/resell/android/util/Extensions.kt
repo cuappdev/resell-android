@@ -14,17 +14,7 @@ fun Pair<Int, Int>.toSortedPair() = if (first <= second) this else second to fir
 val LocalDateTime.day: Long get() = ChronoUnit.DAYS.between(LocalDate.ofEpochDay(0), this)
 
 val LocalDate.day: Long get() = ChronoUnit.DAYS.between(LocalDate.ofEpochDay(0), this)
-
-fun Timestamp.toIsoString(): String {
-    // Convert Firebase Timestamp to Date
-    val date = this.toDate()
-
-    // Format Date to ISO 8601 string
-    val isoFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
-    isoFormat.timeZone = TimeZone.getTimeZone("UTC") // Ensure the output is in UTC
-
-    return isoFormat.format(date)
-}
+fun Timestamp.toIsoString(): String = toDate().toInstant().toString()
 
 /**
  * Returns the MONTH DAY, YEAR format.

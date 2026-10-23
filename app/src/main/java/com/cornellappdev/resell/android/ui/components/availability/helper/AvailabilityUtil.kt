@@ -5,15 +5,13 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import com.cornellappdev.resell.android.ui.theme.ResellPurple
 import com.cornellappdev.resell.android.ui.theme.Stroke
+import com.cornellappdev.resell.android.ui.theme.Wash
 import com.cornellappdev.resell.android.util.day
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
-import java.time.YearMonth
 import kotlin.math.floor
 
 const val GRID_HEIGHT = 24
@@ -23,13 +21,11 @@ val gridStroke = Stroke
 val fillColor = ResellPurple
 
 
-/** Returns a fixed 3-day group containing [date] (1-3, 4-6, ...), can roll over months. */
-fun dayGroupContaining(date: LocalDate): List<LocalDate> {
-    val month = YearMonth.from(date)
-    val groupIndex = (date.dayOfMonth - 1) / 3
-    val groupStart = month.atDay(groupIndex * 3 + 1)
-    return (0..2).map { groupStart.plusDays(it.toLong()) }
-}
+/** Number of day columns an availability grid shows at once. */
+const val DAY_WINDOW_SIZE = 3
+
+fun dayWindowStartingAt(startDate: LocalDate): List<LocalDate> =
+    (0 until DAY_WINDOW_SIZE).map { startDate.plusDays(it.toLong()) }
 
 
 fun getGridCell(offset: Offset, canvasSize: Size, width: Int, height: Int): Pair<Int, Int> {
@@ -77,6 +73,27 @@ fun List<LocalDateTime>.mapToGrid(dates: List<LocalDate>): List<BooleanArray> {
         grid[row][column] = true
     }
     return grid
+}
+
+/**
+ * Greys out every cell where [unavailableGrid] is true, so only cells left white/normal
+ * represent times available to both parties.
+ */
+fun DrawScope.drawUnavailableCells(unavailableGrid: List<BooleanArray>, rectWidth: Float, rectHeight: Float) {
+    for (row in unavailableGrid.indices) {
+        for (col in unavailableGrid[row].indices) {
+            if (unavailableGrid[row][col]) {
+                val position = Offset(rectWidth * col, rectHeight * row)
+
+                drawRect(
+                    size = Size(rectWidth, rectHeight),
+                    topLeft = position,
+                    color = Wash,
+                    style = Fill
+                )
+            }
+        }
+    }
 }
 
 fun DrawScope.drawBorder(grid: List<BooleanArray>, rectWidth: Float, rectHeight: Float) {
