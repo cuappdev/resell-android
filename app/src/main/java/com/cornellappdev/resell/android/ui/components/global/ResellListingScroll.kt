@@ -15,6 +15,8 @@ import androidx.compose.foundation.lazy.staggeredgrid.itemsIndexed
 import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
@@ -43,9 +45,10 @@ fun ResellListingsScroll(
     }
 
     // Check if the last real listing item is visible
+    val currentListings by rememberUpdatedState(listings)
     LaunchedEffect(listState) {
         snapshotFlow { listState.layoutInfo }
-            .map { layoutInfo -> layoutInfo.isItemWithKeyVisible(listings.lastOrNull()?.id) }
+            .map { layoutInfo -> layoutInfo.isItemWithKeyVisible(currentListings.lastOrNull()?.id) }
             .distinctUntilChanged()
             .collect { isAtBottom ->
                 if (isAtBottom) {

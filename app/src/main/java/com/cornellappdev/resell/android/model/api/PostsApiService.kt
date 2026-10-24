@@ -48,7 +48,7 @@ interface PostsApiService {
         @Query("limit") size: Int = 10
     ): PostsResponse
 
-    @POST("post/filterNewlyListed/")
+    @POST("post/filterNewlyListed")
     suspend fun getNewlyListedPosts(
         @Query("page") page: Int = 1,
         @Query("limit") size: Int = 10

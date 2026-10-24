@@ -38,8 +38,10 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -267,9 +269,10 @@ private fun MainContent(
     val listState = rememberLazyStaggeredGridState()
 
     // Check if the last real listing item is visible
+    val currentListings by rememberUpdatedState(filteredListings)
     LaunchedEffect(listState) {
         snapshotFlow { listState.layoutInfo }
-            .map { layoutInfo -> layoutInfo.isItemWithKeyVisible(filteredListings.lastOrNull()?.id) }
+            .map { layoutInfo -> layoutInfo.isItemWithKeyVisible(currentListings.lastOrNull()?.id) }
             .distinctUntilChanged()
             .collect { isAtBottom ->
                 if (isAtBottom) {
