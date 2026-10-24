@@ -26,7 +26,6 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -84,11 +83,7 @@ class ResellPostRepository @Inject constructor(
                 description = description,
                 imagesBase64 = base64s,
                 originalPrice = originalPrice,
-                categories = categories.map { category ->
-                    category.lowercase().replaceFirstChar {
-                        if (it.isLowerCase()) it.titlecase(Locale.US) else it.toString()
-                    }
-                },
+                categories = categories,
                 userId = userId,
                 // TODO: New designs incoming to allow a change here?
                 condition = "NEW"

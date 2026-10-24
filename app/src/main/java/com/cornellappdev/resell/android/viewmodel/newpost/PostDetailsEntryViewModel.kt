@@ -102,7 +102,7 @@ class PostDetailsEntryViewModel @Inject constructor(
                     originalPrice = stateValue().price.toDouble(),
                     images = postRepository.getRecentBitmaps()!!,
                     categories = stateValue().activeFilters.map {
-                        it.name
+                        it.label
                     },
                     userId = userInfoRepository.getUserId() ?: "lol"
                 )
