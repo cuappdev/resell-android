@@ -42,11 +42,11 @@ fun ResellFilter.toFilterRequest(): FilterRequest {
             lowerBound = priceRange.first.toDouble(),
             upperBound = priceRange.last.toDouble()
         ),
+        // "NEW" is a legacy condition tag, keep to include past posts
         condition = when (conditionSelected) {
-            ResellFilter.FilterCondition.GENTLY_USED -> "gentlyUsed"
-            ResellFilter.FilterCondition.NEVER_USED -> "new"
-            ResellFilter.FilterCondition.WORN -> "worn"
             null -> null
+            ResellFilter.FilterCondition.NEVER_USED -> listOf(conditionSelected.label, "NEW")
+            else -> listOf(conditionSelected.label)
         },
         categories = if (categoriesSelected.isEmpty()) null else categoriesSelected.map { it.label },
         sortField = when (sortBy) {

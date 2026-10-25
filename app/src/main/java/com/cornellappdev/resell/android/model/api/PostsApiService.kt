@@ -112,7 +112,7 @@ data class FilterRequest(
     val sortField: String? = null,
     val price: PriceRange? = null,
     val categories: List<String>? = null,
-    val condition: String? = null,
+    val condition: List<String>? = null,
 )
 
 

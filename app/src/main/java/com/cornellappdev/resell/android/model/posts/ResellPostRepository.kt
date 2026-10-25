@@ -73,6 +73,7 @@ class ResellPostRepository @Inject constructor(
         images: List<ImageBitmap>,
         originalPrice: Double,
         categories: List<String>,
+        condition: String,
         userId: String,
     ): PostResponse {
         val base64s = images.map { it.toNetworkingString() }
@@ -85,8 +86,7 @@ class ResellPostRepository @Inject constructor(
                 originalPrice = originalPrice,
                 categories = categories,
                 userId = userId,
-                // TODO: New designs incoming to allow a change here?
-                condition = "NEW"
+                condition = condition
             )
         )
     }
