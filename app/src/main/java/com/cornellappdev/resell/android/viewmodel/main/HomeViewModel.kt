@@ -125,13 +125,17 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val posts = resellPostRepository.getFilteredPosts(filter, page = 1, limit = HOME_PAGE_SIZE)
-                val sortedPosts = posts.sortedByDescending { it.createdDate }
+                val orderedPosts = if (filter.sortBy == ResellFilter.SortBy.NEWLY_LISTED) {
+                    posts.sortedByDescending { it.createdDate }
+                } else {
+                    posts
+                }
                 applyMutation {
                     copy(
-                        listings = sortedPosts.map { it.toListing() },
+                        listings = orderedPosts.map { it.toListing() },
                         loadedState = ResellApiState.Success,
                         page = 1,
-                        endReached = posts.size < HOME_PAGE_SIZE,
+                        endReached = posts.isEmpty(),
                         isDefaultFeed = false
                     )
                 }
@@ -149,13 +153,12 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val posts = resellPostRepository.getNewlyListedPosts(page = 1, limit = HOME_PAGE_SIZE)
-                val sortedPosts = posts.sortedByDescending { it.createdDate }
                 applyMutation {
                     copy(
-                        listings = sortedPosts.map { it.toListing() },
+                        listings = posts.map { it.toListing() },
                         loadedState = ResellApiState.Success,
                         page = 1,
-                        endReached = posts.size < HOME_PAGE_SIZE,
+                        endReached = posts.isEmpty(),
                         isDefaultFeed = true
                     )
                 }
@@ -182,12 +185,21 @@ class HomeViewModel @Inject constructor(
                 } else {
                     resellPostRepository.getFilteredPosts(state.activeFilter, page = nextPage, limit = HOME_PAGE_SIZE)
                 }
-                val sortedPosts = posts.sortedByDescending { it.createdDate }
+                val orderedPosts =
+                    if (!state.isDefaultFeed && state.activeFilter.sortBy == ResellFilter.SortBy.NEWLY_LISTED) {
+                        posts.sortedByDescending { it.createdDate }
+                    } else {
+                        posts
+                    }
                 applyMutation {
+                    // Prevent duplicates from rendering
+                    val existingIds = listings.map { it.id }.toSet()
+                    val newListings = orderedPosts.map { it.toListing() }
+                        .filterNot { it.id in existingIds }
                     copy(
-                        listings = listings + sortedPosts.map { it.toListing() },
+                        listings = listings + newListings,
                         page = nextPage,
-                        endReached = posts.size < HOME_PAGE_SIZE,
+                        endReached = posts.isEmpty(),
                         bottomLoading = false
                     )
                 }

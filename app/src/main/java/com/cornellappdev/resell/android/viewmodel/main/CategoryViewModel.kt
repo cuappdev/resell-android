@@ -80,7 +80,7 @@ class CategoryViewModel @Inject constructor(
                         listings = posts.map { it.toListing() },
                         loadedState = ResellApiState.Success,
                         page = 1,
-                        endReached = posts.size < CATEGORY_PAGE_SIZE
+                        endReached = posts.isEmpty()
                     )
                 }
             } catch (_: Exception) {
@@ -107,10 +107,14 @@ class CategoryViewModel @Inject constructor(
                     limit = CATEGORY_PAGE_SIZE
                 )
                 applyMutation {
+                    // Prevent duplicates from rendering
+                    val existingIds = listings.map { it.id }.toSet()
+                    val newListings = posts.map { it.toListing() }
+                        .filterNot { it.id in existingIds }
                     copy(
-                        listings = listings + posts.map { it.toListing() },
+                        listings = listings + newListings,
                         page = nextPage,
-                        endReached = posts.size < CATEGORY_PAGE_SIZE,
+                        endReached = posts.isEmpty(),
                         bottomLoading = false
                     )
                 }
