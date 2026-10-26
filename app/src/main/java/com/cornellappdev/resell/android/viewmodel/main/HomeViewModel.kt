@@ -1,5 +1,6 @@
 package com.cornellappdev.resell.android.viewmodel.main
 
+import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.lifecycle.viewModelScope
@@ -47,6 +48,10 @@ class HomeViewModel @Inject constructor(
             isDefaultFeed = true
         )
     ) {
+
+    companion object {
+        private const val TAG = "HomeViewModel"
+    }
 
     data class HomeUiState(
         val loadedState: ResellApiState,
@@ -147,6 +152,7 @@ class HomeViewModel @Inject constructor(
                 }
             } catch (_: CancellationException) {
             } catch (e: Exception) {
+                Log.e(TAG, "Error fetching filtered posts: ", e)
                 applyMutation {
                     copy(
                         loadedState = ResellApiState.Error,
@@ -174,6 +180,7 @@ class HomeViewModel @Inject constructor(
                 }
             } catch (_: CancellationException) {
             } catch (e: Exception) {
+                Log.e(TAG, "Error fetching newly listed posts: ", e)
                 applyMutation {
                     copy(
                         loadedState = ResellApiState.Error,
@@ -218,6 +225,7 @@ class HomeViewModel @Inject constructor(
                 }
             } catch (_: CancellationException) {
             } catch (e: Exception) {
+                Log.e(TAG, "Error fetching next page: ", e)
                 applyMutation { copy(bottomLoading = false) }
             }
         }

@@ -272,9 +272,12 @@ private fun MainContent(
     val currentListings by rememberUpdatedState(filteredListings)
     LaunchedEffect(listState) {
         snapshotFlow { listState.layoutInfo }
-            .map { layoutInfo -> layoutInfo.isItemWithKeyVisible(currentListings.lastOrNull()?.id) }
+            .map { layoutInfo ->
+                val lastId = currentListings.lastOrNull()?.id
+                lastId to layoutInfo.isItemWithKeyVisible(lastId)
+            }
             .distinctUntilChanged()
-            .collect { isAtBottom ->
+            .collect { (_, isAtBottom) ->
                 if (isAtBottom) {
                     onScrollBottom()
                 }
