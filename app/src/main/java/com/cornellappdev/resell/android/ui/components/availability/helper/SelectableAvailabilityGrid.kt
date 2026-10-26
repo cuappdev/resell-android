@@ -44,6 +44,7 @@ private fun SelectableGrid(
     updateGrid: ((List<BooleanArray>) -> List<BooleanArray>) -> Unit,
     gridSelectionType: GridSelectionType,
     modifier: Modifier = Modifier,
+    unavailableGrid: List<BooleanArray>? = null,
     onProposalSelected: (Pair<Int, Int>) -> Unit
 ) {
     var isRemoving by remember { mutableStateOf(false) }
@@ -160,6 +161,9 @@ private fun SelectableGrid(
          * in.
          */
 
+        // Grey out cells not available to both parties, before the border/selection layers.
+        unavailableGrid?.let { drawUnavailableCells(it, rectWidth, rectHeight) }
+
         // Draw border
         drawBorder(grid, rectWidth, rectHeight)
 
@@ -216,9 +220,14 @@ fun SelectableAvailabilityGrid(
     setSelectedAvailabilities: (List<LocalDateTime>) -> Unit,
     gridSelectionType: GridSelectionType,
     modifier: Modifier = Modifier,
+    /** Only times that work for both are shown as normal/white. */
+    overlappingAvailabilities: List<LocalDateTime>? = null,
     onProposalSelected: (LocalDateTime) -> Unit,
 ) {
     val grid = selectedAvailabilities.mapToGrid(dates)
+    val unavailableGrid = overlappingAvailabilities?.mapToGrid(dates)?.map { row ->
+        BooleanArray(row.size) { col -> !row[col] }
+    }
 
     AvailabilityGridContainer(dates, modifier) {
         SelectableGrid(
@@ -228,6 +237,7 @@ fun SelectableAvailabilityGrid(
                 setSelectedAvailabilities(newGrid.toAvailabilities(dates))
             },
             gridSelectionType = gridSelectionType,
+            unavailableGrid = unavailableGrid,
             onProposalSelected = {
                 val (row, col) = it
                 onProposalSelected(rowColToLocalDateTime(row, col, dates))
@@ -271,7 +281,7 @@ private fun AvailabilityGrid_RUNME_Preview() = ResellPreview {
 @Preview
 @Composable
 private fun SelectableAvailabilityGridRolloverPreview() = ResellPreview {
-    val rolloverDates = dayGroupContaining(LocalDate.of(2026, 10, 31))
+    val rolloverDates = dayWindowStartingAt(LocalDate.of(2026, 10, 30))
     var selectedAvailabilities by remember { mutableStateOf(testAvailabilities(rolloverDates)) }
     SelectableAvailabilityGrid(
         dates = rolloverDates,
