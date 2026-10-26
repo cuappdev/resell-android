@@ -10,6 +10,8 @@ import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
 import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -41,6 +43,8 @@ class CategoryViewModel @Inject constructor(
         val endReached: Boolean
     )
 
+    private var fetchJob: Job? = null
+
     init {
         val categoryName: String? = savedStateHandle["category"]
         val category = categoryName?.let { ResellFilter.FilterCategory.valueOf(it) }
@@ -71,7 +75,8 @@ class CategoryViewModel @Inject constructor(
         // Ignore initial call which does not have the category. Avoids race condition
         if (filter.categoriesSelected.isEmpty()) return
 
-        viewModelScope.launch {
+        fetchJob?.cancel()
+        fetchJob = viewModelScope.launch {
             try {
                 val posts =
                     resellPostRepository.getFilteredPosts(filter, page = 1, limit = CATEGORY_PAGE_SIZE)
@@ -80,13 +85,16 @@ class CategoryViewModel @Inject constructor(
                         listings = posts.map { it.toListing() },
                         loadedState = ResellApiState.Success,
                         page = 1,
-                        endReached = posts.isEmpty()
+                        endReached = posts.isEmpty(),
+                        bottomLoading = false
                     )
                 }
+            } catch (_: CancellationException) {
             } catch (_: Exception) {
                 applyMutation {
                     copy(
-                        loadedState = ResellApiState.Error
+                        loadedState = ResellApiState.Error,
+                        bottomLoading = false
                     )
                 }
             }
@@ -98,7 +106,8 @@ class CategoryViewModel @Inject constructor(
         if (state.bottomLoading || state.endReached || state.loadedState !is ResellApiState.Success) return
 
         applyMutation { copy(bottomLoading = true) }
-        viewModelScope.launch {
+        fetchJob?.cancel()
+        fetchJob = viewModelScope.launch {
             try {
                 val nextPage = state.page + 1
                 val posts = resellPostRepository.getFilteredPosts(
@@ -114,10 +123,11 @@ class CategoryViewModel @Inject constructor(
                     copy(
                         listings = listings + newListings,
                         page = nextPage,
-                        endReached = posts.isEmpty(),
+                        endReached = newListings.isEmpty(),
                         bottomLoading = false
                     )
                 }
+            } catch (_: CancellationException) {
             } catch (_: Exception) {
                 applyMutation { copy(bottomLoading = false) }
             }
@@ -130,6 +140,7 @@ class CategoryViewModel @Inject constructor(
                 copy(
                     filter = filter,
                     loadedState = ResellApiState.Loading,
+                    bottomLoading = false
                 )
             }
             getPosts(filter)

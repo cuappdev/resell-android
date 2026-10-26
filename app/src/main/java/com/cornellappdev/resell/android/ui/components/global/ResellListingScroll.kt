@@ -88,7 +88,7 @@ fun LazyStaggeredGridScope.resellListingScroll(
     addVerticalPadding: Boolean = false,
     bottomLoading: Boolean = false,
 ) {
-    itemsIndexed(items = listings, key = { _, item -> item.id }) { _, item ->
+    itemsIndexed(items = listings.distinctBy { it.id }, key = { _, item -> item.id }) { _, item ->
         val padding = calculateItemPadding(addVerticalPadding)
         ResellCard(
             imageUrl = item.image,

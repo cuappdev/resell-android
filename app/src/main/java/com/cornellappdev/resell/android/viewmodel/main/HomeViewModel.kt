@@ -14,8 +14,10 @@ import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
 import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -60,6 +62,8 @@ class HomeViewModel @Inject constructor(
         val savedImageResponses: List<MutableState<ResellApiResponse<ImageBitmap>>>,
         val searchedImageResponses: List<MutableState<ResellApiResponse<ImageBitmap>>>
     )
+
+    private var fetchJob: Job? = null
 
     init {
         getNewlyListedPosts()
@@ -122,7 +126,8 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun getPosts(filter: ResellFilter) {
-        viewModelScope.launch {
+        fetchJob?.cancel()
+        fetchJob = viewModelScope.launch {
             try {
                 val posts = resellPostRepository.getFilteredPosts(filter, page = 1, limit = HOME_PAGE_SIZE)
                 val orderedPosts = if (filter.sortBy == ResellFilter.SortBy.NEWLY_LISTED) {
@@ -136,13 +141,16 @@ class HomeViewModel @Inject constructor(
                         loadedState = ResellApiState.Success,
                         page = 1,
                         endReached = posts.isEmpty(),
-                        isDefaultFeed = false
+                        isDefaultFeed = false,
+                        bottomLoading = false
                     )
                 }
+            } catch (_: CancellationException) {
             } catch (e: Exception) {
                 applyMutation {
                     copy(
-                        loadedState = ResellApiState.Error
+                        loadedState = ResellApiState.Error,
+                        bottomLoading = false
                     )
                 }
             }
@@ -150,7 +158,8 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun getNewlyListedPosts() {
-        viewModelScope.launch {
+        fetchJob?.cancel()
+        fetchJob = viewModelScope.launch {
             try {
                 val posts = resellPostRepository.getNewlyListedPosts(page = 1, limit = HOME_PAGE_SIZE)
                 applyMutation {
@@ -159,13 +168,16 @@ class HomeViewModel @Inject constructor(
                         loadedState = ResellApiState.Success,
                         page = 1,
                         endReached = posts.isEmpty(),
-                        isDefaultFeed = true
+                        isDefaultFeed = true,
+                        bottomLoading = false
                     )
                 }
+            } catch (_: CancellationException) {
             } catch (e: Exception) {
                 applyMutation {
                     copy(
-                        loadedState = ResellApiState.Error
+                        loadedState = ResellApiState.Error,
+                        bottomLoading = false
                     )
                 }
             }
@@ -177,7 +189,8 @@ class HomeViewModel @Inject constructor(
         if (state.bottomLoading || state.endReached || state.loadedState !is ResellApiState.Success) return
 
         applyMutation { copy(bottomLoading = true) }
-        viewModelScope.launch {
+        fetchJob?.cancel()
+        fetchJob = viewModelScope.launch {
             try {
                 val nextPage = state.page + 1
                 val posts = if (state.isDefaultFeed) {
@@ -199,10 +212,11 @@ class HomeViewModel @Inject constructor(
                     copy(
                         listings = listings + newListings,
                         page = nextPage,
-                        endReached = posts.isEmpty(),
+                        endReached = newListings.isEmpty(),
                         bottomLoading = false
                     )
                 }
+            } catch (_: CancellationException) {
             } catch (e: Exception) {
                 applyMutation { copy(bottomLoading = false) }
             }
@@ -214,6 +228,7 @@ class HomeViewModel @Inject constructor(
             copy(
                 activeFilter = filter,
                 loadedState = ResellApiState.Loading,
+                bottomLoading = false
             )
         }
         getPosts(filter)
