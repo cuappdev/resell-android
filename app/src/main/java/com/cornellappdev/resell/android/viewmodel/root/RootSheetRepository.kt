@@ -72,7 +72,9 @@ sealed class RootSheet {
         val title: String,
         val description: String,
         val callback: (List<LocalDateTime>) -> Unit,
-        val gridSelectionType: GridSelectionType
+        val gridSelectionType: GridSelectionType,
+        val overlapTimes: List<LocalDateTime>? = null,
+        val onEditAvailability: (() -> Unit)? = null,
     ) : RootSheet()
 
     data class MeetingCancel(

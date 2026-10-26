@@ -49,9 +49,11 @@ fun MonthCalendar(
     currentMonth: YearMonth,
     selectedDates: List<LocalDate>,
     onMonthChange: (YearMonth) -> Unit,
-    onDaysSelected: (List<LocalDate>) -> Unit,
+    onDayStartSelected: (LocalDate) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val today = remember { LocalDate.now() }
+    val thisMonth = remember(today) { YearMonth.from(today) }
     val firstDayOfMonth = currentMonth.atDay(1)
     val firstDayOfWeek = firstDayOfMonth.dayOfWeek.value % 7
     val daysInMonth = currentMonth.lengthOfMonth()
@@ -68,7 +70,8 @@ fun MonthCalendar(
                     onDragEnd = {
                         when {
                             totalDrag <= -swipeThresholdPx -> onMonthChange(currentMonth.plusMonths(1))
-                            totalDrag >= swipeThresholdPx -> onMonthChange(currentMonth.minusMonths(1))
+                            totalDrag >= swipeThresholdPx && currentMonth.isAfter(thisMonth) ->
+                                onMonthChange(currentMonth.minusMonths(1))
                         }
                         totalDrag = 0f
                     },
@@ -114,6 +117,7 @@ fun MonthCalendar(
                         val cellIndex = row * 7 + col
                         val date = firstDayOfMonth.plusDays((cellIndex - firstDayOfWeek).toLong())
                         val isInCurrentMonth = YearMonth.from(date) == currentMonth
+                        val isPast = date.isBefore(today)
                         val isSelected = date in selectedDates
                         val hasSelectedLeftNeighbor = col > 0 && date.minusDays(1) in selectedDates
                         val hasSelectedRightNeighbor = col < 6 && date.plusDays(1) in selectedDates
@@ -132,14 +136,18 @@ fun MonthCalendar(
                                         else -> RoundedCornerShape(0.dp)
                                     }
                                 )
-                                .clickable { onDaysSelected(dayGroupContaining(date)) }
+                                .then(
+                                    if (isPast) Modifier
+                                    else Modifier.clickable { onDayStartSelected(date) }
+                                )
                                 .padding(6.dp),
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
                                 text = "${date.dayOfMonth}",
                                 style = Style.body2,
-                                color = if (isInCurrentMonth) Color.Unspecified else IconInactive
+                                color = if (isPast || !isInCurrentMonth) IconInactive
+                                else Color.Unspecified
                             )
                         }
                     }
@@ -152,32 +160,31 @@ fun MonthCalendar(
 @Preview
 @Composable
 fun MonthCalendarPreview() = ResellPreview {
-    var currentMonth by remember { mutableStateOf(YearMonth.of(2026, 4)) }
+    var currentMonth by remember { mutableStateOf(YearMonth.now().plusMonths(1)) }
+    var selectedDates by remember {
+        mutableStateOf(dayWindowStartingAt(YearMonth.now().plusMonths(1).atDay(16)))
+    }
     MonthCalendar(
         currentMonth = currentMonth,
-        selectedDates = listOf(
-            LocalDate.of(2026, 4, 16),
-            LocalDate.of(2026, 4, 17),
-            LocalDate.of(2026, 4, 18),
-        ),
+        selectedDates = selectedDates,
         onMonthChange = { currentMonth = it },
-        onDaysSelected = {}
+        onDayStartSelected = { selectedDates = dayWindowStartingAt(it) }
     )
 }
 
-/** Testing display for month with 31 days. */
+/** Testing display for month with 31 days, and a window rolling off its end into the next. */
 @Preview
 @Composable
 fun MonthCalendarThirtyOneDayMonthPreview() = ResellPreview {
-    val month = YearMonth.of(2026, 7)
+    val month = YearMonth.of(2027, 7)
     var selectedDates by remember {
-        mutableStateOf(dayGroupContaining(LocalDate.of(2026, 7, 31)))
+        mutableStateOf(dayWindowStartingAt(LocalDate.of(2027, 7, 31)))
     }
     MonthCalendar(
         currentMonth = month,
         selectedDates = selectedDates,
         onMonthChange = {},
-        onDaysSelected = { selectedDates = it }
+        onDayStartSelected = { selectedDates = dayWindowStartingAt(it) }
     )
 }
 
@@ -186,10 +193,10 @@ fun MonthCalendarThirtyOneDayMonthPreview() = ResellPreview {
 @Composable
 fun MonthCalendarSixRowMonthPreview() = ResellPreview {
     MonthCalendar(
-        currentMonth = YearMonth.of(2026, 5),
+        currentMonth = YearMonth.of(2027, 5),
         selectedDates = emptyList(),
         onMonthChange = {},
-        onDaysSelected = {}
+        onDayStartSelected = {}
     )
 }
 
@@ -202,9 +209,9 @@ fun MonthCalendarSixRowMonthPreview() = ResellPreview {
 @Composable
 fun MonthCalendarRowSpanningSelectionPreview() = ResellPreview {
     MonthCalendar(
-        currentMonth = YearMonth.of(2026, 5),
-        selectedDates = dayGroupContaining(LocalDate.of(2026, 5, 1)),
+        currentMonth = YearMonth.of(2027, 5),
+        selectedDates = dayWindowStartingAt(LocalDate.of(2027, 4, 30)),
         onMonthChange = {},
-        onDaysSelected = {}
+        onDayStartSelected = {}
     )
 }

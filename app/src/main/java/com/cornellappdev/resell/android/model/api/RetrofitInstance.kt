@@ -4,6 +4,12 @@ import android.util.Log
 import com.cornellappdev.resell.android.BuildConfig
 import com.cornellappdev.resell.android.model.core.UserInfoRepository
 import com.cornellappdev.resell.android.model.login.FirebaseAuthRepository
+import com.cornellappdev.resell.android.util.toIsoString
+import com.google.firebase.Timestamp
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
+import com.google.gson.JsonPrimitive
+import com.google.gson.JsonSerializer
 import kotlinx.coroutines.runBlocking
 import okhttp3.Authenticator
 import okhttp3.Interceptor
@@ -203,11 +209,19 @@ class RetrofitInstance @Inject constructor(
             .create(FcmApiService::class.java)
     }
 
+    /** The chat endpoints need a ISO-8601 string. */
+    private val chatGson: Gson = GsonBuilder()
+        .registerTypeAdapter(
+            Timestamp::class.java,
+            JsonSerializer<Timestamp> { src, _, _ -> JsonPrimitive(src.toIsoString()) }
+        )
+        .create()
+
     val chatApi: ChatApiService by lazy {
         Retrofit.Builder()
             .baseUrl(BuildConfig.BASE_API_URL)
             .client(okHttpClient)
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(GsonConverterFactory.create(chatGson))
             .build()
             .create(ChatApiService::class.java)
     }
