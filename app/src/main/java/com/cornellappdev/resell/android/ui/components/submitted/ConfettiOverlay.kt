@@ -72,7 +72,7 @@ fun ConfettiOverlay(
     // Hide confetti after animation completes
     LaunchedEffect(uiState.showing) {
         if (uiState.showing) {
-            delay(maxDurationMs.toLong(DurationUnit.MILLISECONDS))
+            delay(maxDurationMs.toLong(DurationUnit.MILLISECONDS).milliseconds)
             confettiViewModel.onAnimationFinished()
         }
     }

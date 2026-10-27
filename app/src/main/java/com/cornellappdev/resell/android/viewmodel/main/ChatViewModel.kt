@@ -60,6 +60,7 @@ import java.time.LocalDateTime
 import java.time.ZoneId
 import java.util.Date
 import javax.inject.Inject
+import androidx.core.net.toUri
 
 @HiltViewModel
 class ChatViewModel @Inject constructor(
@@ -104,9 +105,9 @@ class ChatViewModel @Inject constructor(
 
         val confirmedMeeting: MeetingInfo?
             get() = currentChat.asSuccessOrNull()?.data?.let { chat ->
-                val mostRecentState = chat.chatHistory.map {
+                val mostRecentState = chat.chatHistory.flatMap {
                     it.messages
-                }.flatten().sortedByDescending {
+                }.sortedByDescending {
                     it.timestamp
                 }.firstOrNull {
                     it.meetingInfo != null
@@ -299,7 +300,7 @@ class ChatViewModel @Inject constructor(
                 // Open Venmo URL
                 val intent = Intent(
                     Intent.ACTION_VIEW,
-                    Uri.parse("https://account.venmo.com/u/${theirVenmo}")
+                    "https://account.venmo.com/u/${theirVenmo}".toUri()
                 )
                 intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
                 context.startActivity(intent)
@@ -360,9 +361,9 @@ class ChatViewModel @Inject constructor(
      */
     private fun getFirstChatOrNull(predicate: (ChatMessageData) -> Boolean): ChatMessageData? {
         val chat = chatRepository.subscribedChatFlow.value.asSuccessOrNull()?.data ?: return null
-        val mostRecentState = chat.chatHistory.map {
+        val mostRecentState = chat.chatHistory.flatMap {
             it.messages
-        }.flatten().sortedByDescending {
+        }.sortedByDescending {
             it.timestamp
         }.firstOrNull {
             predicate(it)
@@ -492,9 +493,9 @@ class ChatViewModel @Inject constructor(
                         chatRepository.subscribedChatFlow.value.asSuccessOrNull()?.data
                             ?: return@launch
 
-                    val mostRecentAvailability = chat.chatHistory.map {
+                    val mostRecentAvailability = chat.chatHistory.flatMap {
                         it.messages
-                    }.flatten().sortedByDescending {
+                    }.sortedByDescending {
                         it.timestamp
                     }.firstOrNull {
                         it.availability != null && it.senderId != myEmail

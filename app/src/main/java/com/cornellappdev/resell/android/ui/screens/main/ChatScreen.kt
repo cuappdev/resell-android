@@ -66,8 +66,6 @@ import com.cornellappdev.resell.android.ui.theme.Wash
 import com.cornellappdev.resell.android.util.clickableNoIndication
 import com.cornellappdev.resell.android.util.singlePhotoPicker
 import com.cornellappdev.resell.android.viewmodel.main.ChatViewModel
-import com.google.firebase.Timestamp
-import java.util.Date
 
 @SuppressLint("CoroutineCreationDuringComposition")
 @Composable

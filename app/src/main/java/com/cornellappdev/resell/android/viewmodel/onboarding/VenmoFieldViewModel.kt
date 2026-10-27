@@ -25,6 +25,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.milliseconds
 
 @HiltViewModel
 class VenmoFieldViewModel @Inject constructor(
@@ -86,7 +87,7 @@ class VenmoFieldViewModel @Inject constructor(
             applyMutation {
                 copy(loading = true)
             }
-            delay(500)
+            delay(500.milliseconds)
             makeNewUser(false)
         }
     }
@@ -96,7 +97,7 @@ class VenmoFieldViewModel @Inject constructor(
             applyMutation {
                 copy(skipLoading = true)
             }
-            delay(500)
+            delay(500.milliseconds)
             makeNewUser(true)
         }
     }

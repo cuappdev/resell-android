@@ -3,19 +3,13 @@ package com.cornellappdev.resell.android.ui.screens.feedback
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.cornellappdev.resell.android.viewmodel.navigation.FeedbackNavigationViewModel
-import kotlinx.coroutines.delay
 import kotlinx.serialization.Serializable
-import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
 fun FeedbackNavigation(

@@ -55,7 +55,7 @@ fun ResellRequestsScroll(
                 },
                 onSwipe = {
                     // Send a UIEvent for all others to consume
-                    for (j in 0 until uiEvents.size) {
+                    for (j in uiEvents.indices) {
                         if (j != i) {
                             uiEvents[j] = UIEvent(Unit)
                         }

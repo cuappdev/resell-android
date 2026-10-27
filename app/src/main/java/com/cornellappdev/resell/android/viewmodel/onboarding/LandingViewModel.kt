@@ -30,6 +30,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.milliseconds
 
 @HiltViewModel
 class LandingViewModel @Inject constructor(
@@ -188,7 +189,7 @@ class LandingViewModel @Inject constructor(
                 )
             }
 
-            delay(500)
+            delay(500.milliseconds)
             applyMutation {
                 copy(buttonState = ResellTextButtonState.ENABLED)
             }

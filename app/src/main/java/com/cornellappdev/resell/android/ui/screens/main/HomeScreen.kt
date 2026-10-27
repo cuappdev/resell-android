@@ -440,7 +440,7 @@ private fun ForYouRow(
         modifier = modifier
     ) {
 
-        val savedImages = savedListings.mapIndexed { index, _ ->
+        val savedImages = List(savedListings.size) { index ->
             if (isPreview) {
                 placeholder
             } else {
@@ -451,7 +451,7 @@ private fun ForYouRow(
             }
         }
 
-        val searchedImages = searchedListings.mapIndexed { index, _ ->
+        val searchedImages = List(searchedListings.size) { index ->
             if (isPreview) {
                 placeholder
             } else {

@@ -334,9 +334,9 @@ class ChatRepository @Inject constructor(
             }
 
             // Step 2b: Make the final occurrence of `MeetingInfo`'s mostRecent field true.
-            dateStateClusters.map { cluster ->
+            dateStateClusters.flatMap { cluster ->
                 cluster.messages
-            }.flatten()
+            }
                 .filter {
                     it.meetingInfo != null
                 }.maxByOrNull {

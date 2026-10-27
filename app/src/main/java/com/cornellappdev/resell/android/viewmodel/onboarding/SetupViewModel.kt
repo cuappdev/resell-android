@@ -19,6 +19,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.milliseconds
 
 @HiltViewModel
 class SetupViewModel @Inject constructor(
@@ -75,7 +76,7 @@ class SetupViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
-            delay(2000)
+            delay(2000.milliseconds)
 
             var photoUrl = ""
             if (stateValue().imageBitmap != null) {

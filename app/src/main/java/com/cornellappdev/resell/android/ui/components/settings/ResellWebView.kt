@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.cornellappdev.resell.android.ui.theme.AppDev
 import com.cornellappdev.resell.android.ui.theme.Style
+import androidx.core.net.toUri
 
 @Composable
 fun ResellWebView(
@@ -66,7 +67,7 @@ fun ResellWebView(
         Button(
             onClick = {
                 // Open in browser
-                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                val intent = Intent(Intent.ACTION_VIEW, url.toUri())
                 context.startActivity(intent)
             },
             modifier = Modifier

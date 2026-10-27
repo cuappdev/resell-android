@@ -30,7 +30,6 @@ import com.cornellappdev.resell.android.ui.components.newpost.MoneyEntry
 import com.cornellappdev.resell.android.ui.theme.Padding
 import com.cornellappdev.resell.android.ui.theme.Style
 import com.cornellappdev.resell.android.util.defaultHorizontalPadding
-import com.cornellappdev.resell.android.viewmodel.main.HomeViewModel
 import com.cornellappdev.resell.android.viewmodel.newpost.PostDetailsEntryViewModel
 
 @Composable

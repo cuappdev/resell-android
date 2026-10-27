@@ -19,6 +19,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.milliseconds
 
 @HiltViewModel
 class MessagesViewModel @Inject constructor(
@@ -86,7 +87,7 @@ class MessagesViewModel @Inject constructor(
             )
 
             // Wait a bit then reload; loads the marked as read.
-            delay(400)
+            delay(400.milliseconds)
             onLoad()
         } catch (e: Exception) {
             Log.e("MessagesViewModel", "Error navigating to chat: ", e)

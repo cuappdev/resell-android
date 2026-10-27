@@ -37,6 +37,7 @@ import com.cornellappdev.resell.android.ui.theme.Style
 import com.cornellappdev.resell.android.ui.theme.Warning
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.time.Duration.Companion.milliseconds
 
 enum class ResellTextButtonState {
     ENABLED, DISABLED, SPINNING
@@ -98,7 +99,7 @@ fun ResellTextButton(
         if (state == ResellTextButtonState.SPINNING
             || spinningDelayedState == ResellTextButtonState.SPINNING
         ) {
-            delay(100)
+            delay(100.milliseconds)
         }
         spinningDelayedState = state
     }
@@ -199,7 +200,7 @@ private fun ResellTextButtonPreview(
                 spinning = true
                 enabled = false
                 coroutineScope.launch {
-                    delay(2000)
+                    delay(2000.milliseconds)
                     spinning = false
                     enabled = true
                 }

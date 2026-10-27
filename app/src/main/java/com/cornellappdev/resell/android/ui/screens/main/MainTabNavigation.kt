@@ -88,7 +88,6 @@ fun MainTabNavigation(
             }
 
             composable<ResellMainScreen.ByCategory> { backStackEntry ->
-                val category: ResellMainScreen.ByCategory = backStackEntry.toRoute()
                 CategoryScreen(onExit = mainNav::popBackStack)
             }
 

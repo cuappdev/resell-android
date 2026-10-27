@@ -40,6 +40,7 @@ import com.cornellappdev.resell.android.ui.theme.Style
 import com.cornellappdev.resell.android.util.closeApp
 import com.cornellappdev.resell.android.viewmodel.onboarding.LandingViewModel
 import kotlinx.coroutines.delay
+import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
 fun LandingScreen(
@@ -55,7 +56,7 @@ fun LandingScreen(
 
     LaunchedEffect(Unit) {
         landingViewModel.attemptAutoLogin()
-        delay(1000)
+        delay(1000.milliseconds)
         landingViewModel.showButton()
     }
 

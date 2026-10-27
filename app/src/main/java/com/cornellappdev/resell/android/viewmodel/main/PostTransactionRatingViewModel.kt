@@ -17,6 +17,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.Date
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.milliseconds
 
 @HiltViewModel
 class PostTransactionRatingViewModel @Inject constructor(
@@ -120,7 +121,7 @@ class PostTransactionRatingViewModel @Inject constructor(
                     ResellRootRoute.MAIN
                 )
 
-                delay(100)
+                delay(100.milliseconds)
 
                 rootDialogRepository.showDialog(
                     RootDialogContent.ReviewSubmittedDialog(

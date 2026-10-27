@@ -72,7 +72,7 @@ fun ResellNotificationsScroll(
                 )
                 Spacer(modifier = Modifier.height(12.dp))
 
-                weekNotifications.forEach { it ->
+                weekNotifications.forEach {
                     NotificationCard(
                         imageUrl = it.user.photoUrl, //TODO: use other applicable image data once added to the backend
                         body = it.body,

@@ -255,7 +255,6 @@ class PostDetailViewModel @Inject constructor(
 
     fun onContactClick() {
         val uid = stateValue().uid
-        val postId = stateValue().postId
 
         viewModelScope.launch {
             try {

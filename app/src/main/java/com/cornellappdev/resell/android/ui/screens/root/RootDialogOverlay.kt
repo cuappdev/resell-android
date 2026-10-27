@@ -5,7 +5,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -16,12 +15,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.resell.android.ui.components.global.dialog.CorrectAnswerDialog
 import com.cornellappdev.resell.android.ui.components.global.dialog.DialogWrapper
 import com.cornellappdev.resell.android.ui.components.global.dialog.TwoButtonDialog
-import com.cornellappdev.resell.android.ui.components.submitted.ConfettiOverlay
 import com.cornellappdev.resell.android.ui.components.submitted.FeedbackSubmittedCard
 import com.cornellappdev.resell.android.util.clickableNoIndication
 import com.cornellappdev.resell.android.viewmodel.root.RootDialogContent
 import com.cornellappdev.resell.android.viewmodel.root.RootDialogViewModel
-import com.cornellappdev.resell.android.viewmodel.submitted.ConfettiViewModel
 
 @Composable
 fun RootDialogOverlay(
