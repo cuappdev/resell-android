@@ -34,9 +34,9 @@ fun ChatTransactionState(
     text: String,
     enabled: Boolean,
     actionText: String?,
+    modifier: Modifier = Modifier,
     onActionTextClicked: () -> Unit = {},
-    icon: Painter? = null,
-    modifier: Modifier = Modifier
+    icon: Painter? = null
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -80,7 +80,7 @@ fun ChatTransactionStatePreview() {
         text = "This transaction has been completed",
         enabled = true,
         actionText = "Leave Review",
-        icon = painterResource(id = R.drawable.ic_bag),
-        modifier = Modifier.background(color = Color.White)
+        modifier = Modifier.background(color = Color.White),
+        icon = painterResource(id = R.drawable.ic_bag)
     )
 }

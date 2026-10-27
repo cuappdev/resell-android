@@ -26,9 +26,9 @@ fun ChatMeetingState(
     text: String,
     enabled: Boolean,
     actionText: String?,
+    modifier: Modifier = Modifier,
     onActionTextClicked: () -> Unit = {},
-    icon: Painter? = null,
-    modifier: Modifier = Modifier
+    icon: Painter? = null
 ) {
     Column(
         verticalArrangement = Arrangement.Center,

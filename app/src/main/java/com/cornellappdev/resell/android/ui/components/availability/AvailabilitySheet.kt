@@ -20,15 +20,15 @@ fun AvailabilitySheet(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         SelectableAvailabilityPager(
-            initialSelectedAvailabilities = uiState.initialAvailabilities,
+            title = uiState.title,
+            subtitle = uiState.subtitle,
+            gridSelectionType = uiState.gridSelectionType,
+            setProposalTime = availabilitySheetViewModel::setProposalTime,
             setSelectedAvailabilities = availabilitySheetViewModel::onAvailabilityChanged,
             modifier = Modifier
                 .padding(bottom = 16.dp)
                 .weight(1f),
-            title = uiState.title,
-            subtitle = uiState.subtitle,
-            gridSelectionType = uiState.gridSelectionType,
-            setProposalTime = availabilitySheetViewModel::setProposalTime
+            initialSelectedAvailabilities = uiState.initialAvailabilities
         )
 
         ResellTextButton(

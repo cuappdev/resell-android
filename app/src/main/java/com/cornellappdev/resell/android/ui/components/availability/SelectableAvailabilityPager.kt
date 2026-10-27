@@ -21,12 +21,12 @@ import java.time.LocalDateTime
 fun SelectableAvailabilityPager(
     title: String,
     subtitle: String,
-    initialSelectedAvailabilities: List<LocalDateTime> = emptyList(),
-    scrollRange: Pair<Int, Int> = 0 to 6,
-    modifier: Modifier = Modifier,
     gridSelectionType: GridSelectionType,
     setProposalTime: (LocalDateTime) -> Unit,
     setSelectedAvailabilities: (List<LocalDateTime>) -> Unit,
+    modifier: Modifier = Modifier,
+    initialSelectedAvailabilities: List<LocalDateTime> = emptyList(),
+    scrollRange: Pair<Int, Int> = 0 to 6,
 ) {
     /** Guaranteed to have non-null mappings for any page in the scroll range. */
     var selectedDatesByPage: Map<Int, List<LocalDateTime>> by remember {
@@ -99,7 +99,8 @@ private fun SelectableAvailabilityPagerPreview() = ResellPreview {
             gridSelectionType = GridSelectionType.AVAILABILITY,
             setProposalTime = {
                 proposedAvailabilities = it
-            }
-        ) { selectedAvailabilities = it }
+            },
+            { selectedAvailabilities = it }
+        )
     }
 }

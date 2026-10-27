@@ -33,8 +33,8 @@ import kotlin.time.DurationUnit
 
 @Composable
 fun ConfettiOverlay(
-    confettiViewModel: ConfettiViewModel = hiltViewModel(),
     modifier: Modifier = Modifier,
+    confettiViewModel: ConfettiViewModel = hiltViewModel(),
     particleCount: Int = 30,
     colors: List<Color> = listOf(
         Color(0xFFAD68E3),

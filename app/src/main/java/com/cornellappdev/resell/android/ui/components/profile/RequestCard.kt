@@ -154,8 +154,8 @@ private fun Card(
         ) {
             if (matchCount > 0) {
                 Matches(
-                    count = matchCount,
-                    modifier = Modifier.align(Alignment.TopEnd)
+                    modifier = Modifier.align(Alignment.TopEnd),
+                    count = matchCount
                 )
             }
 
@@ -181,8 +181,8 @@ private fun Card(
 @Preview
 @Composable
 private fun Matches(
-    count: Int = 1,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    count: Int = 1
 ) {
     Surface(
         shape = RoundedCornerShape(99.dp),

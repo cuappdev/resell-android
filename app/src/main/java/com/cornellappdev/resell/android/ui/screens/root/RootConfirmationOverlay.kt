@@ -39,13 +39,13 @@ fun RootConfirmationOverlay(
         Spacer(modifier = Modifier.height(16.dp))
 
         ConfirmationSurface(
+            title = uiState.title,
+            onDismiss = { rootConfirmationViewModel.onDismiss() },
+            modifier = Modifier.alpha(opacity),
             icon = uiState.painterRes?.let {
                 painterResource(id = it)
             },
-            color = uiState.color,
-            title = uiState.title,
-            onDismiss = { rootConfirmationViewModel.onDismiss() },
-            modifier = Modifier.alpha(opacity)
+            color = uiState.color
         )
     }
 }
