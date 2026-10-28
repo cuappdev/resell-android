@@ -33,7 +33,6 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
-import okhttp3.internal.toImmutableList
 import java.util.Calendar
 import java.util.Date
 import javax.inject.Inject
@@ -272,7 +271,7 @@ class ChatRepository @Inject constructor(
                             ChatMessageCluster(
                                 fromUser = currentSenderId == myId,
                                 senderId = currentSenderId,
-                                messages = currentList.toImmutableList(),
+                                messages = currentList.toList(),
                                 senderImage = otherPfp,
                                 senderName = if (currentSenderId == myId) myName else otherName
                             )
@@ -290,7 +289,7 @@ class ChatRepository @Inject constructor(
                     ChatMessageCluster(
                         fromUser = currentSenderId == myId,
                         senderId = currentSenderId,
-                        messages = currentList.toImmutableList(),
+                        messages = currentList.toList(),
                         senderImage = otherPfp,
                         senderName = if (currentSenderId == myId) myName else otherName
                     )
@@ -323,7 +322,7 @@ class ChatRepository @Inject constructor(
                                 transactionId = messageData.transactionId
                             )
                         )
-                        newCluster = newCluster.copy(messages = newMessages.toImmutableList())
+                        newCluster = newCluster.copy(messages = newMessages.toList())
                     }
                     lastTimestamp = messageData.timestamp
                 }

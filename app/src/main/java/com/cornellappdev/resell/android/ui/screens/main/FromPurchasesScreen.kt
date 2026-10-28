@@ -6,7 +6,7 @@ import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridS
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.cornellappdev.resell.android.ui.components.main.FromHistoryBody
 import com.cornellappdev.resell.android.ui.components.main.FromHistoryHeader
 import com.cornellappdev.resell.android.util.defaultHorizontalPadding

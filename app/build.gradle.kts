@@ -22,7 +22,7 @@ plugins {
 
 android {
     namespace = "com.cornellappdev.resell.android"
-    compileSdk = 35
+    compileSdk = 37
 
     packaging {
         resources.excludes.add("META-INF/DEPENDENCIES")
@@ -140,6 +140,7 @@ dependencies {
     implementation(libs.firebase.messaging)
     implementation(libs.firebase.firestore)
     implementation(libs.androidx.hilt.navigation.compose)
+    implementation(libs.androidx.hilt.lifecycle.viewmodel.compose)
     implementation(libs.hilt.android)
     implementation(libs.androidx.datastore.core.android)
     implementation(libs.androidx.foundation)
@@ -169,6 +170,7 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation(libs.androidx.material.icons.core)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
