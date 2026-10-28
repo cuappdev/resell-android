@@ -41,7 +41,6 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
@@ -63,6 +62,8 @@ import com.cornellappdev.resell.android.ui.theme.Style
 import com.cornellappdev.resell.android.util.clickableNoIndication
 import com.cornellappdev.resell.android.util.defaultHorizontalPadding
 import com.cornellappdev.resell.android.viewmodel.pdp.PostDetailViewModel
+import com.cornellappdev.resell.android.util.windowHeight
+import com.cornellappdev.resell.android.util.windowWidth
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -73,9 +74,9 @@ fun PostDetailPage(
 
     // Image will take up at most this proportion of the screen
     val imageProp = .75f
-    val maxImageHeight = LocalConfiguration.current.screenHeightDp.dp * imageProp
+    val maxImageHeight = windowHeight() * imageProp
     val minAspectRatio = uiState.minAspectRatio
-    val screenWidth = LocalConfiguration.current.screenWidthDp.dp
+    val screenWidth = windowWidth()
 
     // Preferred height of the tallest image, given the aspect ratio
     val aspectRatioPreferredHeight = screenWidth / minAspectRatio
@@ -141,7 +142,7 @@ private fun Content(
     val pagerState = rememberPagerState(pageCount = { images.size })
 
     // Derive peekHeight as screen height minus image height:
-    val screenHeight = LocalConfiguration.current.screenHeightDp.dp
+    val screenHeight = windowHeight()
 
     // TODO the plus at the end seems wrong. Test on other devices.
     val peekHeight = screenHeight - imageHeight + 96.dp
@@ -309,7 +310,7 @@ private fun BottomSheetContent(
 ) {
 
     // Get screen height
-    val screenHeight = LocalConfiguration.current.screenHeightDp.dp
+    val screenHeight = windowHeight()
     val density = LocalDensity.current
 
     // Calculate maximum height for the sheet content based on padding from top

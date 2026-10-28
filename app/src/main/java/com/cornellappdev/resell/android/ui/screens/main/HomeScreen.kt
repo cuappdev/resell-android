@@ -107,7 +107,6 @@ fun HomeScreen(
         onSearchPressed = homeViewModel::onSearchPressed,
         savedListings = homeUiState.savedListings,
         fromSearchedListings = homeUiState.fromSearchListings,
-        fromPurchasesListings = homeUiState.fromPurchasesListings,
         onNotifPressed = homeViewModel::onNotifPressed,
         onSavedPressed = onSavedPressed,
         onFromSearchPressed = onFromSearchPressed,
@@ -137,7 +136,6 @@ private fun HomeScreenHelper(
     onNotifPressed: () -> Unit,
     savedListings: List<Listing>,
     fromSearchedListings: List<Listing>,
-    fromPurchasesListings: List<Listing>,
     onSavedPressed: () -> Unit,
     onFromSearchPressed: () -> Unit,
     onFromPurchasePressed: () -> Unit,
@@ -380,7 +378,7 @@ private fun LazyStaggeredGridScope.forYou(
         Spacer(modifier = Modifier.height(12.dp))
     }
     item(span = StaggeredGridItemSpan.FullLine) {
-        ForceHorizontalOffset(offset = Padding.leftRight) { modifier ->
+        ForceHorizontalOffset(offset = Padding.leftRight) { _ ->
             ForYouRow(
                 Modifier,
                 savedListings,
@@ -616,7 +614,6 @@ private fun HomeScreenPreview() = ResellPreview {
         onDismissRequest = {},
         onCategoryPressed = {},
         fromSearchedListings = emptyList(),
-        fromPurchasesListings = emptyList(),
         searchedImageResponses = emptyList(),
     )
 }
@@ -644,7 +641,6 @@ private fun SavedEmptyStatePreview() = ResellPreview {
         onDismissRequest = {},
         onCategoryPressed = {},
         fromSearchedListings = emptyList(),
-        fromPurchasesListings = emptyList(),
         searchedImageResponses = emptyList()
     )
 }

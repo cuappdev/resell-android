@@ -24,7 +24,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.times
@@ -40,6 +39,7 @@ import com.cornellappdev.resell.android.util.shimmer
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
+import com.cornellappdev.resell.android.util.windowWidth
 
 /**
  * @param price The price of the listing, as $###.##.
@@ -73,7 +73,7 @@ fun ResellCardContent(
     title: String,
     price: String,
 ) {
-    val screenWidth = LocalConfiguration.current.screenWidthDp.dp
+    val screenWidth = windowWidth()
 
     Column(
         modifier = modifier
