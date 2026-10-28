@@ -30,6 +30,7 @@ import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.ui.components.global.BrushIcon
 import com.cornellappdev.resell.android.ui.screens.main.ResellMainScreen
 import com.cornellappdev.resell.android.ui.theme.Padding
+import com.cornellappdev.resell.android.ui.theme.ResellPreview
 import com.cornellappdev.resell.android.ui.theme.animateResellBrush
 
 @Composable
@@ -134,7 +135,7 @@ private fun NavBarContent(
 
 @Preview
 @Composable
-private fun NavBarPreview() {
+private fun NavBarPreview() = ResellPreview {
     val selectedTab: MutableState<ResellMainScreen> =
         remember { mutableStateOf(ResellMainScreen.Home) }
 

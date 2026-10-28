@@ -7,6 +7,7 @@ import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
 import com.cornellappdev.resell.android.ui.theme.ResellPurple
 import com.cornellappdev.resell.android.ui.theme.Stroke
+import com.cornellappdev.resell.android.ui.theme.Wash
 import com.cornellappdev.resell.android.util.day
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -14,9 +15,17 @@ import java.time.LocalTime
 import kotlin.math.floor
 
 const val GRID_HEIGHT = 24
+const val SLOT_DURATION_MINUTES = 30
 val gridStartTime: LocalTime = LocalTime.of(9, 0)
 val gridStroke = Stroke
 val fillColor = ResellPurple
+
+
+/** Number of day columns an availability grid shows at once. */
+const val DAY_WINDOW_SIZE = 3
+
+fun dayWindowStartingAt(startDate: LocalDate): List<LocalDate> =
+    (0 until DAY_WINDOW_SIZE).map { startDate.plusDays(it.toLong()) }
 
 
 fun getGridCell(offset: Offset, canvasSize: Size, width: Int, height: Int): Pair<Int, Int> {
@@ -43,7 +52,7 @@ fun rowColToLocalDateTime(row: Int, col: Int, dates: List<LocalDate>): LocalDate
         .withMinute(gridStartTime.minute)
         .withSecond(gridStartTime.second)
         .withNano(gridStartTime.nano)
-        .plusMinutes(30L * row)
+        .plusMinutes(SLOT_DURATION_MINUTES.toLong() * row)
 }
 
 fun getTimeForRow(row: Int): LocalTime {
@@ -59,11 +68,32 @@ fun List<LocalDateTime>.mapToGrid(dates: List<LocalDate>): List<BooleanArray> {
     forEach { date ->
         val column = dates.indexOfFirst { it.day == date.day }
         if (column == -1) return@forEach
-        val row = (date.hour * 60 + date.minute - gridStartTime.hour * 60) / 30
+        val row = (date.hour * 60 + date.minute - gridStartTime.hour * 60) / SLOT_DURATION_MINUTES
         if (row !in 0 until GRID_HEIGHT) return@forEach
         grid[row][column] = true
     }
     return grid
+}
+
+/**
+ * Greys out every cell where [unavailableGrid] is true, so only cells left white/normal
+ * represent times available to both parties.
+ */
+fun DrawScope.drawUnavailableCells(unavailableGrid: List<BooleanArray>, rectWidth: Float, rectHeight: Float) {
+    for (row in unavailableGrid.indices) {
+        for (col in unavailableGrid[row].indices) {
+            if (unavailableGrid[row][col]) {
+                val position = Offset(rectWidth * col, rectHeight * row)
+
+                drawRect(
+                    size = Size(rectWidth, rectHeight),
+                    topLeft = position,
+                    color = Wash,
+                    style = Fill
+                )
+            }
+        }
+    }
 }
 
 fun DrawScope.drawBorder(grid: List<BooleanArray>, rectWidth: Float, rectHeight: Float) {

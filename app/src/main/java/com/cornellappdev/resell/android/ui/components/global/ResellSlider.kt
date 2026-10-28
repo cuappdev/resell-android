@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.cornellappdev.resell.android.ui.theme.ResellPreview
 import com.cornellappdev.resell.android.ui.theme.ResellPurple
 import com.cornellappdev.resell.android.ui.theme.ResellPurpleTransparent
 import com.cornellappdev.resell.android.ui.theme.Stroke
@@ -71,7 +72,7 @@ private fun ThumbComposable() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 @Preview
-private fun PreviewResellSlider(){
+private fun PreviewResellSlider() = ResellPreview {
     // Use interactive mode
     ResellSlider(range = 20..80, lowestValue = 0, highestValue = 100, onRangeChanged = {})
 }
