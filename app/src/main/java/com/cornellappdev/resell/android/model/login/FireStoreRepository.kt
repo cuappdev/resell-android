@@ -122,22 +122,23 @@ class FireStoreRepository @Inject constructor(
                     }
                 } else {
 
-                    val avail = (it.get("availabilities") as? List<Map<String, *>>)?.map {
-                        val startMap = it["startDate"] as Map<*, *>
-                        val startTime = Timestamp(
-                            (startMap["seconds"] as Number).toLong(),
-                            (startMap["nanoseconds"] as Number).toInt()
-                        )
-                        val endMap = it["endDate"] as Map<*, *>
-                        val endTime = Timestamp(
-                            (endMap["seconds"] as Number).toLong(),
-                            (endMap["nanoseconds"] as Number).toInt()
-                        )
-                        StartAndEnd(
-                            startDate = startTime,
-                            endDate = endTime
-                        )
-                    }
+                    val avail =
+                        (it.get("availabilities") as? List<Map<String, *>>)?.map { availability ->
+                            val startMap = availability["startDate"] as Map<*, *>
+                            val startTime = Timestamp(
+                                (startMap["seconds"] as Number).toLong(),
+                                (startMap["nanoseconds"] as Number).toInt()
+                            )
+                            val endMap = availability["endDate"] as Map<*, *>
+                            val endTime = Timestamp(
+                                (endMap["seconds"] as Number).toLong(),
+                                (endMap["nanoseconds"] as Number).toInt()
+                            )
+                            StartAndEnd(
+                                startDate = startTime,
+                                endDate = endTime
+                            )
+                        }
 
                     // Create nullable start and end times, if they exist
                     val startMap = it.get("startDate") as Map<*, *>?

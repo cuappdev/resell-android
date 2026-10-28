@@ -43,7 +43,13 @@ class BlockedUsersViewModel @Inject constructor(
         asyncCollect(blockedUsersRepository.blockedUsers) { response ->
             response.ifSuccess {
                 applyMutation {
-                    copy(blockedUsers = it.map { UiBlockedUser(it.id, it.name, it.imageUrl) })
+                    copy(blockedUsers = it.map { user ->
+                        UiBlockedUser(
+                            user.id,
+                            user.name,
+                            user.imageUrl
+                        )
+                    })
                 }
             }
         }

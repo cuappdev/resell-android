@@ -179,7 +179,7 @@ class ExternalProfileViewModel @Inject constructor(
             response.ifSuccess {
                 applyMutation {
                     copy(
-                        blockedUsers = it.map { it.id }
+                        blockedUsers = it.map { userInfo -> userInfo.id }
                     )
                 }
             }
