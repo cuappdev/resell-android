@@ -1,13 +1,5 @@
 package com.cornellappdev.resell.android.model.api
 
-interface FcmApiService {
-
-}
-
-data class FcmBody(
-    val message: FcmMessage
-)
-
 data class FcmMessage(
     val token: String,
     val notification: FcmNotification?,

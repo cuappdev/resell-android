@@ -9,7 +9,6 @@ import com.cornellappdev.resell.android.model.classes.Listing
 import com.cornellappdev.resell.android.model.classes.RequestListing
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.model.classes.UserInfo
-import com.cornellappdev.resell.android.model.core.UserInfoRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,8 +19,7 @@ import javax.inject.Singleton
 
 @Singleton
 class ProfileRepository @Inject constructor(
-    private val retrofitInstance: RetrofitInstance,
-    private val userInfoRepository: UserInfoRepository
+    private val retrofitInstance: RetrofitInstance
 ) {
 
     private val _internalUser: MutableStateFlow<ResellApiResponse<UserInfo>> =

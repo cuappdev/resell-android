@@ -44,20 +44,11 @@ class ResellPostRepository @Inject constructor(
         MutableStateFlow<ResellApiResponse<List<Pair<String, List<Listing>>>>>(ResellApiResponse.Pending)
     val fromSearchedPosts = _fromSearchedPosts.asStateFlow()
 
-    private val _fromPurchasedPosts =
-        MutableStateFlow<ResellApiResponse<List<String>>>(ResellApiResponse.Pending)
-    val fromPurchasedPosts = _fromPurchasedPosts.asStateFlow()
-
     private val _searchHistory = MutableStateFlow<ResellApiResponse<List<ResellSearchHistory>>>(
         ResellApiResponse.Pending
     )
 
     private var recentBitmaps: List<ImageBitmap>? = null
-
-    suspend fun getPostsByPage(page: Int): List<Post> {
-        val posts = retrofitInstance.postsApi.getPosts(page = page).posts
-        return posts
-    }
 
     suspend fun getFilteredPosts(filter: ResellFilter): List<Post> {
         return retrofitInstance.postsApi.getFilteredPosts(filter.toFilterRequest()).posts

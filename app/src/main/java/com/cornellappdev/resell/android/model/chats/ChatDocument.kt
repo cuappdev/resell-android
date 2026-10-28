@@ -26,12 +26,6 @@ data class ChatDocument(
     val transactionId: String?
 )
 
-data class UserDocument(
-    val _id: String,
-    val avatar: String,
-    val name: String
-)
-
 /**
  * An optional block included in the [ChatDocument] to represent a meeting proposal.
  *
