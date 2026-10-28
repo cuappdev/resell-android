@@ -40,8 +40,6 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -65,7 +63,7 @@ import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.model.classes.ResellApiState
 import com.cornellappdev.resell.android.model.classes.ResellFilter
 import com.cornellappdev.resell.android.model.classes.UserInfo
-import com.cornellappdev.resell.android.ui.components.global.isItemWithKeyVisible
+import com.cornellappdev.resell.android.ui.components.global.DetectListEndReached
 import com.cornellappdev.resell.android.ui.components.global.resellListingScroll
 import com.cornellappdev.resell.android.ui.components.global.resellLoadingListingScroll
 import com.cornellappdev.resell.android.ui.components.main.EmptySavedComponent
@@ -78,8 +76,6 @@ import com.cornellappdev.resell.android.ui.theme.Secondary
 import com.cornellappdev.resell.android.ui.theme.Style
 import com.cornellappdev.resell.android.util.defaultHorizontalPadding
 import com.cornellappdev.resell.android.viewmodel.main.HomeViewModel
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -266,21 +262,7 @@ private fun MainContent(
     val preview = LocalInspectionMode.current
     val listState = rememberLazyStaggeredGridState()
 
-    // Check if the last real listing item is visible
-    val currentListings by rememberUpdatedState(filteredListings)
-    LaunchedEffect(listState) {
-        snapshotFlow { listState.layoutInfo }
-            .map { layoutInfo ->
-                val lastId = currentListings.lastOrNull()?.id
-                lastId to layoutInfo.isItemWithKeyVisible(lastId)
-            }
-            .distinctUntilChanged()
-            .collect { (_, isAtBottom) ->
-                if (isAtBottom) {
-                    onScrollBottom()
-                }
-            }
-    }
+    DetectListEndReached(listState, filteredListings, onScrollBottom)
 
     LazyVerticalStaggeredGrid(
         state = listState,

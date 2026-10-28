@@ -8,6 +8,7 @@ import com.cornellappdev.resell.android.model.classes.ResellFilter
 import com.cornellappdev.resell.android.model.posts.ResellPostRepository
 import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
+import com.cornellappdev.resell.android.util.excludingIds
 import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CancellationException
@@ -117,9 +118,7 @@ class CategoryViewModel @Inject constructor(
                 )
                 applyMutation {
                     // Prevent duplicates from rendering
-                    val existingIds = listings.map { it.id }.toSet()
-                    val newListings = posts.map { it.toListing() }
-                        .filterNot { it.id in existingIds }
+                    val newListings = posts.map { it.toListing() }.excludingIds(listings)
                     copy(
                         listings = listings + newListings,
                         page = nextPage,

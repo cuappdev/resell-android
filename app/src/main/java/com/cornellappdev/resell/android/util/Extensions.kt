@@ -1,5 +1,6 @@
 package com.cornellappdev.resell.android.util
 
+import com.cornellappdev.resell.android.model.classes.Listing
 import com.google.firebase.Timestamp
 import java.text.SimpleDateFormat
 import java.time.LocalDate
@@ -10,6 +11,11 @@ import java.util.Locale
 import java.util.TimeZone
 
 fun Pair<Int, Int>.toSortedPair() = if (first <= second) this else second to first
+
+fun List<Listing>.excludingIds(seen: List<Listing>): List<Listing> {
+    val seenIds = seen.map { it.id }.toSet()
+    return filterNot { it.id in seenIds }
+}
 
 val LocalDateTime.day: Long get() = ChronoUnit.DAYS.between(LocalDate.ofEpochDay(0), this)
 

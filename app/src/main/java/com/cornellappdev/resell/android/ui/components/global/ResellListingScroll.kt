@@ -44,21 +44,7 @@ fun ResellListingsScroll(
         return
     }
 
-    // Check if the last real listing item is visible
-    val currentListings by rememberUpdatedState(listings)
-    LaunchedEffect(listState) {
-        snapshotFlow { listState.layoutInfo }
-            .map { layoutInfo ->
-                val lastId = currentListings.lastOrNull()?.id
-                lastId to layoutInfo.isItemWithKeyVisible(lastId)
-            }
-            .distinctUntilChanged()
-            .collect { (_, isAtBottom) ->
-                if (isAtBottom) {
-                    onScrollBottom()
-                }
-            }
-    }
+    DetectListEndReached(listState, listings, onScrollBottom)
 
     LazyVerticalStaggeredGrid(
         state = listState,
@@ -83,6 +69,28 @@ fun calculateItemPadding(addVerticalPadding: Boolean): PaddingValues =
 
 fun LazyStaggeredGridLayoutInfo.isItemWithKeyVisible(key: Any?): Boolean =
     key != null && visibleItemsInfo.any { it.key == key }
+
+@Composable
+fun DetectListEndReached(
+    listState: LazyStaggeredGridState,
+    listings: List<Listing>,
+    onScrollBottom: () -> Unit,
+) {
+    val currentListings by rememberUpdatedState(listings)
+    LaunchedEffect(listState) {
+        snapshotFlow { listState.layoutInfo }
+            .map { layoutInfo ->
+                val lastId = currentListings.lastOrNull()?.id
+                lastId to layoutInfo.isItemWithKeyVisible(lastId)
+            }
+            .distinctUntilChanged()
+            .collect { (_, isAtBottom) ->
+                if (isAtBottom) {
+                    onScrollBottom()
+                }
+            }
+    }
+}
 
 fun LazyStaggeredGridScope.resellListingScroll(
     listings: List<Listing>,

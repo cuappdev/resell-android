@@ -13,6 +13,7 @@ import com.cornellappdev.resell.android.model.classes.toResellApiState
 import com.cornellappdev.resell.android.model.posts.ResellPostRepository
 import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
+import com.cornellappdev.resell.android.util.excludingIds
 import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CancellationException
@@ -213,9 +214,7 @@ class HomeViewModel @Inject constructor(
                     }
                 applyMutation {
                     // Prevent duplicates from rendering
-                    val existingIds = listings.map { it.id }.toSet()
-                    val newListings = orderedPosts.map { it.toListing() }
-                        .filterNot { it.id in existingIds }
+                    val newListings = orderedPosts.map { it.toListing() }.excludingIds(listings)
                     copy(
                         listings = listings + newListings,
                         page = nextPage,
