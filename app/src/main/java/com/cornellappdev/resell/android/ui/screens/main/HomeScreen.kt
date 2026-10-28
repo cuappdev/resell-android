@@ -35,6 +35,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -609,8 +610,8 @@ private fun HomeScreenPreview() = ResellPreview {
         loadedState = ResellApiState.Loading,
         filteredListings = List(10) { dumbListing },
         onListingPressed = {},
-        savedImagesResponses = List(5) {
-            mutableStateOf(ResellApiResponse.Pending)
+        savedImagesResponses = remember {
+            List(5) { mutableStateOf(ResellApiResponse.Pending) }
         },
         onDismissRequest = {},
         onCategoryPressed = {},
