@@ -47,7 +47,7 @@ class GoogleAuthRepository @Inject constructor(
     }
 
     /**
-     * Sign out. Call if the user logs in with a non-cornell email, or whenever a log out should occur.
+     * Sign out. Call if the user logs in with a non-cornell email, or whenever a log-out should occur.
      *
      * After calling this, the user will no longer auto-navigate to home, and google auth will
      * correctly query for a new email.
@@ -58,7 +58,7 @@ class GoogleAuthRepository @Inject constructor(
     }
 
     /**
-     * Returns an activity result launcher for google login.
+     * Returns an activity result launcher for Google login.
      *
      * @param onError The error callback.
      * @param onGoogleSignInCompleted The success callback. Takes in the id token and email.

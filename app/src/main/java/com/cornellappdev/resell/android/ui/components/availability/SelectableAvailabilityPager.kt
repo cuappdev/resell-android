@@ -42,7 +42,7 @@ fun SelectableAvailabilityPager(
         // Add each availability to the correct page based on its date.
         //  Each page corresponds to an increment of 3 days, and each
         //  inner list corresponds the availabilities for that 3-day period.
-        //  Thus, we must add to the correct 3 day period.
+        //  Thus, we must add to the correct 3-day period.
         initialSelectedAvailabilities.forEach { availability ->
             val today = LocalDate.now()
             val dayDifference = today.until(availability.toLocalDate()).days

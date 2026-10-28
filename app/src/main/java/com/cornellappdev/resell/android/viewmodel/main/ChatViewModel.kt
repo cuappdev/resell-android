@@ -128,7 +128,7 @@ class ChatViewModel @Inject constructor(
 
         rootNavigationSheetRepository.hideSheet()
 
-        // Open intent for google calendar
+        // Open intent for Google calendar
         val intent = Intent(Intent.ACTION_INSERT)
             .setData(CalendarContract.Events.CONTENT_URI)
             .putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME, date.time)
