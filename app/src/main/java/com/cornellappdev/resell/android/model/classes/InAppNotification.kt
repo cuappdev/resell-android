@@ -12,13 +12,15 @@ data class InAppNotification(
     @SerializedName("userId") val userId: String = "",
     @SerializedName("title") val title: String = "",
     @SerializedName("body") val body: String = "",
-    @SerializedName("data") val data: AdditionalNotificationData = AdditionalNotificationData(),
+    @SerializedName("data") private val _data: AdditionalNotificationData? = AdditionalNotificationData(),
     @SerializedName("read") val read: Boolean = false,
     @SerializedName("createdAt") private val createdAtRaw: String? = null,
     @SerializedName("updatedAt") private val updatedAtRaw: String? = null,
     @SerializedName("user", alternate = ["sender"]) val user: User? = null,
     @SerializedName("type", alternate = ["notificationType"]) private val typeRaw: String? = null,
 ) {
+    val data: AdditionalNotificationData
+        get() = _data ?: AdditionalNotificationData()
     val unread: Boolean
         get() = !read
 

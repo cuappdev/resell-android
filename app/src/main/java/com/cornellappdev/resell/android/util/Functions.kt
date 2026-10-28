@@ -100,19 +100,38 @@ fun ImageBitmap.toNetworkingString(quality: Int = 50): String {
 }
 
 fun parseIsoDateToDate(isoString: String): Date {
-    val zonedDateTime = ZonedDateTime.parse(isoString, DateTimeFormatter.ISO_DATE_TIME)
-    return Date.from(zonedDateTime.toInstant())
+    return try {
+        val zonedDateTime = ZonedDateTime.parse(isoString, DateTimeFormatter.ISO_DATE_TIME)
+        Date.from(zonedDateTime.toInstant())
+    } catch (_: Exception) {
+        try {
+            val instant = Instant.parse(isoString)
+            Date.from(instant)
+        } catch (_: Exception) {
+            Date()
+        }
+    }
 }
 
 fun getRelativeTimeSpan(isoString: String): String {
-    val date = parseIsoDateToDate(isoString)
-    val currentTimeMillis = System.currentTimeMillis()
-    val timestampMillis = date.time
-    return DateUtils.getRelativeTimeSpanString(
-        timestampMillis,
-        currentTimeMillis,
-        DateUtils.MINUTE_IN_MILLIS
-    ).toString()
+    if (isoString.isBlank()) return ""
+    return try {
+        val instant = try {
+            ZonedDateTime.parse(isoString, DateTimeFormatter.ISO_DATE_TIME).toInstant()
+        } catch (e: Exception) {
+            Instant.parse(isoString)
+        }
+        val timestampMillis = instant.toEpochMilli()
+        val currentTimeMillis = System.currentTimeMillis()
+        DateUtils.getRelativeTimeSpanString(
+            timestampMillis,
+            currentTimeMillis,
+            DateUtils.MINUTE_IN_MILLIS
+        ).toString()
+    } catch (e: Exception) {
+        // Fallback to returning original string if it cannot be parsed (e.g., if already formatted)
+        isoString
+    }
 }
 
 fun getRelativeTimeSpan(timestamp: Timestamp): String {

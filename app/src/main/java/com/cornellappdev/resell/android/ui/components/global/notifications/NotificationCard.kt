@@ -39,7 +39,6 @@ import com.cornellappdev.resell.android.model.classes.InAppNotification
 import com.cornellappdev.resell.android.ui.theme.ResellPurple
 import com.cornellappdev.resell.android.ui.theme.ResellPurpleWash
 import com.cornellappdev.resell.android.ui.theme.Style
-import com.cornellappdev.resell.android.util.getRelativeTimeSpan
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
@@ -86,7 +85,7 @@ fun NotificationCard(
             )
             Text(
                 style = Style.title4,
-                text = getRelativeTimeSpan(timestamp),
+                text = timestamp,
                 color = Color.Gray
             )
 
