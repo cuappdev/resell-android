@@ -11,7 +11,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AvailabilitySheetViewModel @Inject constructor(
-    private val rootNavigationSheetRepository: RootNavigationSheetRepository
+    rootNavigationSheetRepository: RootNavigationSheetRepository
 ) : ResellViewModel<AvailabilitySheetViewModel.AvailabilitySheetState>(
     initialUiState = AvailabilitySheetState(
         buttonString = "",
