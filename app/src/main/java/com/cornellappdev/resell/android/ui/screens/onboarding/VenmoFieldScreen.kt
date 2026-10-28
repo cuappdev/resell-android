@@ -26,6 +26,7 @@ import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButton
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonContainer
 import com.cornellappdev.resell.android.ui.components.global.ResellTextEntry
+import com.cornellappdev.resell.android.ui.theme.ResellPreview
 import com.cornellappdev.resell.android.ui.theme.Secondary
 import com.cornellappdev.resell.android.ui.theme.Style
 import com.cornellappdev.resell.android.ui.theme.Venmo
@@ -80,7 +81,7 @@ fun VenmoFieldScreen(
 
 @Preview
 @Composable
-private fun ScreenHeader() {
+private fun ScreenHeader() = ResellPreview {
     Column(
         modifier = Modifier
             .fillMaxWidth()

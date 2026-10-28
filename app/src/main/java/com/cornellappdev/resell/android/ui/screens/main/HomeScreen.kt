@@ -2,6 +2,7 @@ package com.cornellappdev.resell.android.ui.screens.main
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -25,6 +26,7 @@ import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
@@ -62,12 +64,13 @@ import com.cornellappdev.resell.android.model.classes.ResellFilter
 import com.cornellappdev.resell.android.model.classes.UserInfo
 import com.cornellappdev.resell.android.ui.components.global.resellListingScroll
 import com.cornellappdev.resell.android.ui.components.global.resellLoadingListingScroll
+import com.cornellappdev.resell.android.ui.components.main.EmptySavedComponent
 import com.cornellappdev.resell.android.ui.components.main.FilterBottomSheet
 import com.cornellappdev.resell.android.ui.components.main.ForYouComponent
-import com.cornellappdev.resell.android.ui.components.main.ResellSearchBar
 import com.cornellappdev.resell.android.ui.components.nav.NAVBAR_HEIGHT
 import com.cornellappdev.resell.android.ui.theme.Padding
 import com.cornellappdev.resell.android.ui.theme.ResellPreview
+import com.cornellappdev.resell.android.ui.theme.Secondary
 import com.cornellappdev.resell.android.ui.theme.Style
 import com.cornellappdev.resell.android.util.defaultHorizontalPadding
 import com.cornellappdev.resell.android.viewmodel.main.HomeViewModel
@@ -167,6 +170,7 @@ private fun HomeScreenHelper(
             onSavedPressed = onSavedPressed,
             onFromSearchPressed = onFromSearchPressed,
             onFromPurchasePressed = onFromPurchasePressed,
+            onFilterPressed = onFilterPressed,
             onCategoryPressed = onCategoryPressed,
             loadedState = loadedState,
             filteredListings = filteredListings,
@@ -205,23 +209,21 @@ private fun HomeHeader(
                 text = "resell",
                 style = Style.resellBrand
             )
-            Icon(
-                painter = painterResource(R.drawable.bell),
-                contentDescription = "Notifications",
-                modifier = Modifier.clickable(onClick = onNotifPressed)
-            )
-        }
-        Spacer(modifier = Modifier.height(16.dp))
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            ResellSearchBar(onClick = onSearchPressed, modifier = Modifier.weight(1f))
-            Icon(
-                painter = painterResource(R.drawable.ic_filter),
-                contentDescription = "Filter",
-                modifier = Modifier.clickable(onClick = onFilter)
-            )
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.ic_search),
+                    contentDescription = "Search Icon",
+                    modifier = Modifier.clickable(onClick = onSearchPressed)
+                )
+                Icon(
+                    painter = painterResource(R.drawable.bell),
+                    contentDescription = "Notifications",
+                    modifier = Modifier.clickable(onClick = onNotifPressed)
+                )
+            }
         }
     }
 }
@@ -233,6 +235,7 @@ private fun MainContent(
     onSavedPressed: () -> Unit,
     onFromSearchPressed: () -> Unit,
     onFromPurchasePressed: () -> Unit,
+    onFilterPressed: () -> Unit,
     loadedState: ResellApiState,
     onCategoryPressed: (ResellFilter.FilterCategory) -> Unit,
     filteredListings: List<Listing>,
@@ -268,6 +271,7 @@ private fun MainContent(
             loadedState = loadedState,
             filteredListings = filteredListings,
             onListingPressed = onListingPressed,
+            onFilter = onFilterPressed,
             preview = preview
         )
     }
@@ -322,7 +326,7 @@ private enum class CategoryItem(
         image = R.drawable.books,
         label = "Books",
         backgroundColor = Color(0x80316054),
-        category = ResellFilter.FilterCategory.BOOKS
+        category = ResellFilter.FilterCategory.BOOKS,
     ),
     SCHOOL(
         image = R.drawable.pencilcase,
@@ -426,60 +430,42 @@ private fun ForYouRow(
 ) {
     val isPreview = LocalInspectionMode.current
     val placeholder = painterResource(R.drawable.ic_appdev)
-    LazyRow(
-        horizontalArrangement = Arrangement.spacedBy(16.dp),
-        modifier = modifier
-    ) {
 
-        val savedImages = List(savedListings.size) { index ->
-            if (isPreview) {
-                placeholder
-            } else {
-                when (val response = savedImagesResponses[index].value) {
-                    is ResellApiResponse.Success -> BitmapPainter(response.data)
-                    else -> null
-                }
+    val savedImages = List(savedListings.size) { index ->
+        if (isPreview) {
+            placeholder
+        } else {
+            when (val response = savedImagesResponses[index].value) {
+                is ResellApiResponse.Success -> BitmapPainter(response.data)
+                else -> null
             }
         }
+    }
 
-        val searchedImages = List(searchedListings.size) { index ->
-            if (isPreview) {
-                placeholder
-            } else {
-                when (val response = searchedImageResponses[index].value) {
-                    is ResellApiResponse.Success -> BitmapPainter(response.data)
-                    else -> null
-                }
+    if (savedImages.isEmpty()) {
+        EmptySavedComponent(
+            modifier = Modifier.border(
+                width = 1.dp,
+                color = Secondary,
+                shape = RoundedCornerShape(8.dp)
+            )
+        )
+    } else {
+        LazyRow(
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            modifier = modifier
+        ) {
+
+            item {
+                ForYouComponent(
+                    text = "Your saved items",
+                    amount = savedListings.size,
+                    images = savedImages,
+                    onClick = onSavedPressed,
+                )
             }
-        }
 
-        item {
-            ForYouComponent(
-                text = "Your saved items",
-                amount = savedListings.size,
-                images = savedImages,
-                onClick = onSavedPressed
-            )
         }
-
-        item {
-            ForYouComponent(
-                text = "From your searches",
-                amount = null,
-                images = searchedImages,
-                onClick = onFromSearchPressed
-            )
-        }
-
-        item {
-            ForYouComponent(
-                text = "From your purchases",
-                amount = null,
-                images = List(4) { placeholder },
-                onClick = onFromPurchasePressed
-            )
-        }
-
     }
 }
 
@@ -497,7 +483,9 @@ private fun CategoryRow(
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.width(80.dp)
+                modifier = Modifier
+                    .width(80.dp)
+                    .height(120.dp),
             ) {
                 Box(
                     modifier = Modifier
@@ -532,13 +520,21 @@ private fun LazyStaggeredGridScope.recentListings(
     loadedState: ResellApiState,
     filteredListings: List<Listing>,
     onListingPressed: (Listing) -> Unit,
+    onFilter: () -> Unit,
     preview: Boolean = false
 ) {
     item(span = StaggeredGridItemSpan.FullLine) {
         Row(
-            horizontalArrangement = Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier.fillMaxWidth(),
         ) {
             Text(text = "Recent Listings", style = Style.heading3)
+            Icon(
+                painter = painterResource(R.drawable.ic_filter),
+                contentDescription = "Filter",
+                modifier = Modifier.clickable(onClick = onFilter),
+                tint = Secondary,
+            )
         }
     }
     item(span = StaggeredGridItemSpan.FullLine) {

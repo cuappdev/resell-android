@@ -21,6 +21,7 @@ import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.cornellappdev.resell.android.ui.theme.ResellPreview
 import com.cornellappdev.resell.android.viewmodel.submitted.ConfettiViewModel
 import kotlinx.coroutines.delay
 import kotlin.random.Random
@@ -159,6 +160,6 @@ fun ConfettiOverlay(
 // Note: This preview won't show animation since it requires a ViewModel.
 @Preview(showBackground = true)
 @Composable
-fun ConfettiOverlayPreview() {
+fun ConfettiOverlayPreview() = ResellPreview {
     ConfettiOverlay()
 }

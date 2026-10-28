@@ -20,6 +20,7 @@ import com.cornellappdev.resell.android.ui.components.global.ResellLoadingListin
 import com.cornellappdev.resell.android.ui.components.profile.ProfileEmptyState
 import com.cornellappdev.resell.android.ui.components.profile.ProfileHeader
 import com.cornellappdev.resell.android.ui.components.profile.ResellRequestsScroll
+import com.cornellappdev.resell.android.ui.theme.ResellPreview
 import com.cornellappdev.resell.android.ui.theme.simpleFadeInOut
 import com.cornellappdev.resell.android.util.LocalInfiniteShimmer
 import com.cornellappdev.resell.android.viewmodel.main.ProfileViewModel
@@ -157,7 +158,7 @@ fun ProfileScreen(
 
 @Preview(showBackground = true)
 @Composable
-fun ProfileScreenPreview() {
+fun ProfileScreenPreview() = ResellPreview {
     CompositionLocalProvider(value = LocalInfiniteShimmer provides Color.LightGray) {
         ProfileHeader(
             imageUrl = "",

@@ -2,6 +2,7 @@ package com.cornellappdev.resell.android.model.api
 
 import android.util.Log
 import com.cornellappdev.resell.android.model.classes.Listing
+import com.cornellappdev.resell.android.util.parseIsoDateToDate
 import com.cornellappdev.resell.android.util.richieUserInfo
 import com.google.gson.annotations.SerializedName
 import kotlinx.serialization.Serializable
@@ -11,6 +12,7 @@ import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
+import java.util.Date
 import java.util.Locale
 
 interface PostsApiService {
@@ -125,6 +127,9 @@ data class Post(
 
     private val priceString
         get() = String.format(Locale.US, "$%.2f", alteredPrice.ifBlank { null }?.toDouble() ?: 0.0)
+
+    val createdDate: Date
+        get() = parseIsoDateToDate(created)
 
     fun toListing(): Listing {
         return Listing(

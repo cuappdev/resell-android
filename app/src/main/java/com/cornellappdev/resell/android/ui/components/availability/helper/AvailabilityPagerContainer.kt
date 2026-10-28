@@ -21,8 +21,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.cornellappdev.resell.android.R
+import com.cornellappdev.resell.android.ui.theme.ResellPreview
+import com.cornellappdev.resell.android.ui.theme.ResellPurple
 import com.cornellappdev.resell.android.ui.theme.Secondary
 import com.cornellappdev.resell.android.ui.theme.Style
 import com.cornellappdev.resell.android.util.clickableNoIndication
@@ -45,6 +48,7 @@ fun AvailabilityPagerContainer(
     startDate: LocalDate,
     scrollRange: Pair<Int, Int>,
     modifier: Modifier = Modifier,
+    onEditAvailabilityClicked: (() -> Unit)? = null,
     availabilityGrid: @Composable (dates: List<LocalDate>, page: Int) -> Unit,
 ) {
     val state =
@@ -85,11 +89,26 @@ fun AvailabilityPagerContainer(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(text = title, style = Style.heading3)
-                Text(
-                    text = subtitle,
-                    style = Style.body2,
-                    color = Secondary
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = subtitle,
+                        style = Style.body2,
+                        color = Secondary
+                    )
+                    if (onEditAvailabilityClicked != null) {
+                        Text(
+                            text = " | ",
+                            style = Style.body2,
+                            color = Secondary
+                        )
+                        Text(
+                            text = "Edit Availability",
+                            style = Style.body2,
+                            color = ResellPurple,
+                            modifier = Modifier.clickableNoIndication { onEditAvailabilityClicked() }
+                        )
+                    }
+                }
             }
             Icon(
                 painter = painterResource(R.drawable.ic_chevron_right),
@@ -110,17 +129,30 @@ fun AvailabilityPagerContainer(
             state, userScrollEnabled = false
         ) { page ->
             Box(modifier = Modifier.padding(horizontal = 32.dp)) {
+                val offset = page - scrollRange.first
                 availabilityGrid(
-                    buildList {
-                        val offset = page - scrollRange.first
-                        val displayedStartDate = startDate.plusDays(offset * 3L)
-                        add(displayedStartDate)
-                        add(displayedStartDate.plusDays(1))
-                        add(displayedStartDate.plusDays(2))
-                    },
+                    dayWindowStartingAt(startDate.plusDays(offset * DAY_WINDOW_SIZE.toLong())),
                     page
                 )
             }
         }
+    }
+}
+
+@Preview
+@Composable
+private fun AvailabilityPagerContainerPreview() = ResellPreview {
+    AvailabilityPagerContainer(
+        title = "Title",
+        subtitle = "Subtitle",
+        startDate = LocalDate.now(),
+        scrollRange = 1 to 1,
+        onEditAvailabilityClicked = {}
+    ) { dates, _ ->
+        ViewOnlyAvailabilityGrid(
+            dates,
+            testAvailabilities(dates),
+            onSelectAvailability = {}
+        )
     }
 }

@@ -14,41 +14,52 @@ data class ChatDocument(
     val id: String,
     val timestamp: Timestamp,
     /** Urls **/
-    val images: List<String>?,
-    val text: String?,
+    val images: List<String> = emptyList(),
+    val text: String = "",
     val type: String,
     val senderId: String,
     val availabilities: List<StartAndEnd>?,
     val accepted: Boolean?,
-    val cancellation: Boolean?,
+    val cancellation: Boolean = false,
     val startDate: Timestamp?,
     val endDate: Timestamp?,
     val transactionId: String?
 )
 
 /**
+ * The lifecycle of a meeting proposal.
+ */
+enum class MeetingState(val value: String) {
+    PROPOSED("proposed"),
+    CONFIRMED("confirmed"),
+    DECLINED("declined"),
+    CANCELED("canceled");
+
+    companion object {
+        fun fromWire(value: String?): MeetingState? = entries.firstOrNull { it.value == value }
+    }
+}
+
+/**
  * An optional block included in the [ChatDocument] to represent a meeting proposal.
- *
- * @property state Either "confirmed" or "declined" or "proposed" or "canceled".
  */
 data class MeetingInfo(
     val proposeTime: Timestamp,
-    val state: String,
+    val state: MeetingState,
     var mostRecent: Boolean
 ) {
     val actionText
         get() = when (state) {
-            "proposed" -> "View Proposal"
-            "declined" -> "Send Another Proposal"
-            "confirmed" -> "View Details"
-            "canceled" -> null
-            else -> ""
+            MeetingState.PROPOSED -> "View Proposal"
+            MeetingState.DECLINED -> "Send Another Proposal"
+            MeetingState.CONFIRMED -> "View Details"
+            MeetingState.CANCELED -> null
         }
 
     val icon
         get() = when (state) {
-            "declined", "canceled" -> R.drawable.ic_slash
-            else -> R.drawable.ic_calendar
+            MeetingState.DECLINED, MeetingState.CANCELED -> R.drawable.ic_slash
+            MeetingState.PROPOSED, MeetingState.CONFIRMED -> R.drawable.ic_calendar
         }
 
     val endTime: Timestamp

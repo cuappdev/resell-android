@@ -1,5 +1,4 @@
 package com.cornellappdev.resell.android.viewmodel.onboarding
-
 import android.content.Context
 import android.content.Intent
 import android.util.Log
@@ -45,6 +44,11 @@ class LandingViewModel @Inject constructor(
 ) : ResellViewModel<LandingViewModel.LandingUiState>(
     initialUiState = LandingUiState()
 ) {
+
+
+    companion object {
+        private const val TAG = "LandingViewModel"
+    }
 
     data class LandingUiState(
         val showButton: Boolean = false,
@@ -173,7 +177,7 @@ class LandingViewModel @Inject constructor(
                 }
             } catch (e: Exception) {
                 if (e is HttpException && e.code() == 403) {
-                    Log.d("LandingViewModel", "User not found on backend; routing to onboarding.")
+                    Log.d(TAG, "User not found on backend; routing to onboarding.")
                     applyMutation {
                         copy(buttonState = ResellTextButtonState.ENABLED)
                     }
@@ -181,7 +185,7 @@ class LandingViewModel @Inject constructor(
                     return@launch
                 }
 
-                Log.e("LandingViewModel", "Error getting user: ", e)
+                Log.e(TAG, "Error getting user: ", e)
                 onSignInFailed(showSheet = false)
                 rootConfirmationRepository.showError(
                     "Your Google Account session has expired. Please sign in again!",

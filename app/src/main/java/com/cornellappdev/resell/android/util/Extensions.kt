@@ -14,6 +14,7 @@ fun Pair<Int, Int>.toSortedPair() = if (first <= second) this else second to fir
 val LocalDateTime.day: Long get() = ChronoUnit.DAYS.between(LocalDate.ofEpochDay(0), this)
 
 val LocalDate.day: Long get() = ChronoUnit.DAYS.between(LocalDate.ofEpochDay(0), this)
+fun Timestamp.toIsoString(): String = toDate().toInstant().toString()
 
 /**
  * Returns the MONTH DAY, YEAR format.

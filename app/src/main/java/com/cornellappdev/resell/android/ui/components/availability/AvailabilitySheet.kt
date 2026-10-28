@@ -28,7 +28,9 @@ fun AvailabilitySheet(
             modifier = Modifier
                 .padding(bottom = 16.dp)
                 .weight(1f),
-            initialSelectedAvailabilities = uiState.initialAvailabilities
+            initialSelectedAvailabilities = uiState.initialAvailabilities,
+            overlappingAvailabilities = uiState.overlapTimes,
+            onEditAvailabilityClicked = uiState.onEditAvailability,
         )
 
         ResellTextButton(

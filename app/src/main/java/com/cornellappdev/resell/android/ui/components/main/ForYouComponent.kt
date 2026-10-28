@@ -24,6 +24,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.cornellappdev.resell.android.R
+import com.cornellappdev.resell.android.ui.theme.ResellPreview
 import com.cornellappdev.resell.android.ui.theme.Style
 
 @Composable
@@ -101,7 +102,7 @@ fun ImageBox(painter: Painter?, modifier: Modifier = Modifier) {
 
 @Composable
 @Preview
-private fun ForYouComponentPreview() {
+private fun ForYouComponentPreview() = ResellPreview {
     val placeholder = painterResource(R.drawable.ic_appdev)
     ForYouComponent(
         text = "From Your Purchases",

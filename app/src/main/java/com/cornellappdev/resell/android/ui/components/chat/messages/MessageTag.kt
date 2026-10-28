@@ -25,6 +25,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.cornellappdev.resell.android.ui.theme.ResellPreview
 import com.cornellappdev.resell.android.ui.theme.Style
 import com.cornellappdev.resell.android.ui.theme.animateResellBrush
 
@@ -89,7 +90,7 @@ fun MessageTag(
 
 @Preview
 @Composable
-private fun TagPreview() {
+private fun TagPreview() = ResellPreview {
     var toggle by remember { mutableStateOf(true) }
     Column(modifier = Modifier.padding(8.dp)) {
         MessageTag(
