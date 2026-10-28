@@ -28,7 +28,6 @@ import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
 import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
@@ -66,7 +65,6 @@ import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.model.classes.ResellApiState
 import com.cornellappdev.resell.android.model.classes.ResellFilter
 import com.cornellappdev.resell.android.model.classes.UserInfo
-import com.cornellappdev.resell.android.ui.components.global.AnimatedClampedAsyncImage
 import com.cornellappdev.resell.android.ui.components.global.isItemWithKeyVisible
 import com.cornellappdev.resell.android.ui.components.global.resellListingScroll
 import com.cornellappdev.resell.android.ui.components.global.resellLoadingListingScroll
@@ -615,22 +613,8 @@ private fun LazyStaggeredGridScope.recentListings(
     }
 }
 
-@Composable
-private fun ResellSavedCard(
-    onClick: () -> Unit,
-    imageResponse: MutableState<ResellApiResponse<ImageBitmap>>,
-) {
-    AnimatedClampedAsyncImage(
-        image = imageResponse.value,
-        modifier = Modifier
-            .height(112.dp)
-            .width(112.dp)
-            .clip(RoundedCornerShape(4.dp))
-            .clickable { onClick() }
-    )
-}
 
-val dumbListing = Listing(
+private val dumbListing = Listing(
     id = "1",
     title = "Dumb Listing",
     images = listOf(""),
