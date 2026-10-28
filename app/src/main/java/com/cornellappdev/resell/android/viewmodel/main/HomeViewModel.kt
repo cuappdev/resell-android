@@ -13,7 +13,8 @@ import com.cornellappdev.resell.android.model.classes.toResellApiState
 import com.cornellappdev.resell.android.model.posts.ResellPostRepository
 import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
-import com.cornellappdev.resell.android.util.excludingIds
+import com.cornellappdev.resell.android.util.ScrollPageResult
+import com.cornellappdev.resell.android.util.fetchNextScrollPage
 import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CancellationException
@@ -136,14 +137,9 @@ class HomeViewModel @Inject constructor(
         fetchJob = viewModelScope.launch {
             try {
                 val posts = resellPostRepository.getFilteredPosts(filter, page = 1, limit = HOME_PAGE_SIZE)
-                val orderedPosts = if (filter.sortBy == ResellFilter.SortBy.NEWLY_LISTED) {
-                    posts.sortedByDescending { it.createdDate }
-                } else {
-                    posts
-                }
                 applyMutation {
                     copy(
-                        listings = orderedPosts.map { it.toListing() },
+                        listings = posts.map { it.toListing() },
                         loadedState = ResellApiState.Success,
                         page = 1,
                         endReached = posts.isEmpty(),
@@ -199,33 +195,27 @@ class HomeViewModel @Inject constructor(
         applyMutation { copy(bottomLoading = true) }
         fetchJob?.cancel()
         fetchJob = viewModelScope.launch {
-            try {
-                val nextPage = state.page + 1
-                val posts = if (state.isDefaultFeed) {
+            val result = fetchNextScrollPage(state.page, state.listings) { nextPage ->
+                if (state.isDefaultFeed) {
                     resellPostRepository.getNewlyListedPosts(page = nextPage, limit = HOME_PAGE_SIZE)
                 } else {
                     resellPostRepository.getFilteredPosts(state.activeFilter, page = nextPage, limit = HOME_PAGE_SIZE)
                 }
-                val orderedPosts =
-                    if (!state.isDefaultFeed && state.activeFilter.sortBy == ResellFilter.SortBy.NEWLY_LISTED) {
-                        posts.sortedByDescending { it.createdDate }
-                    } else {
-                        posts
-                    }
-                applyMutation {
-                    // Prevent duplicates from rendering
-                    val newListings = orderedPosts.map { it.toListing() }.excludingIds(listings)
+            }
+            when (result) {
+                is ScrollPageResult.Success -> applyMutation {
                     copy(
-                        listings = listings + newListings,
-                        page = nextPage,
-                        endReached = newListings.isEmpty(),
+                        listings = listings + result.newListings,
+                        page = result.nextPage,
+                        endReached = result.endReached,
                         bottomLoading = false
                     )
                 }
-            } catch (_: CancellationException) {
-            } catch (e: Exception) {
-                Log.e(TAG, "Error fetching next page: ", e)
-                applyMutation { copy(bottomLoading = false) }
+
+                is ScrollPageResult.Error -> {
+                    Log.e(TAG, "Error fetching next page: ", result.exception)
+                    applyMutation { copy(bottomLoading = false) }
+                }
             }
         }
     }

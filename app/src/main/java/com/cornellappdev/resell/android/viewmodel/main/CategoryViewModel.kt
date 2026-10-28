@@ -8,7 +8,8 @@ import com.cornellappdev.resell.android.model.classes.ResellFilter
 import com.cornellappdev.resell.android.model.posts.ResellPostRepository
 import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
-import com.cornellappdev.resell.android.util.excludingIds
+import com.cornellappdev.resell.android.util.ScrollPageResult
+import com.cornellappdev.resell.android.util.fetchNextScrollPage
 import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CancellationException
@@ -109,26 +110,20 @@ class CategoryViewModel @Inject constructor(
         applyMutation { copy(bottomLoading = true) }
         fetchJob?.cancel()
         fetchJob = viewModelScope.launch {
-            try {
-                val nextPage = state.page + 1
-                val posts = resellPostRepository.getFilteredPosts(
-                    state.filter,
-                    page = nextPage,
-                    limit = CATEGORY_PAGE_SIZE
-                )
-                applyMutation {
-                    // Prevent duplicates from rendering
-                    val newListings = posts.map { it.toListing() }.excludingIds(listings)
+            val result = fetchNextScrollPage(state.page, state.listings) { nextPage ->
+                resellPostRepository.getFilteredPosts(state.filter, page = nextPage, limit = CATEGORY_PAGE_SIZE)
+            }
+            when (result) {
+                is ScrollPageResult.Success -> applyMutation {
                     copy(
-                        listings = listings + newListings,
-                        page = nextPage,
-                        endReached = newListings.isEmpty(),
+                        listings = listings + result.newListings,
+                        page = result.nextPage,
+                        endReached = result.endReached,
                         bottomLoading = false
                     )
                 }
-            } catch (_: CancellationException) {
-            } catch (_: Exception) {
-                applyMutation { copy(bottomLoading = false) }
+
+                is ScrollPageResult.Error -> applyMutation { copy(bottomLoading = false) }
             }
         }
     }
