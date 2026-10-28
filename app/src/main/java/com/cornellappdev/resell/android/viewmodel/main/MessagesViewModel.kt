@@ -9,8 +9,6 @@ import com.cornellappdev.resell.android.model.classes.ResellApiState
 import com.cornellappdev.resell.android.model.classes.toResellApiState
 import com.cornellappdev.resell.android.model.core.UserInfoRepository
 import com.cornellappdev.resell.android.model.login.FireStoreRepository
-import com.cornellappdev.resell.android.model.posts.ResellPostRepository
-import com.cornellappdev.resell.android.model.profile.ProfileRepository
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
 import com.cornellappdev.resell.android.viewmodel.main.ChatViewModel.ChatType
 import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepository
@@ -24,10 +22,8 @@ import kotlin.time.Duration.Companion.milliseconds
 @HiltViewModel
 class MessagesViewModel @Inject constructor(
     private val chatRepository: ChatRepository,
-    private val profileRepository: ProfileRepository,
     private val rootConfirmationRepository: RootConfirmationRepository,
     private val rootNavigationRepository: RootNavigationRepository,
-    private val postsRepository: ResellPostRepository,
     private val userInfoRepository: UserInfoRepository,
     private val fireStoreRepository: FireStoreRepository
 ) :

@@ -7,7 +7,6 @@ import com.cornellappdev.resell.android.model.api.ReportPostBody
 import com.cornellappdev.resell.android.model.api.ReportProfileBody
 import com.cornellappdev.resell.android.model.api.RetrofitInstance
 import com.cornellappdev.resell.android.model.core.UserInfoRepository
-import com.cornellappdev.resell.android.model.login.FireStoreRepository
 import com.cornellappdev.resell.android.model.profile.ProfileRepository
 import com.cornellappdev.resell.android.util.toNetworkingString
 import javax.inject.Inject
@@ -17,7 +16,6 @@ import javax.inject.Singleton
 class SettingsRepository @Inject constructor(
     private val retrofitInstance: RetrofitInstance,
     private val userInfoRepository: UserInfoRepository,
-    private val fireStoreRepository: FireStoreRepository,
     private val profileRepository: ProfileRepository
 ) {
 
@@ -31,17 +29,13 @@ class SettingsRepository @Inject constructor(
         )
     }
 
-    suspend fun reportProfile(uid: String, reason: String, description: String) {
+    suspend fun reportProfile(uid: String, reason: String) {
         retrofitInstance.settingsApi.reportProfile(
             ReportProfileBody(
                 reported = uid,
                 reason = reason,
             )
         )
-    }
-
-    suspend fun reportMessage(id: String, reason: String) {
-        // TODO: The backend input is really weird...
     }
 
     suspend fun sendFeedback(

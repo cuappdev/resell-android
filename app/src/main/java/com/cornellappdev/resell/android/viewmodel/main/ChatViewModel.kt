@@ -5,17 +5,10 @@ import android.content.Intent
 import android.net.Uri
 import android.provider.CalendarContract
 import android.util.Log
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.material3.Text
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
@@ -31,14 +24,12 @@ import com.cornellappdev.resell.android.model.chats.TransactionState
 import com.cornellappdev.resell.android.model.classes.Listing
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.model.core.UserInfoRepository
-import com.cornellappdev.resell.android.model.login.FireStoreRepository
 import com.cornellappdev.resell.android.model.login.FirebaseMessagingRepository
 import com.cornellappdev.resell.android.model.ptf.PostTransactionRatingRepository
 import com.cornellappdev.resell.android.ui.components.availability.helper.GridSelectionType
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonContainer
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonState
 import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
-import com.cornellappdev.resell.android.ui.theme.Style
 import com.cornellappdev.resell.android.ui.theme.Style.heading3
 import com.cornellappdev.resell.android.util.UIEvent
 import com.cornellappdev.resell.android.util.convertToFirestoreTimestamp
@@ -70,8 +61,7 @@ class ChatViewModel @Inject constructor(
     private val chatRepository: ChatRepository,
     private val savedStateHandle: SavedStateHandle,
     private val rootConfirmationRepository: RootConfirmationRepository,
-    private val firebaseMessagingRepository: FirebaseMessagingRepository,
-    private val fireStoreRepository: FireStoreRepository,
+    firebaseMessagingRepository: FirebaseMessagingRepository,
     private val rootDialogRepository: RootDialogRepository,
     private val rootNavigationRepository: RootNavigationRepository,
     private val postTransactionRatingRepository: PostTransactionRatingRepository,
@@ -156,31 +146,6 @@ class ChatViewModel @Inject constructor(
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
 
         context.startActivity(intent)
-    }
-
-    fun onNewProposalPressed() {
-        rootNavigationSheetRepository.showBottomSheet(
-            RootSheet.MeetingDetails(
-                callback = {
-
-                },
-                confirmString = "Reschedule",
-                title = "New Proposal",
-                closeString = "Cancel",
-                confirmColor = ResellTextButtonContainer.PRIMARY
-            ) {
-                Spacer(Modifier.height(16.dp))
-
-                Text(
-                    text = "This proposal replaces your previous one scheduled for [Original Time]. Are you sure you want to reschedule?",
-                    style = Style.body1,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                Spacer(Modifier.height(32.dp))
-            }
-        )
     }
 
     fun onSendMessage(message: String) {
@@ -604,7 +569,7 @@ class ChatViewModel @Inject constructor(
         }
     }
 
-    fun onTransactionStateClicked(transactionInfo: TransactionInfo, isSelf: Boolean) {
+    fun onTransactionStateClicked(transactionInfo: TransactionInfo) {
         viewModelScope.launch {
             when (transactionInfo.state) {
                 TransactionState.COMPLETED -> {

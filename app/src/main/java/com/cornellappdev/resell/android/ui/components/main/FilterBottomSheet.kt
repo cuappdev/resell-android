@@ -24,8 +24,6 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchColors
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -36,7 +34,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -45,7 +42,6 @@ import androidx.compose.ui.unit.sp
 import com.cornellappdev.resell.android.model.classes.ResellFilter
 import com.cornellappdev.resell.android.ui.components.global.Dropdown
 import com.cornellappdev.resell.android.ui.components.global.ResellSlider
-import com.cornellappdev.resell.android.ui.theme.IconInactive
 import com.cornellappdev.resell.android.ui.theme.PurpleWash
 import com.cornellappdev.resell.android.ui.theme.ResellPreview
 import com.cornellappdev.resell.android.ui.theme.ResellPurple
@@ -376,50 +372,6 @@ private fun checkIfFilterChanged(
             priceRange != originalFilter.priceRange ||
             categoriesSelected != originalFilter.categoriesSelected ||
             conditionSelected != originalFilter.conditionSelected
-}
-
-@Composable
-private fun ItemsOnSale(
-    itemsOnSale: Boolean,
-    onItemsOnSaleChanged: (Boolean) -> Unit
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            text = "Items on Sale",
-            fontWeight = FontWeight.Normal,
-            fontSize = 20.sp,
-            color = Secondary
-        )
-        Switch(
-            checked = itemsOnSale,
-            onCheckedChange = onItemsOnSaleChanged,
-            colors = SwitchColors(
-                checkedThumbColor = Color.White,
-                checkedTrackColor = ResellPurple,
-                checkedBorderColor = ResellPurple,
-                checkedIconColor = Color.White,
-
-                uncheckedThumbColor = IconInactive,
-                uncheckedTrackColor = Color.White,
-                uncheckedBorderColor = IconInactive,
-                uncheckedIconColor = IconInactive,
-
-                disabledCheckedThumbColor = Color.Gray,
-                disabledCheckedTrackColor = Color.Gray,
-                disabledCheckedBorderColor = Color.Gray,
-                disabledCheckedIconColor = Color.Gray,
-                disabledUncheckedThumbColor = Color.Gray,
-                disabledUncheckedTrackColor = Color.Gray,
-                disabledUncheckedBorderColor = Color.Gray,
-                disabledUncheckedIconColor = Color.Gray
-            ),
-            modifier = Modifier.scale(0.8f)
-        )
-    }
 }
 
 /**

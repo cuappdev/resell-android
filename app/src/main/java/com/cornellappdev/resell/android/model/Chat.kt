@@ -19,10 +19,6 @@ enum class MessageType {
     Image, Card, Message, Availability, State
 }
 
-enum class MeetingProposalState {
-    UserProposal, OtherProposal, UserDecline, OtherDecline
-}
-
 /**
  * @param imageUrl Only used if [messageType] is [MessageType.Image].
  * @param availability Only used if [messageType] is [MessageType.Availability].

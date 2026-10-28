@@ -25,7 +25,6 @@ import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
@@ -60,7 +59,6 @@ import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.model.classes.ResellApiState
 import com.cornellappdev.resell.android.model.classes.ResellFilter
 import com.cornellappdev.resell.android.model.classes.UserInfo
-import com.cornellappdev.resell.android.ui.components.global.AnimatedClampedAsyncImage
 import com.cornellappdev.resell.android.ui.components.global.resellListingScroll
 import com.cornellappdev.resell.android.ui.components.global.resellLoadingListingScroll
 import com.cornellappdev.resell.android.ui.components.main.FilterBottomSheet
@@ -167,11 +165,9 @@ private fun HomeScreenHelper(
         MainContent(
             savedListings = savedListings,
             fromSearchedListings = fromSearchedListings,
-            fromPurchasesListings = fromPurchasesListings,
             onSavedPressed = onSavedPressed,
             onFromSearchPressed = onFromSearchPressed,
             onFromPurchasePressed = onFromPurchasePressed,
-            toPost = onListingPressed,
             onCategoryPressed = onCategoryPressed,
             loadedState = loadedState,
             filteredListings = filteredListings,
@@ -235,11 +231,9 @@ private fun HomeHeader(
 private fun MainContent(
     savedListings: List<Listing>,
     fromSearchedListings: List<Listing>,
-    fromPurchasesListings: List<Listing>,
     onSavedPressed: () -> Unit,
     onFromSearchPressed: () -> Unit,
     onFromPurchasePressed: () -> Unit,
-    toPost: (Listing) -> Unit,
     loadedState: ResellApiState,
     onCategoryPressed: (ResellFilter.FilterCategory) -> Unit,
     filteredListings: List<Listing>,
@@ -262,7 +256,6 @@ private fun MainContent(
         forYou(
             savedListings,
             fromSearchedListings,
-            fromPurchasesListings,
             savedImagesResponses,
             searchedImageResponses,
             onSavedPressed,
@@ -367,7 +360,6 @@ private enum class CategoryItem(
 private fun LazyStaggeredGridScope.forYou(
     savedListings: List<Listing>,
     fromSearchedListings: List<Listing>,
-    fromPurchasesListings: List<Listing>,
     savedImagesResponses: List<MutableState<ResellApiResponse<ImageBitmap>>>,
     searchedImageResponses: List<MutableState<ResellApiResponse<ImageBitmap>>>,
     onSavedPressed: () -> Unit,
@@ -578,21 +570,6 @@ private fun LazyStaggeredGridScope.recentListings(
 
         is ResellApiState.Error -> {}
     }
-}
-
-@Composable
-private fun ResellSavedCard(
-    onClick: () -> Unit,
-    imageResponse: MutableState<ResellApiResponse<ImageBitmap>>,
-) {
-    AnimatedClampedAsyncImage(
-        image = imageResponse.value,
-        modifier = Modifier
-            .height(112.dp)
-            .width(112.dp)
-            .clip(RoundedCornerShape(4.dp))
-            .clickable { onClick() }
-    )
 }
 
 val dumbListing = Listing(

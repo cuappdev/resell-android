@@ -59,7 +59,6 @@ class LandingViewModel @Inject constructor(
     fun attemptAutoLogin() {
         if (googleAuthRepository.accountOrNull() != null) {
             onSignInCompleted(
-                idToken = googleAuthRepository.accountOrNull()!!.idToken!!,
                 email = googleAuthRepository.accountOrNull()!!.email!!
             )
         }
@@ -111,7 +110,7 @@ class LandingViewModel @Inject constructor(
         googleAuthRepository.signOut()
     }
 
-    private fun onSignInCompleted(idToken: String, email: String) {
+    private fun onSignInCompleted(email: String) {
         // Cornell email.
         if (!email.endsWith("@cornell.edu")) {
             applyMutation {
@@ -202,7 +201,7 @@ class LandingViewModel @Inject constructor(
             onError = {
                 onSignInFailed(showSheet = true)
             },
-            onGoogleSignInCompleted = ::onSignInCompleted,
+            onGoogleSignInCompleted = { _, email -> onSignInCompleted(email) },
         )
     }
 

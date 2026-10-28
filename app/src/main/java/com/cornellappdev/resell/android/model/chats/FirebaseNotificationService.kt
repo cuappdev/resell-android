@@ -90,7 +90,7 @@ class FirebaseNotificationService : FirebaseMessagingService() {
 
         // Notification manager
         val notificationManager =
-            getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            getSystemService(NOTIFICATION_SERVICE) as NotificationManager
 
         // Create the notification channel for Android O+
         val channel = NotificationChannel(

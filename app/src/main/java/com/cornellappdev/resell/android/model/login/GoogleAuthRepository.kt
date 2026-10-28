@@ -14,13 +14,9 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
-import com.google.auth.oauth2.GoogleCredentials
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
@@ -48,13 +44,6 @@ class GoogleAuthRepository @Inject constructor(
      */
     fun accountOrNull(): GoogleSignInAccount? {
         return GoogleSignIn.getLastSignedInAccount(context)
-    }
-
-    /**
-     * Returns if the user is logged in or not. Identical to `accountOrNull() != null`.
-     */
-    fun isLoggedIn(): Boolean {
-        return accountOrNull() != null
     }
 
     /**
@@ -113,17 +102,4 @@ class GoogleAuthRepository @Inject constructor(
         return account.idToken!!
     }
 
-    suspend fun getOAuthToken(): String = coroutineScope {
-        val assetManager = context.assets
-        val inputStream = assetManager.open("resell-service.json")
-        val credentials = GoogleCredentials
-            .fromStream(inputStream)
-            .createScoped(listOf("https://www.googleapis.com/auth/cloud-platform"))
-
-        CoroutineScope(Dispatchers.IO).launch {
-            credentials.refreshIfExpired()
-        }.join()
-
-        credentials.accessToken.tokenValue
-    }
 }

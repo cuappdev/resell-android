@@ -4,7 +4,6 @@ import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.model.api.StartAndEnd
 import com.cornellappdev.resell.android.ui.theme.ResellPurple
 import com.google.firebase.Timestamp
-import com.google.gson.annotations.SerializedName
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -25,37 +24,6 @@ data class ChatDocument(
     val startDate: Timestamp?,
     val endDate: Timestamp?,
     val transactionId: String?
-)
-
-/**
- * A copy of [ChatDocument] that can be used to push any datatype for availability and product.
- *
- * WARNING: Only use for directly pushing to firebase. Otherwise, use [ChatDocument].
- */
-data class ChatDocumentAny(
-    val _id: String,
-    val createdAt: Timestamp,
-    val image: String,
-    val text: String,
-    val user: UserDocument,
-    val availability: Any,
-    val product: Any,
-)
-
-/**
- * A copy of [ChatDocument] that can be used to push any datatype for meeting info.
- *
- * WARNING: Only use for directly pushing to firebase. Otherwise, use [ChatDocument].
- */
-data class ChatDocumentAnyMeetingInfo(
-    val _id: String,
-    val createdAt: Timestamp,
-    val image: String,
-    val text: String,
-    val availability: Any = mapOf<String, Any>(),
-    val product: Any = mapOf<String, Any>(),
-    val user: UserDocument,
-    val meetingInfo: Any
 )
 
 data class UserDocument(
@@ -96,13 +64,6 @@ data class MeetingInfo(
             calendar.add(Calendar.MINUTE, 30)
             return Timestamp(calendar.time)
         }
-
-    fun toFirebaseMap(): Map<String, Any> {
-        val map = mutableMapOf<String, Any>()
-        map["proposeTime"] = proposeTime
-        map["state"] = state
-        return map
-    }
 
     fun convertToUtcMinusFiveDate(): Date {
         val calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT-5"))
@@ -149,13 +110,7 @@ data class TransactionInfo(
 
 data class AvailabilityDocument(
     val availabilities: List<AvailabilityBlock>
-) {
-    fun toFirebaseArray(): List<Any> {
-        // Sort each availability, sorted by start date:
-        val sortedAvailabilities = availabilities.sortedBy { it.startDate }
-        return sortedAvailabilities
-    }
-}
+)
 
 data class AvailabilityBlock(
     val startDate: Timestamp,
@@ -172,6 +127,3 @@ data class AvailabilityBlock(
         }
 }
 
-data class ProductDocument(
-    @SerializedName("_id") val id: String,
-)

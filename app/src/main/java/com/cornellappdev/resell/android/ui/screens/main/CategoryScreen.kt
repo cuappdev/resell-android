@@ -185,7 +185,7 @@ private fun EmptyState(onClick: () -> Unit) {
                 textDecoration = TextDecoration.Underline
             ),
             modifier = Modifier.clickable {
-                onClick
+                onClick()
             },
         )
     }

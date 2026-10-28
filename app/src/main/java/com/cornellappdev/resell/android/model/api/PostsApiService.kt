@@ -129,9 +129,6 @@ data class Post(
     private val priceString
         get() = String.format(Locale.US, "$%.2f", alteredPrice.ifBlank { null }?.toDouble() ?: 0.0)
 
-    val createdDate: Date
-        get() = parseIsoDate(created)
-
     fun toListing(): Listing {
         return Listing(
             id = id,

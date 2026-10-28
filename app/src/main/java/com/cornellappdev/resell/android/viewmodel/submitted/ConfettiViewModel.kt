@@ -15,10 +15,6 @@ class ConfettiViewModel @Inject constructor(
         val showing: Boolean = false
     )
 
-    fun onShow() {
-        applyMutation { copy(showing = true) }
-    }
-
     fun onAnimationFinished() {
         applyMutation { copy(showing = false) }
     }

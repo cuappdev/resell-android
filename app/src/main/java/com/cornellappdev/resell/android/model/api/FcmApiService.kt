@@ -1,17 +1,7 @@
 package com.cornellappdev.resell.android.model.api
 
-import retrofit2.http.Body
-import retrofit2.http.Header
-import retrofit2.http.POST
-
 interface FcmApiService {
 
-    @POST("v1/projects/resell-e99a2/messages:send")
-    suspend fun sendNotification(
-        @Body body: FcmBody,
-        @Header("Authorization") authToken: String,
-        @Header("Accept") accept: String = "application/json",
-    )
 }
 
 data class FcmBody(

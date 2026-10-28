@@ -118,7 +118,11 @@ fun ChatScreen(
                     )
                 },
                 onMeetingStateClicked = chatViewModel::onMeetingStateClicked,
-                onTransactionStateClicked = chatViewModel::onTransactionStateClicked,
+                onTransactionStateClicked = { transactionInfo, _ ->
+                    chatViewModel.onTransactionStateClicked(
+                        transactionInfo
+                    )
+                },
                 confirmedMeeting = chatUiState.confirmedMeeting,
                 onViewAvailabilityPressed = chatViewModel::onViewOtherAvailabilityPressed
             )
@@ -193,7 +197,6 @@ private fun ChatLoadedContent(
             onTransactionStateClicked = onTransactionStateClicked
         )
         ChatFooter(
-            chatType = chatUiState.chatType,
             modifier = Modifier.imePadding(),
             onNegotiatePressed = { onNegotiatePressed() },
             onSend = {
@@ -314,7 +317,6 @@ private fun ChatHeader(
 
 @Composable
 private fun ChatFooter(
-    chatType: ChatViewModel.ChatType,
     modifier: Modifier = Modifier,
     onNegotiatePressed: () -> Unit,
     onVenmoPressed: () -> Unit,
