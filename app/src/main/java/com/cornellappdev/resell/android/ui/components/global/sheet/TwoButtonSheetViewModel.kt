@@ -9,7 +9,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class TwoButtonSheetViewModel @Inject constructor(
-    private val rootNavigationSheetRepository: RootNavigationSheetRepository
+    rootNavigationSheetRepository: RootNavigationSheetRepository
 ) : ResellViewModel<RootSheet.TwoButtonSheet>(
     initialUiState = RootSheet.TwoButtonSheet(
         primaryText = "",

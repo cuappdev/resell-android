@@ -23,7 +23,7 @@ import kotlin.time.Duration.Companion.milliseconds
 
 @HiltViewModel
 class FeedbackDetailsViewModel @Inject constructor(
-    private val savedStateHandle: SavedStateHandle,
+    savedStateHandle: SavedStateHandle,
     private val rootDialogRepository: RootDialogRepository,
     private val rootConfirmationRepository: RootConfirmationRepository,
     private val rootNavigationRepository: RootNavigationRepository,

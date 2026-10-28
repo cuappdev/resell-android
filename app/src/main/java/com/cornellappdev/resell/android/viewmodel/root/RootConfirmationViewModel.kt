@@ -12,7 +12,7 @@ import kotlin.time.Duration.Companion.milliseconds
 
 @HiltViewModel
 class RootConfirmationViewModel @Inject constructor(
-    private val rootConfirmationRepository: RootConfirmationRepository
+    rootConfirmationRepository: RootConfirmationRepository
 ) : ResellViewModel
 <RootConfirmationViewModel.ConfirmationUiState>(
     initialUiState = ConfirmationUiState()

@@ -22,7 +22,7 @@ import kotlin.time.Duration.Companion.milliseconds
 
 @HiltViewModel
 class PostTransactionRatingViewModel @Inject constructor(
-    private val savedStateHandle: SavedStateHandle,
+    savedStateHandle: SavedStateHandle,
     private val rootNavigationRepository: RootNavigationRepository,
     private val rootDialogRepository: RootDialogRepository,
     private val rootConfirmationRepository: RootConfirmationRepository,

@@ -1,11 +1,5 @@
 package com.cornellappdev.resell.android.model.api
 
-data class FcmMessage(
-    val token: String,
-    val notification: FcmNotification?,
-    val data: Any?,
-)
-
 /**
  * The title and body of the notification that will be displayed as a banner.
  */
