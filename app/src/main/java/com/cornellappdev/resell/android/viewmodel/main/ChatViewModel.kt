@@ -5,17 +5,10 @@ import android.content.Intent
 import android.net.Uri
 import android.provider.CalendarContract
 import android.util.Log
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.material3.Text
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
@@ -31,7 +24,6 @@ import com.cornellappdev.resell.android.model.chats.TransactionState
 import com.cornellappdev.resell.android.model.classes.Listing
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.model.core.UserInfoRepository
-import com.cornellappdev.resell.android.model.login.FireStoreRepository
 import com.cornellappdev.resell.android.model.login.FirebaseMessagingRepository
 import com.cornellappdev.resell.android.model.profile.AvailabilityRepository
 import com.cornellappdev.resell.android.model.ptf.PostTransactionRatingRepository
@@ -39,7 +31,6 @@ import com.cornellappdev.resell.android.ui.components.availability.helper.GridSe
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonContainer
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonState
 import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
-import com.cornellappdev.resell.android.ui.theme.Style
 import com.cornellappdev.resell.android.ui.theme.Style.heading3
 import com.cornellappdev.resell.android.util.UIEvent
 import com.cornellappdev.resell.android.util.loadBitmapFromUri
@@ -60,6 +51,7 @@ import java.time.LocalDateTime
 import java.time.ZoneId
 import java.util.Date
 import javax.inject.Inject
+import androidx.core.net.toUri
 
 @HiltViewModel
 class ChatViewModel @Inject constructor(
@@ -69,8 +61,7 @@ class ChatViewModel @Inject constructor(
     private val chatRepository: ChatRepository,
     private val savedStateHandle: SavedStateHandle,
     private val rootConfirmationRepository: RootConfirmationRepository,
-    private val firebaseMessagingRepository: FirebaseMessagingRepository,
-    private val fireStoreRepository: FireStoreRepository,
+    firebaseMessagingRepository: FirebaseMessagingRepository,
     private val rootDialogRepository: RootDialogRepository,
     private val rootNavigationRepository: RootNavigationRepository,
     private val postTransactionRatingRepository: PostTransactionRatingRepository,
@@ -108,9 +99,9 @@ class ChatViewModel @Inject constructor(
 
         val confirmedMeeting: MeetingInfo?
             get() = currentChat.asSuccessOrNull()?.data?.let { chat ->
-                val mostRecentState = chat.chatHistory.map {
+                val mostRecentState = chat.chatHistory.flatMap {
                     it.messages
-                }.flatten().sortedByDescending {
+                }.sortedByDescending {
                     it.timestamp
                 }.firstOrNull {
                     it.meetingInfo != null
@@ -141,7 +132,7 @@ class ChatViewModel @Inject constructor(
 
         rootNavigationSheetRepository.hideSheet()
 
-        // Open intent for google calendar
+        // Open intent for Google calendar
         val intent = Intent(Intent.ACTION_INSERT)
             .setData(CalendarContract.Events.CONTENT_URI)
             .putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME, date.time)
@@ -159,31 +150,6 @@ class ChatViewModel @Inject constructor(
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
 
         context.startActivity(intent)
-    }
-
-    fun onNewProposalPressed() {
-        rootNavigationSheetRepository.showBottomSheet(
-            RootSheet.MeetingDetails(
-                callback = {
-
-                },
-                confirmString = "Reschedule",
-                title = "New Proposal",
-                closeString = "Cancel",
-                confirmColor = ResellTextButtonContainer.PRIMARY
-            ) {
-                Spacer(Modifier.height(16.dp))
-
-                Text(
-                    text = "This proposal replaces your previous one scheduled for [Original Time]. Are you sure you want to reschedule?",
-                    style = Style.body1,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                Spacer(Modifier.height(32.dp))
-            }
-        )
     }
 
     fun onSendMessage(message: String) {
@@ -302,7 +268,7 @@ class ChatViewModel @Inject constructor(
                 // Open Venmo URL
                 val intent = Intent(
                     Intent.ACTION_VIEW,
-                    Uri.parse("https://account.venmo.com/u/${theirVenmo}")
+                    "https://account.venmo.com/u/${theirVenmo}".toUri()
                 )
                 intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
                 context.startActivity(intent)
@@ -363,9 +329,9 @@ class ChatViewModel @Inject constructor(
      */
     private fun getFirstChatOrNull(predicate: (ChatMessageData) -> Boolean): ChatMessageData? {
         val chat = chatRepository.subscribedChatFlow.value.asSuccessOrNull()?.data ?: return null
-        val mostRecentState = chat.chatHistory.map {
+        val mostRecentState = chat.chatHistory.flatMap {
             it.messages
-        }.flatten().sortedByDescending {
+        }.sortedByDescending {
             it.timestamp
         }.firstOrNull {
             predicate(it)
@@ -495,9 +461,9 @@ class ChatViewModel @Inject constructor(
                         chatRepository.subscribedChatFlow.value.asSuccessOrNull()?.data
                             ?: return@launch
 
-                    val mostRecentAvailability = chat.chatHistory.map {
+                    val mostRecentAvailability = chat.chatHistory.flatMap {
                         it.messages
-                    }.flatten().sortedByDescending {
+                    }.sortedByDescending {
                         it.timestamp
                     }.firstOrNull {
                         it.availability != null && it.senderId != myEmail
@@ -608,7 +574,7 @@ class ChatViewModel @Inject constructor(
         }
     }
 
-    fun onTransactionStateClicked(transactionInfo: TransactionInfo, isSelf: Boolean) {
+    fun onTransactionStateClicked(transactionInfo: TransactionInfo) {
         viewModelScope.launch {
             when (transactionInfo.state) {
                 TransactionState.COMPLETED -> {

@@ -30,11 +30,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.ui.components.global.ResellHeader
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButton
@@ -47,6 +46,7 @@ import com.cornellappdev.resell.android.util.defaultHorizontalPadding
 import com.cornellappdev.resell.android.util.isBottomLeftMoreBlack
 import com.cornellappdev.resell.android.util.singlePhotoPicker
 import com.cornellappdev.resell.android.viewmodel.newpost.ImageUploadViewModel
+import com.cornellappdev.resell.android.util.windowWidth
 
 @Composable
 fun ImageUploadScreen(
@@ -175,7 +175,7 @@ private fun ImageDisplay(
     onDelete: () -> Unit,
 ) {
     // TODO
-    val screenWidth = LocalConfiguration.current.screenWidthDp.dp
+    val screenWidth = windowWidth()
 
     Box {
         Row {

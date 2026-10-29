@@ -29,11 +29,11 @@ import com.cornellappdev.resell.android.util.clickableNoIndication
 
 @Composable
 fun ConfirmationSurface(
+    title: String,
+    onDismiss: () -> Unit,
+    modifier: Modifier = Modifier,
     icon: Painter? = null,
     color: Color = ResellPurple,
-    title: String,
-    modifier: Modifier = Modifier,
-    onDismiss: () -> Unit,
 ) {
     Surface(
         color = color,
@@ -80,8 +80,6 @@ fun ConfirmationSurface(
 @Composable
 private fun ConfirmationSurfacePreview() = ResellPreview(padding = 8.dp) {
     ConfirmationSurface(
-        icon = null,
-        color = ResellPurple,
         title = "Ravina.shop has been blocked.",
         onDismiss = {}
     )
@@ -89,9 +87,9 @@ private fun ConfirmationSurfacePreview() = ResellPreview(padding = 8.dp) {
     Spacer(modifier = Modifier.height(24.dp))
 
     ConfirmationSurface(
-        icon = painterResource(id = R.drawable.ic_info),
-        color = Secondary,
         title = "Something went wrong with your request. Please try again.",
-        onDismiss = {}
+        onDismiss = {},
+        icon = painterResource(id = R.drawable.ic_info),
+        color = Secondary
     )
 }

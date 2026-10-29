@@ -13,7 +13,6 @@ class RootNavigationViewModel @Inject constructor(
     rootNavigationSheetRepository: RootNavigationSheetRepository,
     rootNavigationRepository: RootNavigationRepository,
     firebaseMessagingRepository: FirebaseMessagingRepository,
-    private val rootConfirmationRepository: RootConfirmationRepository,
     private val rootDialogRepository: RootDialogRepository,
 ) : ResellViewModel<RootNavigationViewModel.RootNavigationUiState>(
     initialUiState = RootNavigationUiState()

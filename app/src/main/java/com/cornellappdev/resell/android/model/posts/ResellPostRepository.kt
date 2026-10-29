@@ -43,10 +43,6 @@ class ResellPostRepository @Inject constructor(
         MutableStateFlow<ResellApiResponse<List<Pair<String, List<Listing>>>>>(ResellApiResponse.Pending)
     val fromSearchedPosts = _fromSearchedPosts.asStateFlow()
 
-    private val _fromPurchasedPosts =
-        MutableStateFlow<ResellApiResponse<List<String>>>(ResellApiResponse.Pending)
-    val fromPurchasedPosts = _fromPurchasedPosts.asStateFlow()
-
     private val _searchHistory = MutableStateFlow<ResellApiResponse<List<ResellSearchHistory>>>(
         ResellApiResponse.Pending
     )
@@ -60,7 +56,6 @@ class ResellPostRepository @Inject constructor(
 
     suspend fun getFilteredPosts(filter: ResellFilter, page: Int = 1, limit: Int = 10): List<Post> {
         return retrofitInstance.postsApi.getFilteredPosts(filter.toFilterRequest(), page = page, size = limit).posts
-
     }
 
     suspend fun getNewlyListedPosts(page: Int = 1, limit: Int = 10): List<Post> {

@@ -16,11 +16,13 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.Date
+import java.util.Locale
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.milliseconds
 
 @HiltViewModel
 class PostTransactionRatingViewModel @Inject constructor(
-    private val savedStateHandle: SavedStateHandle,
+    savedStateHandle: SavedStateHandle,
     private val rootNavigationRepository: RootNavigationRepository,
     private val rootDialogRepository: RootDialogRepository,
     private val rootConfirmationRepository: RootConfirmationRepository,
@@ -55,22 +57,24 @@ class PostTransactionRatingViewModel @Inject constructor(
 
         viewModelScope.launch {
             try {
-                val transactionFromPostId = postTransactionRatingRepository.getTransactionByPostId(navArgs.postId)
-                val transaction = postTransactionRatingRepository.getTransactionById(transactionFromPostId.id)
+                val transactionFromPostId =
+                    postTransactionRatingRepository.getTransactionByPostId(navArgs.postId)
+                val transaction =
+                    postTransactionRatingRepository.getTransactionById(transactionFromPostId.id)
 
                 val date = transaction.transactionDate
 
                 val sellerFullName = transaction.seller?.let { seller ->
                     listOfNotNull(seller.givenName, seller.familyName)
                         .joinToString(" ")
-                        .ifBlank{"Unknown Seller"}
+                        .ifBlank { "Unknown Seller" }
                 } ?: "Unknown Seller"
 
                 applyMutation {
                     copy(
                         transactionId = transaction.id,
                         itemName = transaction.post.title,
-                        price = String.format("%.2f", transaction.amount),
+                        price = String.format(Locale.getDefault(), "%.2f", transaction.amount),
                         sellerName = sellerFullName,
                         date = date,
                         imageUrl = transaction.post.images.firstOrNull() ?: ""
@@ -120,7 +124,7 @@ class PostTransactionRatingViewModel @Inject constructor(
                     ResellRootRoute.MAIN
                 )
 
-                delay(100)
+                delay(100.milliseconds)
 
                 rootDialogRepository.showDialog(
                     RootDialogContent.ReviewSubmittedDialog(

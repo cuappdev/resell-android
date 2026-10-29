@@ -24,13 +24,13 @@ fun SelectableAvailabilityPager(
     title: String,
     subtitle: String,
     gridSelectionType: GridSelectionType,
+    setProposalTime: (LocalDateTime) -> Unit,
+    setSelectedAvailabilities: (List<LocalDateTime>) -> Unit,
     modifier: Modifier = Modifier,
     initialSelectedAvailabilities: List<LocalDateTime> = emptyList(),
     overlappingAvailabilities: List<LocalDateTime>? = null,
     scrollRange: Pair<Int, Int> = 0 to 6,
     onEditAvailabilityClicked: (() -> Unit)? = null,
-    setProposalTime: (LocalDateTime) -> Unit,
-    setSelectedAvailabilities: (List<LocalDateTime>) -> Unit,
 ) {
     /** Guaranteed to have non-null mappings for any page in the scroll range. */
     var selectedDatesByPage: Map<Int, List<LocalDateTime>> by remember {
@@ -102,7 +102,8 @@ private fun SelectableAvailabilityPagerPreview() = ResellPreview {
             gridSelectionType = GridSelectionType.AVAILABILITY,
             setProposalTime = {
                 proposedAvailabilities = it
-            }
-        ) { selectedAvailabilities = it }
+            },
+            { selectedAvailabilities = it }
+        )
     }
 }

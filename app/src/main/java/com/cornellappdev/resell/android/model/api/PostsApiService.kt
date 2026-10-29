@@ -2,6 +2,7 @@ package com.cornellappdev.resell.android.model.api
 
 import android.util.Log
 import com.cornellappdev.resell.android.model.classes.Listing
+import com.cornellappdev.resell.android.util.parseIsoDateToDate
 import com.cornellappdev.resell.android.util.richieUserInfo
 import com.google.gson.annotations.SerializedName
 import kotlinx.serialization.Serializable
@@ -11,10 +12,8 @@ import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
-import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import java.util.TimeZone
 
 interface PostsApiService {
     @GET("post")
@@ -140,7 +139,7 @@ data class Post(
         get() = String.format(Locale.US, "$%.2f", alteredPrice.ifBlank { null }?.toDouble() ?: 0.0)
 
     val createdDate: Date
-        get() = parseIsoDate(created)
+        get() = parseIsoDateToDate(created)
 
     fun toListing(): Listing {
         return Listing(
@@ -155,15 +154,6 @@ data class Post(
             },
         )
     }
-}
-
-private fun parseIsoDate(dateString: String): Date {
-    // Define the date format that matches the input string
-    val dateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
-    // Set the timezone to UTC because ISO 8601 uses UTC time
-    dateFormat.timeZone = TimeZone.getTimeZone("UTC")
-    // Parse the string into a Date object
-    return dateFormat.parse(dateString) ?: throw IllegalArgumentException("Invalid date format")
 }
 
 data class NewPostBody(

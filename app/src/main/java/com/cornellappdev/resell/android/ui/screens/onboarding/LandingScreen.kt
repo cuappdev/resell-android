@@ -28,7 +28,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButton
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonState
@@ -40,6 +40,7 @@ import com.cornellappdev.resell.android.ui.theme.Style
 import com.cornellappdev.resell.android.util.closeApp
 import com.cornellappdev.resell.android.viewmodel.onboarding.LandingViewModel
 import kotlinx.coroutines.delay
+import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
 fun LandingScreen(
@@ -55,7 +56,7 @@ fun LandingScreen(
 
     LaunchedEffect(Unit) {
         landingViewModel.attemptAutoLogin()
-        delay(1000)
+        delay(1000.milliseconds)
         landingViewModel.showButton()
     }
 

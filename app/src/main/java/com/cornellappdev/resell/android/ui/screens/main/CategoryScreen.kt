@@ -29,7 +29,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.model.classes.Listing
 import com.cornellappdev.resell.android.model.classes.ResellApiState
@@ -191,7 +191,7 @@ private fun EmptyState(onClick: () -> Unit) {
                 textDecoration = TextDecoration.Underline
             ),
             modifier = Modifier.clickable {
-                onClick
+                onClick()
             },
         )
     }

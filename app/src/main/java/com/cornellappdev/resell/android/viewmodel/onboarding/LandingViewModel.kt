@@ -29,6 +29,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.milliseconds
 
 @HiltViewModel
 class LandingViewModel @Inject constructor(
@@ -62,7 +63,6 @@ class LandingViewModel @Inject constructor(
     fun attemptAutoLogin() {
         if (googleAuthRepository.accountOrNull() != null) {
             onSignInCompleted(
-                idToken = googleAuthRepository.accountOrNull()!!.idToken!!,
                 email = googleAuthRepository.accountOrNull()!!.email!!
             )
         }
@@ -114,7 +114,7 @@ class LandingViewModel @Inject constructor(
         googleAuthRepository.signOut()
     }
 
-    private fun onSignInCompleted(idToken: String, email: String) {
+    private fun onSignInCompleted(email: String) {
         // Cornell email.
         if (!email.endsWith("@cornell.edu")) {
             applyMutation {
@@ -192,7 +192,7 @@ class LandingViewModel @Inject constructor(
                 )
             }
 
-            delay(500)
+            delay(500.milliseconds)
             applyMutation {
                 copy(buttonState = ResellTextButtonState.ENABLED)
             }
@@ -205,7 +205,7 @@ class LandingViewModel @Inject constructor(
             onError = {
                 onSignInFailed(showSheet = true)
             },
-            onGoogleSignInCompleted = ::onSignInCompleted,
+            onGoogleSignInCompleted = { _, email -> onSignInCompleted(email) },
         )
     }
 

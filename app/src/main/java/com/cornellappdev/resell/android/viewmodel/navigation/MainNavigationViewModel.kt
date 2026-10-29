@@ -2,8 +2,6 @@ package com.cornellappdev.resell.android.viewmodel.navigation
 
 import androidx.lifecycle.viewModelScope
 import com.cornellappdev.resell.android.model.api.NotificationData
-import com.cornellappdev.resell.android.model.api.Post
-import com.cornellappdev.resell.android.model.posts.ResellPostRepository
 import com.cornellappdev.resell.android.model.settings.NotificationsRepository
 import com.cornellappdev.resell.android.ui.screens.main.ResellMainScreen
 import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
@@ -11,15 +9,12 @@ import com.cornellappdev.resell.android.util.UIEvent
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @HiltViewModel
 class MainNavigationViewModel @Inject constructor(
     private val rootNavigationRepository: RootNavigationRepository,
-    private val resellPostRepository: ResellPostRepository,
     notificationsRepository: NotificationsRepository,
     mainNavigationRepository: MainNavigationRepository,
 ) : ResellViewModel<MainNavigationViewModel.MainNavigationUiState>(

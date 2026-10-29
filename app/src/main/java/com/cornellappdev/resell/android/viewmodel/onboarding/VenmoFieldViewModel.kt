@@ -1,13 +1,11 @@
 package com.cornellappdev.resell.android.viewmodel.onboarding
 
-import android.content.Context
 import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.cornellappdev.resell.android.model.api.CreateUserBody
 import com.cornellappdev.resell.android.model.core.UserInfoRepository
-import com.cornellappdev.resell.android.model.login.FireStoreRepository
 import com.cornellappdev.resell.android.model.login.FirebaseMessagingRepository
 import com.cornellappdev.resell.android.model.login.GoogleAuthRepository
 import com.cornellappdev.resell.android.model.login.ResellAuthRepository
@@ -21,20 +19,18 @@ import com.cornellappdev.resell.android.viewmodel.root.RootConfirmationRepositor
 import com.cornellappdev.resell.android.viewmodel.root.RootNavigationSheetRepository
 import com.cornellappdev.resell.android.viewmodel.root.RootSheet
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.milliseconds
 
 @HiltViewModel
 class VenmoFieldViewModel @Inject constructor(
-    @ApplicationContext private val appContext: Context,
     private val rootNavigationRepository: RootNavigationRepository,
     private val rootNavigationSheetRepository: RootNavigationSheetRepository,
     private val resellAuthRepository: ResellAuthRepository,
     private val googleAuthRepository: GoogleAuthRepository,
     private val rootConfirmationRepository: RootConfirmationRepository,
-    private val fireStoreRepository: FireStoreRepository,
     private val firebaseMessagingRepository: FirebaseMessagingRepository,
     private val userInfoRepository: UserInfoRepository,
     savedStateHandle: SavedStateHandle
@@ -86,7 +82,7 @@ class VenmoFieldViewModel @Inject constructor(
             applyMutation {
                 copy(loading = true)
             }
-            delay(500)
+            delay(500.milliseconds)
             makeNewUser(false)
         }
     }
@@ -96,7 +92,7 @@ class VenmoFieldViewModel @Inject constructor(
             applyMutation {
                 copy(skipLoading = true)
             }
-            delay(500)
+            delay(500.milliseconds)
             makeNewUser(true)
         }
     }

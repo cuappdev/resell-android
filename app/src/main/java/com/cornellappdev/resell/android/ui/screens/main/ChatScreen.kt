@@ -46,7 +46,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.model.Chat
 import com.cornellappdev.resell.android.model.ChatMessageCluster
@@ -66,8 +66,6 @@ import com.cornellappdev.resell.android.ui.theme.Wash
 import com.cornellappdev.resell.android.util.clickableNoIndication
 import com.cornellappdev.resell.android.util.singlePhotoPicker
 import com.cornellappdev.resell.android.viewmodel.main.ChatViewModel
-import com.google.firebase.Timestamp
-import java.util.Date
 
 @SuppressLint("CoroutineCreationDuringComposition")
 @Composable
@@ -120,7 +118,11 @@ fun ChatScreen(
                     )
                 },
                 onMeetingStateClicked = chatViewModel::onMeetingStateClicked,
-                onTransactionStateClicked = chatViewModel::onTransactionStateClicked,
+                onTransactionStateClicked = { transactionInfo, _ ->
+                    chatViewModel.onTransactionStateClicked(
+                        transactionInfo
+                    )
+                },
                 confirmedMeeting = chatUiState.confirmedMeeting,
                 onViewAvailabilityPressed = chatViewModel::onViewOtherAvailabilityPressed
             )
@@ -195,7 +197,6 @@ private fun ChatLoadedContent(
             onTransactionStateClicked = onTransactionStateClicked
         )
         ChatFooter(
-            chatType = chatUiState.chatType,
             modifier = Modifier.imePadding(),
             onNegotiatePressed = { onNegotiatePressed() },
             onSend = {
@@ -316,7 +317,6 @@ private fun ChatHeader(
 
 @Composable
 private fun ChatFooter(
-    chatType: ChatViewModel.ChatType,
     modifier: Modifier = Modifier,
     onNegotiatePressed: () -> Unit,
     onVenmoPressed: () -> Unit,

@@ -102,8 +102,7 @@ class ReportDetailsViewModel @Inject constructor(
                 } else {
                     settingsRepository.reportProfile(
                         uid = stateValue().userId,
-                        reason = stateValue().reason,
-                        description = stateValue().typedContent
+                        reason = stateValue().reason
                     )
                 }
 

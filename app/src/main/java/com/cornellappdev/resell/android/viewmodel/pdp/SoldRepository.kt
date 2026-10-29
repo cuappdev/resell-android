@@ -13,7 +13,4 @@ class SoldRepository @Inject constructor() {
 
     val showSoldEvent = _showSoldEvent.asStateFlow()
 
-    fun showSold(event: SoldViewModel.SoldUiState) {
-        _showSoldEvent.value = UIEvent(event)
-    }
 }

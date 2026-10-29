@@ -90,6 +90,8 @@ private fun SearchHeader(
     placeholder: String = "Search...",
     focusRequester: FocusRequester? = null,
 ) {
+    val fallbackFocusRequester = remember { FocusRequester() }
+
     Row(
         modifier = Modifier
             .statusBarsPadding()
@@ -104,7 +106,7 @@ private fun SearchHeader(
             placeholder = placeholder,
             modifier = Modifier
                 .weight(1f)
-                .focusRequester(focusRequester ?: FocusRequester()),
+                .focusRequester(focusRequester ?: fallbackFocusRequester),
         )
 
         Icon(

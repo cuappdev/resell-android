@@ -46,15 +46,14 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.compose.ui.unit.max
-import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
@@ -70,6 +69,7 @@ import com.cornellappdev.resell.android.ui.theme.Style
 import com.cornellappdev.resell.android.util.clickableNoIndication
 import com.cornellappdev.resell.android.util.defaultHorizontalPadding
 import com.cornellappdev.resell.android.viewmodel.pdp.PostDetailViewModel
+import com.cornellappdev.resell.android.util.windowHeight
 
 private val MinSheetPeekHeight = 200.dp
 private val OverlayAboveSheetGap = 24.dp
@@ -87,7 +87,7 @@ fun PostDetailPage(
 
     // Smaller value of imageProp results in less content being cut off
     val imageProp = .70f
-    val maxImageHeight = LocalConfiguration.current.screenHeightDp.dp * imageProp
+    val maxImageHeight = windowHeight() * imageProp
 
     LaunchedEffect(uiState.hideSheetEvent) {
         uiState.hideSheetEvent?.consumeSuspend {
@@ -154,7 +154,7 @@ private fun Content(
 ) {
     val pagerState = rememberPagerState(pageCount = { images.size })
     val density = LocalDensity.current
-    val screenHeight = LocalConfiguration.current.screenHeightDp.dp
+    val screenHeight = windowHeight()
     val sheetBackground = Color.White
 
     // Sheet starts collapsed so only a strip of details is visible; image fills the rest
@@ -348,7 +348,7 @@ private fun BottomSheetContent(
     onUserClick: () -> Unit,
     showContact: Boolean = false,
 ) {
-    val screenHeight = LocalConfiguration.current.screenHeightDp.dp
+    val screenHeight = windowHeight()
     val maxSheetHeight = screenHeight - paddingTop
 
     // Clear the floating Contact Seller button: nav bars + ContactSellerBottomPadding

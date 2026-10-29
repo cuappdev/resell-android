@@ -39,6 +39,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -56,7 +57,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.offset
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.model.classes.Listing
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
@@ -112,7 +113,6 @@ fun HomeScreen(
         onSearchPressed = homeViewModel::onSearchPressed,
         savedListings = homeUiState.savedListings,
         fromSearchedListings = homeUiState.fromSearchListings,
-        fromPurchasesListings = homeUiState.fromPurchasesListings,
         onNotifPressed = homeViewModel::onNotifPressed,
         onSavedPressed = onSavedPressed,
         onFromSearchPressed = onFromSearchPressed,
@@ -144,7 +144,6 @@ private fun HomeScreenHelper(
     onNotifPressed: () -> Unit,
     savedListings: List<Listing>,
     fromSearchedListings: List<Listing>,
-    fromPurchasesListings: List<Listing>,
     onSavedPressed: () -> Unit,
     onFromSearchPressed: () -> Unit,
     onFromPurchasePressed: () -> Unit,
@@ -175,12 +174,10 @@ private fun HomeScreenHelper(
         MainContent(
             savedListings = savedListings,
             fromSearchedListings = fromSearchedListings,
-            fromPurchasesListings = fromPurchasesListings,
             onSavedPressed = onSavedPressed,
             onFromSearchPressed = onFromSearchPressed,
             onFromPurchasePressed = onFromPurchasePressed,
             onFilterPressed = onFilterPressed,
-            toPost = onListingPressed,
             onCategoryPressed = onCategoryPressed,
             loadedState = loadedState,
             filteredListings = filteredListings,
@@ -244,12 +241,10 @@ private fun HomeHeader(
 private fun MainContent(
     savedListings: List<Listing>,
     fromSearchedListings: List<Listing>,
-    fromPurchasesListings: List<Listing>,
     onSavedPressed: () -> Unit,
     onFromSearchPressed: () -> Unit,
     onFromPurchasePressed: () -> Unit,
     onFilterPressed: () -> Unit,
-    toPost: (Listing) -> Unit,
     loadedState: ResellApiState,
     onCategoryPressed: (ResellFilter.FilterCategory) -> Unit,
     filteredListings: List<Listing>,
@@ -279,7 +274,6 @@ private fun MainContent(
         forYou(
             savedListings,
             fromSearchedListings,
-            fromPurchasesListings,
             savedImagesResponses,
             searchedImageResponses,
             onSavedPressed,
@@ -386,7 +380,6 @@ private enum class CategoryItem(
 private fun LazyStaggeredGridScope.forYou(
     savedListings: List<Listing>,
     fromSearchedListings: List<Listing>,
-    fromPurchasesListings: List<Listing>,
     savedImagesResponses: List<MutableState<ResellApiResponse<ImageBitmap>>>,
     searchedImageResponses: List<MutableState<ResellApiResponse<ImageBitmap>>>,
     onSavedPressed: () -> Unit,
@@ -406,7 +399,7 @@ private fun LazyStaggeredGridScope.forYou(
         Spacer(modifier = Modifier.height(12.dp))
     }
     item(span = StaggeredGridItemSpan.FullLine) {
-        ForceHorizontalOffset(offset = Padding.leftRight) { modifier ->
+        ForceHorizontalOffset(offset = Padding.leftRight) { _ ->
             ForYouRow(
                 Modifier,
                 savedListings,
@@ -455,7 +448,7 @@ private fun ForYouRow(
     val isPreview = LocalInspectionMode.current
     val placeholder = painterResource(R.drawable.ic_appdev)
 
-    val savedImages = savedListings.mapIndexed { index, _ ->
+    val savedImages = List(savedListings.size) { index ->
         if (isPreview) {
             placeholder
         } else {
@@ -633,13 +626,12 @@ private fun HomeScreenPreview() = ResellPreview {
         loadedState = ResellApiState.Loading,
         filteredListings = List(10) { dumbListing },
         onListingPressed = {},
-        savedImagesResponses = List(5) {
-            mutableStateOf(ResellApiResponse.Pending)
+        savedImagesResponses = remember {
+            List(5) { mutableStateOf(ResellApiResponse.Pending) }
         },
         onDismissRequest = {},
         onCategoryPressed = {},
         fromSearchedListings = emptyList(),
-        fromPurchasesListings = emptyList(),
         searchedImageResponses = emptyList(),
     )
 }
@@ -667,7 +659,6 @@ private fun SavedEmptyStatePreview() = ResellPreview {
         onDismissRequest = {},
         onCategoryPressed = {},
         fromSearchedListings = emptyList(),
-        fromPurchasesListings = emptyList(),
         searchedImageResponses = emptyList()
     )
 }

@@ -5,7 +5,6 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import com.cornellappdev.resell.android.model.api.User
 import com.cornellappdev.resell.android.model.classes.UserInfo
-import com.cornellappdev.resell.android.model.login.FireStoreRepository
 import com.cornellappdev.resell.android.model.login.PreferencesKeys
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll

@@ -7,7 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButton
 
 @Composable
@@ -20,17 +20,17 @@ fun AvailabilitySheet(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         SelectableAvailabilityPager(
-            initialSelectedAvailabilities = uiState.initialAvailabilities,
+            title = uiState.title,
+            subtitle = uiState.subtitle,
+            gridSelectionType = uiState.gridSelectionType,
+            setProposalTime = availabilitySheetViewModel::setProposalTime,
             setSelectedAvailabilities = availabilitySheetViewModel::onAvailabilityChanged,
             modifier = Modifier
                 .padding(bottom = 16.dp)
                 .weight(1f),
-            title = uiState.title,
-            subtitle = uiState.subtitle,
-            gridSelectionType = uiState.gridSelectionType,
+            initialSelectedAvailabilities = uiState.initialAvailabilities,
             overlappingAvailabilities = uiState.overlapTimes,
             onEditAvailabilityClicked = uiState.onEditAvailability,
-            setProposalTime = availabilitySheetViewModel::setProposalTime
         )
 
         ResellTextButton(

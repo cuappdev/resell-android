@@ -6,7 +6,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ConfettiViewModel @Inject constructor(
-    private val confettiRepository: ConfettiRepository
+    confettiRepository: ConfettiRepository
 ) :
     ResellViewModel<ConfettiViewModel.ConfettiUiState>(
         initialUiState = ConfettiUiState()
@@ -14,10 +14,6 @@ class ConfettiViewModel @Inject constructor(
     data class ConfettiUiState(
         val showing: Boolean = false
     )
-
-    fun onShow() {
-        applyMutation { copy(showing = true) }
-    }
 
     fun onAnimationFinished() {
         applyMutation { copy(showing = false) }

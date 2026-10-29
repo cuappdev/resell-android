@@ -8,10 +8,11 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.milliseconds
 
 @HiltViewModel
 class RootConfirmationViewModel @Inject constructor(
-    private val rootConfirmationRepository: RootConfirmationRepository
+    rootConfirmationRepository: RootConfirmationRepository
 ) : ResellViewModel
 <RootConfirmationViewModel.ConfirmationUiState>(
     initialUiState = ConfirmationUiState()
@@ -54,7 +55,7 @@ class RootConfirmationViewModel @Inject constructor(
                 }
 
                 viewModelScope.launch {
-                    delay(3000)
+                    delay(3000.milliseconds)
                     onTimeout(randomId)
                 }
             }

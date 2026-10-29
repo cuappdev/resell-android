@@ -26,12 +26,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.toRoute
 import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.ui.components.main.FloatingActionExpandingCTA
 import com.cornellappdev.resell.android.ui.components.main.PostFloatingActionButton
@@ -100,7 +99,6 @@ fun MainTabNavigation(
             }
 
             composable<ResellMainScreen.ByCategory> { backStackEntry ->
-                val category: ResellMainScreen.ByCategory = backStackEntry.toRoute()
                 CategoryScreen(onExit = mainNav::popBackStack)
             }
 

@@ -200,15 +200,6 @@ class RetrofitInstance @Inject constructor(
             .create(FeedbackApiService::class.java)
     }
 
-    val notificationsApi: FcmApiService by lazy {
-        Retrofit.Builder()
-            .baseUrl(BuildConfig.FCM_URL)
-            .client(okHttpClient)
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-            .create(FcmApiService::class.java)
-    }
-
     /** The chat endpoints need a ISO-8601 string. */
     private val chatGson: Gson = GsonBuilder()
         .registerTypeAdapter(

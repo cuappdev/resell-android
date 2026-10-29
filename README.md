@@ -1,6 +1,6 @@
 # Resell - Cornell Marketplace
 
-<p align="center"><img src="https://github.com/cuappdev/assets/blob/master/app-icons/resell-icon.png" width=210 /></p>
+<p align="center"><img src="https://github.com/cuappdev/assets/blob/master/app-icons/resell-icon.png" alt="Resell app icon" width=210 /></p>
 
 Resell is an app that collects, filters, and compares different items that people want to resell in order to connect sellers with buyers and to facilitate resource utilization. Resell is one of the latest apps by [Cornell AppDev](http://cornellappdev.com), an engineering project team at Cornell University focused on mobile app development. Download the current release on the [App Store](https://apps.apple.com/us/app/resell-cornell-marketplace/id1622452299)!
 

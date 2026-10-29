@@ -45,8 +45,6 @@ class NotificationsViewModel @Inject constructor(
         val chat
             get() = chatRoot && !pauseAllNotifications
 
-        val newListings
-            get() = listingsRoot && !pauseAllNotifications
     }
 
     fun onTogglePauseAllNotifications(checked: Boolean) {

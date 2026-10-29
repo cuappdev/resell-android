@@ -13,7 +13,7 @@ import javax.inject.Singleton
 
 @HiltViewModel
 class ExternalNavigationViewModel @Inject constructor(
-    private val externalNavigationRepository: ExternalNavigationRepository,
+    externalNavigationRepository: ExternalNavigationRepository,
     savedStateHandle: SavedStateHandle
 ) :
     ResellViewModel<ExternalNavigationViewModel.ExternalNavUIState>(

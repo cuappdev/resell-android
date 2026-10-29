@@ -67,7 +67,7 @@ fun String.formatMoney(): String {
     val dollars = split[0]
     var cents = split[1]
 
-    if (cents.length == 0) {
+    if (cents.isEmpty()) {
         cents = "00"
     } else if (cents.length == 1) {
         cents += "0"

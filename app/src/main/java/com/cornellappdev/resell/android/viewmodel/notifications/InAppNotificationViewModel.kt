@@ -53,10 +53,6 @@ class InAppNotificationViewModel @Inject constructor(
 
     }
 
-    init {
-        //TODO: Implement networking
-    }
-
     fun onToggleFilter(filter: NotificationType?) {
         //TODO: Implement networking
     }
