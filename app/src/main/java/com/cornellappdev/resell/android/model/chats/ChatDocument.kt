@@ -137,17 +137,20 @@ data class MeetingInfo(
 }
 
 enum class TransactionState(val value: String) {
+    PENDING("pending"),
     COMPLETED("completed"),
     CANCELED("canceled");
 }
 
 data class TransactionInfo(
+    val transactionId: String,
     val completeTime: Timestamp,
     val state: TransactionState,
     var mostRecent: Boolean
 ) {
     val actionText
         get() = when (state) {
+            TransactionState.PENDING -> "Mark Sale Complete"
             TransactionState.COMPLETED -> "Leave Review"
             else -> ""
         }

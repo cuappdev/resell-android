@@ -23,6 +23,7 @@ import com.cornellappdev.resell.android.model.Chat
 import com.cornellappdev.resell.android.model.ChatMessageData
 import com.cornellappdev.resell.android.model.api.ChatRepository
 import com.cornellappdev.resell.android.model.api.Post
+import com.cornellappdev.resell.android.model.api.Transaction
 import com.cornellappdev.resell.android.model.chats.AvailabilityDocument
 import com.cornellappdev.resell.android.model.chats.MeetingInfo
 import com.cornellappdev.resell.android.model.chats.MeetingState
@@ -54,6 +55,7 @@ import com.cornellappdev.resell.android.viewmodel.root.RootSheet
 import com.google.firebase.Timestamp
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import java.time.LocalDateTime
@@ -81,7 +83,6 @@ class ChatViewModel @Inject constructor(
         initialUiState = MessagesUiState(
             chatType = ChatType.Purchases,
             currentChat = ResellApiResponse.Pending,
-            completedTransactionInfo = null
         )
     ) {
         companion object {
@@ -95,7 +96,8 @@ class ChatViewModel @Inject constructor(
         val typedMessage: String = "",
         val scrollBottom: UIEvent<Unit>? = null,
         val mostRecentOtherAvailability: AvailabilityDocument? = null,
-        val completedTransactionInfo: TransactionInfo?
+        val activeTransaction: Transaction? = null,
+        val completingSaleTransactionId: String? = null,
     ) {
         val showNegotiate
             get() = true
@@ -105,6 +107,20 @@ class ChatViewModel @Inject constructor(
 
         val showViewAvailability
             get() = mostRecentOtherAvailability != null
+
+        val transactionBannerInfo: TransactionInfo?
+            get() = activeTransaction?.let { transaction ->
+                TransactionInfo(
+                    transactionId = transaction.id,
+                    completeTime = Timestamp(transaction.transactionDate),
+                    state = if (transaction.completed) {
+                        TransactionState.COMPLETED
+                    } else {
+                        TransactionState.PENDING
+                    },
+                    mostRecent = completingSaleTransactionId != transaction.id
+                )
+            }
 
         val confirmedMeeting: MeetingInfo?
             get() = currentChat.asSuccessOrNull()?.data?.let { chat ->
@@ -126,6 +142,8 @@ class ChatViewModel @Inject constructor(
 
     val navArgs = savedStateHandle.toRoute<ResellRootRoute.CHAT>()
     val listing = Json.decodeFromString<Listing>(navArgs.listingJson)
+
+    private var transactionRefreshJob: Job? = null
 
     enum class ChatType {
         Purchases, Offers
@@ -611,17 +629,76 @@ class ChatViewModel @Inject constructor(
     fun onTransactionStateClicked(transactionInfo: TransactionInfo, isSelf: Boolean) {
         viewModelScope.launch {
             when (transactionInfo.state) {
+                TransactionState.PENDING -> {
+                    onMarkSaleComplete(transactionInfo.transactionId)
+                }
                 TransactionState.COMPLETED -> {
+                    if (navArgs.isBuyer) {
+                        rootNavigationRepository.navigate(
+                            ResellRootRoute.POST_TRANSACTION_RATING(
+                                postId = listing.id,
+                                userId = navArgs.otherUserId
+                            )
+                        )
+                    } else {
+                        showSaleCompleteDialog(alreadyComplete = true)
+                    }
+                }
+                TransactionState.CANCELED -> {}
+            }
+        }
+    }
+
+    fun onMarkSaleComplete(transactionId: String) {
+        if (stateValue().completingSaleTransactionId != null) return
+        if (stateValue().activeTransaction?.let { it.id == transactionId && it.completed } == true) return
+
+        viewModelScope.launch {
+            applyMutation { copy(completingSaleTransactionId = transactionId) }
+            try {
+                val transaction = postTransactionRatingRepository.completeTransaction(transactionId)
+                applyMutation {
+                    copy(
+                        activeTransaction = transaction,
+                        completingSaleTransactionId = null
+                    )
+                }
+                if (navArgs.isBuyer) {
                     rootNavigationRepository.navigate(
                         ResellRootRoute.POST_TRANSACTION_RATING(
                             postId = listing.id,
                             userId = navArgs.otherUserId
                         )
                     )
+                } else {
+                    showSaleCompleteDialog(alreadyComplete = false)
                 }
-                TransactionState.CANCELED -> {}
+            } catch (e: Exception) {
+                Log.e(TAG, "Error completing transaction: ", e)
+                applyMutation { copy(completingSaleTransactionId = null) }
+                rootConfirmationRepository.showError(
+                    "Couldn't mark the sale complete. Please try again."
+                )
             }
         }
+    }
+
+    private fun showSaleCompleteDialog(alreadyComplete: Boolean) {
+        rootDialogRepository.showDialog(
+            RootDialogContent.TwoButtonDialog(
+                title = "Sale Complete",
+                description = if (alreadyComplete) {
+                    "This transaction with ${navArgs.name} has already been marked complete."
+                } else {
+                    "You've marked this transaction with ${navArgs.name} as complete."
+                },
+                primaryButtonText = "Dismiss",
+                secondaryButtonText = null,
+                onPrimaryButtonClick = { rootDialogRepository.dismissDialog() },
+                onSecondaryButtonClick = {},
+                exitButton = true
+            )
+        )
     }
 
     init {
@@ -704,27 +781,23 @@ class ChatViewModel @Inject constructor(
                 }
             }
 
-            // Checks if any message has a [transactionId] and if so, verify the completion of a transaction.
-            viewModelScope.launch {
-                if (response is ResellApiResponse.Success) {
-                    val transactionId = response.data.chatHistory
-                        .flatMap { it.messages }
-                        .firstOrNull { it.transactionId != null }
-                        ?. transactionId
+            if (response is ResellApiResponse.Success) {
+                val transactionId = response.data.chatHistory
+                    .flatMap { it.messages }
+                    .filter { it.transactionId != null }
+                    .maxByOrNull { it.timestamp.seconds }
+                    ?.transactionId
 
-                    if (transactionId != null) {
+                if (transactionId != null) {
+                    transactionRefreshJob?.cancel()
+                    transactionRefreshJob = viewModelScope.launch {
                         try {
                             val transaction = postTransactionRatingRepository.getTransactionById(transactionId)
-                            if (transaction.completed) {
-                                applyMutation {
-                                    copy(
-                                        completedTransactionInfo = TransactionInfo(
-                                            completeTime = Timestamp(transaction.transactionDate),
-                                            state = TransactionState.COMPLETED,
-                                            mostRecent = true
-                                        )
-                                    )
-                                }
+                            applyMutation {
+                                copy(
+                                    activeTransaction = transaction,
+                                    scrollBottom = UIEvent(Unit)
+                                )
                             }
                         } catch (e: Exception) {
                             Log.e(TAG, "Error checking transaction: ", e)

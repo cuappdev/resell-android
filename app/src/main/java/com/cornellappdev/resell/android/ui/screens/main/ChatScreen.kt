@@ -56,6 +56,7 @@ import com.cornellappdev.resell.android.model.api.Post
 import com.cornellappdev.resell.android.model.chats.AvailabilityDocument
 import com.cornellappdev.resell.android.model.chats.MeetingInfo
 import com.cornellappdev.resell.android.model.chats.TransactionInfo
+import com.cornellappdev.resell.android.model.chats.TransactionState
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.ui.components.chat.ChatTag
 import com.cornellappdev.resell.android.ui.components.chat.ResellChatScroll
@@ -167,7 +168,7 @@ private fun ChatLoadedContent(
             }
         )
         ResellChatScroll(
-            chatClusters = chat.chatHistory + if (chatUiState.completedTransactionInfo != null) {
+            chatClusters = chat.chatHistory + (chatUiState.transactionBannerInfo?.let { transactionInfo ->
                 listOf(
                     ChatMessageCluster(
                         fromUser = false,
@@ -175,9 +176,13 @@ private fun ChatLoadedContent(
                         messages = listOf(
                             ChatMessageData(
                                 messageType = MessageType.State,
-                                content = "This transaction has been completed",
-                                transactionInfo = chatUiState.completedTransactionInfo,
-                                timestamp = chatUiState.completedTransactionInfo.completeTime,
+                                content = if (transactionInfo.state == TransactionState.COMPLETED) {
+                                    "This transaction has been completed"
+                                } else {
+                                    "Met up and got paid? Mark this sale as complete."
+                                },
+                                transactionInfo = transactionInfo,
+                                timestamp = transactionInfo.completeTime,
                                 senderId = "",
                                 id = ""
                             )
@@ -186,7 +191,7 @@ private fun ChatLoadedContent(
                         senderId = ""
                     )
                 )
-            } else emptyList(),
+            } ?: emptyList()),
             listState = listState,
             modifier = Modifier.weight(1f),
             onPostClicked = onPostClicked,

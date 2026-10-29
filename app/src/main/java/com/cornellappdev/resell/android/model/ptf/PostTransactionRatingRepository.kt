@@ -19,6 +19,10 @@ class PostTransactionRatingRepository @Inject constructor(
         return retrofitInstance.transactionApi.getTransactionById(id).transaction
     }
 
+    suspend fun completeTransaction(transactionId: String): Transaction {
+        return retrofitInstance.transactionApi.completeTransaction(transactionId).transaction
+    }
+
     suspend fun submitTransactionReview(
         transactionId: String,
         stars: Int,
