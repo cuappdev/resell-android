@@ -634,12 +634,7 @@ class ChatViewModel @Inject constructor(
                 }
                 TransactionState.COMPLETED -> {
                     if (navArgs.isBuyer) {
-                        rootNavigationRepository.navigate(
-                            ResellRootRoute.POST_TRANSACTION_RATING(
-                                postId = listing.id,
-                                userId = navArgs.otherUserId
-                            )
-                        )
+                        stateValue().activeTransaction?.let { openReviewScreenIfEligible(it) }
                     } else {
                         showSaleCompleteDialog(alreadyComplete = true)
                     }
@@ -664,12 +659,7 @@ class ChatViewModel @Inject constructor(
                     )
                 }
                 if (navArgs.isBuyer) {
-                    rootNavigationRepository.navigate(
-                        ResellRootRoute.POST_TRANSACTION_RATING(
-                            postId = listing.id,
-                            userId = navArgs.otherUserId
-                        )
-                    )
+                    openReviewScreenIfEligible(transaction)
                 } else {
                     showSaleCompleteDialog(alreadyComplete = false)
                 }
@@ -697,6 +687,51 @@ class ChatViewModel @Inject constructor(
                 onPrimaryButtonClick = { rootDialogRepository.dismissDialog() },
                 onSecondaryButtonClick = {},
                 exitButton = true
+            )
+        )
+    }
+
+    private fun openReviewScreenIfEligible(transaction: Transaction) {
+        viewModelScope.launch {
+            val sellerId = transaction.seller?.id
+            val alreadyReviewed = try {
+                if (sellerId != null) {
+                    postTransactionRatingRepository.hasExistingReview(transaction.id, sellerId)
+                } else {
+                    false
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Error checking for an existing review: ", e)
+                false
+            }
+
+            if (alreadyReviewed) {
+                showAlreadyReviewedDialog()
+            } else {
+                navigateToReviewScreen()
+            }
+        }
+    }
+
+    private fun showAlreadyReviewedDialog() {
+        rootDialogRepository.showDialog(
+            RootDialogContent.TwoButtonDialog(
+                title = "Already Reviewed",
+                description = "You've already left a review for this transaction.",
+                primaryButtonText = "Dismiss",
+                secondaryButtonText = null,
+                onPrimaryButtonClick = { rootDialogRepository.dismissDialog() },
+                onSecondaryButtonClick = {},
+                exitButton = true
+            )
+        )
+    }
+
+    private fun navigateToReviewScreen() {
+        rootNavigationRepository.navigate(
+            ResellRootRoute.POST_TRANSACTION_RATING(
+                postId = listing.id,
+                userId = navArgs.otherUserId
             )
         )
     }
