@@ -9,12 +9,14 @@ if (secretsPropertiesFile.exists()) {
     secrets.load(FileInputStream(secretsPropertiesFile))
 }
 
+val releaseKeystore = rootProject.file("resell-keystore.jks")
+val releaseMockKeystore = rootProject.file("resell-mock-keystore.jks")
+
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.jetbrains.kotlin.compose)
     id("kotlin-parcelize")
-    id("kotlin-kapt")
+    alias(libs.plugins.ksp)
     id("com.google.dagger.hilt.android")
     alias(libs.plugins.jetbrains.kotlin.serialization)
     id("com.google.gms.google-services")
@@ -53,23 +55,27 @@ android {
     }
 
     signingConfigs {
-        create("release") {
-            keyAlias = secrets.getProperty("KEY_ALIAS")
-            keyPassword = secrets.getProperty("KEY_PASS")
-            storeFile = file("/../resell-keystore.jks")
-            storePassword = secrets.getProperty("KEY_STORE_PASS")
+        if (releaseKeystore.exists()) {
+            create("release") {
+                keyAlias = secrets.getProperty("KEY_ALIAS")
+                keyPassword = secrets.getProperty("KEY_PASS")
+                storeFile = releaseKeystore
+                storePassword = secrets.getProperty("KEY_STORE_PASS")
+            }
         }
-        create("release-mock") {
-            keyAlias = secrets.getProperty("KEY_MOCK_ALIAS")
-            keyPassword = secrets.getProperty("KEY_MOCK_PASS")
-            storeFile = file("/../resell-mock-keystore.jks")
-            storePassword = secrets.getProperty("KEY_MOCK_STORE_PASS")
+        if (releaseMockKeystore.exists()) {
+            create("release-mock") {
+                keyAlias = secrets.getProperty("KEY_MOCK_ALIAS")
+                keyPassword = secrets.getProperty("KEY_MOCK_PASS")
+                storeFile = releaseMockKeystore
+                storePassword = secrets.getProperty("KEY_MOCK_STORE_PASS")
+            }
         }
     }
 
     buildTypes {
         release {
-            signingConfig = signingConfigs.getByName("release")
+            signingConfig = signingConfigs.findByName("release")
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
@@ -86,7 +92,7 @@ android {
         }
 
         create("releaseMock") {
-            signingConfig = signingConfigs.getByName("release-mock")
+            signingConfig = signingConfigs.findByName("release-mock")
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
@@ -149,8 +155,7 @@ dependencies {
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.compose.material)
-    kapt(libs.hilt.android.compiler)
-    kapt(libs.kotlin.metadata.jvm)
+    ksp(libs.hilt.android.compiler)
     implementation(libs.coil.compose)
     implementation(libs.androidx.activity.ktx)
     implementation(libs.ui)
@@ -186,9 +191,4 @@ dependencies {
     // OkHttp3
     implementation(libs.okhttp)
     implementation(libs.logging.interceptor)
-}
-
-// Allow references to generated code
-kapt {
-    correctErrorTypes = true
 }
