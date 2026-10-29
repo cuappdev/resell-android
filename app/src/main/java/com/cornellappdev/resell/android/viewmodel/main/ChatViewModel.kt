@@ -111,8 +111,12 @@ class ChatViewModel @Inject constructor(
 
         val transactionBannerInfo: TransactionInfo?
             get() = activeTransaction?.let { transaction ->
-                // If meeting is cancelled, don't show transaction prompt
-                if (!transaction.completed && confirmedMeeting == null) return@let null
+                if (!transaction.completed) {
+                    // If the meeting was cancelled, don't show the transaction prompt.
+                    if (confirmedMeeting == null) return@let null
+                    // Only show after meeting time has passed
+                    if (Date().before(transaction.transactionDate)) return@let null
+                }
 
                 TransactionInfo(
                     transactionId = transaction.id,
@@ -121,6 +125,11 @@ class ChatViewModel @Inject constructor(
                         TransactionState.COMPLETED
                     } else {
                         TransactionState.PENDING
+                    },
+                    actionText = when {
+                        !transaction.completed -> "Mark Sale Complete"
+                        chatType == ChatType.Purchases -> "Leave Review"
+                        else -> "Sale Completed"
                     },
                     mostRecent = completingSaleTransactionId != transaction.id
                 )
