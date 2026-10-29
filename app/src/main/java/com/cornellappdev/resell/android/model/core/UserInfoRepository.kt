@@ -140,9 +140,17 @@ class UserInfoRepository @Inject constructor(
     }
 
     suspend fun getAccessToken(): String? {
+        accessToken?.let { return it }
         return dataStore.data.map { preferences ->
             preferences[PreferencesKeys.ACCESS_TOKEN]
-        }.firstOrNull()
+        }.firstOrNull().also { accessToken = it }
+    }
+
+    suspend fun clearAccessToken() {
+        accessToken = null
+        dataStore.edit { preferences ->
+            preferences.remove(PreferencesKeys.ACCESS_TOKEN)
+        }
     }
 
     suspend fun getUserId(): String? {

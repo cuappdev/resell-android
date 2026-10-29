@@ -131,7 +131,7 @@ class VenmoFieldViewModel @Inject constructor(
                     )
                 )
 
-                userInfoRepository.storeUserFromUserObject(response.user)
+                userInfoRepository.storeUserFromUserObject(response)
                 rootNavigationRepository.navigate(ResellRootRoute.MAIN)
                 rootNavigationSheetRepository.showBottomSheet(RootSheet.Welcome)
             } catch (e: Exception) {
