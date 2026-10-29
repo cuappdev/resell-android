@@ -1,11 +1,8 @@
 package com.cornellappdev.resell.android.viewmodel.onboarding
 import android.content.Context
-import android.content.Intent
 import android.util.Log
-import androidx.activity.compose.ManagedActivityResultLauncher
-import androidx.activity.result.ActivityResult
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.text.AnnotatedString
+import androidx.credentials.exceptions.GetCredentialCancellationException
 import androidx.compose.ui.text.style.TextAlign
 import androidx.lifecycle.viewModelScope
 import com.cornellappdev.resell.android.model.core.UserInfoRepository
@@ -21,10 +18,8 @@ import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepos
 import com.cornellappdev.resell.android.viewmodel.root.RootConfirmationRepository
 import com.cornellappdev.resell.android.viewmodel.root.RootNavigationSheetRepository
 import com.cornellappdev.resell.android.viewmodel.root.RootSheet
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
@@ -40,7 +35,6 @@ class LandingViewModel @Inject constructor(
     private val rootConfirmationRepository: RootConfirmationRepository,
     private val userInfoRepository: UserInfoRepository,
     private val resellAuthRepository: ResellAuthRepository,
-    @ApplicationContext private val context: Context
 ) : ResellViewModel<LandingViewModel.LandingUiState>(
     initialUiState = LandingUiState()
 ) {
@@ -61,11 +55,9 @@ class LandingViewModel @Inject constructor(
      * Otherwise does nothing.
      */
     fun attemptAutoLogin() {
-        if (googleAuthRepository.accountOrNull() != null) {
-            onSignInCompleted(
-                email = googleAuthRepository.accountOrNull()!!.email!!
-            )
-        }
+        val email = googleAuthRepository.signedInEmailOrNull() ?: return
+        // Force a token refresh so a revoked session fails here instead of on a later request.
+        onSignInCompleted(email = email, forceTokenRefresh = true)
     }
 
     fun showButton() {
@@ -74,9 +66,31 @@ class LandingViewModel @Inject constructor(
         }
     }
 
-    fun onSignInClick() {
+    /**
+     * Shows the Sign in with Google flow.
+     *
+     * @param activityContext Must be an Activity context; Credential Manager launches UI from it.
+     */
+    fun onSignInClick(activityContext: Context) {
         applyMutation {
             copy(showButton = true, buttonState = ResellTextButtonState.SPINNING)
+        }
+
+        viewModelScope.launch {
+            try {
+                val profile = googleAuthRepository.signIn(activityContext)
+                onSignInCompleted(email = profile.email)
+            } catch (e: GetCredentialCancellationException) {
+                Log.d(TAG, "Google sign in cancelled.")
+                applyMutation {
+                    copy(buttonState = ResellTextButtonState.ENABLED)
+                }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                Log.e(TAG, "Google sign in failed", e)
+                onSignInFailed(showSheet = true)
+            }
         }
     }
 
@@ -111,10 +125,10 @@ class LandingViewModel @Inject constructor(
             )
         }
 
-        googleAuthRepository.signOut()
+        viewModelScope.launch { googleAuthRepository.signOut() }
     }
 
-    private fun onSignInCompleted(email: String) {
+    private fun onSignInCompleted(email: String, forceTokenRefresh: Boolean = false) {
         // Cornell email.
         if (!email.endsWith("@cornell.edu")) {
             applyMutation {
@@ -122,7 +136,7 @@ class LandingViewModel @Inject constructor(
             }
 
             // No longer logged in.
-            googleAuthRepository.signOut()
+            viewModelScope.launch { googleAuthRepository.signOut() }
             rootNavigationSheetRepository.showBottomSheet(
                 RootSheet.TwoButtonSheet(
                     title = "Login Failed",
@@ -155,10 +169,9 @@ class LandingViewModel @Inject constructor(
         // Attempt to log in.
         viewModelScope.launch {
             try {
-                val newId = googleAuthRepository.silentSignIn()
-
-                firebaseAuthRepository.firebaseSignIn(newId)
-                val accessToken = firebaseAuthRepository.getFirebaseAccessToken()
+                val accessToken = firebaseAuthRepository.getFirebaseAccessToken(
+                    forceRefresh = forceTokenRefresh
+                )
                 if (accessToken == null) {
                     onSignInFailed(showSheet = true)
                     rootConfirmationRepository.showError(
@@ -197,22 +210,5 @@ class LandingViewModel @Inject constructor(
                 copy(buttonState = ResellTextButtonState.ENABLED)
             }
         }
-    }
-
-    @Composable
-    fun makeSignInLauncher(): ManagedActivityResultLauncher<Intent, ActivityResult> {
-        return googleAuthRepository.googleLoginLauncher(
-            onError = {
-                onSignInFailed(showSheet = true)
-            },
-            onGoogleSignInCompleted = { _, email -> onSignInCompleted(email) },
-        )
-    }
-
-    fun getSignInClient(): GoogleSignInClient {
-        val gso = googleAuthRepository.googleSignInOptions
-        val client = GoogleSignIn.getClient(context, gso)
-
-        return client
     }
 }

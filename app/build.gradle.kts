@@ -164,8 +164,10 @@ dependencies {
 
     implementation(libs.kotlinx.coroutines.core)
 
-    // Google Play Services Auth
-    implementation(libs.gms.play.services.auth)
+    // Credential Manager / Sign in with Google
+    implementation(libs.androidx.credentials)
+    implementation(libs.androidx.credentials.play.services.auth)
+    implementation(libs.googleid)
     implementation(libs.google.auth.library.oauth2.http)
 
     implementation(libs.androidx.core.ktx)

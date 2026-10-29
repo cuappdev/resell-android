@@ -102,19 +102,17 @@ class VenmoFieldViewModel @Inject constructor(
      */
     private fun makeNewUser(skipped: Boolean) {
         viewModelScope.launch {
-            val googleUser = googleAuthRepository.accountOrNull()!!
+            val googleUser = googleAuthRepository.profileOrNull()!!
             try {
                 val response = resellAuthRepository.createUser(
                     CreateUserBody(
                         username = stateValue().username,
-                        netid = googleUser.email!!.split("@")[0],
-                        givenName = googleUser.givenName!!,
-                        familyName = googleUser.familyName!!,
-                        email = googleUser.email!!,
-                        photoUrl = navArgs.pfpUrl.ifEmpty {
-                            googleUser.photoUrl.toString()
-                        },
-                        googleId = googleUser.id!!,
+                        netid = googleUser.email.split("@")[0],
+                        givenName = googleUser.givenName,
+                        familyName = googleUser.familyName,
+                        email = googleUser.email,
+                        photoUrl = navArgs.pfpUrl.ifEmpty { googleUser.photoUrl },
+                        googleId = googleUser.googleId,
                         bio = stateValue().bio,
                         fcmToken = firebaseMessagingRepository.getDeviceFCMToken(),
                         venmoHandle = if (skipped) "" else stateValue().handle
