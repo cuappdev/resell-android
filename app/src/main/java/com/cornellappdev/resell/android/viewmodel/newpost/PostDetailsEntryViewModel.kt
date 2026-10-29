@@ -34,10 +34,12 @@ class PostDetailsEntryViewModel @Inject constructor(
         val description: String = "",
         val price: String = "",
         val activeFilters: List<ResellFilter.FilterCategory> = listOf(),
+        val condition: ResellFilter.FilterCondition? = null,
         val loadingPost: Boolean = false,
     ) {
         private val canConfirm
-            get() = title.isNotBlank() && price.isNotBlank() && activeFilters.isNotEmpty()
+            get() = title.isNotBlank() && price.isNotBlank() && activeFilters.isNotEmpty() &&
+                condition != null
 
         val buttonState: ResellTextButtonState
             get() = if (loadingPost) {
@@ -88,6 +90,12 @@ class PostDetailsEntryViewModel @Inject constructor(
         }
     }
 
+    fun onConditionPressed(condition: ResellFilter.FilterCondition) {
+        applyMutation {
+            copy(condition = if (condition == this.condition) null else condition)
+        }
+    }
+
     fun onConfirmPost() {
         viewModelScope.launch {
             try {
@@ -101,8 +109,9 @@ class PostDetailsEntryViewModel @Inject constructor(
                     originalPrice = stateValue().price.toDouble(),
                     images = postRepository.getRecentBitmaps()!!,
                     categories = stateValue().activeFilters.map {
-                        it.name
+                        it.label
                     },
+                    condition = stateValue().condition!!.label,
                     userId = userInfoRepository.getUserId() ?: "lol"
                 )
                 applyMutation {

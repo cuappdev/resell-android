@@ -1,5 +1,6 @@
 package com.cornellappdev.resell.android.viewmodel.main
 
+import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.lifecycle.viewModelScope
@@ -12,13 +13,19 @@ import com.cornellappdev.resell.android.model.classes.toResellApiState
 import com.cornellappdev.resell.android.model.posts.ResellPostRepository
 import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
+import com.cornellappdev.resell.android.util.ScrollPageResult
+import com.cornellappdev.resell.android.util.fetchNextScrollPage
 import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import javax.inject.Inject
+
+private const val HOME_PAGE_SIZE = 10
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
@@ -32,14 +39,20 @@ class HomeViewModel @Inject constructor(
             savedListings = emptyList(),
             fromSearchListings = emptyList(),
             fromPurchasesListings = emptyList(),
-            activeFilter = ResellFilter(),
+            activeFilter = ResellFilter(sortBy = ResellFilter.SortBy.NEWLY_LISTED),
             loadedState = ResellApiState.Loading,
             savedImageResponses = emptyList(),
             searchedImageResponses = emptyList(),
             page = 1,
-            bottomLoading = false
+            bottomLoading = false,
+            endReached = false,
+            isDefaultFeed = true
         )
     ) {
+
+    companion object {
+        private const val TAG = "HomeViewModel"
+    }
 
     data class HomeUiState(
         val loadedState: ResellApiState,
@@ -50,12 +63,16 @@ class HomeViewModel @Inject constructor(
         val activeFilter: ResellFilter,
         val page: Int,
         val bottomLoading: Boolean,
+        val endReached: Boolean,
+        val isDefaultFeed: Boolean,
         val savedImageResponses: List<MutableState<ResellApiResponse<ImageBitmap>>>,
         val searchedImageResponses: List<MutableState<ResellApiResponse<ImageBitmap>>>
     )
 
+    private var fetchJob: Job? = null
+
     init {
-        getPosts(ResellFilter())
+        getNewlyListedPosts()
         resellPostRepository.fetchSavedPosts()
         resellPostRepository.getSearchHistory()
         asyncCollect(resellPostRepository.savedPosts) { response ->
@@ -115,22 +132,88 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun getPosts(filter: ResellFilter) {
-        viewModelScope.launch {
+        fetchJob?.cancel()
+        fetchJob = viewModelScope.launch {
             try {
-                val posts = resellPostRepository.getFilteredPosts(filter)
-                val sortedPosts = posts.sortedByDescending { it.createdDate }
-
+                val posts = resellPostRepository.getFilteredPosts(filter, page = 1, limit = HOME_PAGE_SIZE)
                 applyMutation {
                     copy(
-                        listings = sortedPosts.map { it.toListing() },
-                        loadedState = ResellApiState.Success
+                        listings = posts.map { it.toListing() },
+                        loadedState = ResellApiState.Success,
+                        page = 1,
+                        endReached = posts.isEmpty(),
+                        isDefaultFeed = false,
+                        bottomLoading = false
                     )
                 }
+            } catch (_: CancellationException) {
             } catch (e: Exception) {
+                Log.e(TAG, "Error fetching filtered posts: ", e)
                 applyMutation {
                     copy(
-                        loadedState = ResellApiState.Error
+                        loadedState = ResellApiState.Error,
+                        bottomLoading = false
                     )
+                }
+            }
+        }
+    }
+
+    private fun getNewlyListedPosts() {
+        fetchJob?.cancel()
+        fetchJob = viewModelScope.launch {
+            try {
+                val posts = resellPostRepository.getNewlyListedPosts(page = 1, limit = HOME_PAGE_SIZE)
+                applyMutation {
+                    copy(
+                        listings = posts.map { it.toListing() },
+                        loadedState = ResellApiState.Success,
+                        page = 1,
+                        endReached = posts.isEmpty(),
+                        isDefaultFeed = true,
+                        bottomLoading = false
+                    )
+                }
+            } catch (_: CancellationException) {
+            } catch (e: Exception) {
+                Log.e(TAG, "Error fetching newly listed posts: ", e)
+                applyMutation {
+                    copy(
+                        loadedState = ResellApiState.Error,
+                        bottomLoading = false
+                    )
+                }
+            }
+        }
+    }
+
+    fun onScrollBottom() {
+        val state = uiStateFlow.value
+        if (state.bottomLoading || state.endReached || state.loadedState !is ResellApiState.Success) return
+
+        applyMutation { copy(bottomLoading = true) }
+        fetchJob?.cancel()
+        fetchJob = viewModelScope.launch {
+            val result = fetchNextScrollPage(state.page, state.listings) { nextPage ->
+                if (state.isDefaultFeed) {
+                    resellPostRepository.getNewlyListedPosts(page = nextPage, limit = HOME_PAGE_SIZE)
+                } else {
+                    resellPostRepository.getFilteredPosts(state.activeFilter, page = nextPage, limit = HOME_PAGE_SIZE)
+                }
+            }
+            when (result) {
+                is ScrollPageResult.Success -> applyMutation {
+                    copy(
+                        listings = listings + result.newListings,
+                        page = result.nextPage,
+                        endReached = result.endReached,
+                        bottomLoading = false
+                    )
+                }
+
+                is ScrollPageResult.Error -> {
+                    Log.e(TAG, "Error fetching next page: ", result.exception)
+                    applyMutation { copy(bottomLoading = false) }
                 }
             }
         }
@@ -141,6 +224,7 @@ class HomeViewModel @Inject constructor(
             copy(
                 activeFilter = filter,
                 loadedState = ResellApiState.Loading,
+                bottomLoading = false
             )
         }
         getPosts(filter)

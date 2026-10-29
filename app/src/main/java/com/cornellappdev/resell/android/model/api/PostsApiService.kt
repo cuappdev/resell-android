@@ -41,7 +41,17 @@ interface PostsApiService {
     suspend fun getPostsBySearch(@Body searchRequest: SearchRequest): PostsResponse
 
     @POST("post/filter")
-    suspend fun getFilteredPosts(@Body filterRequest: FilterRequest): PostsResponse
+    suspend fun getFilteredPosts(
+        @Body filterRequest: FilterRequest,
+        @Query("page") page: Int = 1,
+        @Query("limit") size: Int = 10
+    ): PostsResponse
+
+    @POST("post/filterNewlyListed")
+    suspend fun getNewlyListedPosts(
+        @Query("page") page: Int = 1,
+        @Query("limit") size: Int = 10
+    ): PostsResponse
 
     @POST("post")
     suspend fun createPost(@Body newPostBody: NewPostBody): PostResponse
@@ -101,7 +111,7 @@ data class FilterRequest(
     val sortField: String? = null,
     val price: PriceRange? = null,
     val categories: List<String>? = null,
-    val condition: String? = null,
+    val condition: List<String>? = null,
 )
 
 

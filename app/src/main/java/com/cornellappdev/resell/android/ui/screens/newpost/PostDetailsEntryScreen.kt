@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -46,7 +47,8 @@ fun PostDetailsEntryScreen(
             onPricePressed = postDetailsEntryViewModel::onPricePressed,
             onDescriptionChanged = postDetailsEntryViewModel::onDescriptionChanged,
             onTitleChanged = postDetailsEntryViewModel::onTitleChanged,
-            onHomeFilterPressed = postDetailsEntryViewModel::onFilterPressed
+            onHomeFilterPressed = postDetailsEntryViewModel::onFilterPressed,
+            onConditionPressed = postDetailsEntryViewModel::onConditionPressed
         )
 
         ResellTextButton(
@@ -67,6 +69,7 @@ private fun PostDetailsContent(
         PostDetailsEntryViewModel.PostEntryUiState(),
     onPricePressed: () -> Unit = {},
     onHomeFilterPressed: (ResellFilter.FilterCategory) -> Unit = {},
+    onConditionPressed: (ResellFilter.FilterCondition) -> Unit = {},
     onTitleChanged: (String) -> Unit = {},
     onDescriptionChanged: (String) -> Unit = {},
 ) {
@@ -144,6 +147,41 @@ private fun PostDetailsContent(
                     active = uiState.activeFilters.contains(filter),
                     onClick = {
                         onHomeFilterPressed(filter)
+                    }
+                )
+            }
+
+            item {
+                Spacer(modifier = Modifier.size(Padding.medium))
+            }
+        }
+
+        Spacer(Modifier.height(32.dp))
+
+        Text(
+            text = "Select Condition",
+            style = Style.title1,
+            modifier = Modifier
+                .padding(start = 24.dp, bottom = 8.dp)
+                .align(Alignment.Start)
+        )
+
+        LazyRow(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(Padding.medium, Alignment.Start),
+        ) {
+            item {
+                Spacer(modifier = Modifier.size(Padding.medium))
+            }
+
+            items(
+                items = ResellFilter.FilterCondition.entries
+            ) { condition ->
+                ResellTag(
+                    text = condition.label,
+                    active = uiState.condition == condition,
+                    onClick = {
+                        onConditionPressed(condition)
                     }
                 )
             }

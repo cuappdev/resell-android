@@ -26,7 +26,6 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -50,9 +49,17 @@ class ResellPostRepository @Inject constructor(
 
     private var recentBitmaps: List<ImageBitmap>? = null
 
-    suspend fun getFilteredPosts(filter: ResellFilter): List<Post> {
-        return retrofitInstance.postsApi.getFilteredPosts(filter.toFilterRequest()).posts
+    suspend fun getPostsByPage(page: Int): List<Post> {
+        val posts = retrofitInstance.postsApi.getPosts(page = page).posts
+        return posts
+    }
 
+    suspend fun getFilteredPosts(filter: ResellFilter, page: Int = 1, limit: Int = 10): List<Post> {
+        return retrofitInstance.postsApi.getFilteredPosts(filter.toFilterRequest(), page = page, size = limit).posts
+    }
+
+    suspend fun getNewlyListedPosts(page: Int = 1, limit: Int = 10): List<Post> {
+        return retrofitInstance.postsApi.getNewlyListedPosts(page = page, size = limit).posts
     }
 
     suspend fun uploadPost(
@@ -61,6 +68,7 @@ class ResellPostRepository @Inject constructor(
         images: List<ImageBitmap>,
         originalPrice: Double,
         categories: List<String>,
+        condition: String,
         userId: String,
     ): PostResponse {
         val base64s = images.map { it.toNetworkingString() }
@@ -71,14 +79,9 @@ class ResellPostRepository @Inject constructor(
                 description = description,
                 imagesBase64 = base64s,
                 originalPrice = originalPrice,
-                categories = categories.map { category ->
-                    category.lowercase().replaceFirstChar {
-                        if (it.isLowerCase()) it.titlecase(Locale.US) else it.toString()
-                    }
-                },
+                categories = categories,
                 userId = userId,
-                // TODO: New designs incoming to allow a change here?
-                condition = "NEW"
+                condition = condition
             )
         )
     }

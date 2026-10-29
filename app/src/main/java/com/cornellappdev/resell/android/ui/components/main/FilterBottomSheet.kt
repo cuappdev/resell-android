@@ -62,7 +62,7 @@ fun FilterBottomSheet(
     var conditionSelectedCurrent by remember { mutableStateOf(filter.conditionSelected) }
     var itemsOnSaleCurrent by remember { mutableStateOf(filter.itemsOnSale) }
     var priceRange by remember { mutableStateOf(filter.priceRange) }
-    var sortBy by remember { mutableStateOf(ResellFilter.SortBy.ANY) }
+    var sortBy by remember { mutableStateOf(filter.sortBy) }
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
     LazyColumn(

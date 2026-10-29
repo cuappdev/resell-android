@@ -80,7 +80,9 @@ fun CategoryScreen(
             }
         },
         listings = uiState.listings,
+        bottomLoading = uiState.bottomLoading,
         onListingPressed = categoryViewModel::onListingPressed,
+        onScrollBottom = categoryViewModel::onScrollBottom,
         onDismissRequest = {
             coroutineScope.launch {
                 sheetState.hide()
@@ -102,7 +104,9 @@ private fun CategoryScreenContent(
     filter: ResellFilter,
     onFilterChanged: (ResellFilter) -> Unit,
     listings: List<Listing>,
+    bottomLoading: Boolean = false,
     onListingPressed: (Listing) -> Unit,
+    onScrollBottom: () -> Unit = {},
     onDismissRequest: () -> Unit,
     navigateToSubmitRequest: () -> Unit,
     onExit: () -> Unit
@@ -139,6 +143,8 @@ private fun CategoryScreenContent(
                     ResellListingsScroll(
                         listings = listings,
                         onListingPressed = onListingPressed,
+                        onScrollBottom = onScrollBottom,
+                        bottomLoading = bottomLoading,
                         modifier = Modifier
                             .defaultHorizontalPadding()
                     )
