@@ -10,6 +10,7 @@ import androidx.credentials.exceptions.ClearCredentialException
 import com.cornellappdev.resell.android.BuildConfig
 import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
+import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -29,6 +30,13 @@ data class GoogleProfile(
     val photoUrl: String,
     val googleId: String,
 )
+
+/**
+ * Thrown by [GoogleAuthRepository.signIn] when the Google/Firebase sign in completes but returns
+ * something unusable (unexpected credential type, missing user, missing email, etc.).
+ */
+class GoogleSignInException(message: String, cause: Throwable? = null) :
+    Exception(message, cause)
 
 @Singleton
 class GoogleAuthRepository @Inject constructor(
@@ -57,6 +65,7 @@ class GoogleAuthRepository @Inject constructor(
      * @throws androidx.credentials.exceptions.GetCredentialCancellationException if the user
      *  dismissed the account chooser.
      * @throws androidx.credentials.exceptions.GetCredentialException for other sign in failures.
+     * @throws GoogleSignInException if sign in succeeded but the result was unusable.
      */
     suspend fun signIn(activityContext: Context): GoogleProfile {
         val option = GetSignInWithGoogleOption.Builder(BuildConfig.GOOGLE_AUTH_CLIENT_ID)
@@ -67,20 +76,28 @@ class GoogleAuthRepository @Inject constructor(
             .build()
 
         val credential = credentialManager.getCredential(activityContext, request).credential
-        check(
-            credential is CustomCredential &&
-                credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
-        ) { "Unexpected credential type: ${credential.type}" }
-        val googleCredential = GoogleIdTokenCredential.createFrom(credential.data)
+        if (credential !is CustomCredential ||
+            credential.type != GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
+        ) {
+            throw GoogleSignInException("Unexpected credential type: ${credential.type}")
+        }
+        val googleCredential = try {
+            GoogleIdTokenCredential.createFrom(credential.data)
+        } catch (e: GoogleIdTokenParsingException) {
+            throw GoogleSignInException("Malformed Google ID token", e)
+        }
 
         val firebaseCredential = GoogleAuthProvider.getCredential(googleCredential.idToken, null)
         val authResult = firebaseAuth.signInWithCredential(firebaseCredential).await()
-        val user = authResult.user!!
+        val user = authResult.user ?: throw GoogleSignInException("Firebase returned no user")
         Log.d(TAG, "Success: ${user.uid}")
 
-        val googleId = user.providerData.first { it.providerId == GOOGLE_PROVIDER_ID }.uid
+        val googleId = user.providerData.firstOrNull { it.providerId == GOOGLE_PROVIDER_ID }?.uid
+            ?: throw GoogleSignInException("Firebase user has no Google provider")
+        val email = googleCredential.email ?: user.email
+            ?: throw GoogleSignInException("Google account has no email")
         return GoogleProfile(
-            email = checkNotNull(googleCredential.email ?: user.email) { "Google account has no email" },
+            email = email,
             givenName = googleCredential.givenName.orEmpty(),
             familyName = googleCredential.familyName.orEmpty(),
             photoUrl = googleCredential.profilePictureUri?.toString().orEmpty(),

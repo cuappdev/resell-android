@@ -37,6 +37,10 @@ class VenmoFieldViewModel @Inject constructor(
 ) : ResellViewModel<VenmoFieldViewModel.VenmoFieldUiState>(
     initialUiState = VenmoFieldUiState()
 ) {
+    companion object {
+        private const val TAG = "VenmoFieldViewModel"
+    }
+
     val navArgs = savedStateHandle.toRoute<ResellOnboardingScreen.Venmo>()
 
     data class VenmoFieldUiState(
@@ -102,7 +106,15 @@ class VenmoFieldViewModel @Inject constructor(
      */
     private fun makeNewUser(skipped: Boolean) {
         viewModelScope.launch {
-            val googleUser = googleAuthRepository.profileOrNull()!!
+            val googleUser = googleAuthRepository.profileOrNull() ?: run {
+                Log.e(TAG, "No signed in Google user.")
+                applyMutation {
+                    copy(loading = false, skipLoading = false)
+                }
+                rootConfirmationRepository.showError("Session expired. Please sign in again.")
+                rootNavigationRepository.navigate(ResellRootRoute.LANDING)
+                return@launch
+            }
             try {
                 val response = resellAuthRepository.createUser(
                     CreateUserBody(
@@ -124,7 +136,7 @@ class VenmoFieldViewModel @Inject constructor(
                 rootNavigationSheetRepository.showBottomSheet(RootSheet.Welcome)
             } catch (e: Exception) {
                 rootConfirmationRepository.showError()
-                Log.e("VenmoFieldViewModel", "Error creating user: ", e)
+                Log.e(TAG, "Error creating user: ", e)
                 applyMutation {
                     copy(loading = false, skipLoading = false)
                 }

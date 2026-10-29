@@ -18,11 +18,13 @@ import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepos
 import com.cornellappdev.resell.android.viewmodel.root.RootConfirmationRepository
 import com.cornellappdev.resell.android.viewmodel.root.RootNavigationSheetRepository
 import com.cornellappdev.resell.android.viewmodel.root.RootSheet
+import com.google.firebase.FirebaseNetworkException
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
+import java.io.IOException
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -195,6 +197,17 @@ class LandingViewModel @Inject constructor(
                         copy(buttonState = ResellTextButtonState.ENABLED)
                     }
                     rootNavigationRepository.navigate(ResellRootRoute.ONBOARDING)
+                    return@launch
+                }
+
+                if (e is FirebaseNetworkException || e is IOException) {
+                    Log.w(TAG, "Network error during login", e)
+                    applyMutation {
+                        copy(buttonState = ResellTextButtonState.ENABLED)
+                    }
+                    rootConfirmationRepository.showError(
+                        "No connection. Check your network and try again."
+                    )
                     return@launch
                 }
 
