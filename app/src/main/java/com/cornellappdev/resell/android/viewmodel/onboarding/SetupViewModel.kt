@@ -42,7 +42,7 @@ class SetupViewModel @Inject constructor(
         val buttonState: ResellTextButtonState
             get() = if (loading) {
                 ResellTextButtonState.SPINNING
-            } else if (checkedEULA && username.isNotEmpty()) {
+            } else if (checkedEULA && username.isNotBlank()) {
                 ResellTextButtonState.ENABLED
             } else {
                 ResellTextButtonState.DISABLED
@@ -57,7 +57,7 @@ class SetupViewModel @Inject constructor(
 
     fun onUsernameChanged(username: String) {
         applyMutation {
-            copy(username = username)
+            copy(username = username.filterNot { it.isWhitespace() })
         }
     }
 
@@ -90,8 +90,8 @@ class SetupViewModel @Inject constructor(
             // Navigate away.
             onboardingNavigationRepository.navigate(
                 ResellOnboardingScreen.Venmo(
-                    username = stateValue().username,
-                    bio = stateValue().bio,
+                    username = stateValue().username.trim(),
+                    bio = stateValue().bio.trim(),
                     pfpUrl = photoUrl
                 )
             )
