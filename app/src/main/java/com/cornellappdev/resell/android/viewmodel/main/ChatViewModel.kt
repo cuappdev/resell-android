@@ -55,6 +55,7 @@ import com.cornellappdev.resell.android.viewmodel.root.RootSheet
 import com.google.firebase.Timestamp
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
@@ -110,6 +111,9 @@ class ChatViewModel @Inject constructor(
 
         val transactionBannerInfo: TransactionInfo?
             get() = activeTransaction?.let { transaction ->
+                // If meeting is cancelled, don't show transaction prompt
+                if (!transaction.completed && confirmedMeeting == null) return@let null
+
                 TransactionInfo(
                     transactionId = transaction.id,
                     completeTime = Timestamp(transaction.transactionDate),
@@ -834,6 +838,8 @@ class ChatViewModel @Inject constructor(
                                     scrollBottom = UIEvent(Unit)
                                 )
                             }
+                        } catch (e: CancellationException) {
+                            throw e
                         } catch (e: Exception) {
                             Log.e(TAG, "Error checking transaction: ", e)
                             rootConfirmationRepository.showError(

@@ -41,7 +41,10 @@ class PostTransactionRatingViewModel @Inject constructor(
         val postId: String = "",
         val userId: String = "",
         val transactionId: String = ""
-    )
+    ) {
+        val canSubmit
+            get() = rating in 1..5
+    }
 
     init {
         // Fetch arguments from navigation
@@ -105,6 +108,8 @@ class PostTransactionRatingViewModel @Inject constructor(
     }
 
     fun submitReview() {
+        if (!stateValue().canSubmit) return
+
         viewModelScope.launch {
             try {
                 val currentUiState = uiStateFlow.value
