@@ -16,7 +16,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.compose)
     id("kotlin-parcelize")
-    alias(libs.plugins.android.legacy.kapt)
+    alias(libs.plugins.ksp)
     id("com.google.dagger.hilt.android")
     alias(libs.plugins.jetbrains.kotlin.serialization)
     id("com.google.gms.google-services")
@@ -155,8 +155,7 @@ dependencies {
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.compose.material)
-    kapt(libs.hilt.android.compiler)
-    kapt(libs.kotlin.metadata.jvm)
+    ksp(libs.hilt.android.compiler)
     implementation(libs.coil.compose)
     implementation(libs.androidx.activity.ktx)
     implementation(libs.ui)
@@ -192,9 +191,4 @@ dependencies {
     // OkHttp3
     implementation(libs.okhttp)
     implementation(libs.logging.interceptor)
-}
-
-// Allow references to generated code
-kapt {
-    correctErrorTypes = true
 }

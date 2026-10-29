@@ -10,6 +10,7 @@ googleAuthLibraryOauth2Http = "1.55.0"
 hiltAndroidCompiler = "2.60.1"
 hiltNavigationCompose = "1.4.0"
 kotlin = "2.4.21"
+ksp = "2.3.12"
 coreKtx = "1.19.1"
 junit = "4.13.2"
 junitVersion = "1.3.0"
@@ -49,7 +50,6 @@ gms-play-services-auth = { module = "com.google.android.gms:play-services-auth",
 google-auth-library-oauth2-http = { module = "com.google.auth:google-auth-library-oauth2-http", version.ref = "googleAuthLibraryOauth2Http" }
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltAndroidCompiler" }
 hilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hiltAndroidCompiler" }
-kotlin-metadata-jvm = { module = "org.jetbrains.kotlin:kotlin-metadata-jvm", version.ref = "kotlin" }
 jetbrains-kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJsonVersion" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
@@ -78,6 +78,6 @@ ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview", versio
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
-android-legacy-kapt = { id = "com.android.legacy-kapt", version.ref = "agp" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 jetbrains-kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 jetbrains-kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }

@@ -62,7 +62,7 @@ fun LogOutSheetContent(
 }
 
 @HiltViewModel
-private class LogOutSheetContentViewModel @Inject constructor(
+internal class LogOutSheetContentViewModel @Inject constructor(
     private val resellAuthRepository: ResellAuthRepository,
     private val rootNavigationRepository: RootNavigationRepository,
     private val rootNavigationSheetRepository: RootNavigationSheetRepository,
