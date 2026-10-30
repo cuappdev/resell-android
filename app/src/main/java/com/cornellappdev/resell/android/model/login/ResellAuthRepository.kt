@@ -5,6 +5,7 @@ import com.cornellappdev.resell.android.model.api.CreateUserBody
 import com.cornellappdev.resell.android.model.api.LogoutBody
 import com.cornellappdev.resell.android.model.api.RetrofitInstance
 import com.cornellappdev.resell.android.model.api.User
+import com.cornellappdev.resell.android.model.core.UserInfoRepository
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -13,6 +14,7 @@ class ResellAuthRepository @Inject constructor(
     private val retrofitInstance: RetrofitInstance,
     private val firebaseMessagingRepository: FirebaseMessagingRepository,
     private val googleAuthRepository: GoogleAuthRepository,
+    private val userInfoRepository: UserInfoRepository,
 ) {
     suspend fun createUser(createUserBody: CreateUserBody) =
         retrofitInstance.userApi.createUser(createUserBody)
@@ -42,10 +44,14 @@ class ResellAuthRepository @Inject constructor(
      */
     suspend fun logOut() {
         googleAuthRepository.signOut()
-        retrofitInstance.userApi.logoutUser(
-            body = LogoutBody(
-                token = firebaseMessagingRepository.getDeviceFCMToken()
+        try {
+            retrofitInstance.userApi.logoutUser(
+                body = LogoutBody(
+                    token = firebaseMessagingRepository.getDeviceFCMToken()
+                )
             )
-        )
+        } finally {
+            userInfoRepository.clearAccessToken()
+        }
     }
 }

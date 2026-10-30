@@ -27,8 +27,6 @@ class RetrofitInstance @Inject constructor(
     private val firebaseAuthRepository: FirebaseAuthRepository,
     private val userInfoRepository: UserInfoRepository,
 ) {
-    private var cachedToken: String? = null
-
     val logging = HttpLoggingInterceptor().apply {
         level = HttpLoggingInterceptor.Level.BODY // Logs JSON responses
     }
@@ -37,11 +35,8 @@ class RetrofitInstance @Inject constructor(
      * Provides the firebase access token to the interceptor.
      */
     private val authInterceptor = Interceptor { chain ->
-        // If the token is cached, use it. Otherwise, fetch it.
-        val token = cachedToken ?: runBlocking {
-            cachedToken = userInfoRepository.getAccessToken()
-            cachedToken
-        }
+        // UserInfoRepository holds the latest token, so account switches are picked up.
+        val token = runBlocking { userInfoRepository.getAccessToken() }
 
         val requestBuilder = chain.request().newBuilder()
 
@@ -89,7 +84,6 @@ class RetrofitInstance @Inject constructor(
     private val authenticator = Authenticator { _, response ->
         // Ping firebase for a refresh.
         val accessToken = runBlocking { firebaseAuthRepository.getFirebaseAccessToken() }
-        cachedToken = accessToken
         if (accessToken != null) {
             response.request.newBuilder()
                 .header("Authorization", "Bearer $accessToken")

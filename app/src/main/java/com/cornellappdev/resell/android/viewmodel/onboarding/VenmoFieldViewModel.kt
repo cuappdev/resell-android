@@ -13,6 +13,7 @@ import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonSta
 import com.cornellappdev.resell.android.ui.screens.onboarding.ResellOnboardingScreen
 import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
 import com.cornellappdev.resell.android.util.UIEvent
+import com.cornellappdev.resell.android.util.isUsernameTakenError
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
 import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepository
 import com.cornellappdev.resell.android.viewmodel.root.RootConfirmationRepository
@@ -55,7 +56,7 @@ class VenmoFieldViewModel @Inject constructor(
         val continueButtonState: ResellTextButtonState
             get() = if (loading) {
                 ResellTextButtonState.SPINNING
-            } else if (handle.isNotEmpty() && !skipLoading) {
+            } else if (handle.isNotBlank() && !skipLoading) {
                 ResellTextButtonState.ENABLED
             } else {
                 ResellTextButtonState.DISABLED
@@ -127,15 +128,21 @@ class VenmoFieldViewModel @Inject constructor(
                         googleId = googleUser.googleId,
                         bio = stateValue().bio,
                         fcmToken = firebaseMessagingRepository.getDeviceFCMToken(),
-                        venmoHandle = if (skipped) "" else stateValue().handle
+                        venmoHandle = if (skipped) "" else stateValue().handle.trim()
                     )
                 )
 
-                userInfoRepository.storeUserFromUserObject(response.user)
+                userInfoRepository.storeUserFromUserObject(response)
                 rootNavigationRepository.navigate(ResellRootRoute.MAIN)
                 rootNavigationSheetRepository.showBottomSheet(RootSheet.Welcome)
             } catch (e: Exception) {
-                rootConfirmationRepository.showError()
+                if (e.isUsernameTakenError()) {
+                    rootConfirmationRepository.showError(
+                        "That username is already taken. Go back and choose another."
+                    )
+                } else {
+                    rootConfirmationRepository.showError()
+                }
                 Log.e(TAG, "Error creating user: ", e)
                 applyMutation {
                     copy(loading = false, skipLoading = false)
