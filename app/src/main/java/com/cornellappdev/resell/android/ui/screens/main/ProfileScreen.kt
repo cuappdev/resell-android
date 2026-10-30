@@ -17,6 +17,7 @@ import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.ui.components.global.ResellListingsScroll
 import com.cornellappdev.resell.android.ui.components.global.ResellLoadingListingScroll
+import com.cornellappdev.resell.android.ui.components.global.ResellTabBar
 import com.cornellappdev.resell.android.ui.components.profile.ProfileEmptyState
 import com.cornellappdev.resell.android.ui.components.profile.ProfileHeader
 import com.cornellappdev.resell.android.ui.components.profile.ResellRequestsScroll
@@ -41,14 +42,23 @@ fun ProfileScreen(
             shopName = uiState.shopName,
             vendorName = uiState.vendorName,
             bio = uiState.bio,
-            selectedTab = uiState.profileTab,
             leftIcon = R.drawable.ic_settings,
             rightIcon = R.drawable.ic_calendar,
-            onTabSelected = { profileViewModel.onTabSelected(it) },
             onLeftPressed = { profileViewModel.onSettingsPressed() },
             onRightPressed = { profileViewModel.onCalendarPressed() },
-
-            )
+            tabBar = {
+                ResellTabBar(
+                    painterIds = listOf(
+                        R.drawable.ic_shop,
+                        R.drawable.ic_archive,
+                        R.drawable.ic_wishlist
+                    ),
+                    selectedPainter = uiState.profileTab.ordinal,
+                ) {
+                    profileViewModel.onTabSelected(ProfileViewModel.ProfileTab.entries[it])
+                }
+            }
+        )
 
         AnimatedContent(
             targetState = uiState.profileTab,
@@ -165,12 +175,20 @@ fun ProfileScreenPreview() = ResellPreview {
             shopName = "ravina.shop",
             vendorName = "Ravina Patel",
             bio = "selling jin's stuff! selling jin's stuff!",
-            selectedTab = ProfileViewModel.ProfileTab.SHOP,
             leftIcon = R.drawable.ic_settings,
             rightIcon = R.drawable.ic_calendar,
-            onTabSelected = {},
             onLeftPressed = {},
-            onRightPressed = {}
+            onRightPressed = {},
+            tabBar = {
+                ResellTabBar(
+                    painterIds = listOf(
+                        R.drawable.ic_shop,
+                        R.drawable.ic_archive,
+                        R.drawable.ic_wishlist
+                    ),
+                    selectedPainter = ProfileViewModel.ProfileTab.SHOP.ordinal,
+                ) {}
+            }
         )
     }
 }

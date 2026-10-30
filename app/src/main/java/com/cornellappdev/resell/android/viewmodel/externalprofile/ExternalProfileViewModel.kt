@@ -6,6 +6,7 @@ import androidx.navigation.toRoute
 import com.cornellappdev.resell.android.model.classes.Listing
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.model.classes.ResellApiState
+import com.cornellappdev.resell.android.model.classes.UserReview
 import com.cornellappdev.resell.android.model.classes.toResellApiState
 import com.cornellappdev.resell.android.model.profile.ProfileRepository
 import com.cornellappdev.resell.android.model.settings.BlockedUsersRepository
@@ -42,10 +43,15 @@ class ExternalProfileViewModel @Inject constructor(
             loadedState = ResellApiState.Loading,
             shopListings = ResellApiResponse.Pending,
             archiveListings = ResellApiResponse.Pending,
+            reviews = ResellApiResponse.Pending,
             uid = "",
             blockedUsers = listOf()
         )
     ) {
+
+    enum class ExternalProfileTab {
+        LISTINGS, REVIEWS
+    }
 
     data class ExternalProfileState(
         val isLoading: Boolean = false,
@@ -56,11 +62,40 @@ class ExternalProfileViewModel @Inject constructor(
         val loadedState: ResellApiState,
         val shopListings: ResellApiResponse<List<Listing>>,
         val archiveListings: ResellApiResponse<List<Listing>>,
+        val reviews: ResellApiResponse<List<UserReview>>,
+        val selectedTab: ExternalProfileTab = ExternalProfileTab.LISTINGS,
         val uid: String,
         private val blockedUsers: List<String>,
     ) {
         val isBlocked: Boolean
             get() = blockedUsers.contains(uid)
+
+        val firstName: String
+            get() = vendorName.substringBefore(" ").ifBlank { shopName }
+
+        val displayBio: String
+            get() = when {
+                shopName.isBlank() && vendorName.isBlank() -> ""
+                bio.isNotBlank() -> bio
+                else -> "Hi, I'm ${firstName.ifBlank { "a Cornell Student" }}! " +
+                        "Looking for great deals and selling even greater items."
+            }
+
+        val listingCount: Int
+            get() = shopListings.asSuccessOrNull()?.data?.size ?: 0
+
+        val reviewCount: Int
+            get() = reviews.asSuccessOrNull()?.data?.size ?: 0
+
+        val averageRating: Double
+            get() = reviews.asSuccessOrNull()?.data
+                ?.takeIf { it.isNotEmpty() }
+                ?.let { list -> list.sumOf { it.rating }.toDouble() / list.size }
+                ?: 0.0
+    }
+
+    fun onTabSelected(tab: ExternalProfileTab) {
+        applyMutation { copy(selectedTab = tab) }
     }
 
     fun onListingPressed(listing: Listing) {
@@ -154,6 +189,7 @@ class ExternalProfileViewModel @Inject constructor(
         // Fetch user info on first.
         profileRepository.fetchExternalProfile(navArgs.uid)
         onReloadListings(navArgs.uid)
+        profileRepository.fetchExternalReviews(navArgs.uid)
 
         asyncCollect(profileRepository.externalUser) { response ->
             applyMutation {
@@ -173,6 +209,12 @@ class ExternalProfileViewModel @Inject constructor(
                     loadedState = response.toResellApiState(),
                     shopListings = response
                 )
+            }
+        }
+
+        asyncCollect(profileRepository.externalReviews) { response ->
+            applyMutation {
+                copy(reviews = response)
             }
         }
 
