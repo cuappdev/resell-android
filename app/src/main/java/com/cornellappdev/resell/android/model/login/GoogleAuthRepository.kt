@@ -1,49 +1,134 @@
 package com.cornellappdev.resell.android.model.login
 
 import android.content.Context
-import android.content.Intent
 import android.util.Log
-import androidx.activity.compose.ManagedActivityResultLauncher
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.ActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.credentials.ClearCredentialStateRequest
+import androidx.credentials.CredentialManager
+import androidx.credentials.CustomCredential
+import androidx.credentials.GetCredentialRequest
+import androidx.credentials.exceptions.ClearCredentialException
 import com.cornellappdev.resell.android.BuildConfig
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import com.google.android.gms.common.api.ApiException
+import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
+import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
+import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 import javax.inject.Singleton
 
+/**
+ * The Google account info needed to create a Resell user.
+ *
+ * @param googleId The numeric Google account id (the ID token's `sub`), NOT the email.
+ */
+data class GoogleProfile(
+    val email: String,
+    val givenName: String,
+    val familyName: String,
+    val photoUrl: String,
+    val googleId: String,
+)
+
+/**
+ * Thrown by [GoogleAuthRepository.signIn] when the Google/Firebase sign in completes but returns
+ * something unusable (unexpected credential type, missing user, missing email, etc.).
+ */
+class GoogleSignInException(message: String, cause: Throwable? = null) :
+    Exception(message, cause)
+
 @Singleton
 class GoogleAuthRepository @Inject constructor(
     private val firebaseAuth: FirebaseAuth,
-    @ApplicationContext private val context: Context,
+    @ApplicationContext context: Context,
 ) {
 
+    companion object {
+        private const val TAG = "GoogleAuthRepository"
+        private const val GOOGLE_PROVIDER_ID = "google.com"
+        private const val CORNELL_DOMAIN = "cornell.edu"
+    }
+
+    private val credentialManager = CredentialManager.create(context)
+
     /**
-     * Constructs and returns a GoogleSignInClient.
+     * Profile from the most recent interactive sign in. Lost on process death, in which case
+     * [profileOrNull] falls back to the Firebase user.
      */
-    val googleSignInOptions =
-        GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken(BuildConfig.GOOGLE_AUTH_CLIENT_ID)
-            .requestEmail()
+    private var cachedProfile: GoogleProfile? = null
+
+    /**
+     * Shows the Sign in with Google flow, then signs in to Firebase with the resulting ID token.
+     *
+     * @param activityContext Must be an Activity context; Credential Manager launches UI from it.
+     * @throws androidx.credentials.exceptions.GetCredentialCancellationException if the user
+     *  dismissed the account chooser.
+     * @throws androidx.credentials.exceptions.GetCredentialException for other sign in failures.
+     * @throws GoogleSignInException if sign in succeeded but the result was unusable.
+     */
+    suspend fun signIn(activityContext: Context): GoogleProfile {
+        val option = GetSignInWithGoogleOption.Builder(BuildConfig.GOOGLE_AUTH_CLIENT_ID)
+            .setHostedDomainFilter(CORNELL_DOMAIN)
+            .build()
+        val request = GetCredentialRequest.Builder()
+            .addCredentialOption(option)
             .build()
 
-    val googleSignInClient = GoogleSignIn.getClient(context, googleSignInOptions)
+        val credential = credentialManager.getCredential(activityContext, request).credential
+        if (credential !is CustomCredential ||
+            credential.type != GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
+        ) {
+            throw GoogleSignInException("Unexpected credential type: ${credential.type}")
+        }
+        val googleCredential = try {
+            GoogleIdTokenCredential.createFrom(credential.data)
+        } catch (e: GoogleIdTokenParsingException) {
+            throw GoogleSignInException("Malformed Google ID token", e)
+        }
+
+        val firebaseCredential = GoogleAuthProvider.getCredential(googleCredential.idToken, null)
+        val authResult = firebaseAuth.signInWithCredential(firebaseCredential).await()
+        val user = authResult.user ?: throw GoogleSignInException("Firebase returned no user")
+        Log.d(TAG, "Success: ${user.uid}")
+
+        val googleId = user.providerData.firstOrNull { it.providerId == GOOGLE_PROVIDER_ID }?.uid
+            ?: throw GoogleSignInException("Firebase user has no Google provider")
+        val email = googleCredential.email ?: user.email
+            ?: throw GoogleSignInException("Google account has no email")
+        return GoogleProfile(
+            email = email,
+            givenName = googleCredential.givenName.orEmpty(),
+            familyName = googleCredential.familyName.orEmpty(),
+            photoUrl = googleCredential.profilePictureUri?.toString().orEmpty(),
+            googleId = googleId,
+        ).also { cachedProfile = it }
+    }
 
     /**
-     * Returns the current [GoogleSignInAccount] if logged in, null otherwise.
+     * Returns the email of the signed in user, or null if not signed in.
+     *
+     * Firebase persists its session across launches, so this is the auto-login check.
      */
-    fun accountOrNull(): GoogleSignInAccount? {
-        return GoogleSignIn.getLastSignedInAccount(context)
+    fun signedInEmailOrNull(): String? = firebaseAuth.currentUser?.email
+
+    /**
+     * Returns the signed in user's Google profile, or null if not signed in.
+     */
+    fun profileOrNull(): GoogleProfile? {
+        cachedProfile?.let { return it }
+
+        val googleInfo = firebaseAuth.currentUser?.providerData
+            ?.firstOrNull { it.providerId == GOOGLE_PROVIDER_ID }
+            ?: return null
+        val names = googleInfo.displayName.orEmpty().trim().split(" ", limit = 2)
+        return GoogleProfile(
+            email = googleInfo.email ?: return null,
+            givenName = names.getOrElse(0) { "" },
+            familyName = names.getOrElse(1) { "" },
+            photoUrl = googleInfo.photoUrl?.toString().orEmpty(),
+            googleId = googleInfo.uid,
+        )
     }
 
     /**
@@ -52,54 +137,13 @@ class GoogleAuthRepository @Inject constructor(
      * After calling this, the user will no longer auto-navigate to home, and google auth will
      * correctly query for a new email.
      */
-    fun signOut() {
+    suspend fun signOut() {
+        cachedProfile = null
         firebaseAuth.signOut()
-        googleSignInClient.signOut()
-    }
-
-    /**
-     * Returns an activity result launcher for Google login.
-     *
-     * @param onError The error callback.
-     * @param onGoogleSignInCompleted The success callback. Takes in the id token and email.
-     */
-    @Composable
-    fun googleLoginLauncher(
-        onError: () -> Unit,
-        onGoogleSignInCompleted: (id: String, email: String) -> Unit,
-    ): ManagedActivityResultLauncher<Intent, ActivityResult> {
-        val scope = rememberCoroutineScope()
-        return rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
-            try {
-                val account = task.getResult(ApiException::class.java)!!
-                val credential = GoogleAuthProvider.getCredential(account.idToken!!, null)
-                scope.launch {
-                    val authResult = firebaseAuth.signInWithCredential(credential).await()
-                    Log.d("GoogleAuthRepository", "Success: ${authResult.user!!.uid}")
-                    onGoogleSignInCompleted(
-                        account.idToken!!,
-                        account.email!!
-                    )
-                }
-            } catch (e: ApiException) {
-                Log.e("GoogleAuthRepository", "Google sign in failed", e)
-                e.printStackTrace()
-                onError()
-            }
+        try {
+            credentialManager.clearCredentialState(ClearCredentialStateRequest())
+        } catch (e: ClearCredentialException) {
+            Log.e(TAG, "Failed to clear credential state", e)
         }
     }
-
-    /**
-     * Performs a silent sign in and returns the (Google OAuth) id token.
-     */
-    suspend fun silentSignIn(): String {
-        val account = googleSignInClient.silentSignIn().await()
-        val credential = GoogleAuthProvider.getCredential(account.idToken!!, null)
-        val authResult = firebaseAuth.signInWithCredential(credential).await()
-        Log.d("GoogleAuthRepository", "Success: ${authResult.user!!.uid}")
-
-        return account.idToken!!
-    }
-
 }

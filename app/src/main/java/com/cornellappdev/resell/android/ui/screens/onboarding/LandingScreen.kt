@@ -47,7 +47,6 @@ fun LandingScreen(
     landingViewModel: LandingViewModel = hiltViewModel(),
 ) {
     val state = landingViewModel.collectUiStateValue()
-    val resultLauncher = landingViewModel.makeSignInLauncher()
     val context = LocalContext.current
 
     BackHandler {
@@ -62,8 +61,7 @@ fun LandingScreen(
 
     LaunchedEffect(state.retryLogin) {
         state.retryLogin?.consume {
-            resultLauncher.launch(landingViewModel.getSignInClient().signInIntent)
-            landingViewModel.onSignInClick()
+            landingViewModel.onSignInClick(context)
         }
     }
 
@@ -71,8 +69,7 @@ fun LandingScreen(
         showButton = state.showButton,
         buttonState = state.buttonState,
         onSignInPressed = {
-            resultLauncher.launch(landingViewModel.getSignInClient().signInIntent)
-            landingViewModel.onSignInClick()
+            landingViewModel.onSignInClick(context)
         },
     )
 }

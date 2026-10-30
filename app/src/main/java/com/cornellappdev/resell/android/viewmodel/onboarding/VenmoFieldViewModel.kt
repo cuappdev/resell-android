@@ -37,6 +37,10 @@ class VenmoFieldViewModel @Inject constructor(
 ) : ResellViewModel<VenmoFieldViewModel.VenmoFieldUiState>(
     initialUiState = VenmoFieldUiState()
 ) {
+    companion object {
+        private const val TAG = "VenmoFieldViewModel"
+    }
+
     val navArgs = savedStateHandle.toRoute<ResellOnboardingScreen.Venmo>()
 
     data class VenmoFieldUiState(
@@ -102,19 +106,25 @@ class VenmoFieldViewModel @Inject constructor(
      */
     private fun makeNewUser(skipped: Boolean) {
         viewModelScope.launch {
-            val googleUser = googleAuthRepository.accountOrNull()!!
+            val googleUser = googleAuthRepository.profileOrNull() ?: run {
+                Log.e(TAG, "No signed in Google user.")
+                applyMutation {
+                    copy(loading = false, skipLoading = false)
+                }
+                rootConfirmationRepository.showError("Session expired. Please sign in again.")
+                rootNavigationRepository.navigate(ResellRootRoute.LANDING)
+                return@launch
+            }
             try {
                 val response = resellAuthRepository.createUser(
                     CreateUserBody(
                         username = stateValue().username,
-                        netid = googleUser.email!!.split("@")[0],
-                        givenName = googleUser.givenName!!,
-                        familyName = googleUser.familyName!!,
-                        email = googleUser.email!!,
-                        photoUrl = navArgs.pfpUrl.ifEmpty {
-                            googleUser.photoUrl.toString()
-                        },
-                        googleId = googleUser.id!!,
+                        netid = googleUser.email.split("@")[0],
+                        givenName = googleUser.givenName,
+                        familyName = googleUser.familyName,
+                        email = googleUser.email,
+                        photoUrl = navArgs.pfpUrl.ifEmpty { googleUser.photoUrl },
+                        googleId = googleUser.googleId,
                         bio = stateValue().bio,
                         fcmToken = firebaseMessagingRepository.getDeviceFCMToken(),
                         venmoHandle = if (skipped) "" else stateValue().handle
@@ -126,7 +136,7 @@ class VenmoFieldViewModel @Inject constructor(
                 rootNavigationSheetRepository.showBottomSheet(RootSheet.Welcome)
             } catch (e: Exception) {
                 rootConfirmationRepository.showError()
-                Log.e("VenmoFieldViewModel", "Error creating user: ", e)
+                Log.e(TAG, "Error creating user: ", e)
                 applyMutation {
                     copy(loading = false, skipLoading = false)
                 }
