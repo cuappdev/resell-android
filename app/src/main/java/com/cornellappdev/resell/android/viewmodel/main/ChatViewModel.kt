@@ -99,6 +99,7 @@ class ChatViewModel @Inject constructor(
         val mostRecentOtherAvailability: AvailabilityDocument? = null,
         val activeTransaction: Transaction? = null,
         val completingSaleTransactionId: String? = null,
+        val locallyCancelledMeetingTime: Timestamp? = null,
     ) {
         val showNegotiate
             get() = true
@@ -113,7 +114,8 @@ class ChatViewModel @Inject constructor(
             get() = activeTransaction?.let { transaction ->
                 if (!transaction.completed) {
                     // If the meeting was cancelled, don't show the transaction prompt.
-                    if (confirmedMeeting == null) return@let null
+                    val meeting = confirmedMeeting ?: return@let null
+                    if (meeting.proposeTime == locallyCancelledMeetingTime) return@let null
                     // Only show after meeting time has passed
                     if (Date().before(transaction.transactionDate)) return@let null
                 }
@@ -631,6 +633,7 @@ class ChatViewModel @Inject constructor(
                     ),
                     chatId = navArgs.chatId
                 )
+                applyMutation { copy(locallyCancelledMeetingTime = meetingInfo.proposeTime) }
                 rootNavigationSheetRepository.hideSheet()
             } catch (e: Exception) {
                 rootConfirmationRepository.showError("Couldn't cancel the meeting. Please try again.")
@@ -659,7 +662,8 @@ class ChatViewModel @Inject constructor(
 
     fun onMarkSaleComplete(transactionId: String) {
         if (stateValue().completingSaleTransactionId != null) return
-        if (stateValue().activeTransaction?.let { it.id == transactionId && it.completed } == true) return
+        val banner = stateValue().transactionBannerInfo
+        if (banner?.transactionId != transactionId || banner.state != TransactionState.PENDING) return
 
         viewModelScope.launch {
             applyMutation { copy(completingSaleTransactionId = transactionId) }
@@ -842,8 +846,11 @@ class ChatViewModel @Inject constructor(
                         try {
                             val transaction = postTransactionRatingRepository.getTransactionById(transactionId)
                             applyMutation {
+                                val current = activeTransaction
+                                val isStale = current != null && current.id == transaction.id
+                                    && current.completed && !transaction.completed
                                 copy(
-                                    activeTransaction = transaction,
+                                    activeTransaction = if (isStale) current else transaction,
                                     scrollBottom = UIEvent(Unit)
                                 )
                             }
