@@ -29,6 +29,7 @@ import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.ui.components.global.ResellHeader
 import com.cornellappdev.resell.android.ui.components.global.ResellRatingBar
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButton
+import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonState
 import com.cornellappdev.resell.android.ui.components.global.ResellTextEntry
 import com.cornellappdev.resell.android.ui.theme.ResellPreview
 import com.cornellappdev.resell.android.ui.theme.ResellPurple
@@ -138,6 +139,7 @@ private fun PostTransactionRatingScreenContent(
         ResellTextButton(
             text = "Submit Review",
             onClick = onSubmitReview,
+            state = if (uiState.canSubmit) ResellTextButtonState.ENABLED else ResellTextButtonState.DISABLED,
             modifier = Modifier.padding(bottom = 44.dp)
         )
     }
