@@ -4,9 +4,9 @@ import com.cornellappdev.resell.android.model.api.TransactionReviewListItem
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
-import java.util.Locale
+import java.time.format.FormatStyle
 
-data class UserReview(
+data class ProfileReview(
     val id: String,
     val rating: Int,
     val comments: String,
@@ -14,27 +14,20 @@ data class UserReview(
     val reviewerName: String,
 )
 
-fun TransactionReviewListItem.toUserReview(): UserReview {
+fun TransactionReviewListItem.toProfileReview(): ProfileReview {
     val buyer = transaction?.buyer
-    val name = buyer?.givenName?.takeIf { it.isNotBlank() }
-        ?: buyer?.username?.takeIf { it.isNotBlank() }
-        ?: ""
-    return UserReview(
-        id = id ?: "",
+    return ProfileReview(
+        id = id.orEmpty(),
         rating = (stars ?: 0).coerceIn(0, 5),
-        comments = comments?.trim() ?: "",
+        comments = comments?.trim().orEmpty(),
         dateLabel = createdAt.toDateLabel(),
-        reviewerName = name.ifBlank { "Anonymous" },
+        reviewerName = listOfNotNull(buyer?.givenName, buyer?.username)
+            .firstOrNull { it.isNotBlank() } ?: "Anonymous",
     )
 }
 
-private fun String?.toDateLabel(): String {
-    if (isNullOrBlank()) return ""
-    return try {
-        DateTimeFormatter.ofPattern("MMM d, yyyy", Locale.getDefault())
-            .withZone(ZoneId.systemDefault())
-            .format(Instant.parse(this))
-    } catch (e: Exception) {
-        ""
-    }
-}
+private fun String?.toDateLabel(): String = runCatching {
+    DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM)
+        .withZone(ZoneId.systemDefault())
+        .format(Instant.parse(orEmpty()))
+}.getOrDefault("")

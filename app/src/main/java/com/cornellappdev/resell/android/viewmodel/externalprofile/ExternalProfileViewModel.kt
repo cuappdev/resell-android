@@ -6,7 +6,7 @@ import androidx.navigation.toRoute
 import com.cornellappdev.resell.android.model.classes.Listing
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.model.classes.ResellApiState
-import com.cornellappdev.resell.android.model.classes.UserReview
+import com.cornellappdev.resell.android.model.classes.ProfileReview
 import com.cornellappdev.resell.android.model.classes.toResellApiState
 import com.cornellappdev.resell.android.model.profile.ProfileRepository
 import com.cornellappdev.resell.android.model.settings.BlockedUsersRepository
@@ -61,7 +61,7 @@ class ExternalProfileViewModel @Inject constructor(
         val loadedState: ResellApiState,
         val shopListings: ResellApiResponse<List<Listing>>,
         val archiveListings: ResellApiResponse<List<Listing>>,
-        val reviews: ResellApiResponse<List<UserReview>>,
+        val reviews: ResellApiResponse<List<ProfileReview>>,
         val selectedTab: ExternalProfileTab = ExternalProfileTab.LISTINGS,
         val uid: String,
         private val blockedUsers: List<String>,
@@ -80,17 +80,17 @@ class ExternalProfileViewModel @Inject constructor(
                         "Looking for great deals and selling even greater items."
             }
 
+        private val loadedReviews: List<ProfileReview>
+            get() = reviews.asSuccessOrNull()?.data.orEmpty()
+
         val listingCount: Int
             get() = shopListings.asSuccessOrNull()?.data?.size ?: 0
 
         val reviewCount: Int
-            get() = reviews.asSuccessOrNull()?.data?.size ?: 0
+            get() = loadedReviews.size
 
         val averageRating: Double
-            get() = reviews.asSuccessOrNull()?.data
-                ?.takeIf { it.isNotEmpty() }
-                ?.let { list -> list.sumOf { it.rating }.toDouble() / list.size }
-                ?: 0.0
+            get() = loadedReviews.map { it.rating }.average().takeUnless { it.isNaN() } ?: 0.0
     }
 
     fun onTabSelected(tab: ExternalProfileTab) {

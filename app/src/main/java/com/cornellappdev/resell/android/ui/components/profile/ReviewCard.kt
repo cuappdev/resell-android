@@ -6,7 +6,6 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -18,7 +17,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.cornellappdev.resell.android.model.classes.UserReview
+import com.cornellappdev.resell.android.model.classes.ProfileReview
 import com.cornellappdev.resell.android.ui.components.global.ResellStarRating
 import com.cornellappdev.resell.android.ui.theme.IconInactive
 import com.cornellappdev.resell.android.ui.theme.ResellPreview
@@ -27,7 +26,7 @@ import com.cornellappdev.resell.android.ui.theme.Style
 
 @Composable
 fun ReviewCard(
-    review: UserReview,
+    review: ProfileReview,
     modifier: Modifier = Modifier
 ) {
     val shape = RoundedCornerShape(16.dp)
@@ -40,14 +39,32 @@ fun ReviewCard(
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(text = review.reviewerName, style = Style.title3)
+            Row(
+                modifier = Modifier.weight(1f),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = review.reviewerName,
+                    style = Style.title3,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f, fill = false)
+                )
 
-            if (review.dateLabel.isNotBlank()) {
-                Text(text = "•", style = Style.body2, modifier = Modifier.padding(horizontal = 4.dp))
-                Text(text = review.dateLabel, style = Style.body2, color = IconInactive)
+                if (review.dateLabel.isNotBlank()) {
+                    Text(
+                        text = "•",
+                        style = Style.body2,
+                        modifier = Modifier.padding(horizontal = 4.dp)
+                    )
+                    Text(
+                        text = review.dateLabel,
+                        style = Style.body2,
+                        color = IconInactive,
+                        maxLines = 1
+                    )
+                }
             }
-
-            Spacer(Modifier.weight(1f))
 
             ResellStarRating(rating = review.rating.toDouble(), starSize = 20.dp)
         }
@@ -67,7 +84,7 @@ fun ReviewCard(
 @Composable
 private fun ReviewCardPreview() = ResellPreview(padding = 16.dp) {
     ReviewCard(
-        review = UserReview(
+        review = ProfileReview(
             id = "1",
             rating = 4,
             comments = "Super easy to meet up with and the item was exactly as described!",
