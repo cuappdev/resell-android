@@ -1,6 +1,7 @@
 package com.cornellappdev.resell.android.util
 
 import com.google.firebase.Timestamp
+import retrofit2.HttpException
 import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -34,3 +35,6 @@ fun LocalDateTime.convertToFirestoreTimestamp(): Timestamp {
     // Create Firestore Timestamp from Instant
     return Timestamp(instant.epochSecond, instant.nano)
 }
+fun Throwable.isUsernameTakenError(): Boolean =
+    this is HttpException && code() == 409 &&
+        response()?.errorBody()?.string()?.contains("username", ignoreCase = true) == true

@@ -11,6 +11,7 @@ import com.cornellappdev.resell.android.model.core.UserInfoRepository
 import com.cornellappdev.resell.android.model.pdp.ImageBitmapLoader
 import com.cornellappdev.resell.android.model.profile.ProfileRepository
 import com.cornellappdev.resell.android.model.settings.SettingsRepository
+import com.cornellappdev.resell.android.util.isUsernameTakenError
 import com.cornellappdev.resell.android.util.loadBitmapFromUri
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
 import com.cornellappdev.resell.android.viewmodel.navigation.SettingsNavigationRepository
@@ -49,7 +50,8 @@ class EditProfileViewModel @Inject constructor(
 
     fun onUsernameChanged(username: String) {
         applyMutation {
-            copy(username = username)
+            // Usernames can't contain whitespace.
+            copy(username = username.filterNot { it.isWhitespace() })
         }
     }
 
@@ -101,7 +103,11 @@ class EditProfileViewModel @Inject constructor(
                 applyMutation {
                     copy(loading = false)
                 }
-                confirmationRepository.showError()
+                if (e.isUsernameTakenError()) {
+                    confirmationRepository.showError("That username is already taken.")
+                } else {
+                    confirmationRepository.showError()
+                }
                 Log.e("EditProfileViewModel", "Error editing profile: ", e)
             }
 

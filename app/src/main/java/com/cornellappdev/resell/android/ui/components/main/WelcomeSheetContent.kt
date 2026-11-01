@@ -48,7 +48,7 @@ fun WelcomeSheetContent(
         Spacer(modifier = Modifier.height(30.dp))
 
         Text(
-            text = "Thrifting and selling has never been this easy",
+            text = "Thrifting and selling has never been this easy!",
             style = Style.body1,
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(horizontal = 36.dp)
