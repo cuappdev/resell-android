@@ -19,12 +19,14 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.cornellappdev.resell.android.R
+import com.cornellappdev.resell.android.ui.components.global.ResellTabBar
 import com.cornellappdev.resell.android.ui.components.main.ProfilePictureView
 import com.cornellappdev.resell.android.ui.theme.IconInactive
 import com.cornellappdev.resell.android.ui.theme.Secondary
 import com.cornellappdev.resell.android.ui.theme.Style
 import com.cornellappdev.resell.android.util.clickableNoIndication
 import com.cornellappdev.resell.android.util.defaultHorizontalPadding
+import com.cornellappdev.resell.android.viewmodel.main.ProfileViewModel
 
 @Composable
 fun ProfileHeader(
@@ -32,11 +34,12 @@ fun ProfileHeader(
     shopName: String,
     vendorName: String,
     bio: String,
+    selectedTab: ProfileViewModel.ProfileTab?,
+    onTabSelected: (ProfileViewModel.ProfileTab) -> Unit,
     leftIcon: Int? = null,
     rightIcon: Int? = null,
     onLeftPressed: () -> Unit = {},
     onRightPressed: () -> Unit = {},
-    tabBar: (@Composable () -> Unit)? = null,
 ) {
     Column(
         modifier = Modifier
@@ -111,7 +114,7 @@ fun ProfileHeader(
         Spacer(Modifier.height(20.dp))
 
 
-        if (tabBar == null) {
+        if (selectedTab == null) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -119,7 +122,15 @@ fun ProfileHeader(
                     .background(IconInactive)
             )
         } else {
-            tabBar()
+            ResellTabBar(
+                painterIds = listOf(
+                    R.drawable.ic_shop,
+                    R.drawable.ic_archive
+                ),
+                selectedPainter = selectedTab.ordinal,
+            ) {
+                onTabSelected(ProfileViewModel.ProfileTab.entries[it])
+            }
         }
     }
 }
