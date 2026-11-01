@@ -1,33 +1,20 @@
 package com.cornellappdev.resell.android.model.api
 
+import okhttp3.ResponseBody
+import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
-import retrofit2.http.Query
+import retrofit2.http.Path
 
 interface TransactionReviewApiService {
     @POST("transactionReview/")
     suspend fun createTransactionReview(@Body request: CreateTransactionReviewRequest): TransactionReview
 
-    // TODO(backend): the "correct" lookup, GET transactionReview/transactionId/{id}/, always
-    // 404, but once it works, delete this, PostTransactionRatingRepository.hasExistingReview's
-    // sellerId param, and the 3 types below, and call the fixed endpoint
-    // directly by transaction id instead.
-    @GET("transactionReview/")
-    suspend fun getTransactionReviewsBySeller(@Query("sellerId") sellerId: String): TransactionReviewListResponse
+    // 200 if the transaction has a review, 404 if it doesn't.
+    @GET("transactionReview/transactionId/{id}/")
+    suspend fun getTransactionReviewByTransactionId(@Path("id") transactionId: String): Response<ResponseBody>
 }
-
-data class TransactionReviewListResponse(
-    val reviews: List<TransactionReviewListItem> = emptyList()
-)
-
-data class TransactionReviewListItem(
-    val transaction: TransactionReviewListItemTransaction? = null
-)
-
-data class TransactionReviewListItemTransaction(
-    val id: String? = null
-)
 
 data class CreateTransactionReviewRequest(
     val transactionId: String,

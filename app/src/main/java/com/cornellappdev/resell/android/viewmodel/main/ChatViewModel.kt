@@ -676,13 +676,8 @@ class ChatViewModel @Inject constructor(
 
     private fun openReviewScreenIfEligible(transaction: Transaction) {
         viewModelScope.launch {
-            val sellerId = transaction.seller?.id
             val alreadyReviewed = try {
-                if (sellerId != null) {
-                    postTransactionRatingRepository.hasExistingReview(transaction.id, sellerId)
-                } else {
-                    false
-                }
+                postTransactionRatingRepository.hasExistingReview(transaction.id)
             } catch (e: Exception) {
                 Log.e(TAG, "Error checking for an existing review: ", e)
                 false

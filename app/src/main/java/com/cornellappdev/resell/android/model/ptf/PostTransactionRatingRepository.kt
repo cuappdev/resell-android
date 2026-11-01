@@ -4,6 +4,7 @@ import com.cornellappdev.resell.android.model.api.CreateTransactionReviewRequest
 import com.cornellappdev.resell.android.model.api.RetrofitInstance
 import com.cornellappdev.resell.android.model.api.Transaction
 import com.cornellappdev.resell.android.model.api.TransactionReview
+import retrofit2.HttpException
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -23,11 +24,14 @@ class PostTransactionRatingRepository @Inject constructor(
         return retrofitInstance.transactionApi.completeTransaction(transactionId).transaction
     }
 
-    // TODO(backend): replace with a direct by-id lookup once the backend route is fixed.
-    // See the TODO on TransactionReviewApiService.getTransactionReviewsBySeller.
-    suspend fun hasExistingReview(transactionId: String, sellerId: String): Boolean {
-        val response = retrofitInstance.transactionReviewApi.getTransactionReviewsBySeller(sellerId)
-        return response.reviews.any { it.transaction?.id == transactionId }
+    suspend fun hasExistingReview(transactionId: String): Boolean {
+        val response =
+            retrofitInstance.transactionReviewApi.getTransactionReviewByTransactionId(transactionId)
+        return when {
+            response.isSuccessful -> true
+            response.code() == 404 -> false
+            else -> throw HttpException(response)
+        }
     }
 
     suspend fun submitTransactionReview(
