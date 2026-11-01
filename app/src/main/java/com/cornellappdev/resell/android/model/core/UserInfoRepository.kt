@@ -11,6 +11,8 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -20,6 +22,11 @@ class UserInfoRepository @Inject constructor(
 ) {
 
     private var accessToken: String? = null
+
+    /**
+     * Guards [accessToken] and its DataStore reads/writes
+     */
+    private val accessTokenMutex = Mutex()
 
     /**
      * If the user is signed in, returns the user's information. Otherwise, throws an exception.
@@ -127,9 +134,11 @@ class UserInfoRepository @Inject constructor(
      * Stores the FIREBASE access token to userInfoRepository.
      */
     suspend fun storeAccessToken(token: String) {
-        accessToken = token
-        dataStore.edit { preferences ->
-            preferences[PreferencesKeys.ACCESS_TOKEN] = token
+        accessTokenMutex.withLock {
+            accessToken = token
+            dataStore.edit { preferences ->
+                preferences[PreferencesKeys.ACCESS_TOKEN] = token
+            }
         }
     }
 
@@ -139,17 +148,18 @@ class UserInfoRepository @Inject constructor(
         }
     }
 
-    suspend fun getAccessToken(): String? {
-        accessToken?.let { return it }
-        return dataStore.data.map { preferences ->
+    suspend fun getAccessToken(): String? = accessTokenMutex.withLock {
+        accessToken ?: dataStore.data.map { preferences ->
             preferences[PreferencesKeys.ACCESS_TOKEN]
         }.firstOrNull().also { accessToken = it }
     }
 
     suspend fun clearAccessToken() {
-        accessToken = null
-        dataStore.edit { preferences ->
-            preferences.remove(PreferencesKeys.ACCESS_TOKEN)
+        accessTokenMutex.withLock {
+            accessToken = null
+            dataStore.edit { preferences ->
+                preferences.remove(PreferencesKeys.ACCESS_TOKEN)
+            }
         }
     }
 

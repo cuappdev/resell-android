@@ -1,11 +1,14 @@
 package com.cornellappdev.resell.android.model.login
 
+import android.util.Log
 import com.cornellappdev.resell.android.model.api.AuthorizeBody
 import com.cornellappdev.resell.android.model.api.CreateUserBody
 import com.cornellappdev.resell.android.model.api.LogoutBody
 import com.cornellappdev.resell.android.model.api.RetrofitInstance
 import com.cornellappdev.resell.android.model.api.User
 import com.cornellappdev.resell.android.model.core.UserInfoRepository
+import kotlinx.coroutines.CancellationException
+import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -16,6 +19,10 @@ class ResellAuthRepository @Inject constructor(
     private val googleAuthRepository: GoogleAuthRepository,
     private val userInfoRepository: UserInfoRepository,
 ) {
+    companion object {
+        private const val TAG = "ResellAuthRepository"
+    }
+
     suspend fun createUser(createUserBody: CreateUserBody) =
         retrofitInstance.userApi.createUser(createUserBody)
 
@@ -50,8 +57,16 @@ class ResellAuthRepository @Inject constructor(
                     token = firebaseMessagingRepository.getDeviceFCMToken()
                 )
             )
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            Log.e(TAG, "Error sending logout request: ", e)
         } finally {
-            userInfoRepository.clearAccessToken()
+            try {
+                userInfoRepository.clearAccessToken()
+            } catch (e: IOException) {
+                Log.e(TAG, "Error clearing access token: ", e)
+            }
         }
     }
 }
