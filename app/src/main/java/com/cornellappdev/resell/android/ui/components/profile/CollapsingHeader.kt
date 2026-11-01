@@ -24,9 +24,6 @@ class CollapsingHeaderState(initialOffsetPx: Float = 0f) {
     var offsetPx by mutableFloatStateOf(initialOffsetPx)
         private set
 
-    val collapsedFraction: Float
-        get() = if (heightPx <= 0f) 0f else (-offsetPx / heightPx).coerceIn(0f, 1f)
-
     val connection = object : NestedScrollConnection {
         override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
             if (available.y >= 0f) return Offset.Zero

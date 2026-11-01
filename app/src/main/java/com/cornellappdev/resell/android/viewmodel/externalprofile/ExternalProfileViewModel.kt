@@ -91,6 +91,9 @@ class ExternalProfileViewModel @Inject constructor(
 
         val averageRating: Double
             get() = loadedReviews.map { it.rating }.average().takeUnless { it.isNaN() } ?: 0.0
+
+        val ratingLabel: String
+            get() = if (reviewCount > 0) "%.1f".format(averageRating) else ""
     }
 
     fun onTabSelected(tab: ExternalProfileTab) {

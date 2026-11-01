@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -27,6 +26,10 @@ import com.cornellappdev.resell.android.ui.theme.Secondary
 import com.cornellappdev.resell.android.ui.theme.Style
 import com.cornellappdev.resell.android.util.shimmer
 
+private val ReviewListPadding = 16.dp
+private val ReviewSkeletonHeight = 88.dp
+private const val SKELETON_COUNT = 3
+
 @Composable
 fun ResellReviewsScroll(
     reviews: List<ProfileReview>,
@@ -39,8 +42,13 @@ fun ResellReviewsScroll(
 
     LazyColumn(
         modifier = modifier.fillMaxSize(),
-        contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 100.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        contentPadding = PaddingValues(
+            start = ReviewListPadding,
+            end = ReviewListPadding,
+            top = ReviewListPadding,
+            bottom = 100.dp
+        ),
+        verticalArrangement = Arrangement.spacedBy(ReviewListPadding)
     ) {
         items(reviews) { review ->
             ReviewCard(review = review)
@@ -60,8 +68,7 @@ private fun ReviewsEmptyState(modifier: Modifier = Modifier) {
         Icon(
             painter = painterResource(id = R.drawable.ic_star_slash),
             contentDescription = null,
-            tint = IconInactive,
-            modifier = Modifier.size(40.dp)
+            tint = IconInactive
         )
         Text(text = "No Reviews Yet", style = Style.body1, color = Secondary)
         Text(
@@ -77,15 +84,15 @@ fun ResellLoadingReviewsScroll(modifier: Modifier = Modifier) {
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .padding(start = 16.dp, end = 16.dp, top = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+            .padding(start = ReviewListPadding, end = ReviewListPadding, top = ReviewListPadding),
+        verticalArrangement = Arrangement.spacedBy(ReviewListPadding)
     ) {
-        repeat(3) {
+        repeat(SKELETON_COUNT) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(88.dp)
-                    .clip(RoundedCornerShape(16.dp))
+                    .height(ReviewSkeletonHeight)
+                    .clip(RoundedCornerShape(ReviewCardCornerRadius))
                     .shimmer()
             )
         }

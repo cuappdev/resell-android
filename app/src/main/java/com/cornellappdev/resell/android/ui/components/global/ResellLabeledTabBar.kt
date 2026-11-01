@@ -17,6 +17,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
@@ -25,13 +28,20 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.ui.theme.IconInactive
 import com.cornellappdev.resell.android.ui.theme.Primary
+import com.cornellappdev.resell.android.ui.theme.ResellPreview
 import com.cornellappdev.resell.android.ui.theme.Stroke
 import com.cornellappdev.resell.android.ui.theme.Style
 import com.cornellappdev.resell.android.util.clickableNoIndication
+
+private val DividerHeight = 1.dp
+private val IndicatorHeight = 2.dp
+private const val INDICATOR_ANIMATION_MILLIS = 200
 
 data class LabeledTab(
     val count: Int,
@@ -66,19 +76,19 @@ fun ResellLabeledTabBar(
 
         val position by animateFloatAsState(
             targetValue = selectedIndex.toFloat(),
-            animationSpec = tween(durationMillis = 200),
+            animationSpec = tween(durationMillis = INDICATOR_ANIMATION_MILLIS),
             label = "tab indicator"
         )
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(2.dp)
+                .height(IndicatorHeight)
         ) {
             Box(
                 modifier = Modifier
                     .align(Alignment.BottomStart)
                     .fillMaxWidth()
-                    .height(1.dp)
+                    .height(DividerHeight)
                     .background(Stroke)
             )
             Box(
@@ -128,4 +138,24 @@ private fun LabeledTabItem(
             color = color
         )
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun LabeledTabBarPreview() = ResellPreview {
+    var selected by remember { mutableIntStateOf(0) }
+
+    ResellLabeledTabBar(
+        tabs = listOf(
+            LabeledTab(count = 12, iconRes = R.drawable.ic_shop),
+            LabeledTab(
+                count = 8,
+                iconRes = R.drawable.ic_selected_star,
+                iconSize = 20.dp,
+                title = "4.6",
+            ),
+        ),
+        selectedIndex = selected,
+        onTabSelected = { selected = it }
+    )
 }

@@ -45,10 +45,10 @@ fun ExternalProfileHeader(
         ) {
             ProfilePictureView(
                 imageUrl = imageUrl,
-                modifier = Modifier.size(67.dp)
+                modifier = Modifier.size(64.dp)
             )
 
-            Column(verticalArrangement = Arrangement.spacedBy(10.5.dp)) {
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 Text(text = name, style = Style.heading2)
 
                 Row(
@@ -60,7 +60,6 @@ fun ExternalProfileHeader(
                         text = "($reviewCount)",
                         style = Style.body2,
                         color = IconInactive,
-                        textDecoration = TextDecoration.Underline
                     )
                 }
             }
