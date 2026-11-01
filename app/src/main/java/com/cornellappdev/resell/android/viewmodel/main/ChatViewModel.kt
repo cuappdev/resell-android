@@ -455,24 +455,7 @@ class ChatViewModel @Inject constructor(
                     )
                 }
 
-                MeetingState.DECLINED -> {
-                    val myEmail = userInfoRepository.getUserInfo().email
-                    val chat =
-                        chatRepository.subscribedChatFlow.value.asSuccessOrNull()?.data
-                            ?: return@launch
-
-                    val mostRecentAvailability = chat.chatHistory.flatMap {
-                        it.messages
-                    }.sortedByDescending {
-                        it.timestamp
-                    }.firstOrNull {
-                        it.availability != null && it.senderId != myEmail
-                    }
-
-                    mostRecentAvailability?.availability?.let {
-                        onAvailabilitySelected(it, false)
-                    }
-                }
+                MeetingState.DECLINED -> onSendAvailabilityPressed()
 
                 MeetingState.CANCELED -> {}
             }
