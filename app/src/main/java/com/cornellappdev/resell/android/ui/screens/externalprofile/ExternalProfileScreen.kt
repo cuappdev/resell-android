@@ -1,7 +1,6 @@
 package com.cornellappdev.resell.android.ui.screens.externalprofile
 
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,9 +16,6 @@ import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridS
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
@@ -51,6 +47,8 @@ import com.cornellappdev.resell.android.util.defaultHorizontalPadding
 import com.cornellappdev.resell.android.viewmodel.externalprofile.ExternalProfileViewModel
 import com.cornellappdev.resell.android.viewmodel.externalprofile.ExternalProfileViewModel.ExternalProfileTab
 
+private val ToolbarIconSize = 25.dp
+
 @Composable
 fun ExternalProfileScreen(
     profileViewModel: ExternalProfileViewModel = hiltViewModel()
@@ -58,7 +56,6 @@ fun ExternalProfileScreen(
     val uiState = profileViewModel.collectUiStateValue()
     val staggeredState = rememberLazyStaggeredGridState()
     val headerState = rememberCollapsingHeaderState()
-    val showUsername by remember { derivedStateOf { headerState.collapsedFraction > 0.5f } }
 
     Box {
         Column(
@@ -73,7 +70,6 @@ fun ExternalProfileScreen(
         ) {
             ExternalProfileToolbar(
                 username = uiState.shopName,
-                showUsername = showUsername,
                 onEllipsisPressed = { profileViewModel.onEllipsisPressed() },
                 onSearchPressed = { profileViewModel.onSearchPressed() },
             )
@@ -97,7 +93,7 @@ fun ExternalProfileScreen(
                         count = uiState.reviewCount,
                         iconRes = R.drawable.ic_selected_star,
                         iconSize = 20.dp,
-                        title = if (uiState.reviewCount > 0) "%.1f".format(uiState.averageRating) else "",
+                        title = uiState.ratingLabel,
                     ),
                 ),
                 selectedIndex = uiState.selectedTab.ordinal,
@@ -187,7 +183,6 @@ private fun ProfileMessage(title: String, body: String) {
 @Composable
 private fun ExternalProfileToolbar(
     username: String,
-    showUsername: Boolean,
     onEllipsisPressed: () -> Unit,
     onSearchPressed: () -> Unit,
 ) {
@@ -203,24 +198,23 @@ private fun ExternalProfileToolbar(
             contentDescription = "options",
             modifier = Modifier
                 .defaultHorizontalPadding()
-                .size(25.dp)
+                .size(ToolbarIconSize)
                 .align(Alignment.CenterStart)
                 .clickableNoIndication { onEllipsisPressed() }
         )
 
-        AnimatedVisibility(
-            visible = showUsername,
+        Text(
+            text = "@$username",
+            style = Style.heading3,
             modifier = Modifier.align(Alignment.Center)
-        ) {
-            Text(text = "@$username", style = Style.heading3)
-        }
+        )
 
         Icon(
             painter = painterResource(id = R.drawable.ic_search),
             contentDescription = "search",
             modifier = Modifier
                 .defaultHorizontalPadding()
-                .size(25.dp)
+                .size(ToolbarIconSize)
                 .align(Alignment.CenterEnd)
                 .clickableNoIndication { onSearchPressed() }
         )
@@ -253,7 +247,7 @@ private fun BlockedView(
                     modifier = Modifier
                         .defaultHorizontalPadding()
                         .padding(top = 8.dp)
-                        .size(25.dp)
+                        .size(ToolbarIconSize)
                         .align(Alignment.TopStart)
                         .clickableNoIndication { onEllipsisPressed() },
                     tint = Color.White

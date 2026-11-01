@@ -24,12 +24,15 @@ import com.cornellappdev.resell.android.ui.theme.ResellPreview
 import com.cornellappdev.resell.android.ui.theme.Stroke
 import com.cornellappdev.resell.android.ui.theme.Style
 
+internal val ReviewCardCornerRadius = 16.dp
+private const val COMMENT_MAX_LINES = 3
+
 @Composable
 fun ReviewCard(
     review: ProfileReview,
     modifier: Modifier = Modifier
 ) {
-    val shape = RoundedCornerShape(16.dp)
+    val shape = RoundedCornerShape(ReviewCardCornerRadius)
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -69,11 +72,12 @@ fun ReviewCard(
             ResellStarRating(rating = review.rating.toDouble(), starSize = 20.dp)
         }
 
+        // Only shows 3 lines of a review (rest is cut off)
         if (review.comments.isNotBlank()) {
             Text(
                 text = review.comments,
                 style = Style.body2,
-                maxLines = 3,
+                maxLines = COMMENT_MAX_LINES,
                 overflow = TextOverflow.Ellipsis
             )
         }
@@ -89,7 +93,7 @@ private fun ReviewCardPreview() = ResellPreview(padding = 16.dp) {
             rating = 4,
             comments = "Super easy to meet up with and the item was exactly as described!",
             dateLabel = "Oct 12, 2026",
-            reviewerName = "Jin",
+            reviewerName = "Ryan",
         )
     )
 }
