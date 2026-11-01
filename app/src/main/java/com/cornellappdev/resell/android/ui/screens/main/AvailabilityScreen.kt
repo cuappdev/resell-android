@@ -56,6 +56,8 @@ import java.time.LocalDateTime
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
 
+private val GridBottomInset = 96.dp
+
 private enum class AvailabilityPanel {
     NONE,
     CALENDAR
@@ -162,6 +164,8 @@ fun AvailabilityScreenContent(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(horizontal = 16.dp)
+                        .navigationBarsPadding()
+                        .padding(bottom = GridBottomInset)
                         .offset(y = gridOffsetY),
                     onProposalSelected = {}
                 )
