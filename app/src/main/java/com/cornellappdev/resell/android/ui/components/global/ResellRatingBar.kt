@@ -9,15 +9,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Outline
-import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -50,39 +44,30 @@ fun ResellStarRating(
     rating: Double,
     modifier: Modifier = Modifier,
     starSize: Dp = 12.dp,
-    maxRating: Int = 5,
-    filledColor: Color = ResellPurple,
-    emptyColor: Color = IconInactive,
 ) {
     Row(modifier = modifier, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-        for (i in 1..maxRating) {
-            val fill = (rating - (i - 1)).coerceIn(0.0, 1.0).toFloat()
+        repeat(5) { index ->
+            val fill = (rating - index).coerceIn(0.0, 1.0).toFloat()
             Box(modifier = Modifier.size(starSize)) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_selected_star),
                     contentDescription = null,
-                    tint = emptyColor,
+                    tint = IconInactive,
                     modifier = Modifier.fillMaxSize()
                 )
-                if (fill > 0f) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_selected_star),
-                        contentDescription = null,
-                        tint = filledColor,
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .clip(FractionalWidthShape(fill))
-                    )
-                }
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_selected_star),
+                    contentDescription = null,
+                    tint = ResellPurple,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .drawWithContent {
+                            clipRect(right = size.width * fill) {
+                                this@drawWithContent.drawContent()
+                            }
+                        }
+                )
             }
         }
     }
-}
-
-private class FractionalWidthShape(private val fraction: Float) : Shape {
-    override fun createOutline(
-        size: Size,
-        layoutDirection: LayoutDirection,
-        density: Density
-    ): Outline = Outline.Rectangle(Rect(0f, 0f, size.width * fraction, size.height))
 }

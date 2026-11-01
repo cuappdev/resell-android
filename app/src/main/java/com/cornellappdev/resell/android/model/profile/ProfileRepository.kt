@@ -6,8 +6,8 @@ import com.cornellappdev.resell.android.model.api.UserResponse
 import com.cornellappdev.resell.android.model.classes.Listing
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.model.classes.UserInfo
-import com.cornellappdev.resell.android.model.classes.UserReview
-import com.cornellappdev.resell.android.model.classes.toUserReview
+import com.cornellappdev.resell.android.model.classes.ProfileReview
+import com.cornellappdev.resell.android.model.classes.toProfileReview
 import com.cornellappdev.resell.android.model.core.UserInfoRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -42,7 +42,7 @@ class ProfileRepository @Inject constructor(
         MutableStateFlow(ResellApiResponse.Pending)
     val externalListings = _externalListings.asStateFlow()
 
-    private val _externalReviews: MutableStateFlow<ResellApiResponse<List<UserReview>>> =
+    private val _externalReviews: MutableStateFlow<ResellApiResponse<List<ProfileReview>>> =
         MutableStateFlow(ResellApiResponse.Pending)
     val externalReviews = _externalReviews.asStateFlow()
 
@@ -120,7 +120,7 @@ class ProfileRepository @Inject constructor(
             try {
                 val response = retrofitInstance.transactionReviewApi.getTransactionReviewsBySeller(id)
                 _externalReviews.value = ResellApiResponse.Success(
-                    response.reviews.map { it.toUserReview() }
+                    response.reviews.map { it.toProfileReview() }
                 )
             } catch (e: Exception) {
                 Log.e("ProfileRepository", "Error fetching reviews: ", e)

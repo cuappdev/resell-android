@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -22,7 +21,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.cornellappdev.resell.android.R
-import com.cornellappdev.resell.android.model.classes.UserReview
+import com.cornellappdev.resell.android.model.classes.ProfileReview
 import com.cornellappdev.resell.android.ui.theme.IconInactive
 import com.cornellappdev.resell.android.ui.theme.Secondary
 import com.cornellappdev.resell.android.ui.theme.Style
@@ -30,7 +29,7 @@ import com.cornellappdev.resell.android.util.shimmer
 
 @Composable
 fun ResellReviewsScroll(
-    reviews: List<UserReview>,
+    reviews: List<ProfileReview>,
     modifier: Modifier = Modifier,
 ) {
     if (reviews.isEmpty()) {
