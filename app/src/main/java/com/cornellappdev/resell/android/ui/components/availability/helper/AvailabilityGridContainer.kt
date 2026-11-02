@@ -1,53 +1,43 @@
 package com.cornellappdev.resell.android.ui.components.availability.helper
 
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.cornellappdev.resell.android.ui.theme.Style
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
+private const val GRID_HOURS = GRID_HEIGHT * SLOT_DURATION_MINUTES / 60
+
 @Composable
 private fun TimeColumn() {
-    Column(
+    BoxWithConstraints(
         modifier = Modifier
             .fillMaxHeight()
-            .padding(end = 16.dp),
-        horizontalAlignment = Alignment.End
+            .padding(end = 16.dp)
     ) {
-        Column(
-            modifier = Modifier
-                .weight(GRID_HEIGHT.toFloat() / 2F - 1F)
-                .fillMaxHeight(),
-            verticalArrangement = Arrangement.SpaceBetween,
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            repeat(GRID_HEIGHT / 2) { index ->
-                Text(
-                    getTimeForRow(index).format(DateTimeFormatter.ofPattern("hh:mm a")),
-                    style = Style.title2
-                )
-            }
+        val hourHeight = maxHeight / GRID_HOURS
+        repeat(GRID_HOURS) { hour ->
+            Text(
+                getTimeForRow(hour).format(DateTimeFormatter.ofPattern("hh:mm a")),
+                style = Style.title2,
+                modifier = Modifier.offset(y = hourHeight * hour)
+            )
         }
-        Spacer(
-            modifier = Modifier
-                .weight(.8F)
-                .border(color = Color.Red, width = 1.dp)
-        )
     }
 }
 

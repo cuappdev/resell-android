@@ -37,6 +37,7 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.cornellappdev.resell.android.R
@@ -55,6 +56,8 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
+
+private val GridBottomInset = 96.dp
 
 private enum class AvailabilityPanel {
     NONE,
@@ -162,7 +165,9 @@ fun AvailabilityScreenContent(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(horizontal = 16.dp)
-                        .offset(y = gridOffsetY),
+                        .navigationBarsPadding()
+                        .padding(bottom = GridBottomInset)
+                        .offset { IntOffset(0, gridOffsetY.roundToPx()) },
                     onProposalSelected = {}
                 )
 
