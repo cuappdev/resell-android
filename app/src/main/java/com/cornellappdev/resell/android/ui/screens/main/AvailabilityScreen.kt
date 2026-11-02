@@ -37,6 +37,7 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.cornellappdev.resell.android.R
@@ -166,7 +167,7 @@ fun AvailabilityScreenContent(
                         .padding(horizontal = 16.dp)
                         .navigationBarsPadding()
                         .padding(bottom = GridBottomInset)
-                        .offset(y = gridOffsetY),
+                        .offset { IntOffset(0, gridOffsetY.roundToPx()) },
                     onProposalSelected = {}
                 )
 
