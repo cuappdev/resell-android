@@ -3,6 +3,7 @@ package com.cornellappdev.resell.android.model
 import com.cornellappdev.resell.android.model.api.Post
 import com.cornellappdev.resell.android.model.chats.AvailabilityDocument
 import com.cornellappdev.resell.android.model.chats.MeetingInfo
+import com.cornellappdev.resell.android.model.chats.MeetingState
 import com.cornellappdev.resell.android.model.chats.TransactionInfo
 import com.cornellappdev.resell.android.util.justinMessages
 import com.cornellappdev.resell.android.util.richieMessages
@@ -14,6 +15,19 @@ import com.google.firebase.Timestamp
 data class Chat(
     val chatHistory: List<ChatMessageCluster> = listOf(richieMessages(5), justinMessages(3)),
 )
+
+/**
+ * Returns the most recent [ChatMessageData] matching [predicate]. Returns null if nothing matches.
+ */
+fun Chat.mostRecentMessage(predicate: (ChatMessageData) -> Boolean): ChatMessageData? =
+    chatHistory.flatMap { it.messages }.filter(predicate).maxByOrNull { it.timestamp }
+
+/**
+ * Returns the meeting from the most recent meeting message if it is confirmed.
+ */
+fun Chat.confirmedMeeting(): MeetingInfo? =
+    mostRecentMessage { it.meetingInfo != null }?.meetingInfo
+        ?.takeIf { it.state == MeetingState.CONFIRMED }
 
 enum class MessageType {
     Image, Card, Message, Availability, State

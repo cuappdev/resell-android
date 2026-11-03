@@ -13,10 +13,11 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.cornellappdev.resell.android.model.Chat
-import com.cornellappdev.resell.android.model.ChatMessageData
 import com.cornellappdev.resell.android.model.api.ChatRepository
 import com.cornellappdev.resell.android.model.api.Post
 import com.cornellappdev.resell.android.model.api.Transaction
+import com.cornellappdev.resell.android.model.confirmedMeeting
+import com.cornellappdev.resell.android.model.mostRecentMessage
 import com.cornellappdev.resell.android.model.chats.AvailabilityDocument
 import com.cornellappdev.resell.android.model.chats.MeetingInfo
 import com.cornellappdev.resell.android.model.chats.MeetingState
@@ -129,21 +130,7 @@ class ChatViewModel @Inject constructor(
             }
 
         val confirmedMeeting: MeetingInfo?
-            get() = currentChat.asSuccessOrNull()?.data?.let { chat ->
-                val mostRecentState = chat.chatHistory.flatMap {
-                    it.messages
-                }.sortedByDescending {
-                    it.timestamp
-                }.firstOrNull {
-                    it.meetingInfo != null
-                }
-
-                if (mostRecentState != null && mostRecentState.meetingInfo!!.state == MeetingState.CONFIRMED) {
-                    mostRecentState.meetingInfo
-                } else {
-                    null
-                }
-            }
+            get() = currentChat.asSuccessOrNull()?.data?.confirmedMeeting()
     }
 
     val navArgs = savedStateHandle.toRoute<ResellRootRoute.CHAT>()
@@ -250,7 +237,7 @@ class ChatViewModel @Inject constructor(
     }
 
     fun onSendAvailabilityPressed() {
-        val canPropose = mostRecentMeetingStateIs(MeetingState.CONFIRMED) == null
+        val canPropose = chatData?.confirmedMeeting() == null
 
         viewModelScope.launch {
             // Grey out everything but the overlap between both people's saved availability.
@@ -330,23 +317,21 @@ class ChatViewModel @Inject constructor(
         viewModelScope.launch {
             val bitmap = loadBitmapFromUri(context, uri)?.asImageBitmap()
             if (bitmap != null) {
-                viewModelScope.launch {
-                    val myInfo = userInfoRepository.getUserInfo()
-                    try {
-                        chatRepository.sendImageMessage(
-                            selfIsBuyer = navArgs.isBuyer,
-                            listingId = listing.id,
-                            myId = myInfo.id,
-                            otherId = navArgs.otherUserId,
-                            imageBase64 = bitmap.toNetworkingString(),
-                            chatId = navArgs.chatId
-                        )
-                    } catch (e: Exception) {
-                        Log.e(TAG, "Error sending message: ", e)
-                        rootConfirmationRepository.showError(
-                            "Something went wrong while sending your image."
-                        )
-                    }
+                val myInfo = userInfoRepository.getUserInfo()
+                try {
+                    chatRepository.sendImageMessage(
+                        selfIsBuyer = navArgs.isBuyer,
+                        listingId = listing.id,
+                        myId = myInfo.id,
+                        otherId = navArgs.otherUserId,
+                        imageBase64 = bitmap.toNetworkingString(),
+                        chatId = navArgs.chatId
+                    )
+                } catch (e: Exception) {
+                    Log.e(TAG, "Error sending message: ", e)
+                    rootConfirmationRepository.showError(
+                        "Something went wrong while sending your image."
+                    )
                 }
             } else {
                 rootConfirmationRepository.showError(
@@ -356,40 +341,14 @@ class ChatViewModel @Inject constructor(
         }
     }
 
-    /**
-     * Returns the most recent [ChatMessageData] that matches the given [predicate], or null if
-     * no chat matching the predicate is found.
-     */
-    private fun getFirstChatOrNull(predicate: (ChatMessageData) -> Boolean): ChatMessageData? {
-        val chat = chatRepository.subscribedChatFlow.value.asSuccessOrNull()?.data ?: return null
-        val mostRecentState = chat.chatHistory.flatMap {
-            it.messages
-        }.sortedByDescending {
-            it.timestamp
-        }.firstOrNull {
-            predicate(it)
-        }
-
-        return mostRecentState
-    }
-
-    private fun mostRecentMeetingStateIs(state: MeetingState): MeetingInfo? {
-        val mostRecentState = getFirstChatOrNull {
-            it.meetingInfo != null
-        }
-
-        // If the most recent state is the one we're looking for, return it.
-        if (mostRecentState != null && mostRecentState.meetingInfo!!.state == state)
-            return mostRecentState.meetingInfo
-
-        return null
-    }
+    private val chatData: Chat?
+        get() = chatRepository.subscribedChatFlow.value.asSuccessOrNull()?.data
 
     fun onAvailabilitySelected(
         availability: AvailabilityDocument,
         isSelf: Boolean,
     ) {
-        val canPropose = mostRecentMeetingStateIs(MeetingState.CONFIRMED) == null
+        val canPropose = chatData?.confirmedMeeting() == null
 
         rootNavigationSheetRepository.showBottomSheet(
             sheet = RootSheet.Availability(
@@ -490,15 +449,9 @@ class ChatViewModel @Inject constructor(
 
                 MeetingState.DECLINED -> {
                     val myEmail = userInfoRepository.getUserInfo().email
-                    val chat =
-                        chatRepository.subscribedChatFlow.value.asSuccessOrNull()?.data
-                            ?: return@launch
+                    val chat = chatData ?: return@launch
 
-                    val mostRecentAvailability = chat.chatHistory.flatMap {
-                        it.messages
-                    }.sortedByDescending {
-                        it.timestamp
-                    }.firstOrNull {
+                    val mostRecentAvailability = chat.mostRecentMessage {
                         it.availability != null && it.senderId != myEmail
                     }
 
@@ -512,101 +465,67 @@ class ChatViewModel @Inject constructor(
         }
     }
 
+    private fun sendMeetingUpdate(
+        meetingInfo: MeetingInfo,
+        errorMessage: String,
+        onSuccess: () -> Unit = {},
+    ) {
+        viewModelScope.launch {
+            try {
+                chatRepository.sendProposalUpdate(
+                    selfIsBuyer = navArgs.isBuyer,
+                    listingId = listing.id,
+                    myId = userInfoRepository.getUserId()
+                        ?: error("No signed-in user id; cannot send a meeting update"),
+                    otherId = navArgs.otherUserId,
+                    meetingInfo = meetingInfo,
+                    chatId = navArgs.chatId
+                )
+                onSuccess()
+            } catch (e: Exception) {
+                rootConfirmationRepository.showError(errorMessage)
+                Log.e(TAG, "Error sending ${meetingInfo.state} meeting update: ", e)
+            }
+        }
+    }
+
     private fun onMeetingProposal(availability: LocalDateTime) {
         rootNavigationSheetRepository.hideSheet()
-        viewModelScope.launch {
-            try {
-                chatRepository.sendProposalUpdate(
-                    selfIsBuyer = navArgs.isBuyer,
-                    listingId = listing.id,
-                    myId = userInfoRepository.getUserId()
-                        ?: error("No signed-in user id; cannot send a meeting update"),
-                    otherId = navArgs.otherUserId,
-                    meetingInfo = MeetingInfo(
-                        state = MeetingState.PROPOSED,
-                        proposeTime = availability.let {
-                            val zoneId = ZoneId.systemDefault()
-                            val instant = it.atZone(zoneId).toInstant()
-                            val date = Date.from(instant)
-                            Timestamp(date)
-                        },
-                        mostRecent = false,
-                    ),
-                    chatId = navArgs.chatId
-                )
-            } catch (e: Exception) {
-                rootConfirmationRepository.showError("Couldn't send your proposal. Please try again.")
-                Log.e(TAG, "onMeetingProposal: ", e)
-            }
-        }
+        sendMeetingUpdate(
+            meetingInfo = MeetingInfo(
+                state = MeetingState.PROPOSED,
+                proposeTime = availability.let {
+                    val zoneId = ZoneId.systemDefault()
+                    val instant = it.atZone(zoneId).toInstant()
+                    val date = Date.from(instant)
+                    Timestamp(date)
+                },
+                mostRecent = false,
+            ),
+            errorMessage = "Couldn't send your proposal. Please try again."
+        )
     }
 
-    private fun onMeetingConfirmed(meetingInfo: MeetingInfo) {
-        viewModelScope.launch {
-            try {
-                chatRepository.sendProposalUpdate(
-                    selfIsBuyer = navArgs.isBuyer,
-                    listingId = listing.id,
-                    myId = userInfoRepository.getUserId()
-                        ?: error("No signed-in user id; cannot send a meeting update"),
-                    otherId = navArgs.otherUserId,
-                    meetingInfo = meetingInfo.copy(
-                        state = MeetingState.CONFIRMED,
-                    ),
-                    chatId = navArgs.chatId
-                )
-                rootNavigationSheetRepository.hideSheet()
-            } catch (e: Exception) {
-                rootConfirmationRepository.showError("Couldn't confirm the meeting. Please try again.")
-                Log.e(TAG, "onMeetingConfirmed: ", e)
-            }
-        }
-    }
+    private fun onMeetingConfirmed(meetingInfo: MeetingInfo) = sendMeetingUpdate(
+        meetingInfo = meetingInfo.copy(state = MeetingState.CONFIRMED),
+        errorMessage = "Couldn't confirm the meeting. Please try again.",
+        onSuccess = { rootNavigationSheetRepository.hideSheet() }
+    )
 
-    private fun onMeetingDeclined(meetingInfo: MeetingInfo) {
-        viewModelScope.launch {
-            try {
-                chatRepository.sendProposalUpdate(
-                    selfIsBuyer = navArgs.isBuyer,
-                    listingId = listing.id,
-                    myId = userInfoRepository.getUserId()
-                        ?: error("No signed-in user id; cannot send a meeting update"),
-                    otherId = navArgs.otherUserId,
-                    meetingInfo = meetingInfo.copy(
-                        state = MeetingState.DECLINED,
-                    ),
-                    chatId = navArgs.chatId
-                )
-                rootNavigationSheetRepository.hideSheet()
-            } catch (e: Exception) {
-                rootConfirmationRepository.showError("Couldn't decline the proposal. Please try again.")
-                Log.e(TAG, "onMeetingDeclined: ", e)
-            }
-        }
-    }
+    private fun onMeetingDeclined(meetingInfo: MeetingInfo) = sendMeetingUpdate(
+        meetingInfo = meetingInfo.copy(state = MeetingState.DECLINED),
+        errorMessage = "Couldn't decline the proposal. Please try again.",
+        onSuccess = { rootNavigationSheetRepository.hideSheet() }
+    )
 
-    private fun onMeetingCancelled(meetingInfo: MeetingInfo) {
-        viewModelScope.launch {
-            try {
-                chatRepository.sendProposalUpdate(
-                    selfIsBuyer = navArgs.isBuyer,
-                    listingId = listing.id,
-                    myId = userInfoRepository.getUserId()
-                        ?: error("No signed-in user id; cannot send a meeting update"),
-                    otherId = navArgs.otherUserId,
-                    meetingInfo = meetingInfo.copy(
-                        state = MeetingState.CANCELED,
-                    ),
-                    chatId = navArgs.chatId
-                )
-                applyMutation { copy(locallyCancelledMeetingTime = meetingInfo.proposeTime) }
-                rootNavigationSheetRepository.hideSheet()
-            } catch (e: Exception) {
-                rootConfirmationRepository.showError("Couldn't cancel the meeting. Please try again.")
-                Log.e(TAG, "onMeetingCancelled: ", e)
-            }
+    private fun onMeetingCancelled(meetingInfo: MeetingInfo) = sendMeetingUpdate(
+        meetingInfo = meetingInfo.copy(state = MeetingState.CANCELED),
+        errorMessage = "Couldn't cancel the meeting. Please try again.",
+        onSuccess = {
+            applyMutation { copy(locallyCancelledMeetingTime = meetingInfo.proposeTime) }
+            rootNavigationSheetRepository.hideSheet()
         }
-    }
+    )
 
     fun onTransactionStateClicked(transactionInfo: TransactionInfo) {
         viewModelScope.launch {
@@ -752,7 +671,7 @@ class ChatViewModel @Inject constructor(
             }
 
             viewModelScope.launch {
-                val confirmedMeetingInfo = mostRecentMeetingStateIs(MeetingState.CONFIRMED)
+                val confirmedMeetingInfo = chatData?.confirmedMeeting()
                 if (response is ResellApiResponse.Success
                     && confirmedMeetingInfo != null
                     && chatRepository.shouldShowGCalSync(
@@ -782,7 +701,7 @@ class ChatViewModel @Inject constructor(
             viewModelScope.launch {
                 if (response is ResellApiResponse.Success) {
                     val myId = userInfoRepository.getUserId()!!
-                    val data = getFirstChatOrNull {
+                    val data = chatData?.mostRecentMessage {
                         it.availability != null && it.senderId != myId
                     }
 
