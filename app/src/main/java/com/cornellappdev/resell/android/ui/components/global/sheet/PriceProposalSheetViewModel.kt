@@ -8,6 +8,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
 const val NUM_DIGITS = 4
+const val MAX_PRICE = 1000.0
 
 @HiltViewModel
 class PriceProposalSheetViewModel @Inject constructor(
@@ -51,6 +52,16 @@ class PriceProposalSheetViewModel @Inject constructor(
                             delimiter = ".", missingDelimiterValue = ""
                         ).length < 2)
 
+        fun canAppend(number: String): Boolean {
+            if (!canPressNumber) return false
+            if (price.isEmpty() && number == "0") return false
+            val newPrice = price + number
+            return newPrice.toDoubleOrNull()?.let { it <= MAX_PRICE } ?: false
+        }
+
+        val canPressAnyNumber
+            get() = (0..9).any { canAppend(it.toString()) }
+
         val canPressDot
             get() = enabled && !hasDot
 
@@ -64,7 +75,7 @@ class PriceProposalSheetViewModel @Inject constructor(
 
 
     fun onNumberPressed(number: String) {
-        if (stateValue().price.isEmpty() && number == "0") {
+        if (!stateValue().canAppend(number)) {
             return
         }
 
