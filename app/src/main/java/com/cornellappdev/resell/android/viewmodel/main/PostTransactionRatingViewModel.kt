@@ -5,6 +5,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.cornellappdev.resell.android.model.ptf.PostTransactionRatingRepository
+import com.cornellappdev.resell.android.model.ptf.StarRating
 import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
 import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepository
@@ -38,14 +39,14 @@ class PostTransactionRatingViewModel @Inject constructor(
         val price: String = "",
         val sellerName: String = "",
         val date: Date = Date(),
-        val rating: Int = 0,
+        val rating: StarRating? = null,
         val reviewText: String = "",
         val postId: String = "",
         val userId: String = "",
         val transactionId: String = ""
     ) {
         val canSubmit
-            get() = rating in 1..5
+            get() = rating != null
     }
 
     init {
@@ -103,7 +104,7 @@ class PostTransactionRatingViewModel @Inject constructor(
         rootNavigationRepository.popBackStack()
     }
 
-    fun onRatingChanged(newRating: Int) {
+    fun onRatingChanged(newRating: StarRating) {
         applyMutation { copy(rating = newRating) }
     }
 
@@ -120,7 +121,7 @@ class PostTransactionRatingViewModel @Inject constructor(
 
                 postTransactionRatingRepository.submitTransactionReview(
                     transactionId = currentUiState.transactionId,
-                    stars = currentUiState.rating,
+                    stars = currentUiState.rating?.stars ?: return@launch,
                     reviewText = currentUiState.reviewText
                 )
 

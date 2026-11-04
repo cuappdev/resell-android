@@ -91,10 +91,10 @@ data class MeetingInfo(
     }
 }
 
-enum class TransactionState(val value: String) {
-    PENDING("pending"),
-    COMPLETED("completed"),
-    CANCELED("canceled");
+enum class TransactionState {
+    PENDING,
+    COMPLETED,
+    CANCELED
 }
 
 data class TransactionInfo(
