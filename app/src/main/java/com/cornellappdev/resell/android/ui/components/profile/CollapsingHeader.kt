@@ -40,6 +40,10 @@ class CollapsingHeaderState(initialOffsetPx: Float = 0f) {
         }
     }
 
+    fun reset() {
+        offsetPx = 0f
+    }
+
     private fun shift(delta: Float): Float {
         val newOffset = (offsetPx + delta).coerceIn(-heightPx, 0f)
         val used = newOffset - offsetPx

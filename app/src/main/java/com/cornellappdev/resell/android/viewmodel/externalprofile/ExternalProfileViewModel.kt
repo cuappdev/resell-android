@@ -83,6 +83,9 @@ class ExternalProfileViewModel @Inject constructor(
         private val loadedReviews: List<ProfileReview>
             get() = reviews.asSuccessOrNull()?.data.orEmpty()
 
+        val reviewsLoaded: Boolean
+            get() = reviews is ResellApiResponse.Success
+
         val listingCount: Int
             get() = shopListings.asSuccessOrNull()?.data?.size ?: 0
 

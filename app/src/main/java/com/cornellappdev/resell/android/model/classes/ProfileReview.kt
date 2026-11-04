@@ -14,11 +14,15 @@ data class ProfileReview(
     val reviewerName: String,
 )
 
-fun TransactionReviewListItem.toProfileReview(): ProfileReview {
+/**
+ * Returns null for a review with no star rating.
+ */
+fun TransactionReviewListItem.toProfileReview(): ProfileReview? {
+    val stars = stars ?: return null
     val buyer = transaction?.buyer
     return ProfileReview(
         id = id.orEmpty(),
-        rating = (stars ?: 0).coerceIn(0, 5),
+        rating = stars.coerceIn(0, 5),
         comments = comments?.trim().orEmpty(),
         dateLabel = createdAt.toDateLabel(),
         reviewerName = listOfNotNull(buyer?.givenName, buyer?.username)

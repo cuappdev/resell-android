@@ -16,6 +16,7 @@ import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridS
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
@@ -57,6 +58,11 @@ fun ExternalProfileScreen(
     val staggeredState = rememberLazyStaggeredGridState()
     val headerState = rememberCollapsingHeaderState()
 
+    // Reset tab to top to show external profile header
+    LaunchedEffect(uiState.selectedTab) {
+        headerState.reset()
+    }
+
     Box {
         Column(
             modifier = Modifier
@@ -79,6 +85,7 @@ fun ExternalProfileScreen(
                 name = uiState.firstName,
                 averageRating = uiState.averageRating,
                 reviewCount = uiState.reviewCount,
+                showRating = uiState.reviewsLoaded,
                 bio = uiState.displayBio,
                 modifier = Modifier.collapsingHeader(headerState)
             )

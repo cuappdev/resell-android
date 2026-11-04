@@ -4,11 +4,10 @@ import android.util.Log
 import com.cornellappdev.resell.android.model.api.RetrofitInstance
 import com.cornellappdev.resell.android.model.api.UserResponse
 import com.cornellappdev.resell.android.model.classes.Listing
+import com.cornellappdev.resell.android.model.classes.ProfileReview
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.model.classes.UserInfo
-import com.cornellappdev.resell.android.model.classes.ProfileReview
 import com.cornellappdev.resell.android.model.classes.toProfileReview
-import com.cornellappdev.resell.android.model.core.UserInfoRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -120,7 +119,7 @@ class ProfileRepository @Inject constructor(
             try {
                 val response = retrofitInstance.transactionReviewApi.getTransactionReviewsBySeller(id)
                 _externalReviews.value = ResellApiResponse.Success(
-                    response.reviews.map { it.toProfileReview() }
+                    response.reviews.mapNotNull { it.toProfileReview() }
                 )
             } catch (e: Exception) {
                 Log.e("ProfileRepository", "Error fetching reviews: ", e)
