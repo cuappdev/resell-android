@@ -28,6 +28,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.firstOrNull
@@ -59,7 +60,18 @@ class ChatRepository @Inject constructor(
 
     private val _subscribedChatFlow =
         MutableStateFlow<ResellApiResponse<Chat>>(ResellApiResponse.Pending)
-    val subscribedChatFlow = _subscribedChatFlow.asStateFlow()
+
+    fun subscribedChatFlow(chatId: String): Flow<ResellApiResponse<Chat>> =
+        _subscribedChatFlow.map { response ->
+            if (response is ResellApiResponse.Success && response.data.chatId != chatId) {
+                ResellApiResponse.Pending
+            } else {
+                response
+            }
+        }
+
+    fun subscribedChat(chatId: String): Chat? =
+        _subscribedChatFlow.value.asSuccessOrNull()?.data?.takeIf { it.chatId == chatId }
 
     /**
      * Starts the subscription to the chat history for the buyer.
@@ -345,7 +357,8 @@ class ChatRepository @Inject constructor(
 
             // Step 3: Return the final Chat object.
             val chat = Chat(
-                chatHistory = dateStateClusters
+                chatHistory = dateStateClusters,
+                chatId = chatId
             )
 
             _subscribedChatFlow.value = ResellApiResponse.Success(chat)

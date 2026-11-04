@@ -66,26 +66,37 @@ import com.cornellappdev.resell.android.ui.theme.Style
 import com.cornellappdev.resell.android.ui.theme.Wash
 import com.cornellappdev.resell.android.util.clickableNoIndication
 import com.cornellappdev.resell.android.util.singlePhotoPicker
+import com.cornellappdev.resell.android.viewmodel.main.ChatMeetingViewModel
+import com.cornellappdev.resell.android.viewmodel.main.ChatTransactionViewModel
 import com.cornellappdev.resell.android.viewmodel.main.ChatViewModel
 
 @SuppressLint("CoroutineCreationDuringComposition")
 @Composable
 fun ChatScreen(
-    chatViewModel: ChatViewModel = hiltViewModel()
+    chatViewModel: ChatViewModel = hiltViewModel(),
+    transactionViewModel: ChatTransactionViewModel = hiltViewModel(),
+    meetingViewModel: ChatMeetingViewModel = hiltViewModel()
 ) {
     val chatUiState = chatViewModel.collectUiStateValue()
+    val transactionUiState = transactionViewModel.collectUiStateValue()
+    val meetingUiState = meetingViewModel.collectUiStateValue()
     val listState = rememberLazyListState()
 
-    LaunchedEffect(chatUiState.scrollBottom) {
-        chatUiState.scrollBottom?.consumeSuspend {
-            val history = chatUiState.currentChat.asSuccessOrNull()?.data?.chatHistory
-            if (history?.isNotEmpty() == true) {
-                // I put an empty item at the end of the list, so scroll to that.
-                listState.animateScrollToItem(
-                    history.size
-                )
-            }
+    suspend fun scrollToBottom() {
+        val history = chatUiState.currentChat.asSuccessOrNull()?.data?.chatHistory
+        if (history?.isNotEmpty() == true) {
+            listState.animateScrollToItem(
+                history.size
+            )
         }
+    }
+
+    LaunchedEffect(chatUiState.scrollBottom) {
+        chatUiState.scrollBottom?.consumeSuspend { scrollToBottom() }
+    }
+
+    LaunchedEffect(transactionUiState.scrollBottom) {
+        transactionUiState.scrollBottom?.consumeSuspend { scrollToBottom() }
     }
 
     when (chatUiState.currentChat) {
@@ -109,23 +120,25 @@ fun ChatScreen(
                 onVenmoPressed = chatViewModel::payWithVenmoPressed,
                 showPayWithVenmo = chatUiState.showPayWithVenmo,
                 showNegotiate = chatUiState.showNegotiate,
-                onSendAvailability = chatViewModel::onSendAvailabilityPressed,
+                onSendAvailability = meetingViewModel::onSendAvailabilityPressed,
                 onImageUpload = chatViewModel::onImageSelected,
                 onPostClicked = chatViewModel::onPostClicked,
                 onAvailabilityClicked = { availability, isSelf ->
-                    chatViewModel.onAvailabilitySelected(
+                    meetingViewModel.onAvailabilitySelected(
                         availability = availability,
                         isSelf = isSelf
                     )
                 },
-                onMeetingStateClicked = chatViewModel::onMeetingStateClicked,
+                onMeetingStateClicked = meetingViewModel::onMeetingStateClicked,
                 onTransactionStateClicked = { transactionInfo, _ ->
-                    chatViewModel.onTransactionStateClicked(
+                    transactionViewModel.onTransactionStateClicked(
                         transactionInfo
                     )
                 },
-                confirmedMeeting = chatUiState.confirmedMeeting,
-                onViewAvailabilityPressed = chatViewModel::onViewOtherAvailabilityPressed
+                transactionBannerInfo = transactionUiState.transactionBannerInfo,
+                confirmedMeeting = meetingUiState.confirmedMeeting,
+                showViewAvailability = meetingUiState.showViewAvailability,
+                onViewAvailabilityPressed = meetingViewModel::onViewOtherAvailabilityPressed
             )
         }
     }
@@ -150,7 +163,9 @@ private fun ChatLoadedContent(
     showPayWithVenmo: Boolean,
     showNegotiate: Boolean,
     onPostClicked: (Post) -> Unit,
+    transactionBannerInfo: TransactionInfo?,
     confirmedMeeting: MeetingInfo?,
+    showViewAvailability: Boolean,
 ) {
     Column(
         modifier = Modifier
@@ -170,7 +185,7 @@ private fun ChatLoadedContent(
             }
         )
         ResellChatScroll(
-            chatClusters = chat.chatHistory + (chatUiState.transactionBannerInfo?.let { transactionInfo ->
+            chatClusters = chat.chatHistory + (transactionBannerInfo?.let { transactionInfo ->
                 listOf(
                     ChatMessageCluster(
                         fromUser = false,
@@ -217,7 +232,7 @@ private fun ChatLoadedContent(
             onSendAvailability = onSendAvailability,
             onImageUpload = onImageUpload,
             otherName = chatUiState.otherName,
-            showViewAvailability = chatUiState.showViewAvailability,
+            showViewAvailability = showViewAvailability,
             onViewAvailabilityPressed = {
                 onViewAvailabilityPressed()
             }
