@@ -19,7 +19,6 @@ import com.cornellappdev.resell.android.ui.components.global.ResellListingsScrol
 import com.cornellappdev.resell.android.ui.components.global.ResellLoadingListingScroll
 import com.cornellappdev.resell.android.ui.components.profile.ProfileEmptyState
 import com.cornellappdev.resell.android.ui.components.profile.ProfileHeader
-import com.cornellappdev.resell.android.ui.components.profile.ResellRequestsScroll
 import com.cornellappdev.resell.android.ui.theme.ResellPreview
 import com.cornellappdev.resell.android.ui.theme.simpleFadeInOut
 import com.cornellappdev.resell.android.util.LocalInfiniteShimmer
@@ -107,41 +106,6 @@ fun ProfileScreen(
                                     ProfileEmptyState(
                                         title = "No listings archived",
                                         body = "When you archive a listing, it will be displayed here",
-                                        modifier = Modifier
-                                            .fillMaxHeight()
-                                            .padding(bottom = 60.dp)
-                                    )
-                                }
-                            )
-                        }
-                    }
-                }
-
-                ProfileViewModel.ProfileTab.WISHLIST -> {
-                    when (uiState.requests) {
-                        is ResellApiResponse.Pending -> {
-                        }
-
-                        is ResellApiResponse.Error -> {
-                        }
-
-                        is ResellApiResponse.Success -> {
-                            ResellRequestsScroll(
-                                requests = uiState.requests.data,
-                                onClick = {
-                                    profileViewModel.onRequestPressed(
-                                        uiState.requests.data[it]
-                                    )
-                                },
-                                onDelete = {
-                                    profileViewModel.onRequestDeletePressed(
-                                        uiState.requests.data[it]
-                                    )
-                                },
-                                emptyState = {
-                                    ProfileEmptyState(
-                                        title = "No active requests",
-                                        body = "Submit a request and get notified when someone lists something similar",
                                         modifier = Modifier
                                             .fillMaxHeight()
                                             .padding(bottom = 60.dp)

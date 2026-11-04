@@ -220,7 +220,6 @@ private fun AddPage(
             onClick = {
                 onAddPressed()
             },
-            expanded = false,
         )
     }
 }

@@ -24,17 +24,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.cornellappdev.resell.android.R
-import com.cornellappdev.resell.android.ui.components.main.FloatingActionExpandingCTA
 import com.cornellappdev.resell.android.ui.components.main.PostFloatingActionButton
-import com.cornellappdev.resell.android.ui.components.main.ShadeOverlay
 import com.cornellappdev.resell.android.ui.components.nav.NavBar
 import com.cornellappdev.resell.android.ui.screens.main.ResellMainScreen.Home.toResellMainScreen
 import com.cornellappdev.resell.android.util.closeApp
@@ -145,23 +141,9 @@ fun MainTabNavigation(
             )
         }
 
-        ShadeOverlay(
-            onTapped = {
-                mainNavigationViewModel.onShadeTapped()
-            },
-            visible = uiState.newPostExpanded
-        )
-
         FloatingActionContent(
-            expanded = uiState.newPostExpanded,
-            onRequestClick = {
-                mainNavigationViewModel.onNewRequestClick()
-            },
             onPostClick = {
                 mainNavigationViewModel.onNewPostClick()
-            },
-            onExpandClick = {
-                mainNavigationViewModel.onNewPostExpandClick()
             },
             visible = listOf(
                 ResellMainScreen.Home,
@@ -174,10 +156,7 @@ fun MainTabNavigation(
 @Composable
 private fun BoxScope.FloatingActionContent(
     visible: Boolean,
-    expanded: Boolean,
-    onRequestClick: () -> Unit,
     onPostClick: () -> Unit,
-    onExpandClick: () -> Unit,
 ) {
     val entireOpacity = animateFloatAsState(
         targetValue = if (visible) 1f else 0f, label = "opacity",
@@ -185,9 +164,6 @@ private fun BoxScope.FloatingActionContent(
     )
     val navigationBarsPadding =
         WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
-    val expansionHeight = animateFloatAsState(
-        targetValue = if (expanded) 1f else 0f, label = "expansion"
-    )
 
     if (entireOpacity.value == 0f) return
 
@@ -199,29 +175,9 @@ private fun BoxScope.FloatingActionContent(
             .alpha(entireOpacity.value),
         contentAlignment = Alignment.BottomEnd
     ) {
-        FloatingActionExpandingCTA(
-            painter = painterResource(id = R.drawable.ic_wishlist_small),
-            text = "New Request",
-            expanded = expanded,
-            onClick = { onRequestClick() },
-            modifier = Modifier
-                .padding(bottom = (expansionHeight.value * 140f).dp)
-        )
-
-        FloatingActionExpandingCTA(
-            painter = painterResource(id = R.drawable.ic_shop_small),
-            text = "New Listing",
-            expanded = expanded,
-            onClick = { onPostClick() },
-            modifier = Modifier
-                .padding(bottom = (expansionHeight.value * 80f).dp)
-        )
-
         PostFloatingActionButton(
-            expanded = expanded,
-        ) {
-            onExpandClick()
-        }
+            onClick = onPostClick,
+        )
     }
 }
 

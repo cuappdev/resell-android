@@ -68,10 +68,6 @@ class CategoryViewModel @Inject constructor(
         )
     }
 
-    fun navigateToSubmitRequest() {
-        rootNavigationRepository.navigate(ResellRootRoute.NEW_REQUEST)
-    }
-
     private fun getPosts(filter: ResellFilter) {
         // Ignore initial call which does not have the category. Avoids race condition
         if (filter.categoriesSelected.isEmpty()) return

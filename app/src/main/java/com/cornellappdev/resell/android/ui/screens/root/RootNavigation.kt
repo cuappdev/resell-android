@@ -30,9 +30,7 @@ import com.cornellappdev.resell.android.ui.screens.main.ChatScreen
 import com.cornellappdev.resell.android.ui.screens.main.MainTabNavigation
 import com.cornellappdev.resell.android.ui.screens.main.NotificationsHubScreen
 import com.cornellappdev.resell.android.ui.screens.main.PostTransactionRatingScreen
-import com.cornellappdev.resell.android.ui.screens.main.RequestMatchesScreen
 import com.cornellappdev.resell.android.ui.screens.newpost.NewPostNavigation
-import com.cornellappdev.resell.android.ui.screens.newpost.RequestDetailsEntryScreen
 import com.cornellappdev.resell.android.ui.screens.onboarding.LandingScreen
 import com.cornellappdev.resell.android.ui.screens.onboarding.OnboardingNavigation
 import com.cornellappdev.resell.android.ui.screens.pdp.PostDetailPage
@@ -141,10 +139,6 @@ fun RootNavigation(
             NewPostNavigation()
         }
 
-        composable<ResellRootRoute.NEW_REQUEST> {
-            RequestDetailsEntryScreen()
-        }
-
         composable<ResellRootRoute.PDP> {
             PostDetailPage()
         }
@@ -167,10 +161,6 @@ fun RootNavigation(
 
         composable<ResellRootRoute.SEARCH> {
             AllSearchScreen()
-        }
-
-        composable<ResellRootRoute.REQUEST_MATCHES> {
-            RequestMatchesScreen()
         }
 
         composable<ResellRootRoute.POST_TRANSACTION_RATING> {
@@ -226,9 +216,6 @@ sealed class ResellRootRoute {
     data object NEW_POST : ResellRootRoute()
 
     @Serializable
-    data object NEW_REQUEST : ResellRootRoute()
-
-    @Serializable
     data class PDP(
         val userImageUrl: String,
         val username: String,
@@ -270,12 +257,6 @@ sealed class ResellRootRoute {
 
     @Serializable
     data object SEARCH : ResellRootRoute()
-
-    @Serializable
-    data class REQUEST_MATCHES(
-        val id: String,
-        val title: String,
-    ) : ResellRootRoute()
 
     @Serializable
     data class POST_TRANSACTION_RATING(
