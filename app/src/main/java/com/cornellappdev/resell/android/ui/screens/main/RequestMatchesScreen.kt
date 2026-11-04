@@ -70,6 +70,7 @@ fun RequestMatchesScreen(
                     listings = uiState.listings.data,
                     onListingPressed = requestMatchesViewModel::onListingPressed,
                     listState = listState,
+                    modifier = Modifier.defaultHorizontalPadding(),
                     emptyState = {
                         ProfileEmptyState(
                             title = "No matching listings",

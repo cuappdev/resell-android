@@ -66,7 +66,8 @@ fun SearchScreen(
             is ResellApiResponse.Success -> {
                 ResellListingsScroll(
                     listings = listings.data,
-                    onListingPressed = onListingPressed
+                    onListingPressed = onListingPressed,
+                    modifier = Modifier.defaultHorizontalPadding()
                 )
             }
 
@@ -75,7 +76,7 @@ fun SearchScreen(
             }
 
             is ResellApiResponse.Pending -> {
-                ResellLoadingListingScroll()
+                ResellLoadingListingScroll(modifier = Modifier.defaultHorizontalPadding())
             }
         }
     }

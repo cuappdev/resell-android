@@ -64,7 +64,7 @@ fun ExternalProfileScreen(
 
             when (uiState.shopListings) {
                 is ResellApiResponse.Pending -> {
-                    ResellLoadingListingScroll()
+                    ResellLoadingListingScroll(modifier = Modifier.defaultHorizontalPadding())
                 }
 
                 is ResellApiResponse.Error -> {
@@ -76,6 +76,7 @@ fun ExternalProfileScreen(
                         listings = uiState.shopListings.data,
                         onListingPressed = { profileViewModel.onListingPressed(it) },
                         listState = staggeredState,
+                        modifier = Modifier.defaultHorizontalPadding(),
                         paddedTop = 12.dp,
                         emptyState = {
                             ProfileEmptyState(
