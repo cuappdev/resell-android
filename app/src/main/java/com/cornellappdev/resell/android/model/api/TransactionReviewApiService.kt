@@ -1,6 +1,5 @@
 package com.cornellappdev.resell.android.model.api
 
-import com.google.gson.annotations.SerializedName
 import okhttp3.ResponseBody
 import retrofit2.Response
 import retrofit2.http.Body
@@ -34,16 +33,12 @@ data class TransactionReviewListItem(
 )
 
 data class TransactionReviewListItemTransaction(
-    val id: String? = null,
     val buyer: TransactionReviewReviewer? = null
 )
 
 data class TransactionReviewReviewer(
-    @SerializedName("firebaseUid") val id: String? = null,
     val username: String? = null,
-    val givenName: String? = null,
-    val familyName: String? = null,
-    val photoUrl: String? = null
+    val givenName: String? = null
 )
 
 data class CreateTransactionReviewRequest(
