@@ -1,6 +1,7 @@
 package com.cornellappdev.resell.android.ui.screens.root
 
 import android.Manifest
+import android.content.Intent
 import android.os.Build
 import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.background
@@ -90,6 +91,18 @@ fun RootNavigation(
     LaunchedEffect(uiState.popBackStack) {
         uiState.popBackStack?.consumeSuspend {
             navController.popBackStack()
+        }
+    }
+
+    LaunchedEffect(uiState.shareEvent) {
+        uiState.shareEvent?.consumeSuspend { text ->
+            if (context == null) return@consumeSuspend
+
+            val sendIntent = Intent(Intent.ACTION_SEND).apply {
+                type = "text/plain"
+                putExtra(Intent.EXTRA_TEXT, text)
+            }
+            context.startActivity(Intent.createChooser(sendIntent, null))
         }
     }
 

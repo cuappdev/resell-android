@@ -12,6 +12,7 @@ import javax.inject.Inject
 class RootNavigationViewModel @Inject constructor(
     rootNavigationSheetRepository: RootNavigationSheetRepository,
     rootNavigationRepository: RootNavigationRepository,
+    rootShareRepository: RootShareRepository,
     firebaseMessagingRepository: FirebaseMessagingRepository,
     private val rootDialogRepository: RootDialogRepository,
 ) : ResellViewModel<RootNavigationViewModel.RootNavigationUiState>(
@@ -29,7 +30,8 @@ class RootNavigationViewModel @Inject constructor(
         val navEvent: UIEvent<ResellRootRoute>? = null,
         val popBackStack: UIEvent<Unit>? = null,
         val requestNotificationPermissions: UIEvent<Unit>? = null,
-        val directlyRequestNotificationPermissions: UIEvent<Unit>? = null
+        val directlyRequestNotificationPermissions: UIEvent<Unit>? = null,
+        val shareEvent: UIEvent<String>? = null,
     )
 
     init {
@@ -54,6 +56,12 @@ class RootNavigationViewModel @Inject constructor(
         asyncCollect(rootNavigationRepository.popBackStackFlow) { pop ->
             applyMutation {
                 copy(popBackStack = pop)
+            }
+        }
+
+        asyncCollect(rootShareRepository.shareEvent) { event ->
+            applyMutation {
+                copy(shareEvent = event)
             }
         }
 
