@@ -20,6 +20,7 @@ import com.cornellappdev.resell.android.ui.theme.animateResellBrush
 
 @Composable
 fun PostFloatingActionButton(
+    contentDescription: String,
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
 ) {
@@ -38,7 +39,7 @@ fun PostFloatingActionButton(
             BrushIcon(
                 painter = painterResource(id = R.drawable.ic_plus),
                 brush = plusBrush,
-                contentDescription = "exit",
+                contentDescription = contentDescription,
                 modifier = Modifier.align(Alignment.Center),
             )
         }
@@ -50,5 +51,5 @@ fun PostFloatingActionButton(
 private fun PostFloatingActionButtonPreview() = ResellPreview(
     padding = 10.dp
 ) {
-    PostFloatingActionButton(onClick = {})
+    PostFloatingActionButton(contentDescription = "New listing", onClick = {})
 }

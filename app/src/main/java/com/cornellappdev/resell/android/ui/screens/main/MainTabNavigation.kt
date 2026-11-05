@@ -176,6 +176,7 @@ private fun BoxScope.FloatingActionContent(
         contentAlignment = Alignment.BottomEnd
     ) {
         PostFloatingActionButton(
+            contentDescription = "New listing",
             onClick = onPostClick,
         )
     }
