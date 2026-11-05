@@ -20,10 +20,10 @@ import com.cornellappdev.resell.android.ui.components.global.ResellLoadingListin
 import com.cornellappdev.resell.android.ui.components.profile.ProfileEmptyState
 import com.cornellappdev.resell.android.ui.components.profile.ProfileHeader
 import com.cornellappdev.resell.android.ui.components.profile.ResellRequestsScroll
+import com.cornellappdev.resell.android.ui.theme.Padding
 import com.cornellappdev.resell.android.ui.theme.ResellPreview
 import com.cornellappdev.resell.android.ui.theme.simpleFadeInOut
 import com.cornellappdev.resell.android.util.LocalInfiniteShimmer
-import com.cornellappdev.resell.android.util.defaultHorizontalPadding
 import com.cornellappdev.resell.android.viewmodel.main.ProfileViewModel
 
 @Composable
@@ -61,7 +61,7 @@ fun ProfileScreen(
                 ProfileViewModel.ProfileTab.SHOP -> {
                     when (uiState.shopListings) {
                         is ResellApiResponse.Pending -> {
-                            ResellLoadingListingScroll(modifier = Modifier.defaultHorizontalPadding())
+                            ResellLoadingListingScroll(horizontalPadding = Padding.leftRight)
                         }
 
                         is ResellApiResponse.Error -> {
@@ -73,7 +73,7 @@ fun ProfileScreen(
                                 listings = uiState.shopListings.data,
                                 onListingPressed = { profileViewModel.onListingPressed(it) },
                                 listState = staggeredState,
-                                modifier = Modifier.defaultHorizontalPadding(),
+                                horizontalPadding = Padding.leftRight,
                                 paddedTop = 12.dp,
                                 emptyState = {
                                     ProfileEmptyState(
@@ -104,7 +104,7 @@ fun ProfileScreen(
                                 listings = uiState.archiveListings.data,
                                 onListingPressed = { profileViewModel.onListingPressed(it) },
                                 listState = staggeredState,
-                                modifier = Modifier.defaultHorizontalPadding(),
+                                horizontalPadding = Padding.leftRight,
                                 paddedTop = 12.dp,
                                 emptyState = {
                                     ProfileEmptyState(
