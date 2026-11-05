@@ -27,6 +27,7 @@ import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.ui.components.global.ResellListingsScroll
 import com.cornellappdev.resell.android.ui.components.global.ResellLoadingListingScroll
 import com.cornellappdev.resell.android.ui.components.global.ResellTextEntry
+import com.cornellappdev.resell.android.ui.theme.Padding
 import com.cornellappdev.resell.android.util.UIEvent
 import com.cornellappdev.resell.android.util.clickableNoIndication
 import com.cornellappdev.resell.android.util.defaultHorizontalPadding
@@ -66,7 +67,8 @@ fun SearchScreen(
             is ResellApiResponse.Success -> {
                 ResellListingsScroll(
                     listings = listings.data,
-                    onListingPressed = onListingPressed
+                    onListingPressed = onListingPressed,
+                    horizontalPadding = Padding.leftRight
                 )
             }
 
@@ -75,7 +77,7 @@ fun SearchScreen(
             }
 
             is ResellApiResponse.Pending -> {
-                ResellLoadingListingScroll()
+                ResellLoadingListingScroll(horizontalPadding = Padding.leftRight)
             }
         }
     }

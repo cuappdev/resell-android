@@ -33,6 +33,7 @@ fun ResellListingsScroll(
     modifier: Modifier = Modifier,
     listState: LazyStaggeredGridState = rememberLazyStaggeredGridState(),
     paddedTop: Dp = 0.dp,
+    horizontalPadding: Dp = 0.dp,
     emptyState: @Composable () -> Unit = { },
     header: @Composable () -> Unit = {},
     onScrollBottom: () -> Unit = {},
@@ -52,6 +53,8 @@ fun ResellListingsScroll(
         contentPadding = PaddingValues(
             bottom = 100.dp,
             top = paddedTop,
+            start = horizontalPadding,
+            end = horizontalPadding,
         ),
         verticalItemSpacing = 24.dp,
         horizontalArrangement = Arrangement.spacedBy(20.dp),

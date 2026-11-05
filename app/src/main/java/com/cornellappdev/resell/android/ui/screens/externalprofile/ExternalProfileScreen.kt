@@ -27,6 +27,7 @@ import com.cornellappdev.resell.android.ui.components.global.ResellListingsScrol
 import com.cornellappdev.resell.android.ui.components.global.ResellLoadingListingScroll
 import com.cornellappdev.resell.android.ui.components.profile.ProfileEmptyState
 import com.cornellappdev.resell.android.ui.components.profile.ProfileHeader
+import com.cornellappdev.resell.android.ui.theme.Padding
 import com.cornellappdev.resell.android.ui.theme.Style.title1
 import com.cornellappdev.resell.android.util.clickableNoIndication
 import com.cornellappdev.resell.android.util.defaultHorizontalPadding
@@ -64,7 +65,7 @@ fun ExternalProfileScreen(
 
             when (uiState.shopListings) {
                 is ResellApiResponse.Pending -> {
-                    ResellLoadingListingScroll()
+                    ResellLoadingListingScroll(horizontalPadding = Padding.leftRight)
                 }
 
                 is ResellApiResponse.Error -> {
@@ -76,6 +77,7 @@ fun ExternalProfileScreen(
                         listings = uiState.shopListings.data,
                         onListingPressed = { profileViewModel.onListingPressed(it) },
                         listState = staggeredState,
+                        horizontalPadding = Padding.leftRight,
                         paddedTop = 12.dp,
                         emptyState = {
                             ProfileEmptyState(
