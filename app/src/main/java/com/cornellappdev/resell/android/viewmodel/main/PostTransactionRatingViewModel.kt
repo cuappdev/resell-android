@@ -61,10 +61,8 @@ class PostTransactionRatingViewModel @Inject constructor(
 
         viewModelScope.launch {
             try {
-                val transactionFromPostId =
-                    postTransactionRatingRepository.getTransactionByPostId(navArgs.postId)
                 val transaction =
-                    postTransactionRatingRepository.getTransactionById(transactionFromPostId.id)
+                    postTransactionRatingRepository.getTransactionById(navArgs.transactionId)
 
                 val date = transaction.transactionDate
 

@@ -193,7 +193,11 @@ class ChatMeetingViewModel @Inject constructor(
         )
     }
 
-    fun onMeetingStateClicked(meetingInfo: MeetingInfo, isSelf: Boolean) {
+    /**
+     * @param saleCompleted Once the sale is complete the meeting can't be cancelled, which keeps a
+     * chat to a single transaction.
+     */
+    fun onMeetingStateClicked(meetingInfo: MeetingInfo, isSelf: Boolean, saleCompleted: Boolean) {
         val name = if (isSelf) "You" else savedStateHandle.toRoute<ResellRootRoute.CHAT>().name
         val otherName = savedStateHandle.toRoute<ResellRootRoute.CHAT>().name
         viewModelScope.launch {
@@ -240,8 +244,16 @@ class ChatMeetingViewModel @Inject constructor(
                                     append("Time:\n")
                                 }
                                 append(meetingInfo.convertToMeetingString())
+                                if (saleCompleted) {
+                                    append("\n\nThis sale has been completed, so the meeting can no longer be cancelled.")
+                                }
                             },
                             primaryText = "Cancel Meeting",
+                            primaryButtonState = if (saleCompleted) {
+                                ResellTextButtonState.DISABLED
+                            } else {
+                                ResellTextButtonState.ENABLED
+                            },
                             secondaryText = "Close",
                             primaryContainerType = ResellTextButtonContainer.PRIMARY_RED,
                             secondaryContainerType = ResellTextButtonContainer.NAKED,

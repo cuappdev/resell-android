@@ -129,7 +129,13 @@ fun ChatScreen(
                         isSelf = isSelf
                     )
                 },
-                onMeetingStateClicked = meetingViewModel::onMeetingStateClicked,
+                onMeetingStateClicked = { meetingInfo, isSelf ->
+                    meetingViewModel.onMeetingStateClicked(
+                        meetingInfo = meetingInfo,
+                        isSelf = isSelf,
+                        saleCompleted = transactionUiState.activeTransaction?.completed == true
+                    )
+                },
                 onTransactionStateClicked = { transactionInfo, _ ->
                     transactionViewModel.onTransactionStateClicked(
                         transactionInfo

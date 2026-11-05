@@ -163,7 +163,7 @@ class ChatTransactionViewModel @Inject constructor(
             if (alreadyReviewed) {
                 showAlreadyReviewedDialog()
             } else {
-                navigateToReviewScreen()
+                navigateToReviewScreen(transaction.id)
             }
         }
     }
@@ -182,11 +182,12 @@ class ChatTransactionViewModel @Inject constructor(
         )
     }
 
-    private fun navigateToReviewScreen() {
+    private fun navigateToReviewScreen(transactionId: String) {
         rootNavigationRepository.navigate(
             ResellRootRoute.POST_TRANSACTION_RATING(
                 postId = listing.id,
-                userId = navArgs.otherUserId
+                userId = navArgs.otherUserId,
+                transactionId = transactionId
             )
         )
     }
