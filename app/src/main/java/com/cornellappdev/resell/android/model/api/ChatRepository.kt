@@ -61,10 +61,6 @@ class ChatRepository @Inject constructor(
         MutableStateFlow<ResellApiResponse<Chat>>(ResellApiResponse.Pending)
     val subscribedChatFlow = _subscribedChatFlow.asStateFlow()
 
-    fun clearSubscribedChat() {
-        _subscribedChatFlow.value = ResellApiResponse.Pending
-    }
-
     /**
      * Starts the subscription to the chat history for the buyer.
      *
@@ -349,7 +345,8 @@ class ChatRepository @Inject constructor(
 
             // Step 3: Return the final Chat object.
             val chat = Chat(
-                chatHistory = dateStateClusters
+                chatHistory = dateStateClusters,
+                chatId = chatId
             )
 
             _subscribedChatFlow.value = ResellApiResponse.Success(chat)
@@ -565,9 +562,10 @@ class ChatRepository @Inject constructor(
     )
 
     /**
-     * Returns true at most once per chat. Rescheduled meetings will prompt again.
+     * Returns true at most once per user per chat. Rescheduled meetings will prompt again.
      */
     suspend fun shouldShowGCalSync(
+        myId: String,
         chatId: String,
         meetingDate: Date,
     ): Boolean {
@@ -576,12 +574,13 @@ class ChatRepository @Inject constructor(
             val map = preferences[PreferencesKeys.GCAL_SYNC]
                 ?.let { Json.decodeFromString<Map<String, String>>(it) }
                 ?: emptyMap()
+            val chatKey = "$myId:$chatId"
             val meetingKey = meetingDate.time.toString()
 
-            if (map[chatId] != meetingKey) {
+            if (map[chatKey] != meetingKey) {
                 // Record that the user has been notified for this meeting.
                 preferences[PreferencesKeys.GCAL_SYNC] =
-                    Json.encodeToString(map + (chatId to meetingKey))
+                    Json.encodeToString(map + (chatKey to meetingKey))
                 shouldShow = true
             }
         }

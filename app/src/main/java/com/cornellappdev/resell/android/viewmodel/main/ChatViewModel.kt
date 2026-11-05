@@ -618,9 +618,11 @@ class ChatViewModel @Inject constructor(
             )
         }
 
-        chatRepository.clearSubscribedChat()
-
         asyncCollect(chatRepository.subscribedChatFlow) { response ->
+            if (response is ResellApiResponse.Success && response.data.chatId != navArgs.chatId) {
+                return@asyncCollect
+            }
+
             applyMutation {
                 copy(
                     currentChat = response,
@@ -633,6 +635,7 @@ class ChatViewModel @Inject constructor(
                 if (response is ResellApiResponse.Success
                     && confirmedMeetingInfo != null
                     && chatRepository.shouldShowGCalSync(
+                        myId = userInfoRepository.getUserId() ?: "",
                         chatId = navArgs.chatId,
                         meetingDate = confirmedMeetingInfo.convertToUtcMinusFiveDate()
                     )
