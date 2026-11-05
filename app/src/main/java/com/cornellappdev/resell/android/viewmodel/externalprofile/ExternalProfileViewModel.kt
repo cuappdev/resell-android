@@ -74,8 +74,8 @@ class ExternalProfileViewModel @Inject constructor(
 
         val displayBio: String
             get() = when {
-                shopName.isBlank() && vendorName.isBlank() -> ""
                 bio.isNotBlank() -> bio
+                shopName.isBlank() && vendorName.isBlank() -> ""
                 else -> "Hi, I'm ${firstName.ifBlank { "a Cornell Student" }}! " +
                         "Looking for great deals and selling even greater items."
             }

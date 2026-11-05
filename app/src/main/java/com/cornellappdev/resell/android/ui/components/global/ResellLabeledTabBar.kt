@@ -13,6 +13,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -24,6 +26,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -37,7 +43,6 @@ import com.cornellappdev.resell.android.ui.theme.Primary
 import com.cornellappdev.resell.android.ui.theme.ResellPreview
 import com.cornellappdev.resell.android.ui.theme.Stroke
 import com.cornellappdev.resell.android.ui.theme.Style
-import com.cornellappdev.resell.android.util.clickableNoIndication
 
 private val DividerHeight = 1.dp
 private val IndicatorHeight = 2.dp
@@ -46,6 +51,7 @@ private const val INDICATOR_ANIMATION_MILLIS = 200
 data class LabeledTab(
     val count: Int,
     val iconRes: Int,
+    val contentDescription: String,
     val iconSize: Dp = 24.dp,
     val title: String = "",
 )
@@ -61,6 +67,7 @@ fun ResellLabeledTabBar(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
+                .selectableGroup()
                 .padding(start = 48.dp, end = 48.dp, top = 8.dp, bottom = 4.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
@@ -115,7 +122,14 @@ private fun LabeledTabItem(
 
     Row(
         modifier = Modifier
-            .clickableNoIndication { onClick() }
+            .selectable(
+                selected = selected,
+                interactionSource = null,
+                indication = null,
+                role = Role.Tab,
+                onClick = onClick,
+            )
+            .semantics { contentDescription = tab.contentDescription }
             .padding(vertical = 4.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -135,7 +149,8 @@ private fun LabeledTabItem(
                 append("(${tab.count})")
             },
             style = Style.body2,
-            color = color
+            color = color,
+            modifier = Modifier.clearAndSetSemantics {}
         )
     }
 }
@@ -147,10 +162,15 @@ private fun LabeledTabBarPreview() = ResellPreview {
 
     ResellLabeledTabBar(
         tabs = listOf(
-            LabeledTab(count = 12, iconRes = R.drawable.ic_shop),
+            LabeledTab(
+                count = 12,
+                iconRes = R.drawable.ic_shop,
+                contentDescription = "Listings, 12",
+            ),
             LabeledTab(
                 count = 8,
                 iconRes = R.drawable.ic_selected_star,
+                contentDescription = "Reviews, 4.6 average rating, 8 reviews",
                 iconSize = 20.dp,
                 title = "4.6",
             ),
