@@ -23,6 +23,7 @@ import androidx.compose.ui.draw.blur
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -40,6 +41,7 @@ import com.cornellappdev.resell.android.ui.components.profile.ResellLoadingRevie
 import com.cornellappdev.resell.android.ui.components.profile.ResellReviewsScroll
 import com.cornellappdev.resell.android.ui.components.profile.collapsingHeader
 import com.cornellappdev.resell.android.ui.components.profile.rememberCollapsingHeaderState
+import com.cornellappdev.resell.android.ui.theme.Padding
 import com.cornellappdev.resell.android.ui.theme.Style
 import com.cornellappdev.resell.android.ui.theme.Style.title1
 import com.cornellappdev.resell.android.ui.theme.simpleFadeInOut
@@ -95,10 +97,16 @@ fun ExternalProfileScreen(
                     LabeledTab(
                         count = uiState.listingCount,
                         iconRes = R.drawable.ic_shop,
+                        contentDescription = "Listings, ${uiState.listingCount}",
                     ),
                     LabeledTab(
                         count = uiState.reviewCount,
                         iconRes = R.drawable.ic_selected_star,
+                        contentDescription = if (uiState.ratingLabel.isNotEmpty()) {
+                            "Reviews, ${uiState.ratingLabel} average rating, ${uiState.reviewCount} reviews"
+                        } else {
+                            "Reviews, ${uiState.reviewCount}"
+                        },
                         iconSize = 20.dp,
                         title = uiState.ratingLabel,
                     ),
@@ -213,7 +221,12 @@ private fun ExternalProfileToolbar(
         Text(
             text = "@$username",
             style = Style.heading3,
-            modifier = Modifier.align(Alignment.Center)
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = Padding.leftRight + ToolbarIconSize)
+                .align(Alignment.Center)
         )
 
         Icon(

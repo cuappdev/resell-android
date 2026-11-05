@@ -12,6 +12,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -53,7 +54,9 @@ fun ExternalProfileHeader(
                 Text(text = name, style = Style.heading2)
 
                 Row(
-                    modifier = Modifier.alpha(if (showRating) 1f else 0f),
+                    modifier = Modifier
+                        .alpha(if (showRating) 1f else 0f)
+                        .then(if (showRating) Modifier else Modifier.clearAndSetSemantics {}),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
