@@ -103,7 +103,7 @@ fun MainTabNavigation(
             }
 
             composable<ResellMainScreen.Bookmarks> {
-                SavedScreen()
+                SavedScreen(onExit = mainNav::popBackStack)
             }
 
             composable<ResellMainScreen.Messages> {

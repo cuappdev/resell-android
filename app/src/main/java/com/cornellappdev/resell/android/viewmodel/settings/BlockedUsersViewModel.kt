@@ -2,6 +2,7 @@ package com.cornellappdev.resell.android.viewmodel.settings
 
 import com.cornellappdev.resell.android.model.settings.BlockedUsersRepository
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
+import com.cornellappdev.resell.android.viewmodel.navigation.SettingsNavigationRepository
 import com.cornellappdev.resell.android.viewmodel.root.RootConfirmationRepository
 import com.cornellappdev.resell.android.viewmodel.root.RootDialogRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -12,6 +13,7 @@ class BlockedUsersViewModel @Inject constructor(
     private val blockedUsersRepository: BlockedUsersRepository,
     private val dialogRepository: RootDialogRepository,
     private val confirmationRepository: RootConfirmationRepository,
+    private val settingsNavigationRepository: SettingsNavigationRepository,
 ) : ResellViewModel<BlockedUsersViewModel.BlockedUsersUiState>(
     initialUiState = BlockedUsersUiState(),
 ) {
@@ -25,6 +27,10 @@ class BlockedUsersViewModel @Inject constructor(
         val name: String,
         val imageUrl: String,
     )
+
+    fun onBackPressed() {
+        settingsNavigationRepository.popBackStack()
+    }
 
     fun onUnblock(id: String) {
         val name = stateValue().blockedUsers.firstOrNull { it.id == id }?.name ?: "User"

@@ -24,6 +24,12 @@ fun ReportNavigation(
         }
     }
 
+    LaunchedEffect(uiState.popBackStack) {
+        uiState.popBackStack?.consumeSuspend {
+            navController.popBackStack()
+        }
+    }
+
     NavHost(
         navController = navController,
         startDestination = uiState.initialPage ?: ReportScreen.Reason(

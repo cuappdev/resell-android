@@ -34,6 +34,10 @@ class SendFeedbackViewModel @Inject constructor(
             get() = feedback.isNotBlank() && !loading
     }
 
+    fun onBackPressed() {
+        settingsNavigationRepository.popBackStack()
+    }
+
     fun onImageAdded(uri: Uri) {
         viewModelScope.launch {
             val bitmap = loadBitmapFromUri(appContext, uri)?.asImageBitmap()

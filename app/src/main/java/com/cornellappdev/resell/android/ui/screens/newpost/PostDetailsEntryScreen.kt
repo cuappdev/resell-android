@@ -1,5 +1,6 @@
 package com.cornellappdev.resell.android.ui.screens.newpost
 
+import com.cornellappdev.resell.android.R
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -44,6 +45,7 @@ fun PostDetailsEntryScreen(
     ) {
         PostDetailsContent(
             uiState = uiState,
+            onBackPressed = postDetailsEntryViewModel::onBackPressed,
             onPricePressed = postDetailsEntryViewModel::onPricePressed,
             onDescriptionChanged = postDetailsEntryViewModel::onDescriptionChanged,
             onTitleChanged = postDetailsEntryViewModel::onTitleChanged,
@@ -67,6 +69,7 @@ fun PostDetailsEntryScreen(
 private fun PostDetailsContent(
     uiState: PostDetailsEntryViewModel.PostEntryUiState =
         PostDetailsEntryViewModel.PostEntryUiState(),
+    onBackPressed: () -> Unit = {},
     onPricePressed: () -> Unit = {},
     onHomeFilterPressed: (ResellFilter.FilterCategory) -> Unit = {},
     onConditionPressed: (ResellFilter.FilterCondition) -> Unit = {},
@@ -82,6 +85,8 @@ private fun PostDetailsContent(
     ) {
         ResellHeader(
             title = "New Listing",
+            leftPainter = R.drawable.ic_chevron_left,
+            onLeftClick = onBackPressed,
         )
 
         Spacer(Modifier.height(24.dp))

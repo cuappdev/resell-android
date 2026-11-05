@@ -1,5 +1,6 @@
 package com.cornellappdev.resell.android.ui.screens.newpost
 
+import com.cornellappdev.resell.android.R
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -34,6 +35,7 @@ fun RequestDetailsEntryScreen(
     ) {
         RequestDetailsContent(
             uiState = uiState,
+            onBackPressed = requestDetailsEntryViewModel::onBackPressed,
             onMinPressed = requestDetailsEntryViewModel::onMinPricePressed,
             onMaxPressed = requestDetailsEntryViewModel::onMaxPricePressed,
             onDescriptionChanged = requestDetailsEntryViewModel::onDescriptionChanged,
@@ -57,6 +59,7 @@ fun RequestDetailsEntryScreen(
 private fun RequestDetailsContent(
     uiState: RequestDetailsEntryViewModel.RequestDetailsEntryViewState =
         RequestDetailsEntryViewModel.RequestDetailsEntryViewState(),
+    onBackPressed: () -> Unit = {},
     onMinPressed: () -> Unit = {},
     onMaxPressed: () -> Unit = {},
     onTitleChanged: (String) -> Unit = {},
@@ -71,6 +74,8 @@ private fun RequestDetailsContent(
     ) {
         ResellHeader(
             title = "Request Details",
+            leftPainter = R.drawable.ic_chevron_left,
+            onLeftClick = onBackPressed,
         )
 
         Spacer(Modifier.height(24.dp))

@@ -74,6 +74,10 @@ class ExternalProfileViewModel @Inject constructor(
         )
     }
 
+    fun onBackPressed() {
+        rootNavigationRepository.popBackStack()
+    }
+
     fun onEllipsisPressed() {
         rootOptionsMenuRepository.showOptionsMenu(
             options = listOf(

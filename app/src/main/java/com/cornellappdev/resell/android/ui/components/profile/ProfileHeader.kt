@@ -38,8 +38,10 @@ fun ProfileHeader(
     onTabSelected: (ProfileViewModel.ProfileTab) -> Unit,
     leftIcon: Int? = null,
     rightIcon: Int? = null,
+    farRightIcon: Int? = null,
     onLeftPressed: () -> Unit = {},
     onRightPressed: () -> Unit = {},
+    onFarRightPressed: () -> Unit = {},
 ) {
     Column(
         modifier = Modifier
@@ -70,20 +72,33 @@ fun ProfileHeader(
                 )
             }
 
-            if (rightIcon != null) {
+            if (rightIcon != null || farRightIcon != null) {
                 Row(
                     modifier = Modifier
                         .defaultHorizontalPadding()
                         .padding(top = 8.dp)
                         .align(Alignment.TopEnd)
                 ) {
-                    Icon(
-                        painter = painterResource(id = rightIcon),
-                        contentDescription = "search",
-                        modifier = Modifier
-                            .size(25.dp)
-                            .clickableNoIndication { onRightPressed() }
-                    )
+                    if (rightIcon != null) {
+                        Icon(
+                            painter = painterResource(id = rightIcon),
+                            contentDescription = "search",
+                            modifier = Modifier
+                                .size(25.dp)
+                                .clickableNoIndication { onRightPressed() }
+                        )
+                    }
+
+                    if (farRightIcon != null) {
+                        Icon(
+                            painter = painterResource(id = farRightIcon),
+                            contentDescription = "more options",
+                            modifier = Modifier
+                                .padding(start = 16.dp)
+                                .size(25.dp)
+                                .clickableNoIndication { onFarRightPressed() }
+                        )
+                    }
                 }
             }
         }

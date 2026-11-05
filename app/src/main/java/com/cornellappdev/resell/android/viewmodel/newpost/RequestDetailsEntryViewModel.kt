@@ -51,6 +51,10 @@ class RequestDetailsEntryViewModel @Inject constructor(
             }
     }
 
+    fun onBackPressed() {
+        rootNavigationRepository.popBackStack()
+    }
+
     fun onMinPricePressed() {
         rootNavigationSheetRepository.showBottomSheet(
             RootSheet.ProposalSheet(
