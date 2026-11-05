@@ -18,8 +18,6 @@ data class AdditionalNotificationData(
     val postId: String?,
     val postTitle: String?,
     val price: String?,
-    val requestId: String?,
-    val requestTitle: String?,
     val sellerId: String?,
     val sellerUsername: String?
 )

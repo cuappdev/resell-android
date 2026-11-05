@@ -2,20 +2,14 @@ package com.cornellappdev.resell.android.viewmodel.main
 
 import androidx.lifecycle.viewModelScope
 import com.cornellappdev.resell.android.model.classes.Listing
-import com.cornellappdev.resell.android.model.classes.RequestListing
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.model.classes.ResellApiState
 import com.cornellappdev.resell.android.model.classes.toResellApiState
 import com.cornellappdev.resell.android.model.core.UserInfoRepository
 import com.cornellappdev.resell.android.model.profile.ProfileRepository
-import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonContainer
-import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonState
 import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
 import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepository
-import com.cornellappdev.resell.android.viewmodel.root.RootConfirmationRepository
-import com.cornellappdev.resell.android.viewmodel.root.RootDialogContent
-import com.cornellappdev.resell.android.viewmodel.root.RootDialogRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
@@ -24,8 +18,6 @@ import javax.inject.Inject
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
     private val rootNavigationRepository: RootNavigationRepository,
-    private val rootDialogRepository: RootDialogRepository,
-    private val rootConfirmationRepository: RootConfirmationRepository,
     private val profileRepository: ProfileRepository,
     private val userInfoRepository: UserInfoRepository,
 ): ResellViewModel<ProfileViewModel.ProfileUiState>(
@@ -34,7 +26,6 @@ class ProfileViewModel @Inject constructor(
         loadedState = ResellApiState.Loading,
         shopListings = ResellApiResponse.Pending,
         archiveListings = ResellApiResponse.Pending,
-        requests = ResellApiResponse.Pending,
         shopName = "",
         vendorName = "",
         bio = "",
@@ -47,7 +38,6 @@ class ProfileViewModel @Inject constructor(
         val loadedState: ResellApiState,
         val shopListings: ResellApiResponse<List<Listing>>,
         val archiveListings: ResellApiResponse<List<Listing>>,
-        val requests: ResellApiResponse<List<RequestListing>>,
         val shopName: String,
         val vendorName: String,
         val bio: String,
@@ -56,7 +46,7 @@ class ProfileViewModel @Inject constructor(
 
     enum class ProfileTab {
         // Please preserve order!
-        SHOP, ARCHIVE, WISHLIST
+        SHOP, ARCHIVE
     }
 
     fun onTabSelected(profileTab: ProfileTab) {
@@ -86,53 +76,6 @@ class ProfileViewModel @Inject constructor(
         rootNavigationRepository.navigate(ResellRootRoute.AVAILABILITY)
     }
 
-    fun onRequestPressed(request: RequestListing) {
-        rootNavigationRepository.navigate(
-            ResellRootRoute.REQUEST_MATCHES(
-                title = request.title,
-                id = request.id
-            )
-        )
-    }
-
-    fun onRequestDeletePressed(request: RequestListing) {
-        rootDialogRepository.showDialog(
-            event = RootDialogContent.TwoButtonDialog(
-                title = "Delete request?",
-                description = "Are you sure you want to delete this request?",
-                primaryButtonText = "Delete",
-                secondaryButtonText = "Cancel",
-                primaryButtonContainer = ResellTextButtonContainer.PRIMARY_RED,
-                onPrimaryButtonClick = {
-                    viewModelScope.launch {
-                        deleteRequest(request)
-                    }
-                },
-                onSecondaryButtonClick = {
-                    rootDialogRepository.dismissDialog()
-                },
-                exitButton = true
-            )
-        )
-    }
-
-    private suspend fun deleteRequest(request: RequestListing) {
-        try {
-            rootDialogRepository.setPrimaryButtonState(
-                ResellTextButtonState.SPINNING
-            )
-            profileRepository.deleteRequestListing(request.id)
-            rootDialogRepository.dismissDialog()
-            rootConfirmationRepository.showSuccess(
-                message = "Your request has been deleted successfully!",
-            )
-            onReloadListings()
-        } catch (e: Exception) {
-            rootDialogRepository.dismissDialog()
-            rootConfirmationRepository.showError()
-        }
-    }
-
     /**
      * Reloads the listings made by the internal user.
      */
@@ -141,13 +84,11 @@ class ProfileViewModel @Inject constructor(
             copy(
                 shopListings = ResellApiResponse.Pending,
                 archiveListings = ResellApiResponse.Pending,
-                requests = ResellApiResponse.Pending,
             )
         }
         viewModelScope.launch {
             profileRepository.fetchInternalListings(userInfoRepository.getUserId() ?: "lol")
             profileRepository.fetchArchivedListings(userInfoRepository.getUserId() ?: "lol")
-            profileRepository.fetchRequests(userInfoRepository.getUserId() ?: "lol")
         }
     }
 
@@ -182,14 +123,6 @@ class ProfileViewModel @Inject constructor(
             applyMutation {
                 copy(
                     archiveListings = response,
-                )
-            }
-        }
-
-        asyncCollect(profileRepository.requests) { response ->
-            applyMutation {
-                copy(
-                    requests = response
                 )
             }
         }

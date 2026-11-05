@@ -18,13 +18,10 @@ class MainNavigationViewModel @Inject constructor(
     notificationsRepository: NotificationsRepository,
     mainNavigationRepository: MainNavigationRepository,
 ) : ResellViewModel<MainNavigationViewModel.MainNavigationUiState>(
-    initialUiState = MainNavigationUiState(
-        newPostExpanded = false
-    )
+    initialUiState = MainNavigationUiState()
 ) {
 
     data class MainNavigationUiState(
-        val newPostExpanded: Boolean,
         val navEvent: UIEvent<ResellMainScreen>? = null,
         val bottomBarEnabled: Boolean = false,
         val notificationData: NotificationData? = null
@@ -85,40 +82,8 @@ class MainNavigationViewModel @Inject constructor(
         }
     }
 
-    fun onNewPostExpandClick() {
-        applyMutation {
-            copy(
-                newPostExpanded = !newPostExpanded
-            )
-        }
-    }
-
-    fun onShadeTapped() {
-        applyMutation {
-            copy(
-                newPostExpanded = false
-            )
-        }
-    }
-
-    fun onNewRequestClick() {
-        rootNavigationRepository.navigate(ResellRootRoute.NEW_REQUEST)
-
-        applyMutation {
-            copy(
-                newPostExpanded = false
-            )
-        }
-    }
-
     fun onNewPostClick() {
         rootNavigationRepository.navigate(ResellRootRoute.NEW_POST)
-
-        applyMutation {
-            copy(
-                newPostExpanded = false
-            )
-        }
     }
 }
 
