@@ -77,17 +77,12 @@ class ExternalProfileViewModel @Inject constructor(
     fun onEllipsisPressed() {
         rootOptionsMenuRepository.showOptionsMenu(
             options = listOf(
-                OptionType.SHARE,
                 OptionType.REPORT,
                 if (stateValue().isBlocked) OptionType.UNBLOCK else OptionType.BLOCK,
             ),
             alignment = Alignment.TopStart,
         ) {
             when (it) {
-                OptionType.SHARE -> {
-                    // TODO: Implement
-                }
-
                 OptionType.REPORT -> {
                     rootNavigationRepository.navigate(
                         ResellRootRoute.REPORT(

@@ -12,6 +12,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.cornellappdev.resell.android.model.api.NotificationData
+import com.cornellappdev.resell.android.model.core.DeepLinkRepository
 import com.cornellappdev.resell.android.model.settings.NotificationsRepository
 import com.cornellappdev.resell.android.ui.screens.root.RootNavigation
 import com.cornellappdev.resell.android.ui.theme.ResellTheme
@@ -29,12 +30,18 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var notificationsRepository: NotificationsRepository
 
+    @Inject
+    lateinit var deepLinkRepository: DeepLinkRepository
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         FirebaseApp.initializeApp(this)
         enableEdgeToEdge()
 
         handleNotificationIntent(intent)
+        if (savedInstanceState == null) {
+            deepLinkRepository.onLinkReceived(intent.data)
+        }
 
         setContent {
             ResellTheme {
@@ -46,6 +53,7 @@ class MainActivity : ComponentActivity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         handleNotificationIntent(intent)
+        deepLinkRepository.onLinkReceived(intent.data)
     }
 
     private fun handleNotificationIntent(intent: Intent) {
