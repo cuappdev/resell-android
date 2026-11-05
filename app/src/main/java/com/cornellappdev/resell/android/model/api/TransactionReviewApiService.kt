@@ -1,11 +1,19 @@
 package com.cornellappdev.resell.android.model.api
 
+import okhttp3.ResponseBody
+import retrofit2.Response
 import retrofit2.http.Body
+import retrofit2.http.GET
 import retrofit2.http.POST
+import retrofit2.http.Path
 
 interface TransactionReviewApiService {
     @POST("transactionReview/")
     suspend fun createTransactionReview(@Body request: CreateTransactionReviewRequest): TransactionReview
+
+    // 200 if the transaction has a review, 404 if it doesn't.
+    @GET("transactionReview/transactionId/{id}/")
+    suspend fun getTransactionReviewByTransactionId(@Path("id") transactionId: String): Response<ResponseBody>
 }
 
 data class CreateTransactionReviewRequest(
