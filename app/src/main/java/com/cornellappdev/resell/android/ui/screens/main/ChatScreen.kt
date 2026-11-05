@@ -138,6 +138,7 @@ fun ChatScreen(
                 transactionBannerInfo = transactionUiState.transactionBannerInfo,
                 confirmedMeeting = meetingUiState.confirmedMeeting,
                 showViewAvailability = meetingUiState.showViewAvailability,
+                isBuyer = transactionUiState.isBuyer,
                 onViewAvailabilityPressed = meetingViewModel::onViewOtherAvailabilityPressed
             )
         }
@@ -166,6 +167,7 @@ private fun ChatLoadedContent(
     transactionBannerInfo: TransactionInfo?,
     confirmedMeeting: MeetingInfo?,
     showViewAvailability: Boolean,
+    isBuyer: Boolean,
 ) {
     Column(
         modifier = Modifier
@@ -195,6 +197,8 @@ private fun ChatLoadedContent(
                                 messageType = MessageType.State,
                                 content = if (transactionInfo.state == TransactionState.COMPLETED) {
                                     "This transaction has been completed"
+                                } else if (isBuyer) {
+                                    "Got your item? Mark this sale as complete."
                                 } else {
                                     "Met up and got paid? Mark this sale as complete."
                                 },
