@@ -1,18 +1,13 @@
 package com.cornellappdev.resell.android.viewmodel.navigation
 
-import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.cornellappdev.resell.android.model.api.NotificationData
-import com.cornellappdev.resell.android.model.core.DeepLinkRepository
-import com.cornellappdev.resell.android.model.posts.ResellPostRepository
 import com.cornellappdev.resell.android.model.settings.NotificationsRepository
 import com.cornellappdev.resell.android.ui.screens.main.ResellMainScreen
 import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
 import com.cornellappdev.resell.android.util.UIEvent
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
-import com.cornellappdev.resell.android.viewmodel.root.RootConfirmationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -22,18 +17,11 @@ class MainNavigationViewModel @Inject constructor(
     private val rootNavigationRepository: RootNavigationRepository,
     notificationsRepository: NotificationsRepository,
     mainNavigationRepository: MainNavigationRepository,
-    private val deepLinkRepository: DeepLinkRepository,
-    private val postRepository: ResellPostRepository,
-    private val rootConfirmationRepository: RootConfirmationRepository,
 ) : ResellViewModel<MainNavigationViewModel.MainNavigationUiState>(
     initialUiState = MainNavigationUiState(
         newPostExpanded = false
     )
 ) {
-
-    companion object {
-        private const val TAG = "MainNavigationViewModel"
-    }
 
     data class MainNavigationUiState(
         val newPostExpanded: Boolean,
@@ -61,12 +49,6 @@ class MainNavigationViewModel @Inject constructor(
                 if (stateValue().bottomBarEnabled) {
                     parseNotification(data)
                 }
-            }
-        }
-
-        asyncCollect(deepLinkRepository.pendingPostId) { postId ->
-            if (postId != null) {
-                openSharedPost(postId)
             }
         }
 
@@ -99,22 +81,6 @@ class MainNavigationViewModel @Inject constructor(
 //                        postJson = Json.encodeToString(post.toListing()),
 //                    )
 //                )
-            }
-        }
-    }
-
-    private fun openSharedPost(postId: String) {
-        deepLinkRepository.onLinkHandled(postId)
-
-        viewModelScope.launch {
-            try {
-                val listing = postRepository.getPostById(postId).toListing()
-                rootNavigationRepository.navigateToPdp(listing)
-            } catch (e: CancellationException) {
-                throw e
-            } catch (e: Exception) {
-                Log.e(TAG, "Error opening shared post: ", e)
-                rootConfirmationRepository.showError()
             }
         }
     }
