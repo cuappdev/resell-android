@@ -13,6 +13,7 @@ import com.google.firebase.Timestamp
  */
 data class Chat(
     val chatHistory: List<ChatMessageCluster> = listOf(richieMessages(5), justinMessages(3)),
+    val chatId: String = "",
 )
 
 enum class MessageType {

@@ -345,7 +345,8 @@ class ChatRepository @Inject constructor(
 
             // Step 3: Return the final Chat object.
             val chat = Chat(
-                chatHistory = dateStateClusters
+                chatHistory = dateStateClusters,
+                chatId = chatId
             )
 
             _subscribedChatFlow.value = ResellApiResponse.Success(chat)
@@ -560,27 +561,29 @@ class ChatRepository @Inject constructor(
         chatId = chatId
     )
 
+    /**
+     * Returns true at most once per user per chat. Rescheduled meetings will prompt again.
+     */
     suspend fun shouldShowGCalSync(
-        otherId: String,
+        myId: String,
+        chatId: String,
         meetingDate: Date,
     ): Boolean {
-        val mapString = dataStore.data.map { preferences ->
-            preferences[PreferencesKeys.GCAL_SYNC]
-        }.firstOrNull()
-
-        val map = mapString?.let { Json.decodeFromString<Map<String, String>>(mapString) }
-
-        if (map != null && map[otherId] == meetingDate.toString()) {
-            return false
-        }
-
-        // Store new map, indicating that the user has already been notified for this meeting.
-        val newMap = map?.toMutableMap() ?: mutableMapOf()
-        newMap[otherId] = meetingDate.toString()
+        var shouldShow = false
         dataStore.edit { preferences ->
-            preferences[PreferencesKeys.GCAL_SYNC] = Json.encodeToString(newMap)
-        }
+            val map = preferences[PreferencesKeys.GCAL_SYNC]
+                ?.let { Json.decodeFromString<Map<String, String>>(it) }
+                ?: emptyMap()
+            val chatKey = "$myId:$chatId"
+            val meetingKey = meetingDate.time.toString()
 
-        return true
+            if (map[chatKey] != meetingKey) {
+                // Record that the user has been notified for this meeting.
+                preferences[PreferencesKeys.GCAL_SYNC] =
+                    Json.encodeToString(map + (chatKey to meetingKey))
+                shouldShow = true
+            }
+        }
+        return shouldShow
     }
 }
