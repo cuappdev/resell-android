@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
@@ -504,7 +503,7 @@ private fun CategoryRow(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier
                     .width(80.dp)
-                    .heightIn(min = 120.dp),
+                    .height(128.dp),
             ) {
                 Box(
                     modifier = Modifier
