@@ -59,7 +59,7 @@ class PriceProposalSheetViewModel @Inject constructor(
             return newPrice.toDoubleOrNull()?.let { it <= MAX_PRICE } ?: false
         }
 
-        val canPressAnyNumber
+        val canPressSomeNumber
             get() = (0..9).any { canAppend(it.toString()) }
 
         val canPressDot

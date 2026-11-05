@@ -91,7 +91,7 @@ private fun PriceProposalSheetContent(
 
         TextEntry(
             price = uiState.price,
-            indicator = uiState.canPressAnyNumber,
+            indicator = uiState.canPressSomeNumber,
         )
 
         Spacer(Modifier.height(16.dp))
