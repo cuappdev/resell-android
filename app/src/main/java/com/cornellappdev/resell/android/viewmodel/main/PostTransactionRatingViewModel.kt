@@ -46,7 +46,7 @@ class PostTransactionRatingViewModel @Inject constructor(
         val transactionId: String = ""
     ) {
         val canSubmit
-            get() = rating != null
+            get() = rating != null && transactionId.isNotEmpty()
     }
 
     init {

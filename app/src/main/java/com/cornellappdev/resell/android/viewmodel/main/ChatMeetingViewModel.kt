@@ -373,7 +373,7 @@ class ChatMeetingViewModel @Inject constructor(
             // If chat has an availability message from the other user, show that tab.
             viewModelScope.launch {
                 if (response is ResellApiResponse.Success) {
-                    val myId = userInfoRepository.getUserId()!!
+                    val myId = userInfoRepository.getUserId() ?: return@launch
                     val data = chatData?.mostRecentMessage {
                         it.availability != null && it.senderId != myId
                     }
