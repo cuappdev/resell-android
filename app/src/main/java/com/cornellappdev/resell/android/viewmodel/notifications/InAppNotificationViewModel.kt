@@ -71,5 +71,5 @@ class InAppNotificationViewModel @Inject constructor(
 }
 
 enum class NotificationType {
-    MESSAGE, REQUEST, DISCOUNT, BOOKMARKS, OFFER, SOLD, OTHER
+    MESSAGE, DISCOUNT, BOOKMARKS, OFFER, SOLD, OTHER
 }
