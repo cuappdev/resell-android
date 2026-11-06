@@ -141,8 +141,7 @@ fun ProfileHeader(
             ResellTabBar(
                 painterIds = listOf(
                     R.drawable.ic_shop,
-                    R.drawable.ic_archive,
-                    R.drawable.ic_wishlist
+                    R.drawable.ic_archive
                 ),
                 selectedPainter = selectedTab.ordinal,
             ) {

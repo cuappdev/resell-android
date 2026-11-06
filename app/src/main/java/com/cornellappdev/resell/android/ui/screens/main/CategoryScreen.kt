@@ -26,7 +26,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -89,7 +88,6 @@ fun CategoryScreen(
             }
         },
         onExit = onExit,
-        navigateToSubmitRequest = categoryViewModel::navigateToSubmitRequest
     )
 }
 
@@ -108,7 +106,6 @@ private fun CategoryScreenContent(
     onListingPressed: (Listing) -> Unit,
     onScrollBottom: () -> Unit = {},
     onDismissRequest: () -> Unit,
-    navigateToSubmitRequest: () -> Unit,
     onExit: () -> Unit
 ) {
     Column(
@@ -138,7 +135,7 @@ private fun CategoryScreenContent(
             ResellApiState.Loading -> ResellLoadingListingScroll(modifier = Modifier.defaultHorizontalPadding())
             ResellApiState.Success ->
                 if (listings.isEmpty()) {
-                    EmptyState(navigateToSubmitRequest)
+                    EmptyState()
                 } else {
                     ResellListingsScroll(
                         listings = listings,
@@ -168,7 +165,7 @@ private fun CategoryScreenContent(
 }
 
 @Composable
-private fun EmptyState(onClick: () -> Unit) {
+private fun EmptyState() {
     Column(
         modifier = Modifier
             .fillMaxSize(),
@@ -181,18 +178,8 @@ private fun EmptyState(onClick: () -> Unit) {
         )
         Spacer(modifier = Modifier.height(16.dp))
         Text(
-            text = "Try again or",
+            text = "Try again",
             style = Style.body1.copy(color = Color.Gray)
-        )
-        Text(
-            text = "submit a request",
-            style = Style.body1.copy(
-                color = Color.Gray,
-                textDecoration = TextDecoration.Underline
-            ),
-            modifier = Modifier.clickable {
-                onClick()
-            },
         )
     }
 }
@@ -233,6 +220,5 @@ private fun CategoryScreenPreview() = ResellPreview {
         loadedState = ResellApiState.Success,
         onDismissRequest = {},
         onExit = {},
-        navigateToSubmitRequest = {}
     )
 }

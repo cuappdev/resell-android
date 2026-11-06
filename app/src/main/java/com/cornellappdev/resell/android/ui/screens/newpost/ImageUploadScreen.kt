@@ -219,10 +219,10 @@ private fun AddPage(
         contentAlignment = Alignment.Center
     ) {
         PostFloatingActionButton(
+            contentDescription = "Add image",
             onClick = {
                 onAddPressed()
             },
-            expanded = false,
         )
     }
 }
