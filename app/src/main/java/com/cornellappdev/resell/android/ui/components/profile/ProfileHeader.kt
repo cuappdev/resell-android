@@ -42,6 +42,7 @@ fun ProfileHeader(
     onLeftPressed: () -> Unit = {},
     onRightPressed: () -> Unit = {},
     onFarRightPressed: () -> Unit = {},
+    leftIconDescription: String = "settings",
 ) {
     Column(
         modifier = Modifier
@@ -62,7 +63,7 @@ fun ProfileHeader(
             if (leftIcon != null) {
                 Icon(
                     painter = painterResource(id = leftIcon),
-                    contentDescription = "settings",
+                    contentDescription = leftIconDescription,
                     modifier = Modifier
                         .defaultHorizontalPadding()
                         .padding(top = 8.dp)

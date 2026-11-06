@@ -26,7 +26,9 @@ fun NewPostNavigation(
 
     LaunchedEffect(uiState.popBackStack) {
         uiState.popBackStack?.consumeSuspend {
-            nav.popBackStack()
+            if (nav.previousBackStackEntry != null) {
+                nav.popBackStack()
+            }
         }
     }
 

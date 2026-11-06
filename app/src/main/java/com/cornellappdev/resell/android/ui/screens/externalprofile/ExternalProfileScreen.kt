@@ -61,6 +61,7 @@ fun ExternalProfileScreen(
                 onLeftPressed = { profileViewModel.onBackPressed() },
                 onRightPressed = { profileViewModel.onSearchPressed() },
                 onFarRightPressed = { profileViewModel.onEllipsisPressed() },
+                leftIconDescription = "Back",
                 onTabSelected = {}
             )
 
