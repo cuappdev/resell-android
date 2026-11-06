@@ -74,6 +74,10 @@ class ExternalProfileViewModel @Inject constructor(
         )
     }
 
+    fun onBackPressed() {
+        rootNavigationRepository.popBackStack()
+    }
+
     fun onEllipsisPressed() {
         rootOptionsMenuRepository.showOptionsMenu(
             options = listOf(
@@ -81,7 +85,7 @@ class ExternalProfileViewModel @Inject constructor(
                 OptionType.REPORT,
                 if (stateValue().isBlocked) OptionType.UNBLOCK else OptionType.BLOCK,
             ),
-            alignment = Alignment.TopStart,
+            alignment = Alignment.TopEnd,
         ) {
             when (it) {
                 OptionType.SHARE -> {

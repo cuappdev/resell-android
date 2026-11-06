@@ -24,6 +24,14 @@ fun NewPostNavigation(
         }
     }
 
+    LaunchedEffect(uiState.popBackStack) {
+        uiState.popBackStack?.consumeSuspend {
+            if (nav.previousBackStackEntry != null) {
+                nav.popBackStack()
+            }
+        }
+    }
+
     NavHost(
         navController = nav,
         startDestination = ResellNewPostScreen.ImageUpload,

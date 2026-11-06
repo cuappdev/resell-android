@@ -24,6 +24,12 @@ fun OnboardingNavigation(
         }
     }
 
+    LaunchedEffect(uiState.popBackStack) {
+        uiState.popBackStack?.consumeSuspend {
+            onboardingNav.popBackStack()
+        }
+    }
+
     NavHost(
         navController = onboardingNav,
         startDestination = ResellOnboardingScreen.Setup,

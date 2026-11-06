@@ -1,5 +1,6 @@
 package com.cornellappdev.resell.android.ui.screens.settings
 
+import com.cornellappdev.resell.android.R
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -35,6 +36,7 @@ fun NotificationSettings(
     val uiState = notificationsViewModel.collectUiStateValue()
 
     NotificationsSettingsContent(
+        onBackPressed = notificationsViewModel::onBackPressed,
         pause = uiState.pauseAllNotifications,
         onPauseChange = notificationsViewModel::onTogglePauseAllNotifications,
         chat = uiState.chatRoot,
@@ -47,6 +49,7 @@ fun NotificationSettings(
 @Preview
 @Composable
 private fun NotificationsSettingsContent(
+    onBackPressed: () -> Unit = {},
     pause: Boolean = false,
     onPauseChange: (Boolean) -> Unit = {},
     chat: Boolean = false,
@@ -64,6 +67,8 @@ private fun NotificationsSettingsContent(
     ) {
         ResellHeader(
             title = "Notification Preferences",
+            leftPainter = R.drawable.ic_chevron_left,
+            onLeftClick = onBackPressed,
         )
 
         Spacer(Modifier.height(24.dp))

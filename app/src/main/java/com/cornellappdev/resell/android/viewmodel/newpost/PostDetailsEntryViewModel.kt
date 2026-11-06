@@ -1,5 +1,6 @@
 package com.cornellappdev.resell.android.viewmodel.newpost
 
+import com.cornellappdev.resell.android.viewmodel.navigation.NewPostNavigationRepository
 import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.cornellappdev.resell.android.model.classes.ResellFilter
@@ -19,6 +20,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class PostDetailsEntryViewModel @Inject constructor(
+    private val newPostNavigationRepository: NewPostNavigationRepository,
     private val rootNavigationSheetRepository: RootNavigationSheetRepository,
     private val rootNavigationRepository: RootNavigationRepository,
     private val postRepository: ResellPostRepository,
@@ -49,6 +51,10 @@ class PostDetailsEntryViewModel @Inject constructor(
             } else {
                 ResellTextButtonState.DISABLED
             }
+    }
+
+    fun onBackPressed() {
+        newPostNavigationRepository.popBackStack()
     }
 
     fun onPricePressed() {

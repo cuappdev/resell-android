@@ -23,6 +23,7 @@ class ReportNavigationViewModel @Inject constructor(
     data class UiState(
         val route: UIEvent<ReportScreen>?,
         val initialPage: ReportScreen? = null,
+        val popBackStack: UIEvent<Unit>? = null,
     )
 
     init {
@@ -31,6 +32,12 @@ class ReportNavigationViewModel @Inject constructor(
                 copy(
                     route = route
                 )
+            }
+        }
+
+        asyncCollect(reportNavigationRepository.popBackStackFlow) { pop ->
+            applyMutation {
+                copy(popBackStack = pop)
             }
         }
 
