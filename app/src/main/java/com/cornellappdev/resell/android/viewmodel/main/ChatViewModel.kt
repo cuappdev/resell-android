@@ -594,7 +594,6 @@ class ChatViewModel @Inject constructor(
         firebaseMessagingRepository.requestNotificationsPermission()
 
         val title = listing.title
-        val otherId = navArgs.otherUserId
         applyMutation {
             copy(
                 otherName = navArgs.name,
@@ -620,6 +619,10 @@ class ChatViewModel @Inject constructor(
         }
 
         asyncCollect(chatRepository.subscribedChatFlow) { response ->
+            if (response is ResellApiResponse.Success && response.data.chatId != navArgs.chatId) {
+                return@asyncCollect
+            }
+
             applyMutation {
                 copy(
                     currentChat = response,
@@ -632,7 +635,8 @@ class ChatViewModel @Inject constructor(
                 if (response is ResellApiResponse.Success
                     && confirmedMeetingInfo != null
                     && chatRepository.shouldShowGCalSync(
-                        otherId = otherId,
+                        myId = userInfoRepository.getUserId() ?: "",
+                        chatId = navArgs.chatId,
                         meetingDate = confirmedMeetingInfo.convertToUtcMinusFiveDate()
                     )
                 ) {
