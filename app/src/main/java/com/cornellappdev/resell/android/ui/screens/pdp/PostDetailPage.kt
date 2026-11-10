@@ -48,6 +48,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
@@ -245,7 +246,7 @@ private fun Content(
 
         if (showContact) {
             ResellTextButton(
-                text = "Contact Seller",
+                text = stringResource(R.string.contact_seller),
                 onClick = onContactClick,
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
@@ -281,7 +282,7 @@ private fun PdpImageBlurredBackground(
     Box {
         Image(
             bitmap = bitmap,
-            contentDescription = "Image",
+            contentDescription = stringResource(R.string.cd_image_capitalized),
             modifier = Modifier
                 .fillMaxWidth()
                 .height(imageHeight)
@@ -294,7 +295,7 @@ private fun PdpImageBlurredBackground(
 
         Image(
             bitmap = bitmap,
-            contentDescription = "Image",
+            contentDescription = stringResource(R.string.cd_image_capitalized),
             modifier = Modifier
                 .fillMaxWidth()
                 .height(imageHeight),
@@ -326,7 +327,7 @@ private fun Header(
         ) {
             Icon(
                 painter = painterResource(id = R.drawable.ic_ellipse),
-                contentDescription = "Ellipsis",
+                contentDescription = stringResource(R.string.cd_ellipsis),
                 modifier = Modifier.align(Alignment.Center),
                 tint = Color.White
             )
@@ -427,7 +428,7 @@ private fun BottomSheetContent(
 
             if (it.isNotEmpty()) {
                 Text(
-                    text = "Similar Items",
+                    text = stringResource(R.string.similar_items),
                     style = Style.body2,
                     modifier = Modifier.defaultHorizontalPadding()
                 )

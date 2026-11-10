@@ -28,10 +28,12 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.ui.components.global.ResellHeaderCore
 import com.cornellappdev.resell.android.ui.components.global.ResellTextEntry
 import com.cornellappdev.resell.android.ui.theme.ResellPurple
@@ -89,10 +91,10 @@ private fun Content(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         ResellHeaderCore(
-            title = "Send Feedback",
+            title = stringResource(R.string.send_feedback),
             rightContent = {
                 Text(
-                    text = "Submit",
+                    text = stringResource(R.string.submit),
                     color = ResellPurple.copy(
                         alpha = if (canSubmit) 1f else 0.4f
                     ),
@@ -109,7 +111,7 @@ private fun Content(
         Spacer(Modifier.height(40.dp))
 
         Text(
-            text = "Thanks for using Resell! We appreciate any feedback to improve your experience.",
+            text = stringResource(R.string.send_feedback_body),
             style = body1,
             textAlign = TextAlign.Center,
             modifier = Modifier.defaultHorizontalPadding()
@@ -126,13 +128,13 @@ private fun Content(
             // TODO: probably wrong max lines
             maxLines = 20,
             modifier = Modifier.defaultHorizontalPadding(),
-            placeholder = "enter feedback details..."
+            placeholder = stringResource(R.string.feedback_details_placeholder)
         )
 
         Spacer(Modifier.height(32.dp))
 
         Text(
-            text = "Image Upload",
+            text = stringResource(R.string.image_upload),
             style = title1,
             modifier = Modifier
                 .defaultHorizontalPadding()

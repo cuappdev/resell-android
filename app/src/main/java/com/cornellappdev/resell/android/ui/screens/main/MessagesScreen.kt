@@ -24,9 +24,11 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.model.classes.ResellApiState
 import com.cornellappdev.resell.android.ui.components.chat.messages.MessageTag
 import com.cornellappdev.resell.android.ui.components.chat.messages.ResellMessagesScroll
@@ -95,14 +97,19 @@ private fun ColumnScope.LoadedContent(
         val isOffers = chatUiState.chatType == ChatViewModel.ChatType.Offers
         Text(
             modifier = Modifier.align(alignment = Alignment.CenterHorizontally),
-            text = "No messages with ${if (isOffers) "buyers" else "sellers"} yet",
+            text = stringResource(
+                if (isOffers) R.string.messages_empty_title_offers
+                else R.string.messages_empty_title_purchases
+            ),
             style = Style.heading2
         )
         Spacer(modifier = Modifier.height(19.dp))
         Text(
             modifier = Modifier.align(alignment = Alignment.CenterHorizontally),
-            text = if (isOffers) "When a buyer contacts you, you'll see their messages here"
-            else "When you contact a seller, you'll see your messages here",
+            text = stringResource(
+                if (isOffers) R.string.messages_empty_body_offers
+                else R.string.messages_empty_body_purchases
+            ),
             color = Color.Gray,
             textAlign = TextAlign.Center,
             style = Style.body1
@@ -143,7 +150,7 @@ private fun MessagesHeader(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
-                text = "Messages",
+                text = stringResource(R.string.messages),
                 style = Style.heading1
             )
         }
@@ -155,13 +162,13 @@ private fun MessagesHeader(
         ) {
             Spacer(modifier = Modifier.size(Padding.medium))
             MessageTag(
-                text = "Purchases",
+                text = stringResource(R.string.purchases),
                 active = activeChat == ChatViewModel.ChatType.Purchases,
                 unreads = purchasesUnreads,
                 onClick = { onChatTypePressed(ChatViewModel.ChatType.Purchases) }
             )
             MessageTag(
-                text = "Offers",
+                text = stringResource(R.string.offers),
                 active = activeChat == ChatViewModel.ChatType.Offers,
                 unreads = offersUnreads,
                 onClick = { onChatTypePressed(ChatViewModel.ChatType.Offers) }

@@ -16,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.cornellappdev.resell.android.R
@@ -60,7 +61,7 @@ fun ProfileHeader(
             if (leftIcon != null) {
                 Icon(
                     painter = painterResource(id = leftIcon),
-                    contentDescription = "settings",
+                    contentDescription = stringResource(R.string.cd_settings),
                     modifier = Modifier
                         .defaultHorizontalPadding()
                         .padding(top = 8.dp)
@@ -79,7 +80,7 @@ fun ProfileHeader(
                 ) {
                     Icon(
                         painter = painterResource(id = rightIcon),
-                        contentDescription = "search",
+                        contentDescription = stringResource(R.string.cd_search),
                         modifier = Modifier
                             .size(25.dp)
                             .clickableNoIndication { onRightPressed() }

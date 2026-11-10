@@ -10,6 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -74,8 +75,8 @@ fun ProfileScreen(
                                 paddedTop = 12.dp,
                                 emptyState = {
                                     ProfileEmptyState(
-                                        title = "No listings posted",
-                                        body = "When you post a listing, it will be displayed here",
+                                        title = stringResource(R.string.no_listings_posted),
+                                        body = stringResource(R.string.no_listings_posted_body),
                                         modifier = Modifier
                                             .fillMaxHeight()
                                             .padding(bottom = 60.dp)
@@ -104,8 +105,8 @@ fun ProfileScreen(
                                 paddedTop = 12.dp,
                                 emptyState = {
                                     ProfileEmptyState(
-                                        title = "No listings archived",
-                                        body = "When you archive a listing, it will be displayed here",
+                                        title = stringResource(R.string.no_listings_archived),
+                                        body = stringResource(R.string.no_listings_archived_body),
                                         modifier = Modifier
                                             .fillMaxHeight()
                                             .padding(bottom = 60.dp)

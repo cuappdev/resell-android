@@ -31,6 +31,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
@@ -157,7 +158,7 @@ fun SwipeableNotificationCard(
         ) {
             Icon(
                 painter = painterResource(id = R.drawable.ic_unread_message),
-                contentDescription = "read",
+                contentDescription = stringResource(R.string.cd_read),
                 modifier = Modifier
                     .size((sizeAnimatable.value).dp)
                     .align(Alignment.Center),

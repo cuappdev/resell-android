@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -79,8 +80,8 @@ fun ExternalProfileScreen(
                         paddedTop = 12.dp,
                         emptyState = {
                             ProfileEmptyState(
-                                title = "No listings posted",
-                                body = "When you post a listing, it will be displayed here",
+                                title = stringResource(R.string.no_listings_posted),
+                                body = stringResource(R.string.no_listings_posted_body),
                                 modifier = Modifier
                                     .fillMaxHeight()
                                     .padding(bottom = 60.dp)
@@ -121,7 +122,7 @@ private fun BlockedView(
             Box(modifier = Modifier.fillMaxWidth()) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_ellipse),
-                    contentDescription = "settings",
+                    contentDescription = stringResource(R.string.cd_settings),
                     modifier = Modifier
                         .defaultHorizontalPadding()
                         .padding(top = 8.dp)
@@ -134,7 +135,7 @@ private fun BlockedView(
         }
 
         Text(
-            text = "This profile is blocked",
+            text = stringResource(R.string.profile_blocked),
             style = title1,
             modifier = Modifier.align(Alignment.Center),
             color = Color.White
