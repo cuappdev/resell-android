@@ -48,6 +48,10 @@ class EditProfileViewModel @Inject constructor(
             get() = username.isNotBlank() && !loading
     }
 
+    fun onBackPressed() {
+        settingsNavigationRepository.popBackStack()
+    }
+
     fun onUsernameChanged(username: String) {
         applyMutation {
             // Usernames can't contain whitespace.

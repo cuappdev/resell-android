@@ -1,5 +1,9 @@
 package com.cornellappdev.resell.android.ui.screens.settings
 
+import com.cornellappdev.resell.android.ui.theme.Primary
+import androidx.compose.ui.res.painterResource
+import androidx.compose.material3.Icon
+import com.cornellappdev.resell.android.R
 import android.net.Uri
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -50,6 +54,7 @@ fun SendFeedbackScreen(
     val uiState = sendFeedbackViewModel.collectUiStateValue()
 
     Content(
+        onBackPressed = sendFeedbackViewModel::onBackPressed,
         description = uiState.feedback,
         onDescriptionChanged = sendFeedbackViewModel::onDescriptionChanged,
         onImageUploaded = sendFeedbackViewModel::onImageAdded,
@@ -64,6 +69,7 @@ fun SendFeedbackScreen(
 @Preview
 @Composable
 private fun Content(
+    onBackPressed: () -> Unit = {},
     description: String = "",
     canSubmit: Boolean = false,
     onDescriptionChanged: (String) -> Unit = {},
@@ -90,6 +96,15 @@ private fun Content(
     ) {
         ResellHeaderCore(
             title = "Send Feedback",
+            leftContent = {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_chevron_left),
+                    contentDescription = "Back",
+                    modifier = Modifier.size(24.dp),
+                    tint = Primary,
+                )
+            },
+            onLeftClick = onBackPressed,
             rightContent = {
                 Text(
                     text = "Submit",

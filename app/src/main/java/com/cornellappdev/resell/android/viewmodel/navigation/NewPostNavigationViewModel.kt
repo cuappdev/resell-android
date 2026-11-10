@@ -15,12 +15,17 @@ class NewPostNavigationViewModel @Inject constructor(
 ) {
 
     data class NewPostNavigationUiState(
-        val navigationEvent: UIEvent<ResellNewPostScreen>? = null
+        val navigationEvent: UIEvent<ResellNewPostScreen>? = null,
+        val popBackStack: UIEvent<Unit>? = null,
     )
 
     init {
         asyncCollect(newPostNavigationRepository.routeFlow) {
             applyMutation { copy(navigationEvent = it) }
+        }
+
+        asyncCollect(newPostNavigationRepository.popBackStackFlow) {
+            applyMutation { copy(popBackStack = it) }
         }
     }
 }

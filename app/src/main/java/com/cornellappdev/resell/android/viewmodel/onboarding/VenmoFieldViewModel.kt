@@ -1,5 +1,6 @@
 package com.cornellappdev.resell.android.viewmodel.onboarding
 
+import com.cornellappdev.resell.android.viewmodel.navigation.OnboardingNavigationRepository
 import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
@@ -28,6 +29,7 @@ import kotlin.time.Duration.Companion.milliseconds
 @HiltViewModel
 class VenmoFieldViewModel @Inject constructor(
     private val rootNavigationRepository: RootNavigationRepository,
+    private val onboardingNavigationRepository: OnboardingNavigationRepository,
     private val rootNavigationSheetRepository: RootNavigationSheetRepository,
     private val resellAuthRepository: ResellAuthRepository,
     private val googleAuthRepository: GoogleAuthRepository,
@@ -149,6 +151,10 @@ class VenmoFieldViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    fun onBackPressed() {
+        onboardingNavigationRepository.popBackStack()
     }
 
     fun onHandleChanged(handle: String) {

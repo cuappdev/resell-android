@@ -1,5 +1,6 @@
 package com.cornellappdev.resell.android.viewmodel.newpost
 
+import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepository
 import android.content.Context
 import android.net.Uri
 import androidx.compose.ui.graphics.ImageBitmap
@@ -21,6 +22,7 @@ import javax.inject.Inject
 class ImageUploadViewModel @Inject constructor(
     @ApplicationContext private val appContext: Context,
     val navigationRepository: NewPostNavigationRepository,
+    private val rootNavigationRepository: RootNavigationRepository,
     private val postRepository: ResellPostRepository,
     private val rootConfirmationRepository: RootConfirmationRepository
 ) : ResellViewModel<ImageUploadViewModel.ImageUploadUiState>(
@@ -49,6 +51,10 @@ class ImageUploadViewModel @Inject constructor(
                 onImageLoadFail()
             }
         }
+    }
+
+    fun onBackPressed() {
+        rootNavigationRepository.popBackStack()
     }
 
     fun onAddPressed() {

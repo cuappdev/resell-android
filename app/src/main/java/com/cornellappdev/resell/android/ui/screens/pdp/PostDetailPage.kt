@@ -98,6 +98,7 @@ fun PostDetailPage(
 
     Content(
         onContactClick = postDetailViewModel::onContactClick,
+        onBackClick = postDetailViewModel::onBackPressed,
         onEllipseClick = postDetailViewModel::onEllipseClick,
         images = uiState.images,
         maxImageHeight = maxImageHeight,
@@ -139,6 +140,7 @@ private fun Content(
     images: List<ImageBitmap> = emptyList(),
     similarImageUrls: ResellApiResponse<List<String>> = ResellApiResponse.Pending,
     onContactClick: () -> Unit = {},
+    onBackClick: () -> Unit = {},
     onEllipseClick: () -> Unit = {},
     contactButtonState: ResellTextButtonState = ResellTextButtonState.ENABLED,
     userPfp: String = "",
@@ -231,9 +233,10 @@ private fun Content(
             }
         }
 
-        Header {
-            onEllipseClick()
-        }
+        Header(
+            onBackClick = onBackClick,
+            onEllipseClick = onEllipseClick,
+        )
 
         Spacer(
             modifier = Modifier
@@ -305,6 +308,7 @@ private fun PdpImageBlurredBackground(
 
 @Composable
 private fun Header(
+    onBackClick: () -> Unit,
     onEllipseClick: () -> Unit,
 ) {
     Row(
@@ -315,7 +319,20 @@ private fun Header(
             .defaultHorizontalPadding()
             .systemBarsPadding()
     ) {
-        Box {}
+        Box(
+            modifier = Modifier
+                .size(24.dp)
+                .clickableNoIndication {
+                    onBackClick()
+                },
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_chevron_left),
+                contentDescription = "Back",
+                modifier = Modifier.align(Alignment.Center),
+                tint = Color.White
+            )
+        }
 
         Box(
             modifier = Modifier

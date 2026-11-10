@@ -1,5 +1,6 @@
 package com.cornellappdev.resell.android.ui.screens.settings
 
+import com.cornellappdev.resell.android.R
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -44,6 +45,7 @@ fun BlockedUsersScreen(
 
     Content(
         blockedUsers = uiState.blockedUsers,
+        onBackPressed = blockedUsersViewModel::onBackPressed,
         onUnblockUser = blockedUsersViewModel::onUnblock
     )
 }
@@ -53,6 +55,7 @@ fun BlockedUsersScreen(
 private fun Content(
     blockedUsers: List<BlockedUsersViewModel.UiBlockedUser> = emptyList(),
     onUnblockUser: (id: String) -> Unit = {},
+    onBackPressed: () -> Unit = {},
 ) {
     Column(
         modifier = Modifier
@@ -62,6 +65,8 @@ private fun Content(
     ) {
         ResellHeader(
             title = "Blocked Users",
+            leftPainter = R.drawable.ic_chevron_left,
+            onLeftClick = onBackPressed,
         )
 
         if (blockedUsers.isEmpty()) {

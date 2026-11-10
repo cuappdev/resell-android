@@ -1,5 +1,8 @@
 package com.cornellappdev.resell.android.ui.screens.onboarding
 
+import com.cornellappdev.resell.android.util.clickableNoIndication
+import com.cornellappdev.resell.android.ui.theme.Primary
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -45,7 +48,7 @@ fun VenmoFieldScreen(
             .background(Color.White),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        ScreenHeader()
+        ScreenHeader(onBackPressed = venmoFieldViewModel::onBackPressed)
 
         ResellTextEntry(
             label = "Venmo Handle",
@@ -81,7 +84,7 @@ fun VenmoFieldScreen(
 
 @Preview
 @Composable
-private fun ScreenHeader() = ResellPreview {
+private fun ScreenHeader(onBackPressed: () -> Unit = {}) = ResellPreview {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -92,6 +95,16 @@ private fun ScreenHeader() = ResellPreview {
         Spacer(Modifier.height(16.dp))
 
         Box(modifier = Modifier.fillMaxWidth()) {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_chevron_left),
+                contentDescription = "Back",
+                tint = Primary,
+                modifier = Modifier
+                    .size(24.dp)
+                    .align(Alignment.CenterStart)
+                    .clickableNoIndication { onBackPressed() }
+            )
+
             Row(
                 verticalAlignment = Alignment.Bottom,
                 modifier = Modifier.align(Alignment.Center)
