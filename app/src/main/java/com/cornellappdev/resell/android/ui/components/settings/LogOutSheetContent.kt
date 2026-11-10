@@ -8,9 +8,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.viewModelScope
+import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.model.login.ResellAuthRepository
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButton
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonContainer
@@ -37,14 +39,14 @@ fun LogOutSheetContent(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "Log Out of Resell?",
+            text = stringResource(R.string.log_out_confirmation),
             style = Style.heading3
         )
 
         Spacer(modifier = Modifier.height(24.dp))
 
         ResellTextButton(
-            text = "Log Out",
+            text = stringResource(R.string.log_out),
             onClick = viewModel::onLogOut,
             containerType = ResellTextButtonContainer.PRIMARY_RED
         )
@@ -52,7 +54,7 @@ fun LogOutSheetContent(
         Spacer(modifier = Modifier.height(24.dp))
 
         ResellTextButton(
-            text = "Cancel",
+            text = stringResource(R.string.cancel),
             onClick = onDismiss,
             containerType = ResellTextButtonContainer.NAKED_PRIMARY
         )

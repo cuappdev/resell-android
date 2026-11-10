@@ -16,6 +16,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -29,7 +30,7 @@ fun Dropdown(onSelectSortBy: (ResellFilter.SortBy) -> Unit) {
     Box {
         Icon(
             painter = painterResource(R.drawable.baseline_keyboard_arrow_down_24),
-            contentDescription = "More options",
+            contentDescription = stringResource(R.string.cd_more_options),
             tint = Secondary,
             modifier = Modifier.clickable { expanded = !expanded }
         )

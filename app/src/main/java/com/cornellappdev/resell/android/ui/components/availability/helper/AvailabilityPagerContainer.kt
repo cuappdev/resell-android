@@ -21,6 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.cornellappdev.resell.android.R
@@ -74,7 +75,7 @@ fun AvailabilityPagerContainer(
         ) {
             Icon(
                 painter = painterResource(R.drawable.ic_chevron_left),
-                contentDescription = "Scroll left",
+                contentDescription = stringResource(R.string.cd_scroll_left),
                 modifier = Modifier
                     .clickableNoIndication {
                         coroutineScope.launch {
@@ -102,7 +103,7 @@ fun AvailabilityPagerContainer(
                             color = Secondary
                         )
                         Text(
-                            text = "Edit Availability",
+                            text = stringResource(R.string.edit_availability),
                             style = Style.body2,
                             color = ResellPurple,
                             modifier = Modifier.clickableNoIndication { onEditAvailabilityClicked() }
@@ -112,7 +113,7 @@ fun AvailabilityPagerContainer(
             }
             Icon(
                 painter = painterResource(R.drawable.ic_chevron_right),
-                contentDescription = "Scroll right",
+                contentDescription = stringResource(R.string.cd_scroll_right),
                 modifier = Modifier
                     .clickableNoIndication {
                         coroutineScope.launch {

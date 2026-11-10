@@ -14,6 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.cornellappdev.resell.android.R
@@ -37,7 +38,7 @@ fun ChatAvailability(sender: String, onClick: () -> Unit) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "$sender's Availability",
+                text = stringResource(R.string.user_availability, sender),
                 style = Style.title3.copy(color = ResellPurple),
                 modifier = Modifier
                     .weight(1f)
@@ -45,7 +46,7 @@ fun ChatAvailability(sender: String, onClick: () -> Unit) {
             )
             Icon(
                 painter = painterResource(id = R.drawable.ic_chevron_right),
-                contentDescription = "chevron",
+                contentDescription = stringResource(R.string.cd_chevron),
                 tint = ResellPurple,
                 modifier = Modifier
                     .size(16.dp)

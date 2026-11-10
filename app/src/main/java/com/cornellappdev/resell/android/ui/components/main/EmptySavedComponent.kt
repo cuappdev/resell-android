@@ -47,7 +47,7 @@ fun EmptySavedComponent(
             horizontalArrangement = Arrangement.Center
         ) {
             Text(
-                text = "Tap ",
+                text = stringResource(R.string.empty_saved_tap),
                 style = Style.body2,
                 color = Secondary
             )
@@ -58,7 +58,7 @@ fun EmptySavedComponent(
                 tint = Secondary
             )
             Text(
-                text = " on a listing to save.",
+                text = stringResource(R.string.empty_saved_on_listing),
                 style = Style.body2,
                 color = Secondary
             )

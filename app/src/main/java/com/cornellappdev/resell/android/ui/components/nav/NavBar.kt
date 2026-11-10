@@ -24,6 +24,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.cornellappdev.resell.android.R
@@ -98,7 +99,7 @@ private fun NavBarContent(
         ) {
             BrushIcon(
                 painter = painterResource(id = R.drawable.ic_home),
-                contentDescription = "home",
+                contentDescription = stringResource(R.string.cd_home),
                 modifier = Modifier
                     .clickable(
                         indication = null,
@@ -109,7 +110,7 @@ private fun NavBarContent(
             )
             BrushIcon(
                 painter = painterResource(id = R.drawable.ic_messages),
-                contentDescription = "messages",
+                contentDescription = stringResource(R.string.cd_messages),
                 modifier = Modifier
                     .clickable(
                         indication = null,
@@ -120,7 +121,7 @@ private fun NavBarContent(
             )
             BrushIcon(
                 painter = painterResource(id = R.drawable.ic_user),
-                contentDescription = "profile",
+                contentDescription = stringResource(R.string.cd_profile),
                 modifier = Modifier
                     .clickable(
                         indication = null,

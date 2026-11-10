@@ -19,6 +19,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.cornellappdev.resell.android.R
@@ -87,7 +88,7 @@ private fun SearchHeader(
     query: String = "",
     onQueryChanged: (String) -> Unit = {},
     onExit: () -> Unit = {},
-    placeholder: String = "Search...",
+    placeholder: String = stringResource(R.string.search_placeholder),
     focusRequester: FocusRequester? = null,
 ) {
     val fallbackFocusRequester = remember { FocusRequester() }
@@ -111,7 +112,7 @@ private fun SearchHeader(
 
         Icon(
             painter = painterResource(R.drawable.ic_exit),
-            contentDescription = "exit",
+            contentDescription = stringResource(R.string.cd_exit),
             modifier = Modifier
                 .wrapContentWidth()
                 .padding(start = 16.dp)

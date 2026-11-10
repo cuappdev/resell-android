@@ -12,7 +12,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.model.classes.InAppNotification
 import com.cornellappdev.resell.android.ui.theme.Style
 
@@ -36,7 +38,7 @@ fun ResellNotificationsScroll(
         if (unreadNotifications.isNotEmpty()) {
             item {
                 Text(
-                    text = "New",
+                    text = stringResource(R.string.notifications_new),
                     style = Style.title1,
                     modifier = Modifier.padding(horizontal = 24.dp)
                 )
@@ -66,7 +68,7 @@ fun ResellNotificationsScroll(
         if (weekNotifications.isNotEmpty()) {
             item {
                 Text(
-                    text = "Last 7 Days",
+                    text = stringResource(R.string.notifications_last_7_days),
                     style = Style.title1,
                     modifier = Modifier.padding(horizontal = 24.dp)
                 )
@@ -90,7 +92,7 @@ fun ResellNotificationsScroll(
         if (monthNotifications.isNotEmpty()) {
             item {
                 Text(
-                    text = "Last 30 Days",
+                    text = stringResource(R.string.notifications_last_30_days),
                     style = Style.title1,
                     modifier = Modifier.padding(horizontal = 24.dp)
                 )
@@ -112,7 +114,7 @@ fun ResellNotificationsScroll(
         if (otherNotifications.isNotEmpty()) {
             item {
                 Text(
-                    text = "Older",
+                    text = stringResource(R.string.notifications_older),
                     style = Style.title1,
                     modifier = Modifier.padding(horizontal = 24.dp)
                 )

@@ -14,6 +14,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.ui.theme.ResellPreview
@@ -37,7 +38,7 @@ fun FromHistoryHeader(text: String, onBack: () -> Unit, onTopPressed: () -> Unit
         )
         Icon(
             painter = painterResource(R.drawable.ic_chevron_left),
-            contentDescription = "back",
+            contentDescription = stringResource(R.string.cd_back),
             modifier = Modifier
                 .align(Alignment.CenterStart)
                 .clickable(onClick = onBack)
