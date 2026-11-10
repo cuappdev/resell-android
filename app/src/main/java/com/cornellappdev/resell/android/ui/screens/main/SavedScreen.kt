@@ -41,9 +41,7 @@ fun SavedScreen(
     val listState = rememberLazyStaggeredGridState()
 
     Column(
-        modifier = Modifier
-            .defaultHorizontalPadding()
-            .fillMaxSize()
+        modifier = Modifier.fillMaxSize()
     ) {
         Header(
             onTopPressed = {
@@ -84,7 +82,7 @@ fun SavedScreen(
 private fun Header(
     onTopPressed: () -> Unit,
 ) {
-    Column {
+    Column(modifier = Modifier.defaultHorizontalPadding()) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()

@@ -19,7 +19,6 @@ import com.cornellappdev.resell.android.ui.components.global.ResellListingsScrol
 import com.cornellappdev.resell.android.ui.components.global.ResellLoadingListingScroll
 import com.cornellappdev.resell.android.ui.components.profile.ProfileEmptyState
 import com.cornellappdev.resell.android.ui.components.profile.ProfileHeader
-import com.cornellappdev.resell.android.ui.theme.Padding
 import com.cornellappdev.resell.android.ui.theme.ResellPreview
 import com.cornellappdev.resell.android.ui.theme.simpleFadeInOut
 import com.cornellappdev.resell.android.util.LocalInfiniteShimmer
@@ -60,7 +59,7 @@ fun ProfileScreen(
                 ProfileViewModel.ProfileTab.SHOP -> {
                     when (uiState.shopListings) {
                         is ResellApiResponse.Pending -> {
-                            ResellLoadingListingScroll(horizontalPadding = Padding.leftRight)
+                            ResellLoadingListingScroll()
                         }
 
                         is ResellApiResponse.Error -> {
@@ -72,7 +71,6 @@ fun ProfileScreen(
                                 listings = uiState.shopListings.data,
                                 onListingPressed = { profileViewModel.onListingPressed(it) },
                                 listState = staggeredState,
-                                horizontalPadding = Padding.leftRight,
                                 paddedTop = 12.dp,
                                 emptyState = {
                                     ProfileEmptyState(
@@ -103,7 +101,6 @@ fun ProfileScreen(
                                 listings = uiState.archiveListings.data,
                                 onListingPressed = { profileViewModel.onListingPressed(it) },
                                 listState = staggeredState,
-                                horizontalPadding = Padding.leftRight,
                                 paddedTop = 12.dp,
                                 emptyState = {
                                     ProfileEmptyState(

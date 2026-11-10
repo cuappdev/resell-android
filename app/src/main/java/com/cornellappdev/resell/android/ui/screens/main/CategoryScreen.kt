@@ -132,7 +132,7 @@ private fun CategoryScreenContent(
         }
         Spacer(modifier = Modifier.height(24.dp))
         when (loadedState) {
-            ResellApiState.Loading -> ResellLoadingListingScroll(modifier = Modifier.defaultHorizontalPadding())
+            ResellApiState.Loading -> ResellLoadingListingScroll()
             ResellApiState.Success ->
                 if (listings.isEmpty()) {
                     EmptyState()
@@ -142,8 +142,6 @@ private fun CategoryScreenContent(
                         onListingPressed = onListingPressed,
                         onScrollBottom = onScrollBottom,
                         bottomLoading = bottomLoading,
-                        modifier = Modifier
-                            .defaultHorizontalPadding()
                     )
                 }
 

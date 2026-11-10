@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.cornellappdev.resell.android.ui.theme.Padding
 import com.cornellappdev.resell.android.ui.theme.ResellPreview
 import kotlin.random.Random
 
@@ -24,7 +25,7 @@ fun ResellLoadingListingScroll(
     numCards: Int = Int.MAX_VALUE - 1,
     listState: LazyStaggeredGridState = rememberLazyStaggeredGridState(),
     header: @Composable () -> Unit = {},
-    horizontalPadding: Dp = 0.dp,
+    horizontalPadding: Dp = Padding.leftRight,
 ) {
 
     LazyVerticalStaggeredGrid(
