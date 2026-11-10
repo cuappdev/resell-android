@@ -1,6 +1,7 @@
 package com.cornellappdev.resell.android.ui.screens.root
 
 import android.Manifest
+import android.content.Intent
 import android.os.Build
 import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.background
@@ -17,8 +18,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.cornellappdev.resell.android.MainActivity
 import com.cornellappdev.resell.android.ui.components.submitted.ConfettiOverlay
@@ -59,6 +62,15 @@ fun RootNavigation(
 
     val context = LocalActivity.current as? MainActivity
 
+    val currentEntry by navController.currentBackStackEntryAsState()
+    val onSignedInDestination = currentEntry?.destination?.let {
+        !it.hasRoute<ResellRootRoute.LANDING>() && !it.hasRoute<ResellRootRoute.ONBOARDING>()
+    } ?: false
+
+    LaunchedEffect(onSignedInDestination) {
+        rootNavigationViewModel.onSignedInDestinationChanged(onSignedInDestination)
+    }
+
     LaunchedEffect(uiState.sheetEvent) {
         uiState.sheetEvent?.consumeSuspend { sheet ->
             // Show bottom sheet.
@@ -88,6 +100,18 @@ fun RootNavigation(
     LaunchedEffect(uiState.popBackStack) {
         uiState.popBackStack?.consumeSuspend {
             navController.popBackStack()
+        }
+    }
+
+    LaunchedEffect(uiState.shareEvent) {
+        uiState.shareEvent?.consumeSuspend { text ->
+            if (context == null) return@consumeSuspend
+
+            val sendIntent = Intent(Intent.ACTION_SEND).apply {
+                type = "text/plain"
+                putExtra(Intent.EXTRA_TEXT, text)
+            }
+            context.startActivity(Intent.createChooser(sendIntent, null))
         }
     }
 
