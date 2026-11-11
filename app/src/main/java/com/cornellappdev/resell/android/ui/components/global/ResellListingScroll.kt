@@ -40,6 +40,7 @@ fun ResellListingsScroll(
     onScrollBottom: () -> Unit = {},
     footer: @Composable () -> Unit = {},
     bottomLoading: Boolean = false,
+    imageStateLoader: ImageStateLoader? = null,
 ) {
     if (listings.isEmpty()) {
         emptyState()
@@ -64,7 +65,13 @@ fun ResellListingsScroll(
         item(span = StaggeredGridItemSpan.FullLine) {
             header()
         }
-        resellListingScroll(listings, onListingPressed, footer, bottomLoading = bottomLoading)
+        resellListingScroll(
+            listings,
+            onListingPressed,
+            footer,
+            bottomLoading = bottomLoading,
+            imageStateLoader = imageStateLoader,
+        )
     }
 }
 
@@ -102,6 +109,7 @@ fun LazyStaggeredGridScope.resellListingScroll(
     footer: @Composable () -> Unit = {},
     addVerticalPadding: Boolean = false,
     bottomLoading: Boolean = false,
+    imageStateLoader: ImageStateLoader? = null,
 ) {
     itemsIndexed(items = listings.distinctBy { it.id }, key = { _, item -> item.id }) { _, item ->
         val padding = calculateItemPadding(addVerticalPadding)
@@ -109,7 +117,8 @@ fun LazyStaggeredGridScope.resellListingScroll(
             imageUrl = item.image,
             title = item.title,
             price = item.price,
-            modifier = Modifier.padding(padding)
+            modifier = Modifier.padding(padding),
+            imageStateLoader = imageStateLoader,
         ) {
             onListingPressed(item)
         }

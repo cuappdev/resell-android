@@ -38,6 +38,7 @@ import com.cornellappdev.resell.android.model.classes.ProfileReview
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.model.classes.ResellApiState
 import com.cornellappdev.resell.android.model.classes.UserInfo
+import com.cornellappdev.resell.android.ui.components.global.ImageStateLoader
 import com.cornellappdev.resell.android.ui.components.global.LabeledTab
 import com.cornellappdev.resell.android.ui.components.global.ResellLabeledTabBar
 import com.cornellappdev.resell.android.ui.components.global.ResellListingsScroll
@@ -83,6 +84,7 @@ private fun ExternalProfileContent(
     onListingPressed: (Listing) -> Unit,
     onEllipsisPressed: () -> Unit,
     onSearchPressed: () -> Unit,
+    imageStateLoader: ImageStateLoader? = null,
 ) {
     val staggeredState = rememberLazyStaggeredGridState()
     val headerState = rememberCollapsingHeaderState()
@@ -153,6 +155,7 @@ private fun ExternalProfileContent(
                         listings = uiState.shopListings,
                         listState = staggeredState,
                         onListingPressed = onListingPressed,
+                        imageStateLoader = imageStateLoader,
                     )
 
                     ExternalProfileTab.REVIEWS -> ReviewsTab(reviews = uiState.reviews)
@@ -173,6 +176,7 @@ private fun ListingsTab(
     listings: ResellApiResponse<List<Listing>>,
     listState: LazyStaggeredGridState,
     onListingPressed: (Listing) -> Unit,
+    imageStateLoader: ImageStateLoader?,
 ) {
     when (listings) {
         is ResellApiResponse.Pending -> ResellLoadingListingScroll()
@@ -187,6 +191,7 @@ private fun ListingsTab(
             onListingPressed = onListingPressed,
             listState = listState,
             paddedTop = 16.dp,
+            imageStateLoader = imageStateLoader,
             emptyState = {
                 ProfileMessage(
                     title = "No listings posted",
@@ -374,6 +379,7 @@ private fun ExternalProfileContentPreview() = ResellPreview {
             onListingPressed = {},
             onEllipsisPressed = {},
             onSearchPressed = {},
+            imageStateLoader = { mutableStateOf(ResellApiResponse.Pending) },
         )
     }
 }
