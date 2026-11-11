@@ -16,13 +16,14 @@ import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridS
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -31,6 +32,8 @@ import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.model.classes.Listing
 import com.cornellappdev.resell.android.model.classes.ProfileReview
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
+import com.cornellappdev.resell.android.model.classes.ResellApiState
+import com.cornellappdev.resell.android.model.classes.UserInfo
 import com.cornellappdev.resell.android.ui.components.global.LabeledTab
 import com.cornellappdev.resell.android.ui.components.global.ResellLabeledTabBar
 import com.cornellappdev.resell.android.ui.components.global.ResellListingsScroll
@@ -42,28 +45,43 @@ import com.cornellappdev.resell.android.ui.components.profile.ResellReviewsScrol
 import com.cornellappdev.resell.android.ui.components.profile.collapsingHeader
 import com.cornellappdev.resell.android.ui.components.profile.rememberCollapsingHeaderState
 import com.cornellappdev.resell.android.ui.theme.Padding
+import com.cornellappdev.resell.android.ui.theme.ResellPreview
 import com.cornellappdev.resell.android.ui.theme.Style
 import com.cornellappdev.resell.android.ui.theme.Style.title1
 import com.cornellappdev.resell.android.ui.theme.simpleFadeInOut
 import com.cornellappdev.resell.android.util.clickableNoIndication
+import com.cornellappdev.resell.android.util.LocalInfiniteShimmer
 import com.cornellappdev.resell.android.util.defaultHorizontalPadding
 import com.cornellappdev.resell.android.viewmodel.externalprofile.ExternalProfileViewModel
+import com.cornellappdev.resell.android.viewmodel.externalprofile.ExternalProfileViewModel.ExternalProfileState
 import com.cornellappdev.resell.android.viewmodel.externalprofile.ExternalProfileViewModel.ExternalProfileTab
 
 private val ToolbarIconSize = 25.dp
+private val ToolbarTitleGap = 8.dp
 
 @Composable
 fun ExternalProfileScreen(
     profileViewModel: ExternalProfileViewModel = hiltViewModel()
 ) {
-    val uiState = profileViewModel.collectUiStateValue()
+    ExternalProfileContent(
+        uiState = profileViewModel.collectUiStateValue(),
+        onTabSelected = { profileViewModel.onTabSelected(it) },
+        onListingPressed = { profileViewModel.onListingPressed(it) },
+        onEllipsisPressed = { profileViewModel.onEllipsisPressed() },
+        onSearchPressed = { profileViewModel.onSearchPressed() },
+    )
+}
+
+@Composable
+private fun ExternalProfileContent(
+    uiState: ExternalProfileState,
+    onTabSelected: (ExternalProfileTab) -> Unit,
+    onListingPressed: (Listing) -> Unit,
+    onEllipsisPressed: () -> Unit,
+    onSearchPressed: () -> Unit,
+) {
     val staggeredState = rememberLazyStaggeredGridState()
     val headerState = rememberCollapsingHeaderState()
-
-    // Reset tab to top to show external profile header
-    LaunchedEffect(uiState.selectedTab) {
-        headerState.reset()
-    }
 
     Box {
         Column(
@@ -78,8 +96,8 @@ fun ExternalProfileScreen(
         ) {
             ExternalProfileToolbar(
                 username = uiState.shopName,
-                onEllipsisPressed = { profileViewModel.onEllipsisPressed() },
-                onSearchPressed = { profileViewModel.onSearchPressed() },
+                onEllipsisPressed = onEllipsisPressed,
+                onSearchPressed = onSearchPressed,
             )
 
             ExternalProfileHeader(
@@ -112,7 +130,12 @@ fun ExternalProfileScreen(
                     ),
                 ),
                 selectedIndex = uiState.selectedTab.ordinal,
-                onTabSelected = { profileViewModel.onTabSelected(ExternalProfileTab.entries[it]) },
+                onTabSelected = { index ->
+                    val tab = ExternalProfileTab.entries[index]
+                    // Show the header again when switching tabs.
+                    if (tab != uiState.selectedTab) headerState.reset()
+                    onTabSelected(tab)
+                },
             )
 
             AnimatedContent(
@@ -125,7 +148,7 @@ fun ExternalProfileScreen(
                     ExternalProfileTab.LISTINGS -> ListingsTab(
                         listings = uiState.shopListings,
                         listState = staggeredState,
-                        onListingPressed = { profileViewModel.onListingPressed(it) },
+                        onListingPressed = onListingPressed,
                     )
 
                     ExternalProfileTab.REVIEWS -> ReviewsTab(reviews = uiState.reviews)
@@ -135,7 +158,7 @@ fun ExternalProfileScreen(
 
         if (uiState.isBlocked) {
             BlockedView(
-                onEllipsisPressed = { profileViewModel.onEllipsisPressed() },
+                onEllipsisPressed = onEllipsisPressed,
             )
         }
     }
@@ -221,11 +244,12 @@ private fun ExternalProfileToolbar(
         Text(
             text = "@$username",
             style = Style.heading3,
+            textAlign = TextAlign.Center,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = Padding.leftRight + ToolbarIconSize)
+                .padding(horizontal = Padding.leftRight + ToolbarIconSize + ToolbarTitleGap)
                 .align(Alignment.Center)
         )
 
@@ -280,6 +304,69 @@ private fun BlockedView(
             style = title1,
             modifier = Modifier.align(Alignment.Center),
             color = Color.White
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun ExternalProfileContentPreview() = ResellPreview {
+    val seller = UserInfo(
+        username = "ravina",
+        name = "Ravina Patel",
+        netId = "rp123",
+        venmoHandle = "",
+        bio = "",
+        imageUrl = "",
+        id = "seller",
+        email = "rp123@cornell.edu",
+    )
+    val listings = List(4) {
+        Listing(
+            id = "$it",
+            title = "Item $it",
+            images = listOf(""),
+            price = "${(it + 1) * 10}",
+            categories = listOf("Furniture"),
+            description = "",
+            user = seller,
+        )
+    }
+    val reviews = listOf(
+        ProfileReview(
+            id = "1",
+            rating = 5,
+            comment = "Super easy to meet up with and the item was exactly as described!",
+            dateLabel = "Oct 12, 2026",
+            reviewerName = "Ryan",
+        ),
+        ProfileReview(
+            id = "2",
+            rating = 4,
+            comment = "",
+            dateLabel = "Oct 3, 2026",
+            reviewerName = "Anonymous",
+        ),
+    )
+
+    CompositionLocalProvider(value = LocalInfiniteShimmer provides Color.LightGray) {
+        ExternalProfileContent(
+            uiState = ExternalProfileState(
+                shopName = seller.username,
+                vendorName = seller.name,
+                bio = "",
+                imageUrl = "",
+                loadedState = ResellApiState.Success,
+                shopListings = ResellApiResponse.Success(listings),
+                archiveListings = ResellApiResponse.Pending,
+                reviews = ResellApiResponse.Success(reviews),
+                uid = seller.id,
+                blockedUsers = listOf(),
+            ),
+            onTabSelected = {},
+            onListingPressed = {},
+            onEllipsisPressed = {},
+            onSearchPressed = {},
         )
     }
 }

@@ -18,10 +18,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.model.classes.ProfileReview
 import com.cornellappdev.resell.android.ui.theme.IconInactive
+import com.cornellappdev.resell.android.ui.theme.Padding
+import com.cornellappdev.resell.android.ui.theme.ResellPreview
 import com.cornellappdev.resell.android.ui.theme.Secondary
 import com.cornellappdev.resell.android.ui.theme.Style
 import com.cornellappdev.resell.android.util.shimmer
@@ -43,8 +46,8 @@ fun ResellReviewsScroll(
     LazyColumn(
         modifier = modifier.fillMaxSize(),
         contentPadding = PaddingValues(
-            start = ReviewListPadding,
-            end = ReviewListPadding,
+            start = Padding.leftRight,
+            end = Padding.leftRight,
             top = ReviewListPadding,
             bottom = 100.dp
         ),
@@ -84,7 +87,7 @@ fun ResellLoadingReviewsScroll(modifier: Modifier = Modifier) {
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .padding(start = ReviewListPadding, end = ReviewListPadding, top = ReviewListPadding),
+            .padding(start = Padding.leftRight, end = Padding.leftRight, top = ReviewListPadding),
         verticalArrangement = Arrangement.spacedBy(ReviewListPadding)
     ) {
         repeat(SKELETON_COUNT) {
@@ -97,4 +100,27 @@ fun ResellLoadingReviewsScroll(modifier: Modifier = Modifier) {
             )
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun ResellReviewsScrollPreview() = ResellPreview {
+    ResellReviewsScroll(
+        reviews = listOf(
+            ProfileReview(
+                id = "1",
+                rating = 5,
+                comment = "Super easy to meet up with and the item was exactly as described!",
+                dateLabel = "Oct 12, 2026",
+                reviewerName = "Ryan",
+            ),
+            ProfileReview(
+                id = "2",
+                rating = 3,
+                comment = "",
+                dateLabel = "Oct 3, 2026",
+                reviewerName = "Anonymous",
+            ),
+        )
+    )
 }

@@ -9,7 +9,7 @@ import java.time.format.FormatStyle
 data class ProfileReview(
     val id: String,
     val rating: Int,
-    val comments: String,
+    val comment: String,
     val dateLabel: String,
     val reviewerName: String,
 )
@@ -23,7 +23,7 @@ fun TransactionReviewListItem.toProfileReview(): ProfileReview? {
     return ProfileReview(
         id = id.orEmpty(),
         rating = stars.coerceIn(0, 5),
-        comments = comments?.trim().orEmpty(),
+        comment = comments?.trim().orEmpty(),
         dateLabel = createdAt.toDateLabel(),
         reviewerName = listOfNotNull(buyer?.givenName, buyer?.username)
             .firstOrNull { it.isNotBlank() } ?: "Anonymous",

@@ -81,7 +81,7 @@ fun ResellLabeledTabBar(
             }
         }
 
-        val position by animateFloatAsState(
+        val indicatorPosition by animateFloatAsState(
             targetValue = selectedIndex.toFloat(),
             animationSpec = tween(durationMillis = INDICATOR_ANIMATION_MILLIS),
             label = "tab indicator"
@@ -102,7 +102,7 @@ fun ResellLabeledTabBar(
                 modifier = Modifier
                     .fillMaxWidth(1f / tabs.size)
                     .fillMaxHeight()
-                    .graphicsLayer { translationX = position * size.width }
+                    .graphicsLayer { translationX = indicatorPosition * size.width }
                     .background(Primary)
             )
         }
