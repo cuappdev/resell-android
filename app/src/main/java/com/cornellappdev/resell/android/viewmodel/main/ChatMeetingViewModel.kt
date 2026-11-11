@@ -267,21 +267,7 @@ class ChatMeetingViewModel @Inject constructor(
                     )
                 }
 
-                MeetingState.DECLINED -> {
-                    val myId = userInfoRepository.getUserId() ?: return@launch
-                    val chat = chatData ?: return@launch
-
-                    val mostRecentAvailability = chat.mostRecentMessage {
-                        it.availability != null && it.senderId != myId
-                    }
-
-                    val availability = mostRecentAvailability?.availability
-                    if (availability != null) {
-                        onAvailabilitySelected(availability, false)
-                    } else {
-                        onSendAvailabilityPressed()
-                    }
-                }
+                MeetingState.DECLINED -> onSendAvailabilityPressed()
 
                 MeetingState.CANCELED -> {}
             }
@@ -348,8 +334,6 @@ class ChatMeetingViewModel @Inject constructor(
     )
 
     init {
-        val otherId = navArgs.otherUserId
-
         asyncCollect(chatRepository.subscribedChatFlow(navArgs.chatId)) { response ->
             applyMutation {
                 copy(confirmedMeeting = response.asSuccessOrNull()?.data?.confirmedMeeting())
@@ -360,7 +344,8 @@ class ChatMeetingViewModel @Inject constructor(
                 if (response is ResellApiResponse.Success
                     && confirmedMeetingInfo != null
                     && chatRepository.shouldShowGCalSync(
-                        otherId = otherId,
+                        myId = userInfoRepository.getUserId() ?: "",
+                        chatId = navArgs.chatId,
                         meetingDate = confirmedMeetingInfo.convertToUtcMinusFiveDate()
                     )
                 ) {

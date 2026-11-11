@@ -26,6 +26,7 @@ import com.cornellappdev.resell.android.viewmodel.root.RootConfirmationRepositor
 import com.cornellappdev.resell.android.viewmodel.root.RootDialogContent
 import com.cornellappdev.resell.android.viewmodel.root.RootDialogRepository
 import com.cornellappdev.resell.android.viewmodel.root.RootOptionsMenuRepository
+import com.cornellappdev.resell.android.viewmodel.root.RootShareRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
@@ -44,6 +45,7 @@ class PostDetailViewModel @Inject constructor(
     private val rootConfirmationRepository: RootConfirmationRepository,
     private val profileRepository: ProfileRepository,
     private val fireStoreRepository: FireStoreRepository,
+    private val rootShareRepository: RootShareRepository,
     savedStateHandle: SavedStateHandle
 ) : ResellViewModel<PostDetailViewModel.UiState>(
     initialUiState = UiState()
@@ -180,7 +182,10 @@ class PostDetailViewModel @Inject constructor(
             ) {
                 when (it) {
                     OptionType.SHARE -> {
-
+                        rootShareRepository.sharePost(
+                            postId = stateValue().postId,
+                            title = stateValue().title,
+                        )
                     }
 
                     OptionType.REPORT -> {

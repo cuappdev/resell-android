@@ -66,7 +66,7 @@ fun SearchScreen(
             is ResellApiResponse.Success -> {
                 ResellListingsScroll(
                     listings = listings.data,
-                    onListingPressed = onListingPressed
+                    onListingPressed = onListingPressed,
                 )
             }
 

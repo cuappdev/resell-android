@@ -53,6 +53,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -502,7 +503,7 @@ private fun CategoryRow(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier
                     .width(80.dp)
-                    .height(120.dp),
+                    .height(128.dp),
             ) {
                 Box(
                     modifier = Modifier
@@ -526,7 +527,9 @@ private fun CategoryRow(
                 }
                 Text(
                     text = category.label, style = Style.title4,
-                    textAlign = TextAlign.Center
+                    textAlign = TextAlign.Center,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
                 )
             }
         }
