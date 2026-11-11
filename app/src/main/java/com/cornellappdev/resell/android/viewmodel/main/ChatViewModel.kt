@@ -39,7 +39,7 @@ class ChatViewModel @Inject constructor(
     private val rootNavigationSheetRepository: RootNavigationSheetRepository,
     private val userInfoRepository: UserInfoRepository,
     private val chatRepository: ChatRepository,
-    private val savedStateHandle: SavedStateHandle,
+    savedStateHandle: SavedStateHandle,
     private val rootConfirmationRepository: RootConfirmationRepository,
     firebaseMessagingRepository: FirebaseMessagingRepository,
     private val rootDialogRepository: RootDialogRepository,

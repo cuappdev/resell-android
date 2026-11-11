@@ -12,6 +12,7 @@ import com.cornellappdev.resell.android.model.chats.TransactionState
 import com.cornellappdev.resell.android.model.classes.Listing
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.model.confirmedMeeting
+import com.cornellappdev.resell.android.model.mostRecentMessage
 import com.cornellappdev.resell.android.model.ptf.PostTransactionRatingRepository
 import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
 import com.cornellappdev.resell.android.util.UIEvent
@@ -32,7 +33,7 @@ import javax.inject.Inject
 @HiltViewModel
 class ChatTransactionViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    private val chatRepository: ChatRepository,
+    chatRepository: ChatRepository,
     private val postTransactionRatingRepository: PostTransactionRatingRepository,
     private val rootDialogRepository: RootDialogRepository,
     private val rootNavigationRepository: RootNavigationRepository,
@@ -199,10 +200,8 @@ class ChatTransactionViewModel @Inject constructor(
             }
 
             if (response is ResellApiResponse.Success) {
-                val transactionId = response.data.chatHistory
-                    .flatMap { it.messages }
-                    .filter { it.transactionId != null }
-                    .maxByOrNull { it.timestamp.seconds }
+                val transactionId = response.data
+                    .mostRecentMessage { it.transactionId != null }
                     ?.transactionId
 
                 if (transactionId != null) {
