@@ -34,6 +34,7 @@ import com.cornellappdev.resell.android.ui.components.main.PostFloatingActionBut
 import com.cornellappdev.resell.android.ui.components.nav.NavBar
 import com.cornellappdev.resell.android.ui.screens.main.ResellMainScreen.Home.toResellMainScreen
 import com.cornellappdev.resell.android.util.closeApp
+import com.cornellappdev.resell.android.util.popBackStackSafely
 import com.cornellappdev.resell.android.viewmodel.navigation.MainNavigationViewModel
 import kotlinx.serialization.Serializable
 
@@ -95,11 +96,11 @@ fun MainTabNavigation(
             }
 
             composable<ResellMainScreen.ByCategory> { backStackEntry ->
-                CategoryScreen(onExit = mainNav::popBackStack)
+                CategoryScreen(onExit = { mainNav.popBackStackSafely() })
             }
 
             composable<ResellMainScreen.Bookmarks> {
-                SavedScreen(onExit = mainNav::popBackStack)
+                SavedScreen(onExit = { mainNav.popBackStackSafely() })
             }
 
             composable<ResellMainScreen.Messages> {

@@ -36,6 +36,7 @@ import com.cornellappdev.resell.android.ui.screens.onboarding.OnboardingNavigati
 import com.cornellappdev.resell.android.ui.screens.pdp.PostDetailPage
 import com.cornellappdev.resell.android.ui.screens.reporting.ReportNavigation
 import com.cornellappdev.resell.android.ui.screens.settings.SettingsNavigation
+import com.cornellappdev.resell.android.util.popBackStackSafely
 import com.cornellappdev.resell.android.viewmodel.root.RootNavigationViewModel
 import com.cornellappdev.resell.android.viewmodel.root.RootSheet
 import kotlinx.coroutines.launch
@@ -87,7 +88,7 @@ fun RootNavigation(
 
     LaunchedEffect(uiState.popBackStack) {
         uiState.popBackStack?.consumeSuspend {
-            navController.popBackStack()
+            navController.popBackStackSafely()
         }
     }
 

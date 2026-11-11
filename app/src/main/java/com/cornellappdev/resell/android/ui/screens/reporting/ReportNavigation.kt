@@ -8,6 +8,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.cornellappdev.resell.android.util.popBackStackSafely
 import com.cornellappdev.resell.android.viewmodel.navigation.ReportNavigationViewModel
 import kotlinx.serialization.Serializable
 
@@ -26,7 +27,7 @@ fun ReportNavigation(
 
     LaunchedEffect(uiState.popBackStack) {
         uiState.popBackStack?.consumeSuspend {
-            navController.popBackStack()
+            navController.popBackStackSafely()
         }
     }
 
