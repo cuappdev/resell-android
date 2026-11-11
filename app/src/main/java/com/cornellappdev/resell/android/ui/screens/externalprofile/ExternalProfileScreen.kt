@@ -17,6 +17,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
@@ -312,19 +316,19 @@ private fun BlockedView(
 @Composable
 private fun ExternalProfileContentPreview() = ResellPreview {
     val seller = UserInfo(
-        username = "ravina",
-        name = "Ravina Patel",
-        netId = "rp123",
+        username = "Caleb",
+        name = "Caleb Shim",
+        netId = "chs232",
         venmoHandle = "",
         bio = "",
         imageUrl = "",
         id = "seller",
-        email = "rp123@cornell.edu",
+        email = "chs232@cornell.edu",
     )
-    val listings = List(4) {
+    val listings = List(10) {
         Listing(
             id = "$it",
-            title = "Item $it",
+            title = "Item ${it + 1}",
             images = listOf(""),
             price = "${(it + 1) * 10}",
             categories = listOf("Furniture"),
@@ -349,9 +353,12 @@ private fun ExternalProfileContentPreview() = ResellPreview {
         ),
     )
 
+    var selectedTab by remember { mutableStateOf(ExternalProfileTab.LISTINGS) }
+
     CompositionLocalProvider(value = LocalInfiniteShimmer provides Color.LightGray) {
         ExternalProfileContent(
             uiState = ExternalProfileState(
+                selectedTab = selectedTab,
                 shopName = seller.username,
                 vendorName = seller.name,
                 bio = "",
@@ -363,7 +370,7 @@ private fun ExternalProfileContentPreview() = ResellPreview {
                 uid = seller.id,
                 blockedUsers = listOf(),
             ),
-            onTabSelected = {},
+            onTabSelected = { selectedTab = it },
             onListingPressed = {},
             onEllipsisPressed = {},
             onSearchPressed = {},

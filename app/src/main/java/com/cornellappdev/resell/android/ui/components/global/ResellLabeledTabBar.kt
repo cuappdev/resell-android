@@ -67,16 +67,15 @@ fun ResellLabeledTabBar(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .selectableGroup()
-                .padding(start = 48.dp, end = 48.dp, top = 8.dp, bottom = 4.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
+                .selectableGroup(),
             verticalAlignment = Alignment.CenterVertically
         ) {
             tabs.forEachIndexed { i, tab ->
                 LabeledTabItem(
                     tab = tab,
                     selected = i == selectedIndex,
-                    onClick = { onTabSelected(i) }
+                    onClick = { onTabSelected(i) },
+                    modifier = Modifier.weight(1f)
                 )
             }
         }
@@ -114,6 +113,7 @@ private fun LabeledTabItem(
     tab: LabeledTab,
     selected: Boolean,
     onClick: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val color by animateColorAsState(
         targetValue = if (selected) Primary else IconInactive,
@@ -121,7 +121,7 @@ private fun LabeledTabItem(
     )
 
     Row(
-        modifier = Modifier
+        modifier = modifier
             .selectable(
                 selected = selected,
                 interactionSource = null,
@@ -130,8 +130,8 @@ private fun LabeledTabItem(
                 onClick = onClick,
             )
             .semantics { contentDescription = tab.contentDescription }
-            .padding(vertical = 4.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
+            .padding(top = 12.dp, bottom = 8.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(

@@ -19,6 +19,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -46,6 +47,11 @@ fun ReviewCard(
         modifier = modifier
             .fillMaxWidth()
             .animateContentSize()
+            .clip(shape)
+            .clickable(
+                enabled = isTruncated,
+                onClickLabel = if (expanded) "Collapse review" else "Expand review"
+            ) { expanded = !expanded }
             .background(Color.White, shape)
             .border(BorderStroke(1.dp, Stroke), shape)
             .padding(16.dp),
@@ -89,11 +95,7 @@ fun ReviewCard(
                 style = Style.body2,
                 maxLines = if (expanded) Int.MAX_VALUE else COMMENT_MAX_LINES,
                 overflow = TextOverflow.Ellipsis,
-                onTextLayout = { if (!expanded) isTruncated = it.hasVisualOverflow },
-                modifier = Modifier.clickable(
-                    enabled = isTruncated,
-                    onClickLabel = if (expanded) "Collapse review" else "Expand review"
-                ) { expanded = !expanded }
+                onTextLayout = { if (!expanded) isTruncated = it.hasVisualOverflow }
             )
         }
     }
@@ -113,7 +115,7 @@ private fun ReviewCardPreview() = ResellPreview(padding = 16.dp) {
     )
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, widthDp = 360, heightDp = 320)
 @Composable
 private fun ReviewCardLongCommentPreview() = ResellPreview(padding = 16.dp) {
     ReviewCard(

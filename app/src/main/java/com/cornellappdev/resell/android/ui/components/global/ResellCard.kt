@@ -18,12 +18,12 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.times
@@ -50,10 +50,10 @@ fun ResellCard(
     title: String,
     price: String,
     modifier: Modifier = Modifier,
-    viewModel: ResellCardViewModel = hiltViewModel(),
+    viewModel: ResellCardViewModel? = if (LocalInspectionMode.current) null else hiltViewModel(),
     onClick: () -> Unit,
 ) {
-    val image by viewModel.getImageUrlState(imageUrl)
+    val image = viewModel?.getImageUrlState(imageUrl)?.value ?: ResellApiResponse.Pending
 
     // Separated into a different function to allow `@Preview` despite the viewModel.
     ResellCardContent(

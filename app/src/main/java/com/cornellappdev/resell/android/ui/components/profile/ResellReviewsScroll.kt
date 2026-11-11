@@ -53,7 +53,7 @@ fun ResellReviewsScroll(
         ),
         verticalArrangement = Arrangement.spacedBy(ReviewListPadding)
     ) {
-        items(reviews) { review ->
+        items(reviews.distinctBy { it.id }, key = { it.id }) { review ->
             ReviewCard(review = review)
         }
     }
@@ -105,22 +105,30 @@ fun ResellLoadingReviewsScroll(modifier: Modifier = Modifier) {
 @Preview(showBackground = true)
 @Composable
 private fun ResellReviewsScrollPreview() = ResellPreview {
+    val comments = listOf(
+        "Super easy to meet up with and the item was exactly as described!",
+        "",
+        "Great communication, showed up on time and the price was fair.",
+        "Item had a few scratches that weren't in the photos, but they offered a discount " +
+                "without me having to ask. Would buy from again and recommend to anyone " +
+                "looking for dorm furniture around campus this semester.",
+        "Quick and friendly.",
+        "",
+        "Rescheduled twice but was always polite about it. The mini fridge works perfectly " +
+                "and came with the original shelves, which was a nice surprise. Pickup was " +
+                "right outside my dorm so it was really convenient.",
+    )
+    val reviewers = listOf("Ryan", "Anonymous", "Priya", "Marcus", "Jess", "Dana", "Theo")
+
     ResellReviewsScroll(
-        reviews = listOf(
+        reviews = List(14) { i ->
             ProfileReview(
-                id = "1",
-                rating = 5,
-                comment = "Super easy to meet up with and the item was exactly as described!",
-                dateLabel = "Oct 12, 2026",
-                reviewerName = "Ryan",
-            ),
-            ProfileReview(
-                id = "2",
-                rating = 3,
-                comment = "",
-                dateLabel = "Oct 3, 2026",
-                reviewerName = "Anonymous",
-            ),
-        )
+                id = "$i",
+                rating = 5 - i % 4,
+                comment = comments[i % comments.size],
+                dateLabel = "Oct ${28 - i}, 2026",
+                reviewerName = reviewers[i % reviewers.size],
+            )
+        }
     )
 }
