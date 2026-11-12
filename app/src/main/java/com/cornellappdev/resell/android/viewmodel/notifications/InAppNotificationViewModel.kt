@@ -1,5 +1,6 @@
 package com.cornellappdev.resell.android.viewmodel.notifications
 
+import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.cornellappdev.resell.android.model.classes.InAppNotification
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
@@ -122,13 +123,17 @@ class InAppNotificationViewModel @Inject constructor(
         }
         viewModelScope.launch {
             try {
-                notificationRepository.deleteNotification(notif.id)
+                val result = notificationRepository.deleteNotification(notif.id)
+                if (result is ResellApiResponse.Error) {
+                    Log.e("InAppNotificationViewModel", "Failed to delete notification ${notif.id} on backend")
+                }
             } catch (e: Exception) {
+                Log.e("InAppNotificationViewModel", "Exception deleting notification ${notif.id}", e)
             }
         }
     }
 }
 
 enum class NotificationType {
-    MESSAGE, REQUEST, DISCOUNT, BOOKMARKS, OFFER, SOLD, OTHER
+    MESSAGE, BOOKMARKS, OFFER, SOLD, OTHER
 }

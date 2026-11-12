@@ -34,7 +34,7 @@ interface NotificationsApiService {
     @DELETE("notif/id/{id}")
     suspend fun deleteNotification(
         @Path("id") notificationId: String
-    )
+    ): SingleNotificationResponse?
 }
 
 @JsonAdapter(NotificationsResponseDeserializer::class)

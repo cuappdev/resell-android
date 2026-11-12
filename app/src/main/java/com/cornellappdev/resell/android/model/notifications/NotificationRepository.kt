@@ -4,6 +4,9 @@ import android.util.Log
 import com.cornellappdev.resell.android.model.api.RetrofitInstance
 import com.cornellappdev.resell.android.model.classes.InAppNotification
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -14,7 +17,9 @@ class NotificationRepository @Inject constructor(
     suspend fun getLast30DaysNotifications(): ResellApiResponse<List<InAppNotification>> {
         return try {
             val response = retrofitInstance.notificationsApi.getLast30DaysNotifications()
-            ResellApiResponse.Success(deduplicate(response.items))
+            val deduplicated = deduplicate(response.items)
+            val enriched = enrichNotificationsWithImages(deduplicated)
+            ResellApiResponse.Success(enriched)
         } catch (e: Exception) {
             Log.e("NotificationRepository", "Error fetching 30 days notifications: ", e)
             ResellApiResponse.Error
@@ -24,7 +29,9 @@ class NotificationRepository @Inject constructor(
     suspend fun getNewNotifications(): ResellApiResponse<List<InAppNotification>> {
         return try {
             val response = retrofitInstance.notificationsApi.getNewNotifications()
-            ResellApiResponse.Success(deduplicate(response.items))
+            val deduplicated = deduplicate(response.items)
+            val enriched = enrichNotificationsWithImages(deduplicated)
+            ResellApiResponse.Success(enriched)
         } catch (e: Exception) {
             Log.e("NotificationRepository", "Error fetching new notifications: ", e)
             ResellApiResponse.Error
@@ -56,6 +63,32 @@ class NotificationRepository @Inject constructor(
         }
     }
 
+    private suspend fun enrichNotificationsWithImages(list: List<InAppNotification>): List<InAppNotification> {
+        return coroutineScope {
+            list.map { notif ->
+                async {
+                    val targetPostId = notif.data.postId?.ifBlank { null } ?: notif.postId?.ifBlank { null }
+                    if (notif.itemImageUrl.isBlank() && !targetPostId.isNullOrBlank()) {
+                        try {
+                            val postResponse = retrofitInstance.postsApi.getPost(targetPostId)
+                            val firstImage = postResponse.post.images.firstOrNull { it.isNotBlank() }
+                            if (!firstImage.isNullOrBlank()) {
+                                notif.copy(fetchedImageUrl = firstImage)
+                            } else {
+                                notif
+                            }
+                        } catch (e: Exception) {
+                            Log.e("NotificationRepository", "Failed to fetch post for postId: $targetPostId", e)
+                            notif
+                        }
+                    } else {
+                        notif
+                    }
+                }
+            }.awaitAll()
+        }
+    }
+
     private fun deduplicate(list: List<InAppNotification>): List<InAppNotification> {
         val seen = mutableSetOf<String>()
         val result = mutableListOf<InAppNotification>()
@@ -63,7 +96,7 @@ class NotificationRepository @Inject constructor(
 
         for (notif in sorted) {
             val type = notif.data.resolvedType
-            val postId = notif.data.postId ?: ""
+            val postId = notif.data.postId ?: notif.postId ?: ""
             val senderId = notif.data.buyerId ?: notif.data.sellerId ?: ""
             val timeWindow = notif.createdInstant.epochSecond / 60
             val key = "${type}_${postId}_${senderId}_${timeWindow}"

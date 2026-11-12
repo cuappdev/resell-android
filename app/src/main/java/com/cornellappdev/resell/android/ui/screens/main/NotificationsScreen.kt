@@ -62,7 +62,7 @@ fun NotificationsHubScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(bottom = if (notificationsHubUiState.categorizedNotifications.isEmpty()) 128.dp else 0.dp),
-            verticalArrangement = Arrangement.Center
+            verticalArrangement = if (notificationsHubUiState.categorizedNotifications.isEmpty()) Arrangement.Center else Arrangement.Top
         ) {
             when (notificationsHubUiState.loadedState) {
                 is ResellApiState.Success -> {
