@@ -34,9 +34,9 @@ android {
     defaultConfig {
         applicationId = "com.cornellappdev.resell.android"
         minSdk = 28
-        targetSdk = 35
-        versionCode = 22
-        versionName = "2.0 - Refactor [Beta]"
+        targetSdk = 36
+        versionCode = 25
+        versionName = "2.1 - Refactor [Beta]"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
