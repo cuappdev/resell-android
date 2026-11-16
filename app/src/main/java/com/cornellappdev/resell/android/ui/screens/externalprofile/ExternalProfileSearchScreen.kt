@@ -16,7 +16,6 @@ fun ExternalProfileSearchScreen(
         onExit = externalProfileSearchViewModel::onExit,
         onListingPressed = externalProfileSearchViewModel::onListingPressed,
         listings = uiState.listings,
-        images = uiState.images,
         placeholder = uiState.placeholderText,
         focusKeyboard = uiState.focusKeyboard
     )

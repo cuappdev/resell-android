@@ -38,7 +38,7 @@ fun FromPurchasesScreen(
             })
 
         //TODO: functionality to be added with purchase suggestions
-        FromHistoryBody(modifier, categories, fromPurchasesUiState.images, {}, {})
+        FromHistoryBody(modifier, categories, {}, {})
 
     }
 }

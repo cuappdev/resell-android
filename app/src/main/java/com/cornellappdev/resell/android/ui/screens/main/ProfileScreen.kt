@@ -69,7 +69,6 @@ fun ProfileScreen(
                         is ResellApiResponse.Success -> {
                             ResellListingsScroll(
                                 listings = uiState.shopListings.data,
-                                images = uiState.listingImages,
                                 onListingPressed = { profileViewModel.onListingPressed(it) },
                                 listState = staggeredState,
                                 paddedTop = 12.dp,
@@ -100,7 +99,6 @@ fun ProfileScreen(
                         is ResellApiResponse.Success -> {
                             ResellListingsScroll(
                                 listings = uiState.archiveListings.data,
-                                images = uiState.listingImages,
                                 onListingPressed = { profileViewModel.onListingPressed(it) },
                                 listState = staggeredState,
                                 paddedTop = 12.dp,

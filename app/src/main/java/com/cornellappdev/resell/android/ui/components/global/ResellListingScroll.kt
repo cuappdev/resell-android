@@ -28,8 +28,7 @@ import kotlinx.coroutines.flow.map
 
 @Composable
 fun ResellListingsScroll(
-    listings: List<Listing>,
-    images: Map<String, ImageState>,
+    listings: List<ListingUi>,
     onListingPressed: (Listing) -> Unit,
     modifier: Modifier = Modifier,
     listState: LazyStaggeredGridState = rememberLazyStaggeredGridState(),
@@ -66,7 +65,6 @@ fun ResellListingsScroll(
         }
         resellListingScroll(
             listings,
-            images,
             onListingPressed,
             footer,
             bottomLoading = bottomLoading,
@@ -83,7 +81,7 @@ fun LazyStaggeredGridLayoutInfo.isItemWithKeyVisible(key: Any?): Boolean =
 @Composable
 fun DetectListEndReached(
     listState: LazyStaggeredGridState,
-    listings: List<Listing>,
+    listings: List<ListingUi>,
     onScrollBottom: () -> Unit,
 ) {
     val currentListings by rememberUpdatedState(listings)
@@ -103,8 +101,7 @@ fun DetectListEndReached(
 }
 
 fun LazyStaggeredGridScope.resellListingScroll(
-    listings: List<Listing>,
-    images: Map<String, ImageState>,
+    listings: List<ListingUi>,
     onListingPressed: (Listing) -> Unit,
     footer: @Composable () -> Unit = {},
     addVerticalPadding: Boolean = false,
@@ -113,12 +110,12 @@ fun LazyStaggeredGridScope.resellListingScroll(
     itemsIndexed(items = listings.distinctBy { it.id }, key = { _, item -> item.id }) { _, item ->
         val padding = calculateItemPadding(addVerticalPadding)
         ResellCard(
-            image = images[item.image] ?: ImageState.Loading,
-            title = item.title,
-            price = item.price,
+            image = item.image,
+            title = item.listing.title,
+            price = item.listing.price,
             modifier = Modifier.padding(padding),
         ) {
-            onListingPressed(item)
+            onListingPressed(item.listing)
         }
     }
     if (bottomLoading) {

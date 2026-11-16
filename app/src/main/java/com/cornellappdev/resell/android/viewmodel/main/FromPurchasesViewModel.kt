@@ -2,7 +2,7 @@ package com.cornellappdev.resell.android.viewmodel.main
 
 import com.cornellappdev.resell.android.model.classes.Listing
 import com.cornellappdev.resell.android.model.classes.ResellApiState
-import com.cornellappdev.resell.android.ui.components.global.ImageState
+import com.cornellappdev.resell.android.ui.components.global.ListingUi
 import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
 import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepository
@@ -20,8 +20,7 @@ class FromPurchasesViewModel @Inject constructor(
 ) {
     data class FromPurchasesUiState(
         val loadedState: ResellApiState,
-        val listings: List<Pair<String, List<Listing>>>,
-        val images: Map<String, ImageState> = emptyMap(),
+        val listings: List<Pair<String, List<ListingUi>>>,
     )
 
     fun onListingPressed(listing: Listing) {

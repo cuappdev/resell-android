@@ -8,7 +8,7 @@ import com.cornellappdev.resell.android.model.CoilRepository
 import com.cornellappdev.resell.android.model.classes.Listing
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.model.profile.SearchRepository
-import com.cornellappdev.resell.android.ui.components.global.ImageState
+import com.cornellappdev.resell.android.ui.components.global.ListingUi
 import com.cornellappdev.resell.android.ui.screens.externalprofile.ExternalProfileRoute
 import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
 import com.cornellappdev.resell.android.util.UIEvent
@@ -37,43 +37,38 @@ abstract class SearchViewModel(
 
     data class SearchUiState(
         val query: String,
-        val listings: ResellApiResponse<List<Listing>>,
+        val listings: ResellApiResponse<List<ListingUi>>,
         val uid: String?,
         val username: String,
         val focusKeyboard: UIEvent<Unit>? = null,
-        val images: Map<String, ImageState> = emptyMap(),
     ) {
         val placeholderText
             get() = "Search ${username}..."
     }
 
-    private val imageObserver = ImageStateObserver(coilRepository, viewModelScope) { images ->
-        applyMutation { copy(images = images) }
-    }
+    private val listingObserver =
+        ImageStateObserver<ResellApiResponse<List<ListingUi>>>(coilRepository, viewModelScope) { listings ->
+            applyMutation { copy(listings = listings) }
+        }
 
     fun onQueryChanged(query: String) {
         applyMutation { copy(query = query) }
         if (query.isEmpty() || query.isBlank()) {
-            applyMutation { copy(listings = ResellApiResponse.Success(emptyList())) }
+            listingObserver.stopWith(ResellApiResponse.Success(emptyList()))
             return
         }
         // Try to fetch listings from backend
         viewModelScope.launch {
-            applyMutation {
-                copy(
-                    listings = ResellApiResponse.Pending
-                )
-            }
+            listingObserver.stopWith(ResellApiResponse.Pending)
             try {
                 val response = searchRepository.searchPostByUser(stateValue().uid, query)
                 // By this time, the query may have changed. If so, ignore.
                 if (stateValue().query == query) {
-                    applyMutation { copy(listings = ResellApiResponse.Success(response)) }
-                    imageObserver.observe(response.map { it.image })
+                    listingObserver.observeListings(response) { ResellApiResponse.Success(it) }
                 }
             } catch (e: Exception) {
                 Log.e("SearchViewModel", e.toString())
-                applyMutation { copy(listings = ResellApiResponse.Error) }
+                listingObserver.stopWith(ResellApiResponse.Error)
             }
         }
 

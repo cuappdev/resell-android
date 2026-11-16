@@ -30,6 +30,7 @@ import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.model.classes.Listing
 import com.cornellappdev.resell.android.model.classes.UserInfo
 import com.cornellappdev.resell.android.ui.components.global.ImageState
+import com.cornellappdev.resell.android.ui.components.global.ListingUi
 import com.cornellappdev.resell.android.ui.components.global.ResellCard
 import com.cornellappdev.resell.android.ui.theme.ResellPreview
 import com.cornellappdev.resell.android.ui.theme.Style
@@ -37,8 +38,7 @@ import com.cornellappdev.resell.android.ui.theme.Style
 @Composable
 fun FromHistoryBody(
     modifier: Modifier,
-    categories: List<Pair<String, List<Listing>>>,
-    images: Map<String, ImageState>,
+    categories: List<Pair<String, List<ListingUi>>>,
     onListingPressed: (Listing) -> Unit,
     onHidePressed: (String) -> Unit
 ) {
@@ -74,12 +74,12 @@ fun FromHistoryBody(
                     ) {
                         items(category.second) { item ->
                             ResellCard(
-                                image = images[item.image] ?: ImageState.Loading,
-                                title = item.title,
-                                price = item.price,
+                                image = item.image,
+                                title = item.listing.title,
+                                price = item.listing.price,
                                 modifier = Modifier.padding(vertical = 8.dp)
                             ) {
-                                onListingPressed(item)
+                                onListingPressed(item.listing)
                             }
                         }
                     }
@@ -110,7 +110,6 @@ fun drawableResToImageBitmap(@DrawableRes resId: Int): ImageBitmap {
 @Preview
 @Composable
 private fun FromHistoryBodyPreview() = ResellPreview {
-    // The preview listings have no image URL, so they all share the "" key.
     val image = ImageState.Loaded(drawableResToImageBitmap(R.drawable.ic_appdev))
     FromHistoryBody(
         Modifier, listOf(
@@ -291,7 +290,7 @@ private fun FromHistoryBodyPreview() = ResellPreview {
                     ),
                 )
             )
-        ), mapOf("" to image), {}, { }
+        ).map { (search, listings) -> search to listings.map { ListingUi(it, image) } }, {}, { }
     )
 }
 

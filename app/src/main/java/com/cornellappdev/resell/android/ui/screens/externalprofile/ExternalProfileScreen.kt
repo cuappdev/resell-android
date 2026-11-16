@@ -40,6 +40,7 @@ import com.cornellappdev.resell.android.model.classes.ResellApiState
 import com.cornellappdev.resell.android.model.classes.UserInfo
 import com.cornellappdev.resell.android.ui.components.global.ImageState
 import com.cornellappdev.resell.android.ui.components.global.LabeledTab
+import com.cornellappdev.resell.android.ui.components.global.ListingUi
 import com.cornellappdev.resell.android.ui.components.global.ResellLabeledTabBar
 import com.cornellappdev.resell.android.ui.components.global.ResellListingsScroll
 import com.cornellappdev.resell.android.ui.components.global.ResellLoadingListingScroll
@@ -154,7 +155,6 @@ private fun ExternalProfileContent(
                         listings = uiState.shopListings,
                         listState = staggeredState,
                         onListingPressed = onListingPressed,
-                        images = uiState.listingImages,
                     )
 
                     ExternalProfileTab.REVIEWS -> ReviewsTab(reviews = uiState.reviews)
@@ -172,10 +172,9 @@ private fun ExternalProfileContent(
 
 @Composable
 private fun ListingsTab(
-    listings: ResellApiResponse<List<Listing>>,
+    listings: ResellApiResponse<List<ListingUi>>,
     listState: LazyStaggeredGridState,
     onListingPressed: (Listing) -> Unit,
-    images: Map<String, ImageState>,
 ) {
     when (listings) {
         is ResellApiResponse.Pending -> ResellLoadingListingScroll()
@@ -187,7 +186,6 @@ private fun ListingsTab(
 
         is ResellApiResponse.Success -> ResellListingsScroll(
             listings = listings.data,
-            images = images,
             onListingPressed = onListingPressed,
             listState = listState,
             paddedTop = 16.dp,
@@ -368,7 +366,7 @@ private fun ExternalProfileContentPreview() = ResellPreview {
                 bio = "",
                 imageUrl = "",
                 loadedState = ResellApiState.Success,
-                shopListings = ResellApiResponse.Success(listings),
+                shopListings = ResellApiResponse.Success(listings.map { ListingUi(it, ImageState.Loading) }),
                 archiveListings = ResellApiResponse.Pending,
                 reviews = ResellApiResponse.Success(reviews),
                 uid = seller.id,

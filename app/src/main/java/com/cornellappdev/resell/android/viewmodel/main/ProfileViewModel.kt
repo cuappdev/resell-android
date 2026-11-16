@@ -8,9 +8,10 @@ import com.cornellappdev.resell.android.model.classes.ResellApiState
 import com.cornellappdev.resell.android.model.classes.toResellApiState
 import com.cornellappdev.resell.android.model.core.UserInfoRepository
 import com.cornellappdev.resell.android.model.profile.ProfileRepository
-import com.cornellappdev.resell.android.ui.components.global.ImageState
+import com.cornellappdev.resell.android.ui.components.global.ListingUi
 import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
 import com.cornellappdev.resell.android.viewmodel.ImageStateObserver
+import com.cornellappdev.resell.android.viewmodel.observeListingResponse
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
 import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -40,13 +41,12 @@ class ProfileViewModel @Inject constructor(
     data class ProfileUiState(
         val profileTab: ProfileTab,
         val loadedState: ResellApiState,
-        val shopListings: ResellApiResponse<List<Listing>>,
-        val archiveListings: ResellApiResponse<List<Listing>>,
+        val shopListings: ResellApiResponse<List<ListingUi>>,
+        val archiveListings: ResellApiResponse<List<ListingUi>>,
         val shopName: String,
         val vendorName: String,
         val bio: String,
         val imageUrl: String,
-        val listingImages: Map<String, ImageState> = emptyMap(),
     )
 
     enum class ProfileTab {
@@ -54,16 +54,15 @@ class ProfileViewModel @Inject constructor(
         SHOP, ARCHIVE
     }
 
-    private val listingImageObserver = ImageStateObserver(coilRepository, viewModelScope) { images ->
-        applyMutation { copy(listingImages = images) }
-    }
+    private val shopObserver =
+        ImageStateObserver<ResellApiResponse<List<ListingUi>>>(coilRepository, viewModelScope) { listings ->
+            applyMutation { copy(shopListings = listings) }
+        }
 
-    private fun observeListingImages() {
-        val state = stateValue()
-        val listings = state.shopListings.asSuccessOrNull()?.data.orEmpty() +
-                state.archiveListings.asSuccessOrNull()?.data.orEmpty()
-        listingImageObserver.observe(listings.map { it.image })
-    }
+    private val archiveObserver =
+        ImageStateObserver<ResellApiResponse<List<ListingUi>>>(coilRepository, viewModelScope) { listings ->
+            applyMutation { copy(archiveListings = listings) }
+        }
 
     fun onTabSelected(profileTab: ProfileTab) {
         applyMutation {
@@ -96,12 +95,8 @@ class ProfileViewModel @Inject constructor(
      * Reloads the listings made by the internal user.
      */
     fun onReloadListings() {
-        applyMutation {
-            copy(
-                shopListings = ResellApiResponse.Pending,
-                archiveListings = ResellApiResponse.Pending,
-            )
-        }
+        shopObserver.stopWith(ResellApiResponse.Pending)
+        archiveObserver.stopWith(ResellApiResponse.Pending)
         viewModelScope.launch {
             profileRepository.fetchInternalListings(userInfoRepository.getUserId() ?: "lol")
             profileRepository.fetchArchivedListings(userInfoRepository.getUserId() ?: "lol")
@@ -128,21 +123,11 @@ class ProfileViewModel @Inject constructor(
         }
 
         asyncCollect(profileRepository.internalListings) { response ->
-            applyMutation {
-                copy(
-                    shopListings = response,
-                )
-            }
-            observeListingImages()
+            shopObserver.observeListingResponse(response)
         }
 
         asyncCollect(profileRepository.internalArchivedListings) { response ->
-            applyMutation {
-                copy(
-                    archiveListings = response,
-                )
-            }
-            observeListingImages()
+            archiveObserver.observeListingResponse(response)
         }
     }
 }

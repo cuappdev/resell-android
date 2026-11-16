@@ -75,9 +75,10 @@ class ChatViewModel @Inject constructor(
             get() = chatType == ChatType.Purchases
     }
 
-    private val postImageObserver = ImageStateObserver(coilRepository, viewModelScope) { images ->
-        applyMutation { copy(postImages = images) }
-    }
+    private val postImageObserver =
+        ImageStateObserver<Map<String, ImageState>>(coilRepository, viewModelScope) { images ->
+            applyMutation { copy(postImages = images) }
+        }
 
     val navArgs = savedStateHandle.toRoute<ResellRootRoute.CHAT>()
     val listing = Json.decodeFromString<Listing>(navArgs.listingJson)
@@ -241,11 +242,10 @@ class ChatViewModel @Inject constructor(
                 )
             }
             response.asSuccessOrNull()?.data?.let { chat ->
-                postImageObserver.observe(
-                    chat.chatHistory
-                        .flatMap { it.messages }
-                        .mapNotNull { message -> message.post?.let { it.images.getOrNull(0) ?: "" } }
-                )
+                val urls = chat.chatHistory
+                    .flatMap { it.messages }
+                    .mapNotNull { message -> message.post?.let { it.images.getOrNull(0) ?: "" } }
+                postImageObserver.observe(urls) { image -> urls.associateWith(image) }
             }
         }
     }

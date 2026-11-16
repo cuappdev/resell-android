@@ -33,7 +33,7 @@ import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.model.classes.Listing
 import com.cornellappdev.resell.android.model.classes.ResellApiState
 import com.cornellappdev.resell.android.model.classes.ResellFilter
-import com.cornellappdev.resell.android.ui.components.global.ImageState
+import com.cornellappdev.resell.android.ui.components.global.ListingUi
 import com.cornellappdev.resell.android.ui.components.global.ResellListingsScroll
 import com.cornellappdev.resell.android.ui.components.global.ResellLoadingListingScroll
 import com.cornellappdev.resell.android.ui.components.main.FilterBottomSheet
@@ -80,7 +80,6 @@ fun CategoryScreen(
             }
         },
         listings = uiState.listings,
-        images = uiState.images,
         bottomLoading = uiState.bottomLoading,
         onListingPressed = categoryViewModel::onListingPressed,
         onScrollBottom = categoryViewModel::onScrollBottom,
@@ -103,8 +102,7 @@ private fun CategoryScreenContent(
     sheetState: SheetState,
     filter: ResellFilter,
     onFilterChanged: (ResellFilter) -> Unit,
-    listings: List<Listing>,
-    images: Map<String, ImageState>,
+    listings: List<ListingUi>,
     bottomLoading: Boolean = false,
     onListingPressed: (Listing) -> Unit,
     onScrollBottom: () -> Unit = {},
@@ -142,7 +140,6 @@ private fun CategoryScreenContent(
                 } else {
                     ResellListingsScroll(
                         listings = listings,
-                        images = images,
                         onListingPressed = onListingPressed,
                         onScrollBottom = onScrollBottom,
                         bottomLoading = bottomLoading,
@@ -218,7 +215,6 @@ private fun CategoryScreenPreview() = ResellPreview {
         filter = ResellFilter(categoriesSelected = listOf(ResellFilter.FilterCategory.CLOTHING)),
         onFilterChanged = {},
         listings = emptyList(),
-        images = emptyMap(),
         onListingPressed = {},
         loadedState = ResellApiState.Success,
         onDismissRequest = {},

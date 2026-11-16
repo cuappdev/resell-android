@@ -11,9 +11,11 @@ import com.cornellappdev.resell.android.model.classes.ResellApiState
 import com.cornellappdev.resell.android.model.classes.ResellFilter
 import com.cornellappdev.resell.android.model.classes.toResellApiState
 import com.cornellappdev.resell.android.model.posts.ResellPostRepository
-import com.cornellappdev.resell.android.ui.components.global.ImageState
+import com.cornellappdev.resell.android.ui.components.global.ListingUi
+import com.cornellappdev.resell.android.ui.components.global.toListings
 import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
 import com.cornellappdev.resell.android.viewmodel.ImageStateObserver
+import com.cornellappdev.resell.android.viewmodel.observeListings
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
 import com.cornellappdev.resell.android.util.ScrollPageResult
 import com.cornellappdev.resell.android.util.fetchNextScrollPage
@@ -58,7 +60,7 @@ class HomeViewModel @Inject constructor(
 
     data class HomeUiState(
         val loadedState: ResellApiState,
-        val listings: List<Listing>,
+        val listings: List<ListingUi>,
         val savedListings: List<Listing>,
         val fromSearchListings: List<Listing>,
         val fromPurchasesListings: List<Listing>,
@@ -69,13 +71,12 @@ class HomeViewModel @Inject constructor(
         val isDefaultFeed: Boolean,
         val savedImageResponses: List<MutableState<ResellApiResponse<ImageBitmap>>>,
         val searchedImageResponses: List<MutableState<ResellApiResponse<ImageBitmap>>>,
-        val listingImages: Map<String, ImageState> = emptyMap(),
     )
 
     private var fetchJob: Job? = null
 
-    private val listingImageObserver = ImageStateObserver(coilRepository, viewModelScope) { images ->
-        applyMutation { copy(listingImages = images) }
+    private val listingObserver = ImageStateObserver<List<ListingUi>>(coilRepository, viewModelScope) { listings ->
+        applyMutation { copy(listings = listings) }
     }
 
     init {
@@ -138,18 +139,14 @@ class HomeViewModel @Inject constructor(
         )
     }
 
-    private fun observeFeedImages() {
-        listingImageObserver.observe(stateValue().listings.map { it.image })
-    }
-
     private fun getPosts(filter: ResellFilter) {
         fetchJob?.cancel()
         fetchJob = viewModelScope.launch {
             try {
                 val posts = resellPostRepository.getFilteredPosts(filter, page = 1, limit = HOME_PAGE_SIZE)
+                listingObserver.observeListings(posts.map { it.toListing() })
                 applyMutation {
                     copy(
-                        listings = posts.map { it.toListing() },
                         loadedState = ResellApiState.Success,
                         page = 1,
                         endReached = posts.isEmpty(),
@@ -157,7 +154,6 @@ class HomeViewModel @Inject constructor(
                         bottomLoading = false
                     )
                 }
-                observeFeedImages()
             } catch (_: CancellationException) {
             } catch (e: Exception) {
                 Log.e(TAG, "Error fetching filtered posts: ", e)
@@ -176,9 +172,9 @@ class HomeViewModel @Inject constructor(
         fetchJob = viewModelScope.launch {
             try {
                 val posts = resellPostRepository.getNewlyListedPosts(page = 1, limit = HOME_PAGE_SIZE)
+                listingObserver.observeListings(posts.map { it.toListing() })
                 applyMutation {
                     copy(
-                        listings = posts.map { it.toListing() },
                         loadedState = ResellApiState.Success,
                         page = 1,
                         endReached = posts.isEmpty(),
@@ -186,7 +182,6 @@ class HomeViewModel @Inject constructor(
                         bottomLoading = false
                     )
                 }
-                observeFeedImages()
             } catch (_: CancellationException) {
             } catch (e: Exception) {
                 Log.e(TAG, "Error fetching newly listed posts: ", e)
@@ -207,7 +202,7 @@ class HomeViewModel @Inject constructor(
         applyMutation { copy(bottomLoading = true) }
         fetchJob?.cancel()
         fetchJob = viewModelScope.launch {
-            val result = fetchNextScrollPage(state.page, state.listings) { nextPage ->
+            val result = fetchNextScrollPage(state.page, state.listings.toListings()) { nextPage ->
                 if (state.isDefaultFeed) {
                     resellPostRepository.getNewlyListedPosts(page = nextPage, limit = HOME_PAGE_SIZE)
                 } else {
@@ -216,15 +211,14 @@ class HomeViewModel @Inject constructor(
             }
             when (result) {
                 is ScrollPageResult.Success -> {
+                    listingObserver.observeListings(stateValue().listings.toListings() + result.newListings)
                     applyMutation {
                         copy(
-                            listings = listings + result.newListings,
                             page = result.nextPage,
                             endReached = result.endReached,
                             bottomLoading = false
                         )
                     }
-                    observeFeedImages()
                 }
 
                 is ScrollPageResult.Error -> {

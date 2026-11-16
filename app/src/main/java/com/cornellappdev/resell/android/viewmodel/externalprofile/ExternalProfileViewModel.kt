@@ -12,10 +12,11 @@ import com.cornellappdev.resell.android.model.classes.ResellApiState
 import com.cornellappdev.resell.android.model.classes.toResellApiState
 import com.cornellappdev.resell.android.model.profile.ProfileRepository
 import com.cornellappdev.resell.android.model.settings.BlockedUsersRepository
-import com.cornellappdev.resell.android.ui.components.global.ImageState
+import com.cornellappdev.resell.android.ui.components.global.ListingUi
 import com.cornellappdev.resell.android.ui.screens.externalprofile.ExternalProfileRoute
 import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
 import com.cornellappdev.resell.android.viewmodel.ImageStateObserver
+import com.cornellappdev.resell.android.viewmodel.observeListingResponse
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
 import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepository
 import com.cornellappdev.resell.android.viewmodel.root.OptionType
@@ -64,10 +65,9 @@ class ExternalProfileViewModel @Inject constructor(
         val bio: String,
         val imageUrl: String,
         val loadedState: ResellApiState,
-        val shopListings: ResellApiResponse<List<Listing>>,
-        val archiveListings: ResellApiResponse<List<Listing>>,
+        val shopListings: ResellApiResponse<List<ListingUi>>,
+        val archiveListings: ResellApiResponse<List<ListingUi>>,
         val reviews: ResellApiResponse<List<ProfileReview>>,
-        val listingImages: Map<String, ImageState> = emptyMap(),
         val selectedTab: ExternalProfileTab = ExternalProfileTab.LISTINGS,
         val uid: String,
         private val blockedUsers: List<String>,
@@ -105,9 +105,10 @@ class ExternalProfileViewModel @Inject constructor(
             get() = if (reviewCount > 0) "%.1f".format(averageRating) else ""
     }
 
-    private val listingImageObserver = ImageStateObserver(coilRepository, viewModelScope) { images ->
-        applyMutation { copy(listingImages = images) }
-    }
+    private val shopObserver =
+        ImageStateObserver<ResellApiResponse<List<ListingUi>>>(coilRepository, viewModelScope) { listings ->
+            applyMutation { copy(shopListings = listings) }
+        }
 
     fun onTabSelected(tab: ExternalProfileTab) {
         applyMutation { copy(selectedTab = tab) }
@@ -214,15 +215,8 @@ class ExternalProfileViewModel @Inject constructor(
         }
 
         asyncCollect(profileRepository.externalListings) { response ->
-            applyMutation {
-                copy(
-                    loadedState = response.toResellApiState(),
-                    shopListings = response
-                )
-            }
-            response.asSuccessOrNull()?.data?.let { listings ->
-                listingImageObserver.observe(listings.map { it.image })
-            }
+            shopObserver.observeListingResponse(response)
+            applyMutation { copy(loadedState = response.toResellApiState()) }
         }
 
         asyncCollect(profileRepository.externalReviews) { response ->
