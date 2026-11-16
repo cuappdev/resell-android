@@ -77,6 +77,9 @@
     <string name="negotiate">Negotiate</string>
     <string name="send_availability">Send Availability</string>
     <string name="pay_with">Pay with</string>
+    <string name="transaction_completed_banner">This transaction has been completed</string>
+    <string name="mark_sale_complete_buyer_banner">Got your item? Mark this sale as complete.</string>
+    <string name="mark_sale_complete_seller_banner">Met up and got paid? Mark this sale as complete.</string>
     <string name="cd_send">send</string>
     <string name="search_listings_placeholder">Search listings…</string>
     <string name="notifications_empty_title">You\'re all caught up</string>

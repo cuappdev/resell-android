@@ -91,21 +91,19 @@ data class MeetingInfo(
     }
 }
 
-enum class TransactionState(val value: String) {
-    COMPLETED("completed"),
-    CANCELED("canceled");
+enum class TransactionState {
+    PENDING,
+    COMPLETED,
+    CANCELED
 }
 
 data class TransactionInfo(
+    val transactionId: String,
     val completeTime: Timestamp,
     val state: TransactionState,
+    val actionText: String,
     var mostRecent: Boolean
 ) {
-    val actionText
-        get() = when (state) {
-            TransactionState.COMPLETED -> "Leave Review"
-            else -> ""
-        }
     val icon
         get() = when (state) {
             TransactionState.CANCELED -> R.drawable.ic_slash

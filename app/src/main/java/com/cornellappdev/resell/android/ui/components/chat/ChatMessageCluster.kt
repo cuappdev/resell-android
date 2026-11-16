@@ -35,6 +35,10 @@ fun ChatMessageCluster(
     onTransactionStateClicked: (TransactionInfo) -> Unit,
     senderName: String
 ) {
+    val lastBubbleIndex = messages.indexOfLast {
+        it.messageType != MessageType.State && (it.messageType != MessageType.Card || it.post != null)
+    }
+
     Row(
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -45,7 +49,7 @@ fun ChatMessageCluster(
                         messageSender(
                             imageUrl,
                             { ChatImage(it.imageUrl) },
-                            messages.size - i - 1
+                            lastBubbleIndex - i
                         )
                     }
 
@@ -61,7 +65,7 @@ fun ChatMessageCluster(
                                         onPostClicked(it.post)
                                     }
                                 )
-                            }, messages.size - i - 1)
+                            }, lastBubbleIndex - i)
                         }
                     }
 
@@ -75,7 +79,7 @@ fun ChatMessageCluster(
                                     timestamp = it.timestampString
                                 )
                             },
-                            messages.size - i - 1
+                            lastBubbleIndex - i
                         )
 
                     MessageType.Availability -> {
@@ -87,7 +91,7 @@ fun ChatMessageCluster(
                                     onAvailabilityClicked(it.availability)
                                 }
                             },
-                            messages.size - i - 1
+                            lastBubbleIndex - i
                         )
                     }
                     MessageType.State -> {
