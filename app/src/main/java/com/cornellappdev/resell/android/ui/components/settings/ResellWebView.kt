@@ -23,9 +23,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.net.toUri
+import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.ui.theme.AppDev
 import com.cornellappdev.resell.android.ui.theme.Style
 
@@ -75,7 +77,7 @@ fun ResellWebView(
             colors = ButtonDefaults.buttonColors(containerColor = AppDev)
         ) {
             Text(
-                text = "Open in Browser",
+                text = stringResource(R.string.open_in_browser),
                 color = Color.White,
                 style = Style.body1
             )

@@ -1,5 +1,6 @@
 package com.cornellappdev.resell.android.ui.screens.main
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -52,6 +53,7 @@ import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -225,12 +227,12 @@ private fun HomeHeader(
             ) {
                 Icon(
                     painter = painterResource(R.drawable.ic_search),
-                    contentDescription = "Search Icon",
+                    contentDescription = stringResource(R.string.cd_search_icon),
                     modifier = Modifier.clickable(onClick = onSearchPressed)
                 )
                 Icon(
                     painter = painterResource(R.drawable.bell),
-                    contentDescription = "Notifications",
+                    contentDescription = stringResource(R.string.notifications),
                     modifier = Modifier.clickable(onClick = onNotifPressed)
                 )
             }
@@ -330,49 +332,49 @@ private fun ForceHorizontalOffset(
 
 private enum class CategoryItem(
     val image: Int,
-    val label: String,
+    @StringRes val label: Int,
     val backgroundColor: Color,
     val category: ResellFilter.FilterCategory
 ) {
     CLOTHING(
         image = R.drawable.shoes,
-        label = "Clothing",
+        label = R.string.category_clothing,
         backgroundColor = Color(0x80CA95A3),
         category = ResellFilter.FilterCategory.CLOTHING
     ),
     BOOKS(
         image = R.drawable.books,
-        label = "Books",
+        label = R.string.category_books,
         backgroundColor = Color(0x80316054),
         category = ResellFilter.FilterCategory.BOOKS,
     ),
     SCHOOL(
         image = R.drawable.pencilcase,
-        label = "School",
+        label = R.string.category_school,
         backgroundColor = Color(0x80A4B7AB),
         category = ResellFilter.FilterCategory.SCHOOL
     ),
     ELECTRONICS(
         image = R.drawable.airpods_max,
-        label = "Electronics",
+        label = R.string.category_electronics,
         backgroundColor = Color(0x80D795AB),
         category = ResellFilter.FilterCategory.ELECTRONICS
     ),
     HANDMADE(
         image = R.drawable.color_palette,
-        label = "Handmade",
+        label = R.string.category_handmade,
         backgroundColor = Color(0x80E3B570),
         category = ResellFilter.FilterCategory.HANDMADE
     ),
     SPORTS(
         image = R.drawable.football,
-        label = "Sports & Outdoors",
+        label = R.string.category_sports_outdoors,
         backgroundColor = Color(0x8073A2AB),
         category = ResellFilter.FilterCategory.SPORTS
     ),
     OTHER(
         image = R.drawable.gift,
-        label = "Other",
+        label = R.string.category_other,
         backgroundColor = Color(0x80E2B56E),
         category = ResellFilter.FilterCategory.OTHER
     )
@@ -393,7 +395,7 @@ private fun LazyStaggeredGridScope.forYou(
                 .fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text(text = "For You", style = Style.heading3)
+            Text(text = stringResource(R.string.for_you), style = Style.heading3)
         }
     }
     item(span = StaggeredGridItemSpan.FullLine) {
@@ -422,7 +424,7 @@ private fun LazyStaggeredGridScope.shopByCategory(onCategoryPressed: (ResellFilt
                 .fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text(text = "Shop by Category", style = Style.heading3)
+            Text(text = stringResource(R.string.shop_by_category), style = Style.heading3)
         }
     }
     item(span = StaggeredGridItemSpan.FullLine) {
@@ -476,7 +478,7 @@ private fun ForYouRow(
 
             item {
                 ForYouComponent(
-                    text = "Your saved items",
+                    text = stringResource(R.string.your_saved_items),
                     amount = savedListings.size,
                     images = savedImages,
                     onClick = onSavedPressed,
@@ -518,7 +520,7 @@ private fun CategoryRow(
                 ) {
                     Image(
                         painter = painterResource(category.image),
-                        contentDescription = category.label,
+                        contentDescription = stringResource(category.label),
                         modifier = Modifier
                             .width(57.dp)
                             .height(57.dp),
@@ -526,7 +528,7 @@ private fun CategoryRow(
                     )
                 }
                 Text(
-                    text = category.label, style = Style.title4,
+                    text = stringResource(category.label), style = Style.title4,
                     textAlign = TextAlign.Center,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
@@ -549,10 +551,10 @@ private fun LazyStaggeredGridScope.recentListings(
             horizontalArrangement = Arrangement.SpaceBetween,
             modifier = Modifier.fillMaxWidth(),
         ) {
-            Text(text = "Recent Listings", style = Style.heading3)
+            Text(text = stringResource(R.string.recent_listings), style = Style.heading3)
             Icon(
                 painter = painterResource(R.drawable.ic_filter),
-                contentDescription = "Filter",
+                contentDescription = stringResource(R.string.cd_filter),
                 modifier = Modifier.clickable(onClick = onFilter),
                 tint = Secondary,
             )

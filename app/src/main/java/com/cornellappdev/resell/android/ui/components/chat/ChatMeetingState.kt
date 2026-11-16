@@ -15,8 +15,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.ui.theme.ResellPurple
 import com.cornellappdev.resell.android.ui.theme.Style
 import com.cornellappdev.resell.android.util.clickableNoIndication
@@ -41,7 +43,7 @@ fun ChatMeetingState(
             if (icon != null) {
                 Icon(
                     painter = icon,
-                    contentDescription = "chat state icon",
+                    contentDescription = stringResource(R.string.cd_chat_state_icon),
                     modifier = Modifier
                         .size(16.dp)
                 )

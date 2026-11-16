@@ -8,7 +8,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.ui.theme.ResellPreview
 import com.cornellappdev.resell.android.ui.theme.Style
 
@@ -16,7 +18,7 @@ import com.cornellappdev.resell.android.ui.theme.Style
 @Composable
 fun SoldOverlay(
     modifier: Modifier = Modifier,
-    text: String = "Item Sold",
+    text: String = stringResource(R.string.item_sold),
     backgroundColor: Color = Color.White.copy(alpha = 0.4f),
     textColor: Color = Color.Black,
 ) {

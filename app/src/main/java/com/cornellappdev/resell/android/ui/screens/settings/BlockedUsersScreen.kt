@@ -22,10 +22,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.ui.components.global.ResellHeader
 import com.cornellappdev.resell.android.ui.components.main.ProfilePictureView
 import com.cornellappdev.resell.android.ui.theme.AppDev
@@ -61,7 +63,7 @@ private fun Content(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         ResellHeader(
-            title = "Blocked Users",
+            title = stringResource(R.string.blocked_users),
         )
 
         if (blockedUsers.isEmpty()) {
@@ -95,14 +97,14 @@ private fun EmptyState() {
         Spacer(modifier = Modifier.weight(1f))
 
         Text(
-            text = "No blocked users",
+            text = stringResource(R.string.blocked_users_empty_title),
             style = heading2,
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            text = "Users you have blocked will appear here.",
+            text = stringResource(R.string.blocked_users_empty_body),
             style = body1,
             color = AppDev,
             textAlign = TextAlign.Center,
@@ -154,7 +156,7 @@ private fun UserPfpRow(
             contentPadding = PaddingValues(vertical = 6.dp, horizontal = 10.dp)
         ) {
             Text(
-                text = "Unblock",
+                text = stringResource(R.string.unblock),
                 color = Color.White,
                 style = body1
             )

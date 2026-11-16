@@ -14,9 +14,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.ui.theme.Style
 import com.cornellappdev.resell.android.ui.theme.animateResellBrush
 
@@ -69,7 +71,7 @@ fun ChatTag(
                     fontWeight = FontWeight.ExtraBold,
                     fontStyle = FontStyle.Italic
                 ),
-                text = " venmo"
+                text = stringResource(R.string.venmo_tag)
             )
         }
     }

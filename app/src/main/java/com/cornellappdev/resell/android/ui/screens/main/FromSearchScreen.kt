@@ -8,8 +8,10 @@ import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridS
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.model.classes.ResellApiState
 import com.cornellappdev.resell.android.ui.components.global.ResellLoadingListingScroll
 import com.cornellappdev.resell.android.ui.components.main.FromHistoryBody
@@ -35,7 +37,7 @@ fun FromSearchScreen(
             .fillMaxSize()
     ) {
         FromHistoryHeader(
-            text = "From Your Searches",
+            text = stringResource(R.string.from_your_searches),
             onBack = { fromSearchViewModel.onBackPressed() },
             onTopPressed = {
                 coroutineScope.launch {

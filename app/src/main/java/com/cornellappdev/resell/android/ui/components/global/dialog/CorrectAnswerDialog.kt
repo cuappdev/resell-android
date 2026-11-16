@@ -17,6 +17,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -59,7 +60,7 @@ fun CorrectAnswerDialog(
                 Icon(
                     painter = painterResource(id = R.drawable.ic_exit),
                     tint = AppDev,
-                    contentDescription = "exit",
+                    contentDescription = stringResource(R.string.cd_exit),
                     modifier = Modifier
                         .padding(top = 2.dp)
                         .size(20.dp)

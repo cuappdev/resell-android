@@ -37,6 +37,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -44,6 +45,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButton
 import com.cornellappdev.resell.android.ui.components.global.ResellTextEntry
 import com.cornellappdev.resell.android.ui.components.settings.ProfilePictureEdit
@@ -107,7 +109,7 @@ fun SetupScreen(
         }
 
         ResellTextButton(
-            text = "Next", onClick = setupViewModel::onNextClick,
+            text = stringResource(R.string.next), onClick = setupViewModel::onNextClick,
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .padding(46.dp)
@@ -130,7 +132,7 @@ private fun PhotoHeader(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "Set up your profile",
+            text = stringResource(R.string.set_up_your_profile),
             style = Style.heading3,
             modifier = Modifier.padding(bottom = 40.dp)
         )
@@ -160,7 +162,7 @@ private fun TextEntry(
     ) {
 
         ResellTextEntry(
-            label = "Username*",
+            label = stringResource(R.string.username_required),
             text = username,
             onTextChange = onUsernameChanged,
             inlineLabel = false,
@@ -186,7 +188,7 @@ private fun TextEntry(
         Spacer(Modifier.height(36.dp))
 
         ResellTextEntry(
-            label = "Bio",
+            label = stringResource(R.string.bio),
             text = bio,
             onTextChange = onBioChanged,
             inlineLabel = false,
@@ -209,8 +211,10 @@ private fun EULARadio(
         label = "radio animate"
     )
 
+    val agreePrefix = stringResource(R.string.eula_agree_prefix)
+    val eulaName = stringResource(R.string.eula_name)
     val annotatedText = buildAnnotatedString {
-        append("I agree to Resell's ")
+        append(agreePrefix)
 
         // Annotating the clickable part
         pushLink(
@@ -219,7 +223,7 @@ private fun EULARadio(
             )
         )
         withStyle(style = SpanStyle(color = ResellPurple)) {
-            append("End User License Agreement")
+            append(eulaName)
         }
         pop() // End of the clickable part
     }

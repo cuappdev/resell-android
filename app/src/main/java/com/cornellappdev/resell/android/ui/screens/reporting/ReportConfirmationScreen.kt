@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -91,7 +92,7 @@ private fun Content(
                 BrushIcon(
                     painter = painterResource(id = R.drawable.ic_check),
                     brush = checkBrush,
-                    contentDescription = "exit",
+                    contentDescription = stringResource(R.string.cd_exit),
                     modifier = Modifier
                         .align(Alignment.Center)
                 )
@@ -136,7 +137,7 @@ private fun Content(
         Spacer(modifier = Modifier.height(12.dp))
 
         ResellTextButton(
-            text = "Done",
+            text = stringResource(R.string.done),
             onClick = onDone,
             containerType = ResellTextButtonContainer.PRIMARY
         )

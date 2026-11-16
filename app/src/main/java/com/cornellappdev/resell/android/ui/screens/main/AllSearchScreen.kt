@@ -1,7 +1,9 @@
 package com.cornellappdev.resell.android.ui.screens.main
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.ui.components.main.SearchScreen
 import com.cornellappdev.resell.android.viewmodel.AllSearchViewModel
 
@@ -16,7 +18,7 @@ fun AllSearchScreen(
         onExit = allSearchViewModel::onExit,
         onListingPressed = allSearchViewModel::onListingPressed,
         listings = uiState.listings,
-        placeholder = "Search listings...",
+        placeholder = stringResource(R.string.search_listings_placeholder),
         focusKeyboard = uiState.focusKeyboard
     )
 }

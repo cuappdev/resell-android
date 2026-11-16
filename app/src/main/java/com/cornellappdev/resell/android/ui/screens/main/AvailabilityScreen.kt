@@ -36,6 +36,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -109,7 +110,7 @@ fun AvailabilityScreenContent(
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
             ResellHeader(
-                title = "Availability",
+                title = stringResource(R.string.availability),
                 leftPainter = R.drawable.ic_chevron_left,
                 onLeftClick = onBackPressed,
             )
@@ -221,7 +222,7 @@ fun AvailabilityScreenContent(
         )
 
         ResellTextButton(
-            text = "Save",
+            text = stringResource(R.string.save),
             onClick = onSave,
             state = if (uiState.isLoading) ResellTextButtonState.SPINNING else ResellTextButtonState.ENABLED,
             modifier = Modifier

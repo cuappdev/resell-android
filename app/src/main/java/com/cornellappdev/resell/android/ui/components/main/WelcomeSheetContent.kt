@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.cornellappdev.resell.android.R
@@ -32,7 +33,7 @@ fun WelcomeSheetContent(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "Welcome to Resell!",
+            text = stringResource(R.string.welcome_title),
             style = Style.heading3,
             color = ResellPurple
         )
@@ -48,7 +49,7 @@ fun WelcomeSheetContent(
         Spacer(modifier = Modifier.height(30.dp))
 
         Text(
-            text = "Thrifting and selling has never been this easy!",
+            text = stringResource(R.string.welcome_body),
             style = Style.body1,
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(horizontal = 36.dp)
@@ -57,7 +58,7 @@ fun WelcomeSheetContent(
         Spacer(modifier = Modifier.height(33.dp))
 
         ResellTextButton(
-            text = "Get Started",
+            text = stringResource(R.string.get_started),
             onClick = onDismiss,
             containerType = ResellTextButtonContainer.PRIMARY
         )

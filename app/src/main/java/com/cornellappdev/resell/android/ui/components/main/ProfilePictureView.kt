@@ -7,8 +7,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.util.LocalInfiniteShimmer
 
 @Composable
@@ -28,7 +30,7 @@ fun ProfilePictureView(
     } else {
         AsyncImage(
             model = imageUrl,
-            contentDescription = "pfp",
+            contentDescription = stringResource(R.string.cd_pfp),
             modifier = modifier
                 .sizeIn(minWidth = 31.dp, minHeight = 31.dp)
                 .clip(CircleShape),

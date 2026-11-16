@@ -16,6 +16,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material.ripple
@@ -37,7 +38,7 @@ fun ProfilePictureEdit(
             if (bitmap != null) {
                 AsyncImage(
                     model = bitmap,
-                    contentDescription = "profile picture",
+                    contentDescription = stringResource(R.string.cd_profile_picture),
                     modifier = Modifier
                         .size(132.dp)
                         .clip(CircleShape),
@@ -46,7 +47,7 @@ fun ProfilePictureEdit(
             } else {
                 Image(
                     painter = painterResource(id = R.drawable.ic_empty_pfp),
-                    contentDescription = "profile picture",
+                    contentDescription = stringResource(R.string.cd_profile_picture),
                     modifier = Modifier
                         .size(132.dp)
                         .clip(CircleShape)
@@ -63,7 +64,7 @@ fun ProfilePictureEdit(
 
         Image(
             painter = painterResource(id = R.drawable.ic_edit_pfp),
-            contentDescription = "camera",
+            contentDescription = stringResource(R.string.cd_camera),
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .clickable(

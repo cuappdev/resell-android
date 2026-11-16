@@ -15,9 +15,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.ui.components.global.ResellHeaderCore
 import com.cornellappdev.resell.android.ui.components.global.ResellInfoRow
 import com.cornellappdev.resell.android.ui.components.global.ResellTextEntry
@@ -86,10 +88,10 @@ private fun Content(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         ResellHeaderCore(
-            title = "Edit Profile",
+            title = stringResource(R.string.edit_profile),
             rightContent = {
                 Text(
-                    text = "Save",
+                    text = stringResource(R.string.save),
                     color = ResellPurple.copy(
                         alpha = if (canSubmit) 1f else 0.4f
                     ),
@@ -114,14 +116,14 @@ private fun Content(
 
         Column(modifier = Modifier.defaultHorizontalPadding()) {
             ResellInfoRow(
-                title = "Name",
+                title = stringResource(R.string.name),
                 content = name
             )
 
             Spacer(modifier = Modifier.height(40.dp))
 
             ResellInfoRow(
-                title = "NetID",
+                title = stringResource(R.string.net_id),
                 content = netId
             )
 
@@ -129,7 +131,7 @@ private fun Content(
 
             ResellTextEntry(
                 inlineLabel = true,
-                label = "Username",
+                label = stringResource(R.string.username),
                 text = username,
                 onTextChange = onUsernameChanged
             )
@@ -138,7 +140,7 @@ private fun Content(
 
             ResellTextEntry(
                 inlineLabel = true,
-                label = "Venmo Handle",
+                label = stringResource(R.string.venmo_handle),
                 text = venmoHandle,
                 onTextChange = onVenmoHandleChanged,
                 leadingIcon = {
@@ -154,7 +156,7 @@ private fun Content(
             // TODO Because of chat's window soft input this goes off screen
             ResellTextEntry(
                 inlineLabel = true,
-                label = "Bio",
+                label = stringResource(R.string.bio),
                 text = bio,
                 maxLines = 3,
                 singleLine = false,

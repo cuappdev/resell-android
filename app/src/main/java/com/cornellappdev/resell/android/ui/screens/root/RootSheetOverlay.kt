@@ -11,7 +11,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.ui.components.availability.AvailabilitySheet
 import com.cornellappdev.resell.android.ui.components.global.sheet.ChatMeetingSheet
 import com.cornellappdev.resell.android.ui.components.global.sheet.LoginErrorSheet
@@ -51,7 +53,7 @@ fun RootSheetOverlay(
                 RootSheet.LoginFailed -> {
                     LoginErrorSheet(
                         onTryAgainClicked = onDismissRequest,
-                        text = "Login failed.\nPlease try again."
+                        text = stringResource(R.string.login_failed)
                     )
                 }
 

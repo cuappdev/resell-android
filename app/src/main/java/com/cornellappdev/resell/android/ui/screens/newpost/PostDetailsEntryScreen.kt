@@ -19,9 +19,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.model.classes.ResellFilter
 import com.cornellappdev.resell.android.ui.components.global.ResellHeader
 import com.cornellappdev.resell.android.ui.components.global.ResellTag
@@ -52,7 +54,7 @@ fun PostDetailsEntryScreen(
         )
 
         ResellTextButton(
-            text = "Next",
+            text = stringResource(R.string.next),
             onClick = postDetailsEntryViewModel::onConfirmPost,
             modifier = Modifier
                 .align(Alignment.BottomCenter)
@@ -81,13 +83,13 @@ private fun PostDetailsContent(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         ResellHeader(
-            title = "New Listing",
+            title = stringResource(R.string.new_listing),
         )
 
         Spacer(Modifier.height(24.dp))
 
         ResellTextEntry(
-            label = "Title",
+            label = stringResource(R.string.listing_title),
             text = uiState.title,
             onTextChange = onTitleChanged,
             inlineLabel = false,
@@ -98,7 +100,7 @@ private fun PostDetailsContent(
 
         MoneyEntry(
             text = uiState.price,
-            label = "Price",
+            label = stringResource(R.string.price),
             onPressed = onPricePressed,
             modifier = Modifier
                 .defaultHorizontalPadding()
@@ -108,7 +110,7 @@ private fun PostDetailsContent(
         Spacer(Modifier.height(32.dp))
 
         ResellTextEntry(
-            label = "Item Description",
+            label = stringResource(R.string.item_description),
             text = uiState.description,
             onTextChange = onDescriptionChanged,
             inlineLabel = false,
@@ -117,13 +119,13 @@ private fun PostDetailsContent(
             // TODO: probably wrong max lines
             maxLines = 20,
             modifier = Modifier.defaultHorizontalPadding(),
-            placeholder = "enter item details..."
+            placeholder = stringResource(R.string.item_details_placeholder)
         )
 
         Spacer(Modifier.height(32.dp))
 
         Text(
-            text = "Select Categories",
+            text = stringResource(R.string.select_categories),
             style = Style.title1,
             modifier = Modifier
                 .padding(start = 24.dp, bottom = 8.dp)
@@ -159,7 +161,7 @@ private fun PostDetailsContent(
         Spacer(Modifier.height(32.dp))
 
         Text(
-            text = "Select Condition",
+            text = stringResource(R.string.select_condition),
             style = Style.title1,
             modifier = Modifier
                 .padding(start = 24.dp, bottom = 8.dp)

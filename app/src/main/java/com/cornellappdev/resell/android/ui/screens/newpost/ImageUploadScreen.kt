@@ -31,6 +31,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -77,7 +78,7 @@ fun ImageUploadScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         ResellHeader(
-            title = "New Listing",
+            title = stringResource(R.string.new_listing),
             rightPainter = if (uiState.canAddImages) R.drawable.ic_plus else null,
             onRightClick = {
                 imageUploadViewModel.onAddPressed()
@@ -117,7 +118,7 @@ private fun SelectionBody(
     if (bitmaps.isNotEmpty()) {
         Column {
             Text(
-                text = "Image Upload",
+                text = stringResource(R.string.image_upload),
                 style = Style.title1,
                 modifier = Modifier.defaultHorizontalPadding(),
             )
@@ -151,7 +152,7 @@ private fun SelectionBody(
     } else {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
-                text = "Image Upload",
+                text = stringResource(R.string.image_upload),
                 style = Style.heading2,
                 textAlign = TextAlign.Center,
             )
@@ -159,7 +160,7 @@ private fun SelectionBody(
             Spacer(modifier = Modifier.height(19.dp))
 
             Text(
-                text = "Add images of your item to get started with a new listing",
+                text = stringResource(R.string.image_upload_body),
                 style = Style.body1,
                 color = Secondary,
                 textAlign = TextAlign.Center,
@@ -199,7 +200,7 @@ private fun ImageDisplay(
                 .padding(start = 46.dp, bottom = 22.dp)
                 .size(30.dp)
                 .clickableNoIndication { onDelete() },
-            contentDescription = "trash",
+            contentDescription = stringResource(R.string.cd_trash),
             // This... kinda works... sometimes.
             tint = if (isBottomLeftMoreBlack(bitmap)) Color.White else Color.Black
         )
@@ -217,7 +218,7 @@ private fun AddPage(
         contentAlignment = Alignment.Center
     ) {
         PostFloatingActionButton(
-            contentDescription = "Add image",
+            contentDescription = stringResource(R.string.cd_add_image),
             onClick = {
                 onAddPressed()
             },

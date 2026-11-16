@@ -6,7 +6,9 @@ import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridS
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.ui.components.main.FromHistoryBody
 import com.cornellappdev.resell.android.ui.components.main.FromHistoryHeader
 import com.cornellappdev.resell.android.util.defaultHorizontalPadding
@@ -29,7 +31,7 @@ fun FromPurchasesScreen(
             .fillMaxSize()
     ) {
         FromHistoryHeader(
-            text = "From Your Purchases",
+            text = stringResource(R.string.from_your_purchases),
             onBack = { fromPurchasesViewModel.onBackPressed() },
             onTopPressed = {
                 coroutineScope.launch {
