@@ -16,12 +16,14 @@ data class ProfileReview(
 
 /**
  * Returns null for a review with no star rating.
+ *
+ * @param fallbackId Used when the backend sends no id, so such reviews stay distinct in lists.
  */
-fun TransactionReviewListItem.toProfileReview(): ProfileReview? {
+fun TransactionReviewListItem.toProfileReview(fallbackId: String): ProfileReview? {
     val stars = stars ?: return null
     val buyer = transaction?.buyer
     return ProfileReview(
-        id = id.orEmpty(),
+        id = id?.takeIf { it.isNotEmpty() } ?: fallbackId,
         rating = stars.coerceIn(0, 5),
         comment = comments?.trim().orEmpty(),
         dateLabel = createdAt.toDateLabel(),

@@ -43,7 +43,8 @@ class CoilRepository @Inject constructor(
                 .data(imageUrl)
                 .build()
 
-            urlMap[imageUrl] = mutableStateOf(ResellApiResponse.Pending)
+            val state = urlMap.getOrPut(imageUrl) { mutableStateOf(ResellApiResponse.Pending) }
+            state.value = ResellApiResponse.Pending
 
             val disposable = imageLoader.enqueue(imageRequest)
 

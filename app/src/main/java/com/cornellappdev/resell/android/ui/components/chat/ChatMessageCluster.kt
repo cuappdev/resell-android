@@ -59,7 +59,7 @@ fun ChatMessageCluster(
                         if (it.post != null) {
                             messageSender(imageUrl, {
                                 ChatCard(
-                                    image = postImages[it.post.images.getOrNull(0)]
+                                    image = postImages[it.post.images.getOrNull(0) ?: ""]
                                         ?: ImageState.Loading,
                                     title = it.post.title,
                                     price = it.post.toListing().price,

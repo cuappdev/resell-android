@@ -113,17 +113,25 @@ class ProfileRepository @Inject constructor(
         }
     }
 
+    private var latestExternalReviewsId: String? = null
+
     fun fetchExternalReviews(id: String) {
+        latestExternalReviewsId = id
         _externalReviews.value = ResellApiResponse.Pending
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val response = retrofitInstance.transactionReviewApi.getTransactionReviewsBySeller(id)
-                _externalReviews.value = ResellApiResponse.Success(
-                    response.reviews.mapNotNull { it.toProfileReview() }
-                )
+                val reviews = response.reviews.mapIndexedNotNull { index, review ->
+                    review.toProfileReview(fallbackId = "review-$index")
+                }
+                if (latestExternalReviewsId == id) {
+                    _externalReviews.value = ResellApiResponse.Success(reviews)
+                }
             } catch (e: Exception) {
                 Log.e("ProfileRepository", "Error fetching reviews: ", e)
-                _externalReviews.value = ResellApiResponse.Error
+                if (latestExternalReviewsId == id) {
+                    _externalReviews.value = ResellApiResponse.Error
+                }
             }
         }
     }

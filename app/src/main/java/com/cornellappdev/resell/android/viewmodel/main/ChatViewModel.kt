@@ -244,7 +244,7 @@ class ChatViewModel @Inject constructor(
                 postImageObserver.observe(
                     chat.chatHistory
                         .flatMap { it.messages }
-                        .mapNotNull { it.post?.images?.getOrNull(0) }
+                        .mapNotNull { message -> message.post?.let { it.images.getOrNull(0) ?: "" } }
                 )
             }
         }
