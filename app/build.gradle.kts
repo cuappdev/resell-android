@@ -35,8 +35,8 @@ android {
         applicationId = "com.cornellappdev.resell.android"
         minSdk = 28
         targetSdk = 36
-        versionCode = 25
-        versionName = "2.1 - Refactor [Beta]"
+        versionCode = 26
+        versionName = "2.2 - Refactor [Beta]"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
