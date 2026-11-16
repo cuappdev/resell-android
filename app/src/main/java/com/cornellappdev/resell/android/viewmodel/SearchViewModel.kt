@@ -4,9 +4,11 @@ import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
+import com.cornellappdev.resell.android.model.CoilRepository
 import com.cornellappdev.resell.android.model.classes.Listing
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.model.profile.SearchRepository
+import com.cornellappdev.resell.android.ui.components.global.ImageState
 import com.cornellappdev.resell.android.ui.screens.externalprofile.ExternalProfileRoute
 import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
 import com.cornellappdev.resell.android.util.UIEvent
@@ -22,6 +24,7 @@ import kotlin.time.Duration.Companion.milliseconds
 abstract class SearchViewModel(
     private val searchRepository: SearchRepository,
     private val rootNavigationRepository: RootNavigationRepository,
+    coilRepository: CoilRepository,
 ) : ResellViewModel<
         SearchViewModel.SearchUiState>(
     initialUiState = SearchUiState(
@@ -37,10 +40,15 @@ abstract class SearchViewModel(
         val listings: ResellApiResponse<List<Listing>>,
         val uid: String?,
         val username: String,
-        val focusKeyboard: UIEvent<Unit>? = null
+        val focusKeyboard: UIEvent<Unit>? = null,
+        val images: Map<String, ImageState> = emptyMap(),
     ) {
         val placeholderText
             get() = "Search ${username}..."
+    }
+
+    private val imageObserver = ImageStateObserver(coilRepository, viewModelScope) { images ->
+        applyMutation { copy(images = images) }
     }
 
     fun onQueryChanged(query: String) {
@@ -61,6 +69,7 @@ abstract class SearchViewModel(
                 // By this time, the query may have changed. If so, ignore.
                 if (stateValue().query == query) {
                     applyMutation { copy(listings = ResellApiResponse.Success(response)) }
+                    imageObserver.observe(response.map { it.image })
                 }
             } catch (e: Exception) {
                 Log.e("SearchViewModel", e.toString())
@@ -101,8 +110,9 @@ class ExternalProfileSearchViewModel @Inject constructor(
     private val externalNavigationRepository: ExternalNavigationRepository,
     searchRepository: SearchRepository,
     savedStateHandle: SavedStateHandle,
-    rootNavigationRepository: RootNavigationRepository
-) : SearchViewModel(searchRepository, rootNavigationRepository) {
+    rootNavigationRepository: RootNavigationRepository,
+    coilRepository: CoilRepository,
+) : SearchViewModel(searchRepository, rootNavigationRepository, coilRepository) {
     init {
         val navArgs = savedStateHandle.toRoute<ExternalProfileRoute.Search>()
 
@@ -118,7 +128,8 @@ class ExternalProfileSearchViewModel @Inject constructor(
 class AllSearchViewModel @Inject constructor(
     private val rootNavigationRepository: RootNavigationRepository,
     searchRepository: SearchRepository,
-) : SearchViewModel(searchRepository, rootNavigationRepository) {
+    coilRepository: CoilRepository,
+) : SearchViewModel(searchRepository, rootNavigationRepository, coilRepository) {
     init {
         applyMutation { copy(uid = null, username = "") }
     }

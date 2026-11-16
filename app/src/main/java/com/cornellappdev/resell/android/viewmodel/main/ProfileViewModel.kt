@@ -1,13 +1,16 @@
 package com.cornellappdev.resell.android.viewmodel.main
 
 import androidx.lifecycle.viewModelScope
+import com.cornellappdev.resell.android.model.CoilRepository
 import com.cornellappdev.resell.android.model.classes.Listing
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.model.classes.ResellApiState
 import com.cornellappdev.resell.android.model.classes.toResellApiState
 import com.cornellappdev.resell.android.model.core.UserInfoRepository
 import com.cornellappdev.resell.android.model.profile.ProfileRepository
+import com.cornellappdev.resell.android.ui.components.global.ImageState
 import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
+import com.cornellappdev.resell.android.viewmodel.ImageStateObserver
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
 import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -20,6 +23,7 @@ class ProfileViewModel @Inject constructor(
     private val rootNavigationRepository: RootNavigationRepository,
     private val profileRepository: ProfileRepository,
     private val userInfoRepository: UserInfoRepository,
+    coilRepository: CoilRepository,
 ): ResellViewModel<ProfileViewModel.ProfileUiState>(
     initialUiState = ProfileUiState(
         profileTab = ProfileTab.SHOP,
@@ -42,11 +46,23 @@ class ProfileViewModel @Inject constructor(
         val vendorName: String,
         val bio: String,
         val imageUrl: String,
+        val listingImages: Map<String, ImageState> = emptyMap(),
     )
 
     enum class ProfileTab {
         // Please preserve order!
         SHOP, ARCHIVE
+    }
+
+    private val listingImageObserver = ImageStateObserver(coilRepository, viewModelScope) { images ->
+        applyMutation { copy(listingImages = images) }
+    }
+
+    private fun observeListingImages() {
+        val state = stateValue()
+        val listings = state.shopListings.asSuccessOrNull()?.data.orEmpty() +
+                state.archiveListings.asSuccessOrNull()?.data.orEmpty()
+        listingImageObserver.observe(listings.map { it.image })
     }
 
     fun onTabSelected(profileTab: ProfileTab) {
@@ -117,6 +133,7 @@ class ProfileViewModel @Inject constructor(
                     shopListings = response,
                 )
             }
+            observeListingImages()
         }
 
         asyncCollect(profileRepository.internalArchivedListings) { response ->
@@ -125,6 +142,7 @@ class ProfileViewModel @Inject constructor(
                     archiveListings = response,
                 )
             }
+            observeListingImages()
         }
     }
 }

@@ -2,7 +2,6 @@ package com.cornellappdev.resell.android.ui.components.global
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridLayoutInfo
@@ -30,6 +29,7 @@ import kotlinx.coroutines.flow.map
 @Composable
 fun ResellListingsScroll(
     listings: List<Listing>,
+    images: Map<String, ImageState>,
     onListingPressed: (Listing) -> Unit,
     modifier: Modifier = Modifier,
     listState: LazyStaggeredGridState = rememberLazyStaggeredGridState(),
@@ -40,7 +40,6 @@ fun ResellListingsScroll(
     onScrollBottom: () -> Unit = {},
     footer: @Composable () -> Unit = {},
     bottomLoading: Boolean = false,
-    imageStateLoader: ImageStateLoader? = null,
 ) {
     if (listings.isEmpty()) {
         emptyState()
@@ -67,10 +66,10 @@ fun ResellListingsScroll(
         }
         resellListingScroll(
             listings,
+            images,
             onListingPressed,
             footer,
             bottomLoading = bottomLoading,
-            imageStateLoader = imageStateLoader,
         )
     }
 }
@@ -105,20 +104,19 @@ fun DetectListEndReached(
 
 fun LazyStaggeredGridScope.resellListingScroll(
     listings: List<Listing>,
+    images: Map<String, ImageState>,
     onListingPressed: (Listing) -> Unit,
     footer: @Composable () -> Unit = {},
     addVerticalPadding: Boolean = false,
     bottomLoading: Boolean = false,
-    imageStateLoader: ImageStateLoader? = null,
 ) {
     itemsIndexed(items = listings.distinctBy { it.id }, key = { _, item -> item.id }) { _, item ->
         val padding = calculateItemPadding(addVerticalPadding)
         ResellCard(
-            imageUrl = item.image,
+            image = images[item.image] ?: ImageState.Loading,
             title = item.title,
             price = item.price,
             modifier = Modifier.padding(padding),
-            imageStateLoader = imageStateLoader,
         ) {
             onListingPressed(item)
         }

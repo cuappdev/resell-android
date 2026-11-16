@@ -66,6 +66,7 @@ import com.cornellappdev.resell.android.model.classes.ResellApiState
 import com.cornellappdev.resell.android.model.classes.ResellFilter
 import com.cornellappdev.resell.android.model.classes.UserInfo
 import com.cornellappdev.resell.android.ui.components.global.DetectListEndReached
+import com.cornellappdev.resell.android.ui.components.global.ImageState
 import com.cornellappdev.resell.android.ui.components.global.resellListingScroll
 import com.cornellappdev.resell.android.ui.components.global.resellLoadingListingScroll
 import com.cornellappdev.resell.android.ui.components.main.EmptySavedComponent
@@ -120,6 +121,7 @@ fun HomeScreen(
         onFromPurchasePressed = onFromPurchasePressed,
         loadedState = homeUiState.loadedState,
         filteredListings = homeUiState.listings,
+        listingImages = homeUiState.listingImages,
         onListingPressed = homeViewModel::onListingPressed,
         bottomLoading = homeUiState.bottomLoading,
         onScrollBottom = homeViewModel::onScrollBottom,
@@ -150,6 +152,7 @@ private fun HomeScreenHelper(
     onFromPurchasePressed: () -> Unit,
     loadedState: ResellApiState,
     filteredListings: List<Listing>,
+    listingImages: Map<String, ImageState>,
     onListingPressed: (Listing) -> Unit,
     bottomLoading: Boolean = false,
     onScrollBottom: () -> Unit = {},
@@ -182,6 +185,7 @@ private fun HomeScreenHelper(
             onCategoryPressed = onCategoryPressed,
             loadedState = loadedState,
             filteredListings = filteredListings,
+            listingImages = listingImages,
             onListingPressed = onListingPressed,
             bottomLoading = bottomLoading,
             onScrollBottom = onScrollBottom,
@@ -249,6 +253,7 @@ private fun MainContent(
     loadedState: ResellApiState,
     onCategoryPressed: (ResellFilter.FilterCategory) -> Unit,
     filteredListings: List<Listing>,
+    listingImages: Map<String, ImageState>,
     onListingPressed: (Listing) -> Unit,
     bottomLoading: Boolean = false,
     onScrollBottom: () -> Unit = {},
@@ -287,6 +292,7 @@ private fun MainContent(
         recentListings(
             loadedState = loadedState,
             filteredListings = filteredListings,
+            listingImages = listingImages,
             onListingPressed = onListingPressed,
             onFilter = onFilterPressed,
             bottomLoading = bottomLoading,
@@ -539,6 +545,7 @@ private fun CategoryRow(
 private fun LazyStaggeredGridScope.recentListings(
     loadedState: ResellApiState,
     filteredListings: List<Listing>,
+    listingImages: Map<String, ImageState>,
     onListingPressed: (Listing) -> Unit,
     bottomLoading: Boolean = false,
     onFilter: () -> Unit,
@@ -574,6 +581,7 @@ private fun LazyStaggeredGridScope.recentListings(
             } else {
                 resellListingScroll(
                     listings = filteredListings,
+                    images = listingImages,
                     onListingPressed = onListingPressed,
                     addVerticalPadding = true,
                 )
@@ -628,6 +636,7 @@ private fun HomeScreenPreview() = ResellPreview {
         onFromPurchasePressed = {},
         loadedState = ResellApiState.Loading,
         filteredListings = List(10) { dumbListing },
+        listingImages = emptyMap(),
         onListingPressed = {},
         savedImagesResponses = remember {
             List(5) { mutableStateOf(ResellApiResponse.Pending) }
@@ -657,6 +666,7 @@ private fun SavedEmptyStatePreview() = ResellPreview {
         onFromPurchasePressed = {},
         loadedState = ResellApiState.Loading,
         filteredListings = List(10) { dumbListing },
+        listingImages = emptyMap(),
         onListingPressed = {},
         savedImagesResponses = emptyList(),
         onDismissRequest = {},

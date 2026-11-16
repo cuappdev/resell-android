@@ -2,7 +2,9 @@ package com.cornellappdev.resell.android.viewmodel.externalprofile
 
 import androidx.compose.ui.Alignment
 import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
+import com.cornellappdev.resell.android.model.CoilRepository
 import com.cornellappdev.resell.android.model.classes.Listing
 import com.cornellappdev.resell.android.model.classes.ProfileReview
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
@@ -10,8 +12,10 @@ import com.cornellappdev.resell.android.model.classes.ResellApiState
 import com.cornellappdev.resell.android.model.classes.toResellApiState
 import com.cornellappdev.resell.android.model.profile.ProfileRepository
 import com.cornellappdev.resell.android.model.settings.BlockedUsersRepository
+import com.cornellappdev.resell.android.ui.components.global.ImageState
 import com.cornellappdev.resell.android.ui.screens.externalprofile.ExternalProfileRoute
 import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
+import com.cornellappdev.resell.android.viewmodel.ImageStateObserver
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
 import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepository
 import com.cornellappdev.resell.android.viewmodel.root.OptionType
@@ -31,6 +35,7 @@ class ExternalProfileViewModel @Inject constructor(
     private val rootConfirmationRepository: RootConfirmationRepository,
     private val profileRepository: ProfileRepository,
     private val externalNavigationRepository: ExternalNavigationRepository,
+    coilRepository: CoilRepository,
     savedStateHandle: SavedStateHandle
 ) :
     ResellViewModel<ExternalProfileViewModel.ExternalProfileState>(
@@ -62,6 +67,7 @@ class ExternalProfileViewModel @Inject constructor(
         val shopListings: ResellApiResponse<List<Listing>>,
         val archiveListings: ResellApiResponse<List<Listing>>,
         val reviews: ResellApiResponse<List<ProfileReview>>,
+        val listingImages: Map<String, ImageState> = emptyMap(),
         val selectedTab: ExternalProfileTab = ExternalProfileTab.LISTINGS,
         val uid: String,
         private val blockedUsers: List<String>,
@@ -97,6 +103,10 @@ class ExternalProfileViewModel @Inject constructor(
 
         val ratingLabel: String
             get() = if (reviewCount > 0) "%.1f".format(averageRating) else ""
+    }
+
+    private val listingImageObserver = ImageStateObserver(coilRepository, viewModelScope) { images ->
+        applyMutation { copy(listingImages = images) }
     }
 
     fun onTabSelected(tab: ExternalProfileTab) {
@@ -209,6 +219,9 @@ class ExternalProfileViewModel @Inject constructor(
                     loadedState = response.toResellApiState(),
                     shopListings = response
                 )
+            }
+            response.asSuccessOrNull()?.data?.let { listings ->
+                listingImageObserver.observe(listings.map { it.image })
             }
         }
 

@@ -18,8 +18,6 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.State
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -28,55 +26,25 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.times
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import com.cornellappdev.resell.android.model.CoilRepository
-import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.ui.theme.Padding
 import com.cornellappdev.resell.android.ui.theme.ResellPreview
 import com.cornellappdev.resell.android.ui.theme.Secondary
 import com.cornellappdev.resell.android.ui.theme.Stroke
 import com.cornellappdev.resell.android.ui.theme.Style
 import com.cornellappdev.resell.android.util.shimmer
-import com.cornellappdev.resell.android.viewmodel.ResellViewModel
-import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import com.cornellappdev.resell.android.util.windowWidth
 
-typealias ImageStateLoader = (imageUrl: String) -> State<ResellApiResponse<ImageBitmap>>
-
 /**
+ * @param image What to show in the image slot.
  * @param price The price of the listing, as $###.##.
- * @param imageStateLoader How the image is loaded. Defaults to loading through [ResellCardViewModel].
  */
 @Composable
 fun ResellCard(
-    imageUrl: String,
+    image: ImageState,
     title: String,
     price: String,
     modifier: Modifier = Modifier,
-    imageStateLoader: ImageStateLoader? = null,
     onClick: () -> Unit,
-) {
-    val loadImage = imageStateLoader ?: hiltViewModel<ResellCardViewModel>()::getImageUrlState
-    val image by loadImage(imageUrl)
-
-    // Separated into a different function to allow `@Preview` despite the viewModel.
-    ResellCardContent(
-        modifier = modifier,
-        onClick = onClick,
-        image = image,
-        title = title,
-        price = price,
-    )
-}
-
-@Composable
-fun ResellCardContent(
-    modifier: Modifier = Modifier,
-    onClick: () -> Unit,
-    image: ResellApiResponse<ImageBitmap>,
-    title: String,
-    price: String,
 ) {
     val screenWidth = windowWidth()
 
@@ -119,13 +87,13 @@ fun ResellCardContent(
 
 @Composable
 fun AnimatedClampedAsyncImage(
-    image: ResellApiResponse<ImageBitmap>,
+    image: ImageState,
     modifier: Modifier = Modifier
 ) {
     Box(modifier = modifier.heightIn(min = 130.dp, max = 220.dp)) {
         AnimatedContent(targetState = image, label = "image loading") { response ->
             when (response) {
-                ResellApiResponse.Pending -> {
+                ImageState.Loading -> {
                     Box(
                         modifier = Modifier
                             .height(175.dp)
@@ -134,7 +102,7 @@ fun AnimatedClampedAsyncImage(
                     )
                 }
 
-                ResellApiResponse.Error -> {
+                ImageState.Error -> {
                     Box(
                         modifier = Modifier
                             .height(175.dp)
@@ -145,9 +113,9 @@ fun AnimatedClampedAsyncImage(
                     )
                 }
 
-                is ResellApiResponse.Success -> {
+                is ImageState.Loaded -> {
                     Image(
-                        bitmap = response.data,
+                        bitmap = response.bitmap,
                         contentDescription = null,
                         modifier = Modifier
                             .fillMaxWidth(),
@@ -164,8 +132,8 @@ fun AnimatedClampedAsyncImage(
 private fun ResellCardPreview() = ResellPreview(
     backgroundColor = Color.Transparent
 ) {
-    ResellCardContent(
-        image = ResellApiResponse.Pending,
+    ResellCard(
+        image = ImageState.Loading,
         title = "Title",
         price = "$10.00",
         onClick = {},
@@ -173,8 +141,8 @@ private fun ResellCardPreview() = ResellPreview(
 
     Spacer(modifier = Modifier.padding(Padding.large))
 
-    ResellCardContent(
-        image = ResellApiResponse.Error,
+    ResellCard(
+        image = ImageState.Error,
         title = "Richie man",
         price = "$999.99",
         onClick = {},
@@ -182,22 +150,10 @@ private fun ResellCardPreview() = ResellPreview(
 
     Spacer(modifier = Modifier.padding(Padding.large))
 
-    ResellCardContent(
-        image = ResellApiResponse.Success(ImageBitmap(1, 1)),
+    ResellCard(
+        image = ImageState.Loaded(ImageBitmap(1, 1)),
         title = "Richie man with a damn long listing name",
         price = "$999.99",
         onClick = {},
     )
-}
-
-// Semantics to be able to call this function in the composable...
-
-@HiltViewModel
-class ResellCardViewModel @Inject constructor(
-    private val coilRepository: CoilRepository
-) : ResellViewModel<Unit>(
-    initialUiState = Unit
-) {
-
-    fun getImageUrlState(imageUrl: String) = coilRepository.getUrlState(imageUrl)
 }

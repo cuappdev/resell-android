@@ -21,6 +21,7 @@ import com.cornellappdev.resell.android.model.api.Post
 import com.cornellappdev.resell.android.model.chats.AvailabilityDocument
 import com.cornellappdev.resell.android.model.chats.MeetingInfo
 import com.cornellappdev.resell.android.model.chats.TransactionInfo
+import com.cornellappdev.resell.android.ui.components.global.ImageState
 import com.cornellappdev.resell.android.ui.components.main.ProfilePictureView
 import com.cornellappdev.resell.android.ui.theme.ResellPreview
 
@@ -29,6 +30,7 @@ fun ChatMessageCluster(
     imageUrl: String? = null,
     messageSender: @Composable (String?, @Composable () -> Unit, Int?) -> Unit,
     messages: List<ChatMessageData>,
+    postImages: Map<String, ImageState>,
     onPostClicked: (Post) -> Unit,
     onAvailabilityClicked: (AvailabilityDocument) -> Unit,
     onMeetingStateClicked: (MeetingInfo) -> Unit,
@@ -57,7 +59,8 @@ fun ChatMessageCluster(
                         if (it.post != null) {
                             messageSender(imageUrl, {
                                 ChatCard(
-                                    imageUrl = it.post.images.getOrNull(0) ?: "",
+                                    image = postImages[it.post.images.getOrNull(0)]
+                                        ?: ImageState.Loading,
                                     title = it.post.title,
                                     price = it.post.toListing().price,
                                     modifier = Modifier.width(200.dp),

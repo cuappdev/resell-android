@@ -132,3 +132,15 @@ private fun ResellReviewsScrollPreview() = ResellPreview {
         }
     )
 }
+
+@Preview(showBackground = true)
+@Composable
+private fun ResellReviewsScrollEmptyPreview() = ResellPreview {
+    ResellReviewsScroll(reviews = emptyList())
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun ResellLoadingReviewsScrollPreview() = ResellPreview {
+    ResellLoadingReviewsScroll()
+}

@@ -64,6 +64,7 @@ fun SavedScreen(
                 }
                 ResellListingsScroll(
                     listings = savedUiState.listings,
+                    images = savedUiState.images,
                     onListingPressed = savedViewModel::onListingPressed,
                     listState = listState
                 )

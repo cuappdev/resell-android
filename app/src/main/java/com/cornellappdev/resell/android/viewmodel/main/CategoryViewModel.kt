@@ -2,11 +2,14 @@ package com.cornellappdev.resell.android.viewmodel.main
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import com.cornellappdev.resell.android.model.CoilRepository
 import com.cornellappdev.resell.android.model.classes.Listing
 import com.cornellappdev.resell.android.model.classes.ResellApiState
 import com.cornellappdev.resell.android.model.classes.ResellFilter
 import com.cornellappdev.resell.android.model.posts.ResellPostRepository
+import com.cornellappdev.resell.android.ui.components.global.ImageState
 import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
+import com.cornellappdev.resell.android.viewmodel.ImageStateObserver
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
 import com.cornellappdev.resell.android.util.ScrollPageResult
 import com.cornellappdev.resell.android.util.fetchNextScrollPage
@@ -24,6 +27,7 @@ private const val CATEGORY_PAGE_SIZE = 10
 class CategoryViewModel @Inject constructor(
     private val rootNavigationRepository: RootNavigationRepository,
     private val resellPostRepository: ResellPostRepository,
+    coilRepository: CoilRepository,
     savedStateHandle: SavedStateHandle,
     ) : ResellViewModel<CategoryViewModel.CategoryUiState>(
     initialUiState = CategoryUiState(
@@ -41,10 +45,15 @@ class CategoryViewModel @Inject constructor(
         val filter: ResellFilter,
         val page: Int,
         val bottomLoading: Boolean,
-        val endReached: Boolean
+        val endReached: Boolean,
+        val images: Map<String, ImageState> = emptyMap(),
     )
 
     private var fetchJob: Job? = null
+
+    private val imageObserver = ImageStateObserver(coilRepository, viewModelScope) { images ->
+        applyMutation { copy(images = images) }
+    }
 
     init {
         val categoryName: String? = savedStateHandle["category"]
@@ -86,6 +95,7 @@ class CategoryViewModel @Inject constructor(
                         bottomLoading = false
                     )
                 }
+                imageObserver.observe(stateValue().listings.map { it.image })
             } catch (_: CancellationException) {
             } catch (_: Exception) {
                 applyMutation {
@@ -109,13 +119,16 @@ class CategoryViewModel @Inject constructor(
                 resellPostRepository.getFilteredPosts(state.filter, page = nextPage, limit = CATEGORY_PAGE_SIZE)
             }
             when (result) {
-                is ScrollPageResult.Success -> applyMutation {
-                    copy(
-                        listings = listings + result.newListings,
-                        page = result.nextPage,
-                        endReached = result.endReached,
-                        bottomLoading = false
-                    )
+                is ScrollPageResult.Success -> {
+                    applyMutation {
+                        copy(
+                            listings = listings + result.newListings,
+                            page = result.nextPage,
+                            endReached = result.endReached,
+                            bottomLoading = false
+                        )
+                    }
+                    imageObserver.observe(stateValue().listings.map { it.image })
                 }
 
                 is ScrollPageResult.Error -> applyMutation { copy(bottomLoading = false) }

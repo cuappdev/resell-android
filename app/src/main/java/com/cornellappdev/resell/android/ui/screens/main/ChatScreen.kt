@@ -219,6 +219,7 @@ private fun ChatLoadedContent(
                     )
                 )
             } ?: emptyList()),
+            postImages = chatUiState.postImages,
             listState = listState,
             modifier = Modifier.weight(1f),
             onPostClicked = onPostClicked,

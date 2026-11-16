@@ -11,7 +11,9 @@ import com.cornellappdev.resell.android.model.classes.ResellApiState
 import com.cornellappdev.resell.android.model.classes.ResellFilter
 import com.cornellappdev.resell.android.model.classes.toResellApiState
 import com.cornellappdev.resell.android.model.posts.ResellPostRepository
+import com.cornellappdev.resell.android.ui.components.global.ImageState
 import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
+import com.cornellappdev.resell.android.viewmodel.ImageStateObserver
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
 import com.cornellappdev.resell.android.util.ScrollPageResult
 import com.cornellappdev.resell.android.util.fetchNextScrollPage
@@ -66,10 +68,15 @@ class HomeViewModel @Inject constructor(
         val endReached: Boolean,
         val isDefaultFeed: Boolean,
         val savedImageResponses: List<MutableState<ResellApiResponse<ImageBitmap>>>,
-        val searchedImageResponses: List<MutableState<ResellApiResponse<ImageBitmap>>>
+        val searchedImageResponses: List<MutableState<ResellApiResponse<ImageBitmap>>>,
+        val listingImages: Map<String, ImageState> = emptyMap(),
     )
 
     private var fetchJob: Job? = null
+
+    private val listingImageObserver = ImageStateObserver(coilRepository, viewModelScope) { images ->
+        applyMutation { copy(listingImages = images) }
+    }
 
     init {
         getNewlyListedPosts()
@@ -131,6 +138,10 @@ class HomeViewModel @Inject constructor(
         )
     }
 
+    private fun observeFeedImages() {
+        listingImageObserver.observe(stateValue().listings.map { it.image })
+    }
+
     private fun getPosts(filter: ResellFilter) {
         fetchJob?.cancel()
         fetchJob = viewModelScope.launch {
@@ -146,6 +157,7 @@ class HomeViewModel @Inject constructor(
                         bottomLoading = false
                     )
                 }
+                observeFeedImages()
             } catch (_: CancellationException) {
             } catch (e: Exception) {
                 Log.e(TAG, "Error fetching filtered posts: ", e)
@@ -174,6 +186,7 @@ class HomeViewModel @Inject constructor(
                         bottomLoading = false
                     )
                 }
+                observeFeedImages()
             } catch (_: CancellationException) {
             } catch (e: Exception) {
                 Log.e(TAG, "Error fetching newly listed posts: ", e)
@@ -202,13 +215,16 @@ class HomeViewModel @Inject constructor(
                 }
             }
             when (result) {
-                is ScrollPageResult.Success -> applyMutation {
-                    copy(
-                        listings = listings + result.newListings,
-                        page = result.nextPage,
-                        endReached = result.endReached,
-                        bottomLoading = false
-                    )
+                is ScrollPageResult.Success -> {
+                    applyMutation {
+                        copy(
+                            listings = listings + result.newListings,
+                            page = result.nextPage,
+                            endReached = result.endReached,
+                            bottomLoading = false
+                        )
+                    }
+                    observeFeedImages()
                 }
 
                 is ScrollPageResult.Error -> {

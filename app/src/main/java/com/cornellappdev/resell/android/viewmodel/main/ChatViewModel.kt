@@ -9,16 +9,19 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.cornellappdev.resell.android.model.Chat
+import com.cornellappdev.resell.android.model.CoilRepository
 import com.cornellappdev.resell.android.model.api.ChatRepository
 import com.cornellappdev.resell.android.model.api.Post
 import com.cornellappdev.resell.android.model.classes.Listing
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.model.core.UserInfoRepository
 import com.cornellappdev.resell.android.model.login.FirebaseMessagingRepository
+import com.cornellappdev.resell.android.ui.components.global.ImageState
 import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
 import com.cornellappdev.resell.android.util.UIEvent
 import com.cornellappdev.resell.android.util.loadBitmapFromUri
 import com.cornellappdev.resell.android.util.toNetworkingString
+import com.cornellappdev.resell.android.viewmodel.ImageStateObserver
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
 import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepository
 import com.cornellappdev.resell.android.viewmodel.root.RootConfirmationRepository
@@ -44,6 +47,7 @@ class ChatViewModel @Inject constructor(
     firebaseMessagingRepository: FirebaseMessagingRepository,
     private val rootDialogRepository: RootDialogRepository,
     private val rootNavigationRepository: RootNavigationRepository,
+    coilRepository: CoilRepository,
     @ApplicationContext private val context: Context
 ) :
     ResellViewModel<ChatViewModel.MessagesUiState>(
@@ -62,12 +66,17 @@ class ChatViewModel @Inject constructor(
         val title: String = "Unknown",
         val typedMessage: String = "",
         val scrollBottom: UIEvent<Unit>? = null,
+        val postImages: Map<String, ImageState> = emptyMap(),
     ) {
         val showNegotiate
             get() = true
 
         val showPayWithVenmo
             get() = chatType == ChatType.Purchases
+    }
+
+    private val postImageObserver = ImageStateObserver(coilRepository, viewModelScope) { images ->
+        applyMutation { copy(postImages = images) }
     }
 
     val navArgs = savedStateHandle.toRoute<ResellRootRoute.CHAT>()
@@ -229,6 +238,13 @@ class ChatViewModel @Inject constructor(
                 copy(
                     currentChat = response,
                     scrollBottom = UIEvent(Unit)
+                )
+            }
+            response.asSuccessOrNull()?.data?.let { chat ->
+                postImageObserver.observe(
+                    chat.chatHistory
+                        .flatMap { it.messages }
+                        .mapNotNull { it.post?.images?.getOrNull(0) }
                 )
             }
         }
