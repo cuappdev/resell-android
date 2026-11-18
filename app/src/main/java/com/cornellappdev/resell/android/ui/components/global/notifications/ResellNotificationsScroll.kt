@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.key
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.cornellappdev.resell.android.model.classes.InAppNotification
@@ -40,18 +41,20 @@ fun ResellNotificationsScroll(
                 )
                 Spacer(modifier = Modifier.height(12.dp))
                 unreadNotifications.forEach { notification ->
-                    SwipeableNotificationCard(
-                        notification = notification,
-                        imageUrl = notification.displayImageUrl,
-                        body = notification.body,
-                        timestamp = getRelativeTimeSpan(notification.createdInstant.toString()),
-                        unread = true,
-                        onArchive = {
-                            onNotificationArchived(notification)
-                        },
-                        modifier = Modifier.animateItem(fadeInSpec = null, fadeOutSpec = null)
-                    ) {
-                        onNotificationPressed(notification)
+                    key(notification.id) {
+                        SwipeableNotificationCard(
+                            notification = notification,
+                            imageUrl = notification.displayImageUrl,
+                            body = notification.body,
+                            timestamp = getRelativeTimeSpan(notification.createdInstant.toString()),
+                            unread = true,
+                            onArchive = {
+                                onNotificationArchived(notification)
+                            },
+                            modifier = Modifier.animateItem(fadeInSpec = null, fadeOutSpec = null)
+                        ) {
+                            onNotificationPressed(notification)
+                        }
                     }
                 }
                 Spacer(modifier = Modifier.height(12.dp))
@@ -68,18 +71,20 @@ fun ResellNotificationsScroll(
                 Spacer(modifier = Modifier.height(12.dp))
 
                 weekNotifications.forEach { notification ->
-                    SwipeableNotificationCard(
-                        notification = notification,
-                        imageUrl = notification.displayImageUrl,
-                        body = notification.body,
-                        timestamp = getRelativeTimeSpan(notification.createdInstant.toString()),
-                        unread = false,
-                        onArchive = {
-                            onNotificationArchived(notification)
-                        },
-                        modifier = Modifier.animateItem(fadeInSpec = null, fadeOutSpec = null)
-                    ) {
-                        onNotificationPressed(notification)
+                    key(notification.id) {
+                        SwipeableNotificationCard(
+                            notification = notification,
+                            imageUrl = notification.displayImageUrl,
+                            body = notification.body,
+                            timestamp = getRelativeTimeSpan(notification.createdInstant.toString()),
+                            unread = false,
+                            onArchive = {
+                                onNotificationArchived(notification)
+                            },
+                            modifier = Modifier.animateItem(fadeInSpec = null, fadeOutSpec = null)
+                        ) {
+                            onNotificationPressed(notification)
+                        }
                     }
                 }
                 Spacer(modifier = Modifier.height(12.dp))
@@ -95,18 +100,20 @@ fun ResellNotificationsScroll(
                 )
                 Spacer(modifier = Modifier.height(12.dp))
                 monthNotifications.forEach { notification ->
-                    SwipeableNotificationCard(
-                        notification = notification,
-                        imageUrl = notification.displayImageUrl,
-                        body = notification.body,
-                        timestamp = getRelativeTimeSpan(notification.createdInstant.toString()),
-                        unread = false,
-                        onArchive = {
-                            onNotificationArchived(notification)
-                        },
-                        modifier = Modifier.animateItem(fadeInSpec = null, fadeOutSpec = null)
-                    ) {
-                        onNotificationPressed(notification)
+                    key(notification.id) {
+                        SwipeableNotificationCard(
+                            notification = notification,
+                            imageUrl = notification.displayImageUrl,
+                            body = notification.body,
+                            timestamp = getRelativeTimeSpan(notification.createdInstant.toString()),
+                            unread = false,
+                            onArchive = {
+                                onNotificationArchived(notification)
+                            },
+                            modifier = Modifier.animateItem(fadeInSpec = null, fadeOutSpec = null)
+                        ) {
+                            onNotificationPressed(notification)
+                        }
                     }
                 }
                 Spacer(modifier = Modifier.height(12.dp))
@@ -122,18 +129,20 @@ fun ResellNotificationsScroll(
                 )
                 Spacer(modifier = Modifier.height(12.dp))
                 otherNotifications.forEach { notification ->
-                    SwipeableNotificationCard(
-                        notification = notification,
-                        imageUrl = notification.displayImageUrl,
-                        body = notification.body,
-                        timestamp = getRelativeTimeSpan(notification.createdInstant.toString()),
-                        unread = false,
-                        onArchive = {
-                            onNotificationArchived(notification)
-                        },
-                        modifier = Modifier.animateItem(fadeInSpec = null, fadeOutSpec = null)
-                    ) {
-                        onNotificationPressed(notification)
+                    key(notification.id) {
+                        SwipeableNotificationCard(
+                            notification = notification,
+                            imageUrl = notification.displayImageUrl,
+                            body = notification.body,
+                            timestamp = getRelativeTimeSpan(notification.createdInstant.toString()),
+                            unread = false,
+                            onArchive = {
+                                onNotificationArchived(notification)
+                            },
+                            modifier = Modifier.animateItem(fadeInSpec = null, fadeOutSpec = null)
+                        ) {
+                            onNotificationPressed(notification)
+                        }
                     }
                 }
             }
