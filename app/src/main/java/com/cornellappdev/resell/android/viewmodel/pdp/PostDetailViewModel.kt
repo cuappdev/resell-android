@@ -165,6 +165,10 @@ class PostDetailViewModel @Inject constructor(
         }
     }
 
+    fun onBackPressed() {
+        rootNavigationRepository.popBackStack()
+    }
+
     fun onEllipseClick() {
         viewModelScope.launch {
             rootOptionsMenuRepository.showOptionsMenu(

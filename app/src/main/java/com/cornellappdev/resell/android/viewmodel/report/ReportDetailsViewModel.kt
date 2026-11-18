@@ -75,6 +75,10 @@ class ReportDetailsViewModel @Inject constructor(
         }
     }
 
+    fun onBackPressed() {
+        reportNavigationRepository.popBackStack()
+    }
+
     fun onTypedContentChanged(typedContent: String) {
         applyMutation {
             copy(

@@ -1,5 +1,6 @@
 package com.cornellappdev.resell.android.ui.screens.reporting
 
+import com.cornellappdev.resell.android.R
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -27,6 +28,7 @@ fun ReportReasonScreen(
     val uiState = reportReasonViewModel.collectUiStateValue()
 
     Content(
+        onBackPressed = reportReasonViewModel::onBackPressed,
         title = uiState.title,
         subtitle = uiState.subtitle,
         reasons = uiState.reasons,
@@ -38,6 +40,7 @@ fun ReportReasonScreen(
 @Preview
 @Composable
 private fun Content(
+    onBackPressed: () -> Unit = {},
     title: String = "title",
     subtitle: String = "subtitle",
     reasons: List<String> = listOf("reason1", "reason2"),
@@ -52,6 +55,8 @@ private fun Content(
     ) {
         ResellHeader(
             title = title,
+            leftPainter = R.drawable.ic_chevron_left,
+            onLeftClick = onBackPressed,
         )
 
         Spacer(Modifier.height(24.dp))

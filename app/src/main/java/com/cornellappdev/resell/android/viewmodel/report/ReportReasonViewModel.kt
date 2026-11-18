@@ -1,5 +1,6 @@
 package com.cornellappdev.resell.android.viewmodel.report
 
+import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepository
 import androidx.lifecycle.SavedStateHandle
 import androidx.navigation.toRoute
 import com.cornellappdev.resell.android.ui.screens.reporting.ReportScreen
@@ -11,6 +12,7 @@ import javax.inject.Inject
 @HiltViewModel
 class ReportReasonViewModel @Inject constructor(
     private val reportNavigationRepository: ReportNavigationRepository,
+    private val rootNavigationRepository: RootNavigationRepository,
     private val savedStateHandle: SavedStateHandle
 ) :
     ResellViewModel<ReportReasonViewModel.ReportReasonUiState>(
@@ -58,6 +60,10 @@ class ReportReasonViewModel @Inject constructor(
                 )
             }
         }
+    }
+
+    fun onBackPressed() {
+        rootNavigationRepository.popBackStack()
     }
 
     fun onReasonPressed(reason: String) {

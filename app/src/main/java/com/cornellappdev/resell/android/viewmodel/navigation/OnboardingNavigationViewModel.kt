@@ -15,10 +15,17 @@ class OnboardingNavigationViewModel @Inject constructor(
 ) {
 
     data class OnboardingNavigationUiState(
-        val route: UIEvent<ResellOnboardingScreen>? = null
+        val route: UIEvent<ResellOnboardingScreen>? = null,
+        val popBackStack: UIEvent<Unit>? = null,
     )
 
     init {
+        asyncCollect(onboardingNavigationRepository.popBackStackFlow) { pop ->
+            applyMutation {
+                copy(popBackStack = pop)
+            }
+        }
+
         asyncCollect(onboardingNavigationRepository.routeFlow) { route ->
             applyMutation {
                 copy(

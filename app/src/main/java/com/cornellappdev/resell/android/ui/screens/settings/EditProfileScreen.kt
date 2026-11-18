@@ -1,5 +1,10 @@
 package com.cornellappdev.resell.android.ui.screens.settings
 
+import com.cornellappdev.resell.android.ui.theme.Primary
+import androidx.compose.foundation.layout.size
+import androidx.compose.ui.res.painterResource
+import androidx.compose.material3.Icon
+import com.cornellappdev.resell.android.R
 import android.graphics.Bitmap
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -43,6 +48,7 @@ fun EditProfileScreen(
     }
 
     Content(
+        onBackPressed = editProfileViewModel::onBackPressed,
         canSubmit = uiState.canSubmit,
         onSubmit = editProfileViewModel::onSubmit,
         onImageTapped = {
@@ -65,6 +71,7 @@ fun EditProfileScreen(
 @Preview
 @Composable
 private fun Content(
+    onBackPressed: () -> Unit = {},
     canSubmit: Boolean = true,
     onSubmit: () -> Unit = {},
     imageBitmap: Bitmap? = null,
@@ -87,6 +94,15 @@ private fun Content(
     ) {
         ResellHeaderCore(
             title = "Edit Profile",
+            leftContent = {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_chevron_left),
+                    contentDescription = "Back",
+                    modifier = Modifier.size(24.dp),
+                    tint = Primary,
+                )
+            },
+            onLeftClick = onBackPressed,
             rightContent = {
                 Text(
                     text = "Save",

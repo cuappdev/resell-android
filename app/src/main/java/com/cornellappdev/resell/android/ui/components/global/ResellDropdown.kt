@@ -2,7 +2,9 @@ package com.cornellappdev.resell.android.ui.components.global
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -14,6 +16,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -24,15 +27,29 @@ import com.cornellappdev.resell.android.model.classes.ResellFilter
 import com.cornellappdev.resell.android.ui.theme.Secondary
 
 @Composable
-fun Dropdown(onSelectSortBy: (ResellFilter.SortBy) -> Unit) {
+fun Dropdown(
+    selected: ResellFilter.SortBy,
+    onSelectSortBy: (ResellFilter.SortBy) -> Unit,
+) {
     var expanded by remember { mutableStateOf(false) }
     Box {
-        Icon(
-            painter = painterResource(R.drawable.baseline_keyboard_arrow_down_24),
-            contentDescription = "More options",
-            tint = Secondary,
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.clickable { expanded = !expanded }
-        )
+        ) {
+            Text(
+                text = selected.label,
+                color = Secondary,
+                fontWeight = FontWeight.Normal,
+                fontSize = 20.sp
+            )
+            Icon(
+                painter = painterResource(R.drawable.baseline_keyboard_arrow_down_24),
+                contentDescription = "More options",
+                tint = Secondary,
+            )
+        }
         DropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false },
@@ -59,5 +76,4 @@ fun Dropdown(onSelectSortBy: (ResellFilter.SortBy) -> Unit) {
             }
         }
     }
-
 }

@@ -234,18 +234,7 @@ private fun SortBy(sortBy: ResellFilter.SortBy, onSelectSortBy: (ResellFilter.So
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text("Sort by", style = Style.heading3)
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = sortBy.label,
-                color = Secondary,
-                fontWeight = FontWeight.Normal,
-                fontSize = 20.sp
-            )
-            Dropdown(onSelectSortBy = onSelectSortBy)
-        }
+        Dropdown(selected = sortBy, onSelectSortBy = onSelectSortBy)
     }
     HorizontalDivider(
         modifier = Modifier

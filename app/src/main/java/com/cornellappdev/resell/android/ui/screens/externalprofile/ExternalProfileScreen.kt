@@ -55,10 +55,13 @@ fun ExternalProfileScreen(
                 vendorName = uiState.vendorName,
                 bio = uiState.bio,
                 selectedTab = null,
-                leftIcon = R.drawable.ic_ellipse,
+                leftIcon = R.drawable.ic_chevron_left,
                 rightIcon = R.drawable.ic_search,
-                onLeftPressed = { profileViewModel.onEllipsisPressed() },
+                farRightIcon = R.drawable.ic_ellipse,
+                onLeftPressed = { profileViewModel.onBackPressed() },
                 onRightPressed = { profileViewModel.onSearchPressed() },
+                onFarRightPressed = { profileViewModel.onEllipsisPressed() },
+                leftIconDescription = "Back",
                 onTabSelected = {}
             )
 
@@ -93,6 +96,7 @@ fun ExternalProfileScreen(
 
         if (uiState.isBlocked) {
             BlockedView(
+                onBackPressed = { profileViewModel.onBackPressed() },
                 onEllipsisPressed = { profileViewModel.onEllipsisPressed() },
             )
         }
@@ -102,6 +106,7 @@ fun ExternalProfileScreen(
 @Preview
 @Composable
 private fun BlockedView(
+    onBackPressed: () -> Unit = {},
     onEllipsisPressed: () -> Unit = {},
 ) {
     Box(
@@ -120,13 +125,25 @@ private fun BlockedView(
         ) {
             Box(modifier = Modifier.fillMaxWidth()) {
                 Icon(
-                    painter = painterResource(id = R.drawable.ic_ellipse),
-                    contentDescription = "settings",
+                    painter = painterResource(id = R.drawable.ic_chevron_left),
+                    contentDescription = "Back",
                     modifier = Modifier
                         .defaultHorizontalPadding()
                         .padding(top = 8.dp)
                         .size(25.dp)
                         .align(Alignment.TopStart)
+                        .clickableNoIndication { onBackPressed() },
+                    tint = Color.White
+                )
+
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_ellipse),
+                    contentDescription = "more options",
+                    modifier = Modifier
+                        .defaultHorizontalPadding()
+                        .padding(top = 8.dp)
+                        .size(25.dp)
+                        .align(Alignment.TopEnd)
                         .clickableNoIndication { onEllipsisPressed() },
                     tint = Color.White
                 )

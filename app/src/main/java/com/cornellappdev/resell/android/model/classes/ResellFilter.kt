@@ -20,9 +20,9 @@ data class ResellFilter(
     }
 
     enum class FilterCondition(val label: String) {
+        NEVER_USED("Never Used"),
         GENTLY_USED("Gently Used"),
-        WORN("Worn"),
-        NEVER_USED("Never Used")
+        WORN("Worn")
     }
 
     enum class FilterCategory(val label: String) {

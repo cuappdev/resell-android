@@ -1,5 +1,7 @@
 package com.cornellappdev.resell.android.util
 
+import androidx.lifecycle.Lifecycle
+import androidx.navigation.NavController
 import com.google.firebase.Timestamp
 import retrofit2.HttpException
 import java.text.SimpleDateFormat
@@ -38,3 +40,13 @@ fun LocalDateTime.convertToFirestoreTimestamp(): Timestamp {
 fun Throwable.isUsernameTakenError(): Boolean =
     this is HttpException && code() == 409 &&
         response()?.errorBody()?.string()?.contains("username", ignoreCase = true) == true
+
+/**
+ * Handles duplicate taps on a back button.
+ */
+fun NavController.popBackStackSafely(): Boolean =
+    if (currentBackStackEntry?.lifecycle?.currentState == Lifecycle.State.RESUMED) {
+        popBackStack()
+    } else {
+        false
+    }

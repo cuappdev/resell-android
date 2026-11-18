@@ -1,5 +1,6 @@
 package com.cornellappdev.resell.android.ui.screens.reporting
 
+import com.cornellappdev.resell.android.R
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -36,6 +37,7 @@ fun ReportDetailsScreen(
         modifier = Modifier.fillMaxSize()
     ) {
         Content(
+            onBackPressed = reportDetailsViewModel::onBackPressed,
             title = uiState.title,
             subtitle = uiState.reason,
             body = uiState.body,
@@ -59,6 +61,7 @@ fun ReportDetailsScreen(
 @Preview
 @Composable
 private fun Content(
+    onBackPressed: () -> Unit = {},
     title: String = "title",
     subtitle: String = "subtitle",
     body: String = "body",
@@ -74,6 +77,8 @@ private fun Content(
     ) {
         ResellHeader(
             title = title,
+            leftPainter = R.drawable.ic_chevron_left,
+            onLeftClick = onBackPressed,
         )
 
         Spacer(Modifier.height(24.dp))
