@@ -93,8 +93,7 @@ class NotificationRepository @Inject constructor(
 
     private fun deduplicate(list: List<InAppNotification>): List<InAppNotification> {
         val seenIds = mutableSetOf<String>()
-        val seenKeys = mutableSetOf<String>()
-        val result = mutableListOf<InAppNotification>()
+        val keptByKey = linkedMapOf<String, InAppNotification>()
         val sorted = list.sortedByDescending { it.createdInstant }
 
         for (notif in sorted) {
@@ -108,10 +107,15 @@ class NotificationRepository @Inject constructor(
             val timeWindow = notif.createdInstant.epochSecond / 60
             val key = "${type}_${postId}_${senderId}_${timeWindow}"
 
-            if (seenKeys.add(key)) {
-                result.add(notif)
+            // TODO: Fix this issue in the backend instead of this workaround
+            val kept = keptByKey[key]
+            if (kept == null) {
+                keptByKey[key] = notif
+            } else if (notif.id.isNotBlank()) {
+                // Remember the hidden duplicate so deleting/reading the visible card covers it too
+                keptByKey[key] = kept.copy(duplicateIds = kept.duplicateIds + notif.id)
             }
         }
-        return result
+        return keptByKey.values.toList()
     }
 }

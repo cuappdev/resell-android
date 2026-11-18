@@ -81,9 +81,13 @@ class InAppNotificationViewModel @Inject constructor(
                 else -> emptyList()
             }
 
-            val combined = (newNotifs + thirtyDaysNotifs).distinctBy {
-                if (it.id.isNotBlank()) it.id else "${it.title}_${it.body}"
-            }
+            // TODO: Fix this issue in the backend instead of this workaround
+            // Union duplicateIds so deleting the merged card still removes every backend copy
+            val combined = (newNotifs + thirtyDaysNotifs)
+                .groupBy { if (it.id.isNotBlank()) it.id else "${it.title}_${it.body}" }
+                .map { (_, group) ->
+                    group.first().copy(duplicateIds = group.flatMap { it.duplicateIds }.distinct())
+                }
 
             applyMutation {
                 copy(
@@ -113,9 +117,11 @@ class InAppNotificationViewModel @Inject constructor(
             )
         }
         viewModelScope.launch {
-            try {
-                notificationRepository.markAsRead(notif.id)
-            } catch (e: Exception) {
+            notif.allIds.forEach { id ->
+                try {
+                    notificationRepository.markAsRead(id)
+                } catch (e: Exception) {
+                }
             }
         }
     }
@@ -131,26 +137,27 @@ class InAppNotificationViewModel @Inject constructor(
             )
         }
         viewModelScope.launch {
-            if (notif.id.isNotBlank()) {
+            if (notif.allIds.isEmpty()) {
+                Log.e("InAppNotificationViewModel", "Notification id is blank, cannot delete on backend.")
+            }
+            notif.allIds.forEach { id ->
                 try {
                     if (!notif.read) {
                         try {
-                            notificationRepository.markAsRead(notif.id)
+                            notificationRepository.markAsRead(id)
                         } catch (e: Exception) {
                             Log.e("InAppNotificationViewModel", "Failed to mark unread notification as read before deleting", e)
                         }
                     }
-                    val result = notificationRepository.deleteNotification(notif.id)
+                    val result = notificationRepository.deleteNotification(id)
                     if (result is ResellApiResponse.Error) {
-                        Log.e("InAppNotificationViewModel", "Failed to delete notification ${notif.id} on backend`")
+                        Log.e("InAppNotificationViewModel", "Failed to delete notification $id on backend")
                     } else {
-                        Log.d("InAppNotificationViewModel", "Successfully deleted notification ${notif.id} on backend")
+                        Log.d("InAppNotificationViewModel", "Successfully deleted notification $id on backend")
                     }
                 } catch (e: Exception) {
-                    Log.e("InAppNotificationViewModel", "Exception deleting notification ${notif.id}", e)
+                    Log.e("InAppNotificationViewModel", "Exception deleting notification $id", e)
                 }
-            } else {
-                Log.e("InAppNotificationViewModel", "Notification id is blank, cannot delete on backend.")
             }
         }
     }

@@ -23,7 +23,13 @@ data class InAppNotification(
     @SerializedName("images", alternate = ["postImages", "itemImages", "listingImages"]) val rootImages: List<String>? = null,
     @SerializedName("post", alternate = ["listing", "item"]) val rootPost: NotificationPostData? = null,
     val fetchedImageUrl: String? = null,
+    // TODO: Fix this issue in the backend instead of this workaround
+    // Backend stores one row per FCM token; these are the hidden duplicate rows collapsed into this one.
+    val duplicateIds: List<String> = emptyList(),
 ) {
+    val allIds: List<String>
+        get() = (listOf(id) + duplicateIds).filter { it.isNotBlank() }
+
     val data: AdditionalNotificationData
         get() = _data ?: AdditionalNotificationData()
     val unread: Boolean
