@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.model.classes.InAppNotification
+import com.cornellappdev.resell.android.ui.theme.ResellPurple
 import com.cornellappdev.resell.android.ui.theme.ResellPurpleWash
 import com.cornellappdev.resell.android.ui.theme.Style
 import com.cornellappdev.resell.android.ui.theme.Warning
@@ -114,14 +115,14 @@ fun SwipeableNotificationCard(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .background(Warning)
+            .background(ResellPurple)
             .height(heightAnimatable.value.dp)
             .pointerInput(Unit) {
                 detectHorizontalDragGestures(
                     onDragEnd = {
                         coroutineScope.launch {
-                            if (swipeOffset.value < -maxSwipeOffset * 0.9f || swipeOffset.velocity < -minSwipeVelocity) {
-                                swipeOffset.animateTo(-1500f)
+                            if (swipeOffset.value > maxSwipeOffset * 0.9f || swipeOffset.velocity > minSwipeVelocity) {
+                                swipeOffset.animateTo(1500f)
                                 heightAnimatable.animateTo(0f)
                                 launch {
                                     sizeAnimatable.animateTo(0f)
@@ -135,11 +136,11 @@ fun SwipeableNotificationCard(
                     onHorizontalDrag = { _, dragAmount ->
                         coroutineScope.launch {
                             val newOffset =
-                                (swipeOffset.value + dragAmount).coerceIn(-1500f, 0f)
+                                (swipeOffset.value + dragAmount).coerceIn(0f, 1500f)
                             swipeOffset.snapTo(newOffset)
 
                             launch {
-                                val targetSize = if (newOffset < -maxSwipeOffset * 0.9f) 32f else 24f
+                                val targetSize = if (newOffset > maxSwipeOffset * 0.9f) 32f else 24f
                                 if (sizeAnimatable.value != targetSize) {
                                     sizeAnimatable.animateTo(targetSize)
                                 }
@@ -152,10 +153,10 @@ fun SwipeableNotificationCard(
         Box(
             modifier = Modifier
                 .size(83.dp)
-                .align(Alignment.CenterEnd)
+                .align(Alignment.CenterStart)
         ) {
             Icon(
-                painter = painterResource(id = R.drawable.ic_trash),
+                painter = painterResource(id = R.drawable.ic_messages),
                 contentDescription = "delete",
                 modifier = Modifier
                     .size((sizeAnimatable.value).dp)

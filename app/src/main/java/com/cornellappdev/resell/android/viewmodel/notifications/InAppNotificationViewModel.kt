@@ -118,17 +118,25 @@ class InAppNotificationViewModel @Inject constructor(
     }
 
     fun onNotificationArchived(notif: InAppNotification) {
+        Log.d("InAppNotificationViewModel", "Archiving notification id: '${notif.id}', title: '${notif.title}'")
         applyMutation {
-            copy(notifs = notifs.filter { it.id != notif.id })
+            // Remove strictly the exact object instance to prevent deleting duplicate/similar notifications
+            copy(notifs = notifs.filter { it !== notif })
         }
         viewModelScope.launch {
-            try {
-                val result = notificationRepository.deleteNotification(notif.id)
-                if (result is ResellApiResponse.Error) {
-                    Log.e("InAppNotificationViewModel", "Failed to delete notification ${notif.id} on backend")
+            if (notif.id.isNotBlank()) {
+                try {
+                    val result = notificationRepository.deleteNotification(notif.id)
+                    if (result is ResellApiResponse.Error) {
+                        Log.e("InAppNotificationViewModel", "Failed to delete notification ${notif.id} on backend")
+                    } else {
+                        Log.d("InAppNotificationViewModel", "Successfully deleted notification ${notif.id} on backend")
+                    }
+                } catch (e: Exception) {
+                    Log.e("InAppNotificationViewModel", "Exception deleting notification ${notif.id}", e)
                 }
-            } catch (e: Exception) {
-                Log.e("InAppNotificationViewModel", "Exception deleting notification ${notif.id}", e)
+            } else {
+                Log.e("InAppNotificationViewModel", "Notification id is blank, cannot delete on backend.")
             }
         }
     }

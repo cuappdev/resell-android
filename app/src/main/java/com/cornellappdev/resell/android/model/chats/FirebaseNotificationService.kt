@@ -5,6 +5,8 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.cornellappdev.resell.android.MainActivity
@@ -17,6 +19,8 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.net.HttpURLConnection
+import java.net.URL
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -33,21 +37,26 @@ class FirebaseNotificationService : FirebaseMessagingService() {
 
         // Log the incoming message
         Log.d("FCM", "Message received from: ${remoteMessage.from}")
+        Log.d("FCM", "Data payload: ${remoteMessage.data}")
 
-        // Check if the message contains a notification payload
-        remoteMessage.notification?.let {
-            val title = it.title ?: "Notification Title"
-            val body = it.body ?: "Notification Body"
+        val data = remoteMessage.data
+        val notification = remoteMessage.notification
 
-            sendNotification(
-                title, body,
-                name = remoteMessage.data["name"],
-                email = remoteMessage.data["email"],
-                pfp = remoteMessage.data["pfp"],
-                postJson = remoteMessage.data["postJson"],
-                isBuyer = remoteMessage.data["isBuyer"].toBoolean()
-            )
-        }
+        val senderName = data["name"] ?: data["senderName"] ?: notification?.title ?: "Someone"
+        val messageBody = data["body"] ?: data["message"] ?: notification?.body ?: "sent you a message"
+        val pfpUrl = data["pfp"] ?: data["profilePic"] ?: data["avatar"] ?: data["imageUrl"] ?: ""
+
+        val title = "$senderName sent you a message"
+
+        sendNotification(
+            title = title,
+            messageBody = messageBody,
+            name = senderName,
+            email = data["email"],
+            pfp = pfpUrl,
+            postJson = data["postJson"],
+            isBuyer = data["isBuyer"]?.toBoolean() ?: false
+        )
     }
 
     override fun onNewToken(token: String) {
@@ -64,46 +73,66 @@ class FirebaseNotificationService : FirebaseMessagingService() {
         postJson: String? = null,
         isBuyer: Boolean? = null
     ) {
-        val notificationId = System.currentTimeMillis().toInt()
-        val channelId = "default_channel_id"
+        CoroutineScope(Dispatchers.IO).launch {
+            val notificationId = System.currentTimeMillis().toInt()
+            val channelId = "chat_notifications_channel"
 
-        // Intent to open when the notification is clicked
-        val intent = Intent(this, MainActivity::class.java).apply {
-            addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-            // Add your data as extras here
-            putExtra("name", name)
-            putExtra("email", email)
-            putExtra("pfp", pfp)
-            putExtra("postJson", postJson)
-            putExtra("isBuyer", isBuyer)
+            // Intent to open when the notification is clicked
+            val intent = Intent(this@FirebaseNotificationService, MainActivity::class.java).apply {
+                addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                putExtra("name", name)
+                putExtra("email", email)
+                putExtra("pfp", pfp)
+                putExtra("postJson", postJson)
+                putExtra("isBuyer", isBuyer)
+            }
+
+            val pendingIntent = PendingIntent.getActivity(
+                this@FirebaseNotificationService, 0, intent, PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE
+            )
+
+            // Load profile picture bitmap if URL is provided
+            var largeIconBitmap: Bitmap? = null
+            if (!pfp.isNullOrBlank()) {
+                try {
+                    val url = URL(pfp)
+                    val connection = url.openConnection() as HttpURLConnection
+                    connection.doInput = true
+                    connection.connect()
+                    val input = connection.inputStream
+                    largeIconBitmap = BitmapFactory.decodeStream(input)
+                } catch (e: Exception) {
+                    Log.e("FirebaseNotificationService", "Failed to load profile picture for notification", e)
+                }
+            }
+
+            // Build the notification
+            val notificationBuilder = NotificationCompat.Builder(this@FirebaseNotificationService, channelId)
+                .setSmallIcon(R.drawable.logo_resell)
+                .setContentTitle(title)
+                .setContentText(messageBody)
+                .setAutoCancel(true)
+                .setContentIntent(pendingIntent)
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+
+            if (largeIconBitmap != null) {
+                notificationBuilder.setLargeIcon(largeIconBitmap)
+            }
+
+            // Notification manager
+            val notificationManager =
+                getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+
+            // Create the notification channel for Android O+
+            val channel = NotificationChannel(
+                channelId,
+                "Chat Messages",
+                NotificationManager.IMPORTANCE_HIGH
+            )
+            notificationManager.createNotificationChannel(channel)
+
+            // Show the notification
+            notificationManager.notify(notificationId, notificationBuilder.build())
         }
-
-        val pendingIntent = PendingIntent.getActivity(
-            this, 0, intent, PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE
-        )
-
-        // Build the notification
-        val notificationBuilder = NotificationCompat.Builder(this, channelId)
-            .setSmallIcon(R.drawable.logo_resell) // Replace with your app's notification icon
-            .setContentTitle(title)
-            .setContentText(messageBody)
-            .setAutoCancel(true)
-            .setContentIntent(pendingIntent)
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
-
-        // Notification manager
-        val notificationManager =
-            getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-
-        // Create the notification channel for Android O+
-        val channel = NotificationChannel(
-            channelId,
-            "Default Channel",
-            NotificationManager.IMPORTANCE_HIGH
-        )
-        notificationManager.createNotificationChannel(channel)
-
-        // Show the notification
-        notificationManager.notify(notificationId, notificationBuilder.build())
     }
 }

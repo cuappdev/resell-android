@@ -55,10 +55,12 @@ class NotificationRepository @Inject constructor(
 
     suspend fun deleteNotification(notificationId: String): ResellApiResponse<Unit> {
         return try {
-            retrofitInstance.notificationsApi.deleteNotification(notificationId)
+            Log.d("NotificationRepository", "Deleting notification with id: $notificationId")
+            val response = retrofitInstance.notificationsApi.deleteNotification(notificationId)
+            Log.d("NotificationRepository", "Delete notification response: $response")
             ResellApiResponse.Success(Unit)
         } catch (e: Exception) {
-            Log.e("NotificationRepository", "Error deleting notification: ", e)
+            Log.e("NotificationRepository", "Error deleting notification $notificationId: ", e)
             ResellApiResponse.Error
         }
     }
@@ -90,18 +92,23 @@ class NotificationRepository @Inject constructor(
     }
 
     private fun deduplicate(list: List<InAppNotification>): List<InAppNotification> {
-        val seen = mutableSetOf<String>()
+        val seenIds = mutableSetOf<String>()
+        val seenKeys = mutableSetOf<String>()
         val result = mutableListOf<InAppNotification>()
         val sorted = list.sortedByDescending { it.createdInstant }
 
         for (notif in sorted) {
+            if (notif.id.isNotBlank() && !seenIds.add(notif.id)) {
+                continue
+            }
+
             val type = notif.data.resolvedType
             val postId = notif.data.postId ?: notif.postId ?: ""
             val senderId = notif.data.buyerId ?: notif.data.sellerId ?: ""
             val timeWindow = notif.createdInstant.epochSecond / 60
             val key = "${type}_${postId}_${senderId}_${timeWindow}"
 
-            if (seen.add(key)) {
+            if (seenKeys.add(key)) {
                 result.add(notif)
             }
         }

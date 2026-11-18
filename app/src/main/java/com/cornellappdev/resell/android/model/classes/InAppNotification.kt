@@ -8,7 +8,7 @@ import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
 data class InAppNotification(
-    @SerializedName("id", alternate = ["_id"]) val id: String = "",
+    @SerializedName("id", alternate = ["_id", "notificationId", "notification_id", "notifId", "uuid"]) val id: String = "",
     @SerializedName("userId") val userId: String = "",
     @SerializedName("title") val title: String = "",
     @SerializedName("body") val body: String = "",
