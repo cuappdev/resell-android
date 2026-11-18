@@ -42,16 +42,24 @@ class FirebaseNotificationService : FirebaseMessagingService() {
         val data = remoteMessage.data
         val notification = remoteMessage.notification
 
-        val senderName = data["name"] ?: data["senderName"] ?: notification?.title ?: "Someone"
+        val type = (data["type"] ?: data["notificationType"] ?: "").lowercase()
+        val rawSenderName = data["name"] ?: data["senderName"]
+        val senderName = rawSenderName ?: "Someone"
         val messageBody = data["body"] ?: data["message"] ?: notification?.body ?: "sent you a message"
         val pfpUrl = data["pfp"] ?: data["profilePic"] ?: data["avatar"] ?: data["imageUrl"] ?: ""
 
-        val title = "$senderName sent you a message"
+        val isChatOrMessage = type.isEmpty() || type.contains("message") || type.contains("chat") || type.contains("msg")
+
+        val title = if (isChatOrMessage) {
+            "$senderName sent you a message"
+        } else {
+            data["title"] ?: notification?.title ?: "Resell"
+        }
 
         sendNotification(
             title = title,
             messageBody = messageBody,
-            name = senderName,
+            name = rawSenderName,
             email = data["email"],
             pfp = pfpUrl,
             postJson = data["postJson"],

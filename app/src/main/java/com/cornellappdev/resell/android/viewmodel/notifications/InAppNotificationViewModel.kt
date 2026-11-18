@@ -69,24 +69,27 @@ class InAppNotificationViewModel @Inject constructor(
     fun fetchNotifications() {
         viewModelScope.launch {
             applyMutation { copy(loadedState = ResellApiState.Loading) }
-            when (val response = notificationRepository.getLast30DaysNotifications()) {
-                is ResellApiResponse.Success -> {
-                    applyMutation {
-                        copy(
-                            loadedState = ResellApiState.Success,
-                            notifs = response.data
-                        )
-                    }
-                }
+            val newResponse = notificationRepository.getNewNotifications()
+            val thirtyDaysResponse = notificationRepository.getLast30DaysNotifications()
 
-                else -> {
-                    applyMutation {
-                        copy(
-                            loadedState = ResellApiState.Success,
-                            notifs = emptyList()
-                        )
-                    }
-                }
+            val newNotifs = when (newResponse) {
+                is ResellApiResponse.Success -> newResponse.data
+                else -> emptyList()
+            }
+            val thirtyDaysNotifs = when (thirtyDaysResponse) {
+                is ResellApiResponse.Success -> thirtyDaysResponse.data
+                else -> emptyList()
+            }
+
+            val combined = (newNotifs + thirtyDaysNotifs).distinctBy {
+                if (it.id.isNotBlank()) it.id else "${it.title}_${it.body}"
+            }
+
+            applyMutation {
+                copy(
+                    loadedState = ResellApiState.Success,
+                    notifs = combined
+                )
             }
         }
     }
@@ -120,15 +123,26 @@ class InAppNotificationViewModel @Inject constructor(
     fun onNotificationArchived(notif: InAppNotification) {
         Log.d("InAppNotificationViewModel", "Archiving notification id: '${notif.id}', title: '${notif.title}'")
         applyMutation {
-            // Remove strictly the exact object instance to prevent deleting duplicate/similar notifications
-            copy(notifs = notifs.filter { it !== notif })
+            copy(
+                notifs = notifs.filter {
+                    if (notif.id.isNotBlank()) it.id != notif.id
+                    else it.title != notif.title || it.body != notif.body
+                }
+            )
         }
         viewModelScope.launch {
             if (notif.id.isNotBlank()) {
                 try {
+                    if (!notif.read) {
+                        try {
+                            notificationRepository.markAsRead(notif.id)
+                        } catch (e: Exception) {
+                            Log.e("InAppNotificationViewModel", "Failed to mark unread notification as read before deleting", e)
+                        }
+                    }
                     val result = notificationRepository.deleteNotification(notif.id)
                     if (result is ResellApiResponse.Error) {
-                        Log.e("InAppNotificationViewModel", "Failed to delete notification ${notif.id} on backend")
+                        Log.e("InAppNotificationViewModel", "Failed to delete notification ${notif.id} on backend`")
                     } else {
                         Log.d("InAppNotificationViewModel", "Successfully deleted notification ${notif.id} on backend")
                     }

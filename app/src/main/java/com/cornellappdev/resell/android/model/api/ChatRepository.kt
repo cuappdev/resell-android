@@ -392,7 +392,7 @@ class ChatRepository @Inject constructor(
         myId: String,
         otherName: String
     ): String {
-        val actor = if (document.senderId == myId) "You" else otherName
+        val actor = if (myId.isNotBlank() && document.senderId == myId) "You" else otherName
         return when (meetingInfo.state) {
             MeetingState.PROPOSED -> "$actor proposed a new meeting"
             MeetingState.CONFIRMED -> "$actor accepted a new meeting"
