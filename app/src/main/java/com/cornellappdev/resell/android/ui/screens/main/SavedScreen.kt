@@ -17,7 +17,6 @@ import com.cornellappdev.resell.android.ui.components.global.ResellLoadingListin
 import com.cornellappdev.resell.android.ui.components.main.EmptySavedComponent
 import com.cornellappdev.resell.android.ui.theme.Padding
 import com.cornellappdev.resell.android.ui.components.main.FromHistoryHeader
-import com.cornellappdev.resell.android.util.defaultHorizontalPadding
 import com.cornellappdev.resell.android.viewmodel.main.SavedViewModel
 import kotlinx.coroutines.launch
 
@@ -31,9 +30,7 @@ fun SavedScreen(
     val listState = rememberLazyStaggeredGridState()
 
     Column(
-        modifier = Modifier
-            .defaultHorizontalPadding()
-            .fillMaxSize()
+        modifier = Modifier.fillMaxSize()
     ) {
         FromHistoryHeader(
             text = "Saved",

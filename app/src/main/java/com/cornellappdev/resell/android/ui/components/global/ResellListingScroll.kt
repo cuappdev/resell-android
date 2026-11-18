@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.cornellappdev.resell.android.model.classes.Listing
+import com.cornellappdev.resell.android.ui.theme.Padding
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 
@@ -33,6 +34,7 @@ fun ResellListingsScroll(
     modifier: Modifier = Modifier,
     listState: LazyStaggeredGridState = rememberLazyStaggeredGridState(),
     paddedTop: Dp = 0.dp,
+    horizontalPadding: Dp = Padding.leftRight,
     emptyState: @Composable () -> Unit = { },
     header: @Composable () -> Unit = {},
     onScrollBottom: () -> Unit = {},
@@ -52,6 +54,8 @@ fun ResellListingsScroll(
         contentPadding = PaddingValues(
             bottom = 100.dp,
             top = paddedTop,
+            start = horizontalPadding,
+            end = horizontalPadding,
         ),
         verticalItemSpacing = 24.dp,
         horizontalArrangement = Arrangement.spacedBy(20.dp),

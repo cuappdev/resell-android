@@ -5,6 +5,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.cornellappdev.resell.android.model.ptf.PostTransactionRatingRepository
+import com.cornellappdev.resell.android.model.ptf.StarRating
 import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
 import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepository
@@ -38,12 +39,15 @@ class PostTransactionRatingViewModel @Inject constructor(
         val price: String = "",
         val sellerName: String = "",
         val date: Date = Date(),
-        val rating: Int = 0,
+        val rating: StarRating? = null,
         val reviewText: String = "",
         val postId: String = "",
         val userId: String = "",
         val transactionId: String = ""
-    )
+    ) {
+        val canSubmit
+            get() = rating != null && transactionId.isNotEmpty()
+    }
 
     init {
         // Fetch arguments from navigation
@@ -57,10 +61,8 @@ class PostTransactionRatingViewModel @Inject constructor(
 
         viewModelScope.launch {
             try {
-                val transactionFromPostId =
-                    postTransactionRatingRepository.getTransactionByPostId(navArgs.postId)
                 val transaction =
-                    postTransactionRatingRepository.getTransactionById(transactionFromPostId.id)
+                    postTransactionRatingRepository.getTransactionById(navArgs.transactionId)
 
                 val date = transaction.transactionDate
 
@@ -100,7 +102,7 @@ class PostTransactionRatingViewModel @Inject constructor(
         rootNavigationRepository.popBackStack()
     }
 
-    fun onRatingChanged(newRating: Int) {
+    fun onRatingChanged(newRating: StarRating) {
         applyMutation { copy(rating = newRating) }
     }
 
@@ -109,13 +111,15 @@ class PostTransactionRatingViewModel @Inject constructor(
     }
 
     fun submitReview() {
+        if (!stateValue().canSubmit) return
+
         viewModelScope.launch {
             try {
                 val currentUiState = uiStateFlow.value
 
                 postTransactionRatingRepository.submitTransactionReview(
                     transactionId = currentUiState.transactionId,
-                    stars = currentUiState.rating,
+                    stars = currentUiState.rating?.stars ?: return@launch,
                     reviewText = currentUiState.reviewText
                 )
 

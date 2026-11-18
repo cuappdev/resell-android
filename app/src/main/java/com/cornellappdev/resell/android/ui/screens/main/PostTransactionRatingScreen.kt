@@ -27,8 +27,10 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.ui.components.global.ResellHeader
+import com.cornellappdev.resell.android.model.ptf.StarRating
 import com.cornellappdev.resell.android.ui.components.global.ResellRatingBar
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButton
+import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonState
 import com.cornellappdev.resell.android.ui.components.global.ResellTextEntry
 import com.cornellappdev.resell.android.ui.theme.ResellPreview
 import com.cornellappdev.resell.android.ui.theme.ResellPurple
@@ -58,7 +60,7 @@ fun PostTransactionRatingScreen(
 private fun PostTransactionRatingScreenContent(
     uiState: PostTransactionRatingViewModel.PostTransactionRatingUiState,
     onBackArrow: () -> Unit,
-    onRatingChanged: (Int) -> Unit,
+    onRatingChanged: (StarRating) -> Unit,
     onReviewTextChanged: (String) -> Unit,
     onFeedbackClicked: () -> Unit,
     onSubmitReview: () -> Unit,
@@ -138,6 +140,7 @@ private fun PostTransactionRatingScreenContent(
         ResellTextButton(
             text = "Submit Review",
             onClick = onSubmitReview,
+            state = if (uiState.canSubmit) ResellTextButtonState.ENABLED else ResellTextButtonState.DISABLED,
             modifier = Modifier.padding(bottom = 44.dp)
         )
     }
@@ -207,7 +210,7 @@ private fun RatingScreenPreview() = ResellPreview {
             price = "10.00",
             sellerName = "Seller Name",
             date = Date(),
-            rating = 0,
+            rating = null,
             reviewText = ""
         ),
         onBackArrow = {},
