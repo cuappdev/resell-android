@@ -4,7 +4,7 @@ import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
-import com.cornellappdev.resell.android.model.CoilRepository
+import com.cornellappdev.resell.android.domain.GetListingUisUseCase
 import com.cornellappdev.resell.android.model.classes.Listing
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.model.profile.SearchRepository
@@ -16,6 +16,8 @@ import com.cornellappdev.resell.android.viewmodel.externalprofile.ExternalNaviga
 import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import javax.inject.Inject
@@ -24,7 +26,7 @@ import kotlin.time.Duration.Companion.milliseconds
 abstract class SearchViewModel(
     private val searchRepository: SearchRepository,
     private val rootNavigationRepository: RootNavigationRepository,
-    coilRepository: CoilRepository,
+    getListingUis: GetListingUisUseCase,
 ) : ResellViewModel<
         SearchViewModel.SearchUiState>(
     initialUiState = SearchUiState(
@@ -46,29 +48,33 @@ abstract class SearchViewModel(
             get() = "Search ${username}..."
     }
 
-    private val listingObserver =
-        ImageStateObserver<ResellApiResponse<List<ListingUi>>>(coilRepository, viewModelScope) { listings ->
+    private val results =
+        MutableStateFlow<ResellApiResponse<List<Listing>>>(ResellApiResponse.Success(emptyList()))
+
+    init {
+        asyncCollect(results.flatMapLatest { getListingUis(it) }) { listings ->
             applyMutation { copy(listings = listings) }
         }
+    }
 
     fun onQueryChanged(query: String) {
         applyMutation { copy(query = query) }
         if (query.isEmpty() || query.isBlank()) {
-            listingObserver.stopWith(ResellApiResponse.Success(emptyList()))
+            results.value = ResellApiResponse.Success(emptyList())
             return
         }
         // Try to fetch listings from backend
         viewModelScope.launch {
-            listingObserver.stopWith(ResellApiResponse.Pending)
+            results.value = ResellApiResponse.Pending
             try {
                 val response = searchRepository.searchPostByUser(stateValue().uid, query)
                 // By this time, the query may have changed. If so, ignore.
                 if (stateValue().query == query) {
-                    listingObserver.observeListings(response) { ResellApiResponse.Success(it) }
+                    results.value = ResellApiResponse.Success(response)
                 }
             } catch (e: Exception) {
                 Log.e("SearchViewModel", e.toString())
-                listingObserver.stopWith(ResellApiResponse.Error)
+                results.value = ResellApiResponse.Error
             }
         }
 
@@ -106,8 +112,8 @@ class ExternalProfileSearchViewModel @Inject constructor(
     searchRepository: SearchRepository,
     savedStateHandle: SavedStateHandle,
     rootNavigationRepository: RootNavigationRepository,
-    coilRepository: CoilRepository,
-) : SearchViewModel(searchRepository, rootNavigationRepository, coilRepository) {
+    getListingUis: GetListingUisUseCase,
+) : SearchViewModel(searchRepository, rootNavigationRepository, getListingUis) {
     init {
         val navArgs = savedStateHandle.toRoute<ExternalProfileRoute.Search>()
 
@@ -123,8 +129,8 @@ class ExternalProfileSearchViewModel @Inject constructor(
 class AllSearchViewModel @Inject constructor(
     private val rootNavigationRepository: RootNavigationRepository,
     searchRepository: SearchRepository,
-    coilRepository: CoilRepository,
-) : SearchViewModel(searchRepository, rootNavigationRepository, coilRepository) {
+    getListingUis: GetListingUisUseCase,
+) : SearchViewModel(searchRepository, rootNavigationRepository, getListingUis) {
     init {
         applyMutation { copy(uid = null, username = "") }
     }

@@ -16,7 +16,6 @@ import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridS
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -56,7 +55,6 @@ import com.cornellappdev.resell.android.ui.theme.Style
 import com.cornellappdev.resell.android.ui.theme.Style.title1
 import com.cornellappdev.resell.android.ui.theme.simpleFadeInOut
 import com.cornellappdev.resell.android.util.clickableNoIndication
-import com.cornellappdev.resell.android.util.LocalInfiniteShimmer
 import com.cornellappdev.resell.android.util.defaultHorizontalPadding
 import com.cornellappdev.resell.android.viewmodel.externalprofile.ExternalProfileViewModel
 import com.cornellappdev.resell.android.viewmodel.externalprofile.ExternalProfileViewModel.ExternalProfileState
@@ -357,25 +355,46 @@ private fun ExternalProfileContentPreview() = ResellPreview {
 
     var selectedTab by remember { mutableStateOf(ExternalProfileTab.LISTINGS) }
 
-    CompositionLocalProvider(value = LocalInfiniteShimmer provides Color.LightGray) {
-        ExternalProfileContent(
-            uiState = ExternalProfileState(
-                selectedTab = selectedTab,
-                shopName = seller.username,
-                vendorName = seller.name,
-                bio = "",
-                imageUrl = "",
-                loadedState = ResellApiState.Success,
-                shopListings = ResellApiResponse.Success(listings.map { ListingUi(it, ImageState.Loading) }),
-                archiveListings = ResellApiResponse.Pending,
-                reviews = ResellApiResponse.Success(reviews),
-                uid = seller.id,
-                blockedUsers = listOf(),
-            ),
-            onTabSelected = { selectedTab = it },
-            onListingPressed = {},
-            onEllipsisPressed = {},
-            onSearchPressed = {},
-        )
-    }
+    ExternalProfileContent(
+        uiState = ExternalProfileState(
+            selectedTab = selectedTab,
+            shopName = seller.username,
+            vendorName = seller.name,
+            bio = "",
+            imageUrl = "",
+            loadedState = ResellApiState.Success,
+            shopListings = ResellApiResponse.Success(listings.map { ListingUi(it, ImageState.Loading) }),
+            archiveListings = ResellApiResponse.Pending,
+            reviews = ResellApiResponse.Success(reviews),
+            uid = seller.id,
+            blockedUsers = listOf(),
+        ),
+        onTabSelected = { selectedTab = it },
+        onListingPressed = {},
+        onEllipsisPressed = {},
+        onSearchPressed = {},
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun ExternalProfileLoadingPreview() = ResellPreview {
+    ExternalProfileContent(
+        uiState = ExternalProfileState(
+            shopName = "",
+            vendorName = "",
+            bio = "",
+            imageUrl = "",
+            loadedState = ResellApiState.Loading,
+            shopListings = ResellApiResponse.Pending,
+            archiveListings = ResellApiResponse.Pending,
+            reviews = ResellApiResponse.Pending,
+            uid = "",
+            blockedUsers = listOf(),
+        ),
+        onTabSelected = {},
+        onListingPressed = {},
+        onEllipsisPressed = {},
+        onSearchPressed = {},
+    )
 }

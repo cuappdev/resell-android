@@ -52,7 +52,6 @@ import com.cornellappdev.resell.android.model.Chat
 import com.cornellappdev.resell.android.model.ChatMessageCluster
 import com.cornellappdev.resell.android.model.ChatMessageData
 import com.cornellappdev.resell.android.model.MessageType
-import com.cornellappdev.resell.android.model.api.Post
 import com.cornellappdev.resell.android.model.chats.AvailabilityDocument
 import com.cornellappdev.resell.android.model.chats.MeetingInfo
 import com.cornellappdev.resell.android.model.chats.TransactionInfo
@@ -122,7 +121,6 @@ fun ChatScreen(
                 showNegotiate = chatUiState.showNegotiate,
                 onSendAvailability = meetingViewModel::onSendAvailabilityPressed,
                 onImageUpload = chatViewModel::onImageSelected,
-                onPostClicked = chatViewModel::onPostClicked,
                 onAvailabilityClicked = { availability, isSelf ->
                     meetingViewModel.onAvailabilitySelected(
                         availability = availability,
@@ -169,7 +167,6 @@ private fun ChatLoadedContent(
     onTextChange: (String) -> Unit,
     showPayWithVenmo: Boolean,
     showNegotiate: Boolean,
-    onPostClicked: (Post) -> Unit,
     transactionBannerInfo: TransactionInfo?,
     confirmedMeeting: MeetingInfo?,
     showViewAvailability: Boolean,
@@ -219,10 +216,9 @@ private fun ChatLoadedContent(
                     )
                 )
             } ?: emptyList()),
-            postImages = chatUiState.postImages,
+            messageImages = chatUiState.messageImages,
             listState = listState,
             modifier = Modifier.weight(1f),
-            onPostClicked = onPostClicked,
             onAvailabilityClicked = onAvailabilityClicked,
             onMeetingStateClicked = onMeetingStateClicked,
             onTransactionStateClicked = onTransactionStateClicked

@@ -1,7 +1,7 @@
 package com.cornellappdev.resell.android.viewmodel.main
 
 import androidx.lifecycle.viewModelScope
-import com.cornellappdev.resell.android.model.CoilRepository
+import com.cornellappdev.resell.android.domain.GetListingUisUseCase
 import com.cornellappdev.resell.android.model.classes.Listing
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.model.classes.ResellApiState
@@ -10,11 +10,10 @@ import com.cornellappdev.resell.android.model.core.UserInfoRepository
 import com.cornellappdev.resell.android.model.profile.ProfileRepository
 import com.cornellappdev.resell.android.ui.components.global.ListingUi
 import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
-import com.cornellappdev.resell.android.viewmodel.ImageStateObserver
-import com.cornellappdev.resell.android.viewmodel.observeListingResponse
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
 import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import javax.inject.Inject
@@ -24,7 +23,7 @@ class ProfileViewModel @Inject constructor(
     private val rootNavigationRepository: RootNavigationRepository,
     private val profileRepository: ProfileRepository,
     private val userInfoRepository: UserInfoRepository,
-    coilRepository: CoilRepository,
+    private val getListingUis: GetListingUisUseCase,
 ): ResellViewModel<ProfileViewModel.ProfileUiState>(
     initialUiState = ProfileUiState(
         profileTab = ProfileTab.SHOP,
@@ -53,16 +52,6 @@ class ProfileViewModel @Inject constructor(
         // Please preserve order!
         SHOP, ARCHIVE
     }
-
-    private val shopObserver =
-        ImageStateObserver<ResellApiResponse<List<ListingUi>>>(coilRepository, viewModelScope) { listings ->
-            applyMutation { copy(shopListings = listings) }
-        }
-
-    private val archiveObserver =
-        ImageStateObserver<ResellApiResponse<List<ListingUi>>>(coilRepository, viewModelScope) { listings ->
-            applyMutation { copy(archiveListings = listings) }
-        }
 
     fun onTabSelected(profileTab: ProfileTab) {
         applyMutation {
@@ -95,8 +84,6 @@ class ProfileViewModel @Inject constructor(
      * Reloads the listings made by the internal user.
      */
     fun onReloadListings() {
-        shopObserver.stopWith(ResellApiResponse.Pending)
-        archiveObserver.stopWith(ResellApiResponse.Pending)
         viewModelScope.launch {
             profileRepository.fetchInternalListings(userInfoRepository.getUserId() ?: "lol")
             profileRepository.fetchArchivedListings(userInfoRepository.getUserId() ?: "lol")
@@ -122,12 +109,16 @@ class ProfileViewModel @Inject constructor(
             }
         }
 
-        asyncCollect(profileRepository.internalListings) { response ->
-            shopObserver.observeListingResponse(response)
+        val shopListings = profileRepository.internalListings
+            .flatMapLatest { getListingUis(it) }
+        asyncCollect(shopListings) { listings ->
+            applyMutation { copy(shopListings = listings) }
         }
 
-        asyncCollect(profileRepository.internalArchivedListings) { response ->
-            archiveObserver.observeListingResponse(response)
+        val archiveListings = profileRepository.internalArchivedListings
+            .flatMapLatest { getListingUis(it) }
+        asyncCollect(archiveListings) { listings ->
+            applyMutation { copy(archiveListings = listings) }
         }
     }
 }

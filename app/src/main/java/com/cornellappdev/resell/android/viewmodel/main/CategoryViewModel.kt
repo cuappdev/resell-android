@@ -2,16 +2,13 @@ package com.cornellappdev.resell.android.viewmodel.main
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
-import com.cornellappdev.resell.android.model.CoilRepository
+import com.cornellappdev.resell.android.domain.GetListingUisUseCase
 import com.cornellappdev.resell.android.model.classes.Listing
 import com.cornellappdev.resell.android.model.classes.ResellApiState
 import com.cornellappdev.resell.android.model.classes.ResellFilter
 import com.cornellappdev.resell.android.model.posts.ResellPostRepository
 import com.cornellappdev.resell.android.ui.components.global.ListingUi
-import com.cornellappdev.resell.android.ui.components.global.toListings
 import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
-import com.cornellappdev.resell.android.viewmodel.ImageStateObserver
-import com.cornellappdev.resell.android.viewmodel.observeListings
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
 import com.cornellappdev.resell.android.util.ScrollPageResult
 import com.cornellappdev.resell.android.util.fetchNextScrollPage
@@ -19,6 +16,8 @@ import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepos
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import javax.inject.Inject
@@ -29,7 +28,7 @@ private const val CATEGORY_PAGE_SIZE = 10
 class CategoryViewModel @Inject constructor(
     private val rootNavigationRepository: RootNavigationRepository,
     private val resellPostRepository: ResellPostRepository,
-    coilRepository: CoilRepository,
+    private val getListingUis: GetListingUisUseCase,
     savedStateHandle: SavedStateHandle,
     ) : ResellViewModel<CategoryViewModel.CategoryUiState>(
     initialUiState = CategoryUiState(
@@ -52,11 +51,13 @@ class CategoryViewModel @Inject constructor(
 
     private var fetchJob: Job? = null
 
-    private val listingObserver = ImageStateObserver<List<ListingUi>>(coilRepository, viewModelScope) { listings ->
-        applyMutation { copy(listings = listings) }
-    }
+    private val categoryListings = MutableStateFlow<List<Listing>>(emptyList())
 
     init {
+        asyncCollect(categoryListings.flatMapLatest { getListingUis(it) }) { listings ->
+            applyMutation { copy(listings = listings) }
+        }
+
         val categoryName: String? = savedStateHandle["category"]
         val category = categoryName?.let { ResellFilter.FilterCategory.valueOf(it) }
         if (category != null) {
@@ -87,7 +88,7 @@ class CategoryViewModel @Inject constructor(
             try {
                 val posts =
                     resellPostRepository.getFilteredPosts(filter, page = 1, limit = CATEGORY_PAGE_SIZE)
-                listingObserver.observeListings(posts.map { it.toListing() })
+                categoryListings.value = posts.map { it.toListing() }
                 applyMutation {
                     copy(
                         loadedState = ResellApiState.Success,
@@ -115,12 +116,12 @@ class CategoryViewModel @Inject constructor(
         applyMutation { copy(bottomLoading = true) }
         fetchJob?.cancel()
         fetchJob = viewModelScope.launch {
-            val result = fetchNextScrollPage(state.page, state.listings.toListings()) { nextPage ->
+            val result = fetchNextScrollPage(state.page, categoryListings.value) { nextPage ->
                 resellPostRepository.getFilteredPosts(state.filter, page = nextPage, limit = CATEGORY_PAGE_SIZE)
             }
             when (result) {
                 is ScrollPageResult.Success -> {
-                    listingObserver.observeListings(stateValue().listings.toListings() + result.newListings)
+                    categoryListings.value += result.newListings
                     applyMutation {
                         copy(
                             page = result.nextPage,

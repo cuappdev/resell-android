@@ -1,30 +1,24 @@
 package com.cornellappdev.resell.android.viewmodel.main
 
 import android.util.Log
-import androidx.compose.runtime.MutableState
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.lifecycle.viewModelScope
-import com.cornellappdev.resell.android.model.CoilRepository
+import com.cornellappdev.resell.android.domain.GetListingUisUseCase
 import com.cornellappdev.resell.android.model.classes.Listing
-import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.model.classes.ResellApiState
 import com.cornellappdev.resell.android.model.classes.ResellFilter
 import com.cornellappdev.resell.android.model.classes.toResellApiState
 import com.cornellappdev.resell.android.model.posts.ResellPostRepository
 import com.cornellappdev.resell.android.ui.components.global.ListingUi
-import com.cornellappdev.resell.android.ui.components.global.toListings
 import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
-import com.cornellappdev.resell.android.viewmodel.ImageStateObserver
-import com.cornellappdev.resell.android.viewmodel.observeListings
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
 import com.cornellappdev.resell.android.util.ScrollPageResult
 import com.cornellappdev.resell.android.util.fetchNextScrollPage
 import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import javax.inject.Inject
@@ -35,18 +29,14 @@ private const val HOME_PAGE_SIZE = 10
 class HomeViewModel @Inject constructor(
     private val rootNavigationRepository: RootNavigationRepository,
     private val resellPostRepository: ResellPostRepository,
-    private val coilRepository: CoilRepository
+    private val getListingUis: GetListingUisUseCase
 ) :
     ResellViewModel<HomeViewModel.HomeUiState>(
         initialUiState = HomeUiState(
             listings = emptyList(),
             savedListings = emptyList(),
-            fromSearchListings = emptyList(),
-            fromPurchasesListings = emptyList(),
             activeFilter = ResellFilter(sortBy = ResellFilter.SortBy.NEWLY_LISTED),
             loadedState = ResellApiState.Loading,
-            savedImageResponses = emptyList(),
-            searchedImageResponses = emptyList(),
             page = 1,
             bottomLoading = false,
             endReached = false,
@@ -61,70 +51,37 @@ class HomeViewModel @Inject constructor(
     data class HomeUiState(
         val loadedState: ResellApiState,
         val listings: List<ListingUi>,
-        val savedListings: List<Listing>,
-        val fromSearchListings: List<Listing>,
-        val fromPurchasesListings: List<Listing>,
+        val savedListings: List<ListingUi>,
         val activeFilter: ResellFilter,
         val page: Int,
         val bottomLoading: Boolean,
         val endReached: Boolean,
         val isDefaultFeed: Boolean,
-        val savedImageResponses: List<MutableState<ResellApiResponse<ImageBitmap>>>,
-        val searchedImageResponses: List<MutableState<ResellApiResponse<ImageBitmap>>>,
     )
 
     private var fetchJob: Job? = null
 
-    private val listingObserver = ImageStateObserver<List<ListingUi>>(coilRepository, viewModelScope) { listings ->
-        applyMutation { copy(listings = listings) }
-    }
+    private val feedListings = MutableStateFlow<List<Listing>>(emptyList())
 
     init {
+        asyncCollect(feedListings.flatMapLatest { getListingUis(it) }) { listings ->
+            applyMutation { copy(listings = listings) }
+        }
+
         getNewlyListedPosts()
         resellPostRepository.fetchSavedPosts()
-        resellPostRepository.getSearchHistory()
         asyncCollect(resellPostRepository.savedPosts) { response ->
-            applyMutation {
-                copy(
-                    loadedState = response.toResellApiState(),
-                    savedListings = response.asSuccessOrNull()?.data?.map { it.toListing() }
-                        ?: emptyList(),
-                    savedImageResponses = when (response) {
-                        is ResellApiResponse.Success -> {
-                            response.data.map { listing ->
-                                coilRepository.getUrlState(listing.images.firstOrNull() ?: "")
-                            }
-                        }
-
-                        else -> {
-                            emptyList()
-                        }
-                    }
-                )
-            }
+            applyMutation { copy(loadedState = response.toResellApiState()) }
         }
 
-        asyncCollect(resellPostRepository.fromSearchedPosts) { response ->
-            CoroutineScope(Dispatchers.Default).launch {
-                val fromSearchListings = response.asSuccessOrNull()?.data
-                    ?.flatMap { it.second }
-                    ?.take(4)
-                    ?: emptyList()
-
-                val searchImageResponses = fromSearchListings.map { listing ->
-                    coilRepository.getUrlState(listing.images.firstOrNull() ?: "")
-                }
-
-                applyMutation {
-                    copy(
-                        fromSearchListings = fromSearchListings,
-                        searchedImageResponses = searchImageResponses
-                    )
-                }
-            }
-
+        // Kept apart from the collector above so that each saved image that loads doesn't also
+        // reset loadedState, which the feed shares.
+        val savedListings = resellPostRepository.savedPosts.flatMapLatest { response ->
+            getListingUis(response.asSuccessOrNull()?.data?.map { it.toListing() }.orEmpty())
         }
-
+        asyncCollect(savedListings) { listings ->
+            applyMutation { copy(savedListings = listings) }
+        }
     }
 
     fun onListingPressed(listing: Listing) {
@@ -144,7 +101,7 @@ class HomeViewModel @Inject constructor(
         fetchJob = viewModelScope.launch {
             try {
                 val posts = resellPostRepository.getFilteredPosts(filter, page = 1, limit = HOME_PAGE_SIZE)
-                listingObserver.observeListings(posts.map { it.toListing() })
+                feedListings.value = posts.map { it.toListing() }
                 applyMutation {
                     copy(
                         loadedState = ResellApiState.Success,
@@ -172,7 +129,7 @@ class HomeViewModel @Inject constructor(
         fetchJob = viewModelScope.launch {
             try {
                 val posts = resellPostRepository.getNewlyListedPosts(page = 1, limit = HOME_PAGE_SIZE)
-                listingObserver.observeListings(posts.map { it.toListing() })
+                feedListings.value = posts.map { it.toListing() }
                 applyMutation {
                     copy(
                         loadedState = ResellApiState.Success,
@@ -202,7 +159,7 @@ class HomeViewModel @Inject constructor(
         applyMutation { copy(bottomLoading = true) }
         fetchJob?.cancel()
         fetchJob = viewModelScope.launch {
-            val result = fetchNextScrollPage(state.page, state.listings.toListings()) { nextPage ->
+            val result = fetchNextScrollPage(state.page, feedListings.value) { nextPage ->
                 if (state.isDefaultFeed) {
                     resellPostRepository.getNewlyListedPosts(page = nextPage, limit = HOME_PAGE_SIZE)
                 } else {
@@ -211,7 +168,7 @@ class HomeViewModel @Inject constructor(
             }
             when (result) {
                 is ScrollPageResult.Success -> {
-                    listingObserver.observeListings(stateValue().listings.toListings() + result.newListings)
+                    feedListings.value += result.newListings
                     applyMutation {
                         copy(
                             page = result.nextPage,

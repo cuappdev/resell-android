@@ -2,9 +2,8 @@ package com.cornellappdev.resell.android.viewmodel.externalprofile
 
 import androidx.compose.ui.Alignment
 import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
-import com.cornellappdev.resell.android.model.CoilRepository
+import com.cornellappdev.resell.android.domain.GetListingUisUseCase
 import com.cornellappdev.resell.android.model.classes.Listing
 import com.cornellappdev.resell.android.model.classes.ProfileReview
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
@@ -15,8 +14,6 @@ import com.cornellappdev.resell.android.model.settings.BlockedUsersRepository
 import com.cornellappdev.resell.android.ui.components.global.ListingUi
 import com.cornellappdev.resell.android.ui.screens.externalprofile.ExternalProfileRoute
 import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
-import com.cornellappdev.resell.android.viewmodel.ImageStateObserver
-import com.cornellappdev.resell.android.viewmodel.observeListingResponse
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
 import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepository
 import com.cornellappdev.resell.android.viewmodel.root.OptionType
@@ -24,6 +21,7 @@ import com.cornellappdev.resell.android.viewmodel.root.RootConfirmationRepositor
 import com.cornellappdev.resell.android.viewmodel.root.RootDialogRepository
 import com.cornellappdev.resell.android.viewmodel.root.RootOptionsMenuRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.serialization.json.Json
 import javax.inject.Inject
 
@@ -36,7 +34,7 @@ class ExternalProfileViewModel @Inject constructor(
     private val rootConfirmationRepository: RootConfirmationRepository,
     private val profileRepository: ProfileRepository,
     private val externalNavigationRepository: ExternalNavigationRepository,
-    coilRepository: CoilRepository,
+    private val getListingUis: GetListingUisUseCase,
     savedStateHandle: SavedStateHandle
 ) :
     ResellViewModel<ExternalProfileViewModel.ExternalProfileState>(
@@ -104,11 +102,6 @@ class ExternalProfileViewModel @Inject constructor(
         val ratingLabel: String
             get() = if (reviewCount > 0) "%.1f".format(averageRating) else ""
     }
-
-    private val shopObserver =
-        ImageStateObserver<ResellApiResponse<List<ListingUi>>>(coilRepository, viewModelScope) { listings ->
-            applyMutation { copy(shopListings = listings) }
-        }
 
     fun onTabSelected(tab: ExternalProfileTab) {
         applyMutation { copy(selectedTab = tab) }
@@ -215,8 +208,15 @@ class ExternalProfileViewModel @Inject constructor(
         }
 
         asyncCollect(profileRepository.externalListings) { response ->
-            shopObserver.observeListingResponse(response)
             applyMutation { copy(loadedState = response.toResellApiState()) }
+        }
+
+        // Kept apart from the collector above so that each image that loads doesn't also reset
+        // loadedState, which the profile shares.
+        val shopListings = profileRepository.externalListings
+            .flatMapLatest { getListingUis(it) }
+        asyncCollect(shopListings) { listings ->
+            applyMutation { copy(shopListings = listings) }
         }
 
         asyncCollect(profileRepository.externalReviews) { response ->
