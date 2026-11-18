@@ -108,8 +108,8 @@ fun SwipeableNotificationCard(
     val swipeOffset = remember { Animatable(0f) }
     val heightAnimatable = remember { Animatable(83f) }
     val sizeAnimatable = remember { Animatable(24f) }
-    val maxSwipeOffset = 250.dp.value // Maximum swipe distance for revealing the archive option
-    val minSwipeVelocity = 1000f
+    val maxSwipeOffset = 80.dp.value // Sensitive threshold for easy swiping
+    val minSwipeVelocity = 500f
     val coroutineScope = rememberCoroutineScope()
 
     Box(
@@ -121,7 +121,7 @@ fun SwipeableNotificationCard(
                 detectHorizontalDragGestures(
                     onDragEnd = {
                         coroutineScope.launch {
-                            if (swipeOffset.value > maxSwipeOffset * 0.9f || swipeOffset.velocity > minSwipeVelocity) {
+                            if (swipeOffset.value > maxSwipeOffset || swipeOffset.velocity > minSwipeVelocity) {
                                 swipeOffset.animateTo(1500f)
                                 heightAnimatable.animateTo(0f)
                                 launch {
@@ -140,7 +140,7 @@ fun SwipeableNotificationCard(
                             swipeOffset.snapTo(newOffset)
 
                             launch {
-                                val targetSize = if (newOffset > maxSwipeOffset * 0.9f) 32f else 24f
+                                val targetSize = if (newOffset > maxSwipeOffset) 32f else 24f
                                 if (sizeAnimatable.value != targetSize) {
                                     sizeAnimatable.animateTo(targetSize)
                                 }
