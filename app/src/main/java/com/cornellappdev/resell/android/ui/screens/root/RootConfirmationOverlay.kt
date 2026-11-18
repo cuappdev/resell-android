@@ -13,7 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.cornellappdev.resell.android.ui.components.global.confirmation.ConfirmationSurface
 import com.cornellappdev.resell.android.viewmodel.root.RootConfirmationViewModel
 
@@ -39,13 +39,13 @@ fun RootConfirmationOverlay(
         Spacer(modifier = Modifier.height(16.dp))
 
         ConfirmationSurface(
+            title = uiState.title,
+            onDismiss = { rootConfirmationViewModel.onDismiss() },
+            modifier = Modifier.alpha(opacity),
             icon = uiState.painterRes?.let {
                 painterResource(id = it)
             },
-            color = uiState.color,
-            title = uiState.title,
-            onDismiss = { rootConfirmationViewModel.onDismiss() },
-            modifier = Modifier.alpha(opacity)
+            color = uiState.color
         )
     }
 }

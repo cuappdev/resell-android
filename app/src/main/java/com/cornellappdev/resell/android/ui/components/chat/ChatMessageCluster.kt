@@ -35,6 +35,10 @@ fun ChatMessageCluster(
     onTransactionStateClicked: (TransactionInfo) -> Unit,
     senderName: String
 ) {
+    val lastBubbleIndex = messages.indexOfLast {
+        it.messageType != MessageType.State && (it.messageType != MessageType.Card || it.post != null)
+    }
+
     Row(
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -45,7 +49,7 @@ fun ChatMessageCluster(
                         messageSender(
                             imageUrl,
                             { ChatImage(it.imageUrl) },
-                            messages.size - i - 1
+                            lastBubbleIndex - i
                         )
                     }
 
@@ -61,7 +65,7 @@ fun ChatMessageCluster(
                                         onPostClicked(it.post)
                                     }
                                 )
-                            }, messages.size - i - 1)
+                            }, lastBubbleIndex - i)
                         }
                     }
 
@@ -75,7 +79,7 @@ fun ChatMessageCluster(
                                     timestamp = it.timestampString
                                 )
                             },
-                            messages.size - i - 1
+                            lastBubbleIndex - i
                         )
 
                     MessageType.Availability -> {
@@ -87,7 +91,7 @@ fun ChatMessageCluster(
                                     onAvailabilityClicked(it.availability)
                                 }
                             },
-                            messages.size - i - 1
+                            lastBubbleIndex - i
                         )
                     }
                     MessageType.State -> {
@@ -100,22 +104,22 @@ fun ChatMessageCluster(
                         } else if (it.meetingInfo != null) {
                             ChatMeetingState(
                                 text = it.content,
+                                enabled = it.meetingInfo.mostRecent,
                                 actionText = it.meetingInfo.actionText,
                                 onActionTextClicked = {
                                     onMeetingStateClicked(it.meetingInfo)
                                 },
-                                icon = painterResource(id = it.meetingInfo.icon),
-                                enabled = it.meetingInfo.mostRecent
+                                icon = painterResource(id = it.meetingInfo.icon)
                             )
                         } else {
                             ChatTransactionState(
                                 text = it.content,
+                                enabled = it.transactionInfo?.mostRecent ?: false,
                                 actionText = it.transactionInfo?.actionText,
                                 onActionTextClicked = {
                                     it.transactionInfo?.let { info -> onTransactionStateClicked(info) }
                                 },
-                                icon = painterResource(id = it.transactionInfo?.icon ?: 0),
-                                enabled = it.transactionInfo?.mostRecent ?: false
+                                icon = painterResource(id = it.transactionInfo?.icon ?: 0)
                             )
                         }
                     }

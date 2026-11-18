@@ -18,7 +18,6 @@ import com.cornellappdev.resell.android.viewmodel.root.RootConfirmationRepositor
 import com.cornellappdev.resell.android.viewmodel.root.RootDialogRepository
 import com.cornellappdev.resell.android.viewmodel.root.RootOptionsMenuRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import javax.inject.Inject
 
@@ -78,17 +77,12 @@ class ExternalProfileViewModel @Inject constructor(
     fun onEllipsisPressed() {
         rootOptionsMenuRepository.showOptionsMenu(
             options = listOf(
-                OptionType.SHARE,
                 OptionType.REPORT,
                 if (stateValue().isBlocked) OptionType.UNBLOCK else OptionType.BLOCK,
             ),
             alignment = Alignment.TopStart,
         ) {
             when (it) {
-                OptionType.SHARE -> {
-                    // TODO: Implement
-                }
-
                 OptionType.REPORT -> {
                     rootNavigationRepository.navigate(
                         ResellRootRoute.REPORT(
@@ -180,7 +174,7 @@ class ExternalProfileViewModel @Inject constructor(
             response.ifSuccess {
                 applyMutation {
                     copy(
-                        blockedUsers = it.map { it.id }
+                        blockedUsers = it.map { userInfo -> userInfo.id }
                     )
                 }
             }

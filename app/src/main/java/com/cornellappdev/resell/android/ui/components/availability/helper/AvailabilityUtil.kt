@@ -14,9 +14,12 @@ import java.time.LocalDateTime
 import java.time.LocalTime
 import kotlin.math.floor
 
-const val GRID_HEIGHT = 24
 const val SLOT_DURATION_MINUTES = 30
-val gridStartTime: LocalTime = LocalTime.of(9, 0)
+
+/** The grid covers 10 AM to 8 PM. */
+val gridStartTime: LocalTime = LocalTime.of(10, 0)
+// 10 AM to 8 PM is 10 hours, and there are 2 slots per hour.
+const val GRID_HEIGHT = 20
 val gridStroke = Stroke
 val fillColor = ResellPurple
 

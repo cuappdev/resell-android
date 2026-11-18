@@ -1,5 +1,6 @@
 import java.io.FileInputStream
 import java.util.Properties
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 val secretsPropertiesFile = rootProject.file("secrets.properties")
 val secrets = Properties()
@@ -8,22 +9,26 @@ if (secretsPropertiesFile.exists()) {
     secrets.load(FileInputStream(secretsPropertiesFile))
 }
 
+val releaseKeystore = rootProject.file("resell-keystore.jks")
+val releaseMockKeystore = rootProject.file("resell-mock-keystore.jks")
+
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.jetbrains.kotlin.android)
+    alias(libs.plugins.jetbrains.kotlin.compose)
     id("kotlin-parcelize")
-    id("kotlin-kapt")
+    alias(libs.plugins.ksp)
     id("com.google.dagger.hilt.android")
-    id("org.jetbrains.kotlin.plugin.serialization")
+    alias(libs.plugins.jetbrains.kotlin.serialization)
     id("com.google.gms.google-services")
 }
 
 android {
     namespace = "com.cornellappdev.resell.android"
-    compileSdk = 35
+    compileSdk = 37
 
     packaging {
         resources.excludes.add("META-INF/DEPENDENCIES")
+        resources.excludes.add("META-INF/INDEX.LIST")
     }
 
     defaultConfig {
@@ -50,23 +55,27 @@ android {
     }
 
     signingConfigs {
-        create("release") {
-            keyAlias = secrets.getProperty("KEY_ALIAS")
-            keyPassword = secrets.getProperty("KEY_PASS")
-            storeFile = file("/../resell-keystore.jks")
-            storePassword = secrets.getProperty("KEY_STORE_PASS")
+        if (releaseKeystore.exists()) {
+            create("release") {
+                keyAlias = secrets.getProperty("KEY_ALIAS")
+                keyPassword = secrets.getProperty("KEY_PASS")
+                storeFile = releaseKeystore
+                storePassword = secrets.getProperty("KEY_STORE_PASS")
+            }
         }
-        create("release-mock") {
-            keyAlias = secrets.getProperty("KEY_MOCK_ALIAS")
-            keyPassword = secrets.getProperty("KEY_MOCK_PASS")
-            storeFile = file("/../resell-mock-keystore.jks")
-            storePassword = secrets.getProperty("KEY_MOCK_STORE_PASS")
+        if (releaseMockKeystore.exists()) {
+            create("release-mock") {
+                keyAlias = secrets.getProperty("KEY_MOCK_ALIAS")
+                keyPassword = secrets.getProperty("KEY_MOCK_PASS")
+                storeFile = releaseMockKeystore
+                storePassword = secrets.getProperty("KEY_MOCK_STORE_PASS")
+            }
         }
     }
 
     buildTypes {
         release {
-            signingConfig = signingConfigs.getByName("release")
+            signingConfig = signingConfigs.findByName("release")
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
@@ -83,7 +92,7 @@ android {
         }
 
         create("releaseMock") {
-            signingConfig = signingConfigs.getByName("release-mock")
+            signingConfig = signingConfigs.findByName("release-mock")
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
@@ -114,15 +123,9 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-    kotlinOptions {
-        jvmTarget = "17"
-    }
     buildFeatures {
         compose = true
         buildConfig = true
-    }
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.7"
     }
     packaging {
         resources {
@@ -131,13 +134,20 @@ android {
     }
 }
 
+kotlin {
+    compilerOptions {
+        jvmTarget.set(JvmTarget.JVM_17)
+    }
+}
+
 dependencies {
     // Declare the dependency for the Firestore library
     implementation(platform(libs.firebase.bom))
-    implementation(libs.firebase.auth.ktx)
+    implementation(libs.firebase.auth)
     implementation(libs.firebase.messaging)
-    implementation(libs.firebase.firestore.ktx)
+    implementation(libs.firebase.firestore)
     implementation(libs.androidx.hilt.navigation.compose)
+    implementation(libs.androidx.hilt.lifecycle.viewmodel.compose)
     implementation(libs.hilt.android)
     implementation(libs.androidx.datastore.core.android)
     implementation(libs.androidx.foundation)
@@ -145,7 +155,7 @@ dependencies {
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.compose.material)
-    kapt(libs.hilt.android.compiler)
+    ksp(libs.hilt.android.compiler)
     implementation(libs.coil.compose)
     implementation(libs.androidx.activity.ktx)
     implementation(libs.ui)
@@ -154,8 +164,10 @@ dependencies {
 
     implementation(libs.kotlinx.coroutines.core)
 
-    // Google Play Services Auth
-    implementation(libs.gms.play.services.auth)
+    // Credential Manager / Sign in with Google
+    implementation(libs.androidx.credentials)
+    implementation(libs.androidx.credentials.play.services.auth)
+    implementation(libs.googleid)
     implementation(libs.google.auth.library.oauth2.http)
 
     implementation(libs.androidx.core.ktx)
@@ -166,6 +178,7 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation(libs.androidx.material.icons.core)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -180,9 +193,4 @@ dependencies {
     // OkHttp3
     implementation(libs.okhttp)
     implementation(libs.logging.interceptor)
-}
-
-// Allow references to generated code
-kapt {
-    correctErrorTypes = true
 }

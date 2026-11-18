@@ -1,7 +1,6 @@
 package com.cornellappdev.resell.android.ui.components.settings
 
 import android.content.Intent
-import android.net.Uri
 import android.view.ViewGroup
 import android.webkit.WebView
 import android.webkit.WebViewClient
@@ -26,6 +25,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.net.toUri
 import com.cornellappdev.resell.android.ui.theme.AppDev
 import com.cornellappdev.resell.android.ui.theme.Style
 
@@ -66,7 +66,7 @@ fun ResellWebView(
         Button(
             onClick = {
                 // Open in browser
-                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                val intent = Intent(Intent.ACTION_VIEW, url.toUri())
                 context.startActivity(intent)
             },
             modifier = Modifier
@@ -85,9 +85,6 @@ fun ResellWebView(
 
 class CustomWebViewClient : WebViewClient() {
     override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
-        if (url != null && url.startsWith("https://google.com")) {
-            return true
-        }
-        return false
+        return url != null && url.startsWith("https://google.com")
     }
 }

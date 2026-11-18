@@ -15,11 +15,11 @@ import com.cornellappdev.resell.android.viewmodel.root.RootConfirmationRepositor
 import com.cornellappdev.resell.android.viewmodel.root.RootDialogContent
 import com.cornellappdev.resell.android.viewmodel.root.RootDialogRepository
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 abstract class ResellViewModel<UiState>(initialUiState: UiState) : ViewModel() {
@@ -45,7 +45,7 @@ abstract class ResellViewModel<UiState>(initialUiState: UiState) : ViewModel() {
     /**
      * Asynchronously starts collecting the given flow.
      */
-    fun <T> asyncCollect(flow: StateFlow<T>, collector: (T) -> Unit): Job {
+    fun <T> asyncCollect(flow: Flow<T>, collector: (T) -> Unit): Job {
         return viewModelScope.launch {
             flow.collect { collector(it) }
         }

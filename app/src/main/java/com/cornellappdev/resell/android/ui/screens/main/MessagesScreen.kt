@@ -26,7 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.cornellappdev.resell.android.model.classes.ResellApiState
 import com.cornellappdev.resell.android.ui.components.chat.messages.MessageTag
 import com.cornellappdev.resell.android.ui.components.chat.messages.ResellMessagesScroll
@@ -94,13 +94,13 @@ private fun ColumnScope.LoadedContent(
     if (chatUiState.filteredChats.asSuccess().data.isEmpty()) {
         val isOffers = chatUiState.chatType == ChatViewModel.ChatType.Offers
         Text(
-            modifier = Modifier.Companion.align(alignment = Alignment.CenterHorizontally),
+            modifier = Modifier.align(alignment = Alignment.CenterHorizontally),
             text = "No messages with ${if (isOffers) "buyers" else "sellers"} yet",
             style = Style.heading2
         )
         Spacer(modifier = Modifier.height(19.dp))
         Text(
-            modifier = Modifier.Companion.align(alignment = Alignment.CenterHorizontally),
+            modifier = Modifier.align(alignment = Alignment.CenterHorizontally),
             text = if (isOffers) "When a buyer contacts you, you'll see their messages here"
             else "When you contact a seller, you'll see your messages here",
             color = Color.Gray,

@@ -9,7 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.viewModelScope
 import com.cornellappdev.resell.android.model.login.ResellAuthRepository
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButton
@@ -62,7 +62,7 @@ fun LogOutSheetContent(
 }
 
 @HiltViewModel
-private class LogOutSheetContentViewModel @Inject constructor(
+internal class LogOutSheetContentViewModel @Inject constructor(
     private val resellAuthRepository: ResellAuthRepository,
     private val rootNavigationRepository: RootNavigationRepository,
     private val rootNavigationSheetRepository: RootNavigationSheetRepository,

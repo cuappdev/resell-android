@@ -5,6 +5,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.cornellappdev.resell.android.model.ptf.PostTransactionRatingRepository
+import com.cornellappdev.resell.android.model.ptf.StarRating
 import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
 import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepository
@@ -16,11 +17,13 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.Date
+import java.util.Locale
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.milliseconds
 
 @HiltViewModel
 class PostTransactionRatingViewModel @Inject constructor(
-    private val savedStateHandle: SavedStateHandle,
+    savedStateHandle: SavedStateHandle,
     private val rootNavigationRepository: RootNavigationRepository,
     private val rootDialogRepository: RootDialogRepository,
     private val rootConfirmationRepository: RootConfirmationRepository,
@@ -36,12 +39,15 @@ class PostTransactionRatingViewModel @Inject constructor(
         val price: String = "",
         val sellerName: String = "",
         val date: Date = Date(),
-        val rating: Int = 0,
+        val rating: StarRating? = null,
         val reviewText: String = "",
         val postId: String = "",
         val userId: String = "",
         val transactionId: String = ""
-    )
+    ) {
+        val canSubmit
+            get() = rating != null && transactionId.isNotEmpty()
+    }
 
     init {
         // Fetch arguments from navigation
@@ -55,22 +61,22 @@ class PostTransactionRatingViewModel @Inject constructor(
 
         viewModelScope.launch {
             try {
-                val transactionFromPostId = postTransactionRatingRepository.getTransactionByPostId(navArgs.postId)
-                val transaction = postTransactionRatingRepository.getTransactionById(transactionFromPostId.id)
+                val transaction =
+                    postTransactionRatingRepository.getTransactionById(navArgs.transactionId)
 
                 val date = transaction.transactionDate
 
                 val sellerFullName = transaction.seller?.let { seller ->
                     listOfNotNull(seller.givenName, seller.familyName)
                         .joinToString(" ")
-                        .ifBlank{"Unknown Seller"}
+                        .ifBlank { "Unknown Seller" }
                 } ?: "Unknown Seller"
 
                 applyMutation {
                     copy(
                         transactionId = transaction.id,
                         itemName = transaction.post.title,
-                        price = String.format("%.2f", transaction.amount),
+                        price = String.format(Locale.getDefault(), "%.2f", transaction.amount),
                         sellerName = sellerFullName,
                         date = date,
                         imageUrl = transaction.post.images.firstOrNull() ?: ""
@@ -96,7 +102,7 @@ class PostTransactionRatingViewModel @Inject constructor(
         rootNavigationRepository.popBackStack()
     }
 
-    fun onRatingChanged(newRating: Int) {
+    fun onRatingChanged(newRating: StarRating) {
         applyMutation { copy(rating = newRating) }
     }
 
@@ -105,13 +111,15 @@ class PostTransactionRatingViewModel @Inject constructor(
     }
 
     fun submitReview() {
+        if (!stateValue().canSubmit) return
+
         viewModelScope.launch {
             try {
                 val currentUiState = uiStateFlow.value
 
                 postTransactionRatingRepository.submitTransactionReview(
                     transactionId = currentUiState.transactionId,
-                    stars = currentUiState.rating,
+                    stars = currentUiState.rating?.stars ?: return@launch,
                     reviewText = currentUiState.reviewText
                 )
 
@@ -120,7 +128,7 @@ class PostTransactionRatingViewModel @Inject constructor(
                     ResellRootRoute.MAIN
                 )
 
-                delay(100)
+                delay(100.milliseconds)
 
                 rootDialogRepository.showDialog(
                     RootDialogContent.ReviewSubmittedDialog(

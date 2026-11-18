@@ -4,10 +4,20 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
-    rebase-strategy: "disabled"
+    groups:
+      kotlin:
+        patterns:
+          - "org.jetbrains.kotlin:*"
+          - "org.jetbrains.kotlin.*"
+          - "com.google.devtools.ksp*"
+      androidx:
+        patterns:
+          - "androidx.*"
+      hilt:
+        patterns:
+          - "com.google.dagger*"
 
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "monthly"
-    rebase-strategy: "disabled"

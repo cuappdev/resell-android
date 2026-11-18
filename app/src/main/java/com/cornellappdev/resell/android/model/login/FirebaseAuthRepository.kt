@@ -2,9 +2,7 @@ package com.cornellappdev.resell.android.model.login
 
 import android.util.Log
 import com.cornellappdev.resell.android.model.core.UserInfoRepository
-import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.GoogleAuthProvider
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -16,31 +14,18 @@ class FirebaseAuthRepository @Inject constructor(
 ) {
 
     /**
-     * Performs a purely firebase-SDK sign in.
-     */
-    suspend fun firebaseSignIn(idToken: String): AuthResult {
-        // Create a credential using the Google ID Token
-        val credential = GoogleAuthProvider.getCredential(idToken, null)
-
-        return try {
-            // Sign in with the Firebase auth using the credential
-            firebaseAuth.signInWithCredential(credential).await()
-        } catch (e: Exception) {
-            Log.e("FirebaseAuthRepository", "Error signing in with Google")
-            throw e
-        }
-    }
-
-    /**
      * Retrieves the FIREBASE access token (as opposed to the Google OAuth token).
      *
-     * Requires that [firebaseSignIn] has executed successfully.
+     * Requires that the user is signed in to Firebase (see [GoogleAuthRepository.signIn]).
      *
      * If retrieved successfully, will also store the access token in [UserInfoRepository]
      * for use in the retrofit interceptor.
+     *
+     * @param forceRefresh If true, fetches a new token from the server even if the cached one is
+     *  still valid. Throws if the user's Firebase session has been revoked.
      */
-    suspend fun getFirebaseAccessToken(): String? {
-        val token = firebaseAuth.currentUser?.getIdToken(false)?.await()?.token
+    suspend fun getFirebaseAccessToken(forceRefresh: Boolean = false): String? {
+        val token = firebaseAuth.currentUser?.getIdToken(forceRefresh)?.await()?.token
         if (token == null) {
             Log.e("FirebaseAuthRepository", "Access token is null.")
             return null

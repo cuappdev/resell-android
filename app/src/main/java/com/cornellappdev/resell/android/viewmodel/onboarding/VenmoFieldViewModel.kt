@@ -1,13 +1,11 @@
 package com.cornellappdev.resell.android.viewmodel.onboarding
 
-import android.content.Context
 import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.cornellappdev.resell.android.model.api.CreateUserBody
 import com.cornellappdev.resell.android.model.core.UserInfoRepository
-import com.cornellappdev.resell.android.model.login.FireStoreRepository
 import com.cornellappdev.resell.android.model.login.FirebaseMessagingRepository
 import com.cornellappdev.resell.android.model.login.GoogleAuthRepository
 import com.cornellappdev.resell.android.model.login.ResellAuthRepository
@@ -15,32 +13,35 @@ import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonSta
 import com.cornellappdev.resell.android.ui.screens.onboarding.ResellOnboardingScreen
 import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
 import com.cornellappdev.resell.android.util.UIEvent
+import com.cornellappdev.resell.android.util.isUsernameTakenError
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
 import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepository
 import com.cornellappdev.resell.android.viewmodel.root.RootConfirmationRepository
 import com.cornellappdev.resell.android.viewmodel.root.RootNavigationSheetRepository
 import com.cornellappdev.resell.android.viewmodel.root.RootSheet
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.milliseconds
 
 @HiltViewModel
 class VenmoFieldViewModel @Inject constructor(
-    @ApplicationContext private val appContext: Context,
     private val rootNavigationRepository: RootNavigationRepository,
     private val rootNavigationSheetRepository: RootNavigationSheetRepository,
     private val resellAuthRepository: ResellAuthRepository,
     private val googleAuthRepository: GoogleAuthRepository,
     private val rootConfirmationRepository: RootConfirmationRepository,
-    private val fireStoreRepository: FireStoreRepository,
     private val firebaseMessagingRepository: FirebaseMessagingRepository,
     private val userInfoRepository: UserInfoRepository,
     savedStateHandle: SavedStateHandle
 ) : ResellViewModel<VenmoFieldViewModel.VenmoFieldUiState>(
     initialUiState = VenmoFieldUiState()
 ) {
+    companion object {
+        private const val TAG = "VenmoFieldViewModel"
+    }
+
     val navArgs = savedStateHandle.toRoute<ResellOnboardingScreen.Venmo>()
 
     data class VenmoFieldUiState(
@@ -55,7 +56,7 @@ class VenmoFieldViewModel @Inject constructor(
         val continueButtonState: ResellTextButtonState
             get() = if (loading) {
                 ResellTextButtonState.SPINNING
-            } else if (handle.isNotEmpty() && !skipLoading) {
+            } else if (handle.isNotBlank() && !skipLoading) {
                 ResellTextButtonState.ENABLED
             } else {
                 ResellTextButtonState.DISABLED
@@ -86,7 +87,7 @@ class VenmoFieldViewModel @Inject constructor(
             applyMutation {
                 copy(loading = true)
             }
-            delay(500)
+            delay(500.milliseconds)
             makeNewUser(false)
         }
     }
@@ -96,7 +97,7 @@ class VenmoFieldViewModel @Inject constructor(
             applyMutation {
                 copy(skipLoading = true)
             }
-            delay(500)
+            delay(500.milliseconds)
             makeNewUser(true)
         }
     }
@@ -106,31 +107,43 @@ class VenmoFieldViewModel @Inject constructor(
      */
     private fun makeNewUser(skipped: Boolean) {
         viewModelScope.launch {
-            val googleUser = googleAuthRepository.accountOrNull()!!
+            val googleUser = googleAuthRepository.profileOrNull() ?: run {
+                Log.e(TAG, "No signed in Google user.")
+                applyMutation {
+                    copy(loading = false, skipLoading = false)
+                }
+                rootConfirmationRepository.showError("Session expired. Please sign in again.")
+                rootNavigationRepository.navigate(ResellRootRoute.LANDING)
+                return@launch
+            }
             try {
                 val response = resellAuthRepository.createUser(
                     CreateUserBody(
                         username = stateValue().username,
-                        netid = googleUser.email!!.split("@")[0],
-                        givenName = googleUser.givenName!!,
-                        familyName = googleUser.familyName!!,
-                        email = googleUser.email!!,
-                        photoUrl = navArgs.pfpUrl.ifEmpty {
-                            googleUser.photoUrl.toString()
-                        },
-                        googleId = googleUser.id!!,
+                        netid = googleUser.email.split("@")[0],
+                        givenName = googleUser.givenName,
+                        familyName = googleUser.familyName,
+                        email = googleUser.email,
+                        photoUrl = navArgs.pfpUrl.ifEmpty { googleUser.photoUrl },
+                        googleId = googleUser.googleId,
                         bio = stateValue().bio,
                         fcmToken = firebaseMessagingRepository.getDeviceFCMToken(),
-                        venmoHandle = if (skipped) "" else stateValue().handle
+                        venmoHandle = if (skipped) "" else stateValue().handle.trim()
                     )
                 )
 
-                userInfoRepository.storeUserFromUserObject(response.user)
+                userInfoRepository.storeUserFromUserObject(response)
                 rootNavigationRepository.navigate(ResellRootRoute.MAIN)
                 rootNavigationSheetRepository.showBottomSheet(RootSheet.Welcome)
             } catch (e: Exception) {
-                rootConfirmationRepository.showError()
-                Log.e("VenmoFieldViewModel", "Error creating user: ", e)
+                if (e.isUsernameTakenError()) {
+                    rootConfirmationRepository.showError(
+                        "That username is already taken. Go back and choose another."
+                    )
+                } else {
+                    rootConfirmationRepository.showError()
+                }
+                Log.e(TAG, "Error creating user: ", e)
                 applyMutation {
                     copy(loading = false, skipLoading = false)
                 }

@@ -36,7 +36,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButton
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonState
 import com.cornellappdev.resell.android.ui.theme.AppDev
@@ -91,7 +91,7 @@ private fun PriceProposalSheetContent(
 
         TextEntry(
             price = uiState.price,
-            indicator = uiState.canPressNumber,
+            indicator = uiState.canPressSomeNumber,
         )
 
         Spacer(Modifier.height(16.dp))
@@ -103,15 +103,15 @@ private fun PriceProposalSheetContent(
                 .fillMaxWidth()
                 .padding(horizontal = hPadding)
         ) {
-            EntryButton("1", enabled = uiState.canPressNumber) {
+            EntryButton("1", enabled = uiState.canAppend("1")) {
                 onNumberPressed("1")
             }
 
-            EntryButton("2", enabled = uiState.canPressNumber) {
+            EntryButton("2", enabled = uiState.canAppend("2")) {
                 onNumberPressed("2")
             }
 
-            EntryButton("3", enabled = uiState.canPressNumber) {
+            EntryButton("3", enabled = uiState.canAppend("3")) {
                 onNumberPressed("3")
             }
         }
@@ -121,15 +121,15 @@ private fun PriceProposalSheetContent(
                 .fillMaxWidth()
                 .padding(horizontal = hPadding)
         ) {
-            EntryButton("4", enabled = uiState.canPressNumber) {
+            EntryButton("4", enabled = uiState.canAppend("4")) {
                 onNumberPressed("4")
             }
 
-            EntryButton("5", enabled = uiState.canPressNumber) {
+            EntryButton("5", enabled = uiState.canAppend("5")) {
                 onNumberPressed("5")
             }
 
-            EntryButton("6", enabled = uiState.canPressNumber) {
+            EntryButton("6", enabled = uiState.canAppend("6")) {
                 onNumberPressed("6")
             }
         }
@@ -139,15 +139,15 @@ private fun PriceProposalSheetContent(
                 .fillMaxWidth()
                 .padding(horizontal = hPadding)
         ) {
-            EntryButton("7", enabled = uiState.canPressNumber) {
+            EntryButton("7", enabled = uiState.canAppend("7")) {
                 onNumberPressed("7")
             }
 
-            EntryButton("8", enabled = uiState.canPressNumber) {
+            EntryButton("8", enabled = uiState.canAppend("8")) {
                 onNumberPressed("8")
             }
 
-            EntryButton("9", enabled = uiState.canPressNumber) {
+            EntryButton("9", enabled = uiState.canAppend("9")) {
                 onNumberPressed("9")
             }
         }
@@ -161,7 +161,7 @@ private fun PriceProposalSheetContent(
                 onDotPressed()
             }
 
-            EntryButton("0", enabled = uiState.canPressNumber && uiState.price.isNotEmpty()) {
+            EntryButton("0", enabled = uiState.canAppend("0")) {
                 onNumberPressed("0")
             }
 

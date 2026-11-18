@@ -1,7 +1,6 @@
 package com.cornellappdev.resell.android.ui.components.submitted
 
 import androidx.compose.animation.core.FastOutSlowInEasing
-
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
@@ -19,11 +18,9 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.withTransform
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.cornellappdev.resell.android.ui.theme.ResellPreview
 import com.cornellappdev.resell.android.viewmodel.submitted.ConfettiViewModel
 import kotlinx.coroutines.delay
@@ -34,8 +31,8 @@ import kotlin.time.DurationUnit
 
 @Composable
 fun ConfettiOverlay(
-    confettiViewModel: ConfettiViewModel = hiltViewModel(),
     modifier: Modifier = Modifier,
+    confettiViewModel: ConfettiViewModel = hiltViewModel(),
     particleCount: Int = 30,
     colors: List<Color> = listOf(
         Color(0xFFAD68E3),
@@ -49,9 +46,7 @@ fun ConfettiOverlay(
         return
     }
 
-    val configuration = LocalConfiguration.current
-    val density = LocalDensity.current
-    val screenHeightPx = with(density) { configuration.screenHeightDp.dp.toPx() }
+    val screenHeightPx = LocalWindowInfo.current.containerSize.height.toFloat()
 
     // Generate random particles with varied properties for visual diversity
     val particles = remember((uiState.showing)) {
@@ -73,7 +68,7 @@ fun ConfettiOverlay(
     // Hide confetti after animation completes
     LaunchedEffect(uiState.showing) {
         if (uiState.showing) {
-            delay(maxDurationMs.toLong(DurationUnit.MILLISECONDS))
+            delay(maxDurationMs.toLong(DurationUnit.MILLISECONDS).milliseconds)
             confettiViewModel.onAnimationFinished()
         }
     }

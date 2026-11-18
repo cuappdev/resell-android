@@ -20,6 +20,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.milliseconds
 
 @HiltViewModel
 class SettingsLandingViewModel @Inject constructor(
@@ -107,11 +108,11 @@ class SettingsLandingViewModel @Inject constructor(
 
     private fun onDeleteAccountSuccess() {
         viewModelScope.launch {
-            delay(1000)
+            delay(1000.milliseconds)
             dialogRepository.dismissDialog()
             googleAuthRepository.signOut()
             rootNavigationRepository.navigate(ResellRootRoute.LANDING)
-            delay(1000)
+            delay(1000.milliseconds)
             dialogRepository.showDialog(
                 RootDialogContent.TwoButtonDialog(
                     title = "Account Deleted",

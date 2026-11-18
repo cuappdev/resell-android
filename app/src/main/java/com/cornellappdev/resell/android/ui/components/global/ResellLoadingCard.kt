@@ -17,20 +17,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.times
 import com.cornellappdev.resell.android.ui.theme.ResellPreview
 import com.cornellappdev.resell.android.ui.theme.Stroke
 import com.cornellappdev.resell.android.util.shimmer
+import com.cornellappdev.resell.android.util.windowWidth
 
 @Composable
 fun ResellLoadingCard(
     small: Boolean,
     modifier: Modifier = Modifier
 ) {
-    val screenWidth = LocalConfiguration.current.screenWidthDp.dp
+    val screenWidth = windowWidth()
     val maxWidth = 0.5f * screenWidth
     val contentHeight = if (small) 112.dp else 213.dp
     Column(

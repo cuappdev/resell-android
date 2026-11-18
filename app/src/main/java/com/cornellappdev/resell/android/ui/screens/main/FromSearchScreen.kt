@@ -8,7 +8,8 @@ import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridS
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.compose.ui.unit.dp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.cornellappdev.resell.android.model.classes.ResellApiState
 import com.cornellappdev.resell.android.ui.components.global.ResellLoadingListingScroll
 import com.cornellappdev.resell.android.ui.components.main.FromHistoryBody
@@ -46,7 +47,8 @@ fun FromSearchScreen(
 
         when (fromSearchUiState.loadedState) {
             is ResellApiState.Loading -> {
-                ResellLoadingListingScroll()
+                // The outside column applies the horizontal padding.
+                ResellLoadingListingScroll(horizontalPadding = 0.dp)
             }
 
             ResellApiState.Error -> {}

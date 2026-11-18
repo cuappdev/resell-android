@@ -67,7 +67,7 @@ fun String.formatMoney(): String {
     val dollars = split[0]
     var cents = split[1]
 
-    if (cents.length == 0) {
+    if (cents.isEmpty()) {
         cents = "00"
     } else if (cents.length == 1) {
         cents += "0"
@@ -76,19 +76,6 @@ fun String.formatMoney(): String {
     }
 
     return "$dollars.$cents"
-}
-
-/**
- * Returns if this string as a money value is less than the other string.
- */
-fun String.isLeqMoney(other: String): Boolean {
-    try {
-        val thisMoney = this.formatMoney().toDouble()
-        val otherMoney = other.formatMoney().toDouble()
-        return thisMoney <= otherMoney
-    } catch (e: Exception) {
-        return false
-    }
 }
 
 fun ImageBitmap.toNetworkingString(quality: Int = 50): String {

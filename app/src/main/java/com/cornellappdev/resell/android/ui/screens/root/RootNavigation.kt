@@ -1,6 +1,7 @@
 package com.cornellappdev.resell.android.ui.screens.root
 
 import android.Manifest
+import android.content.Intent
 import android.os.Build
 import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.background
@@ -16,9 +17,11 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.cornellappdev.resell.android.MainActivity
 import com.cornellappdev.resell.android.ui.components.submitted.ConfettiOverlay
@@ -30,9 +33,7 @@ import com.cornellappdev.resell.android.ui.screens.main.ChatScreen
 import com.cornellappdev.resell.android.ui.screens.main.MainTabNavigation
 import com.cornellappdev.resell.android.ui.screens.main.NotificationsHubScreen
 import com.cornellappdev.resell.android.ui.screens.main.PostTransactionRatingScreen
-import com.cornellappdev.resell.android.ui.screens.main.RequestMatchesScreen
 import com.cornellappdev.resell.android.ui.screens.newpost.NewPostNavigation
-import com.cornellappdev.resell.android.ui.screens.newpost.RequestDetailsEntryScreen
 import com.cornellappdev.resell.android.ui.screens.onboarding.LandingScreen
 import com.cornellappdev.resell.android.ui.screens.onboarding.OnboardingNavigation
 import com.cornellappdev.resell.android.ui.screens.pdp.PostDetailPage
@@ -60,6 +61,15 @@ fun RootNavigation(
     var showBottomSheet by remember { mutableStateOf(false) }
 
     val context = LocalActivity.current as? MainActivity
+
+    val currentEntry by navController.currentBackStackEntryAsState()
+    val onSignedInDestination = currentEntry?.destination?.let {
+        !it.hasRoute<ResellRootRoute.LANDING>() && !it.hasRoute<ResellRootRoute.ONBOARDING>()
+    } ?: false
+
+    LaunchedEffect(onSignedInDestination) {
+        rootNavigationViewModel.onSignedInDestinationChanged(onSignedInDestination)
+    }
 
     LaunchedEffect(uiState.sheetEvent) {
         uiState.sheetEvent?.consumeSuspend { sheet ->
@@ -90,6 +100,18 @@ fun RootNavigation(
     LaunchedEffect(uiState.popBackStack) {
         uiState.popBackStack?.consumeSuspend {
             navController.popBackStack()
+        }
+    }
+
+    LaunchedEffect(uiState.shareEvent) {
+        uiState.shareEvent?.consumeSuspend { text ->
+            if (context == null) return@consumeSuspend
+
+            val sendIntent = Intent(Intent.ACTION_SEND).apply {
+                type = "text/plain"
+                putExtra(Intent.EXTRA_TEXT, text)
+            }
+            context.startActivity(Intent.createChooser(sendIntent, null))
         }
     }
 
@@ -141,10 +163,6 @@ fun RootNavigation(
             NewPostNavigation()
         }
 
-        composable<ResellRootRoute.NEW_REQUEST> {
-            RequestDetailsEntryScreen()
-        }
-
         composable<ResellRootRoute.PDP> {
             PostDetailPage()
         }
@@ -167,10 +185,6 @@ fun RootNavigation(
 
         composable<ResellRootRoute.SEARCH> {
             AllSearchScreen()
-        }
-
-        composable<ResellRootRoute.REQUEST_MATCHES> {
-            RequestMatchesScreen()
         }
 
         composable<ResellRootRoute.POST_TRANSACTION_RATING> {
@@ -226,9 +240,6 @@ sealed class ResellRootRoute {
     data object NEW_POST : ResellRootRoute()
 
     @Serializable
-    data object NEW_REQUEST : ResellRootRoute()
-
-    @Serializable
     data class PDP(
         val userImageUrl: String,
         val username: String,
@@ -272,15 +283,10 @@ sealed class ResellRootRoute {
     data object SEARCH : ResellRootRoute()
 
     @Serializable
-    data class REQUEST_MATCHES(
-        val id: String,
-        val title: String,
-    ) : ResellRootRoute()
-
-    @Serializable
     data class POST_TRANSACTION_RATING(
         val postId: String,
-        val userId: String
+        val userId: String,
+        val transactionId: String
     ) : ResellRootRoute()
 
 

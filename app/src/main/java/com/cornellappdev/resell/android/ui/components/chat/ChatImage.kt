@@ -14,9 +14,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.cornellappdev.resell.android.model.CoilRepository
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.ui.theme.Secondary
@@ -24,6 +23,7 @@ import com.cornellappdev.resell.android.util.shimmer
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
+import com.cornellappdev.resell.android.util.windowWidth
 
 @Composable
 fun ChatImage(
@@ -31,7 +31,7 @@ fun ChatImage(
     messageImageViewModel: MessageImageViewModel = hiltViewModel()
 ) {
     // Screen Width
-    val width = LocalConfiguration.current.screenWidthDp.dp
+    val width = windowWidth()
 
     val image by messageImageViewModel.getImageUrlState(imageUrl)
 

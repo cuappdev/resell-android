@@ -15,9 +15,9 @@ import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepos
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.milliseconds
 
 abstract class SearchViewModel(
     private val searchRepository: SearchRepository,
@@ -86,7 +86,7 @@ abstract class SearchViewModel(
 
     init {
         viewModelScope.launch {
-            delay(350L)
+            delay(350L.milliseconds)
             applyMutation {
                 copy(
                     focusKeyboard = UIEvent(Unit)

@@ -2,6 +2,7 @@ package com.cornellappdev.resell.android.viewmodel.onboarding
 
 import android.content.Context
 import android.net.Uri
+import android.util.Log
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.lifecycle.viewModelScope
@@ -16,9 +17,11 @@ import com.cornellappdev.resell.android.viewmodel.ResellViewModel
 import com.cornellappdev.resell.android.viewmodel.navigation.OnboardingNavigationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.milliseconds
 
 @HiltViewModel
 class SetupViewModel @Inject constructor(
@@ -28,6 +31,9 @@ class SetupViewModel @Inject constructor(
 ) : ResellViewModel<SetupViewModel.SetupUiState>(
     initialUiState = SetupUiState()
 ) {
+    companion object {
+        private const val TAG = "SetupViewModel"
+    }
 
     data class SetupUiState(
         val username: String = "",
@@ -41,7 +47,7 @@ class SetupViewModel @Inject constructor(
         val buttonState: ResellTextButtonState
             get() = if (loading) {
                 ResellTextButtonState.SPINNING
-            } else if (checkedEULA && username.isNotEmpty()) {
+            } else if (checkedEULA && username.isNotBlank()) {
                 ResellTextButtonState.ENABLED
             } else {
                 ResellTextButtonState.DISABLED
@@ -56,7 +62,7 @@ class SetupViewModel @Inject constructor(
 
     fun onUsernameChanged(username: String) {
         applyMutation {
-            copy(username = username)
+            copy(username = username.filterNot { it.isWhitespace() })
         }
     }
 
@@ -75,22 +81,35 @@ class SetupViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
-            delay(2000)
+            delay(500.milliseconds)
 
             var photoUrl = ""
             if (stateValue().imageBitmap != null) {
-                photoUrl = retrofitInstance.userApi.uploadImage(
-                    body = ImageBody(
-                        imageBase64 = stateValue().imageBitmap!!.toNetworkingString()
-                    )
-                ).image
+                try {
+                    photoUrl = retrofitInstance.userApi.uploadImage(
+                        body = ImageBody(
+                            imageBase64 = stateValue().imageBitmap!!.toNetworkingString()
+                        )
+                    ).image
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    Log.e(TAG, "Error uploading profile picture: ", e)
+                    applyMutation {
+                        copy(
+                            loading = false,
+                            errors = listOf("Couldn't upload your profile picture. Please try again.")
+                        )
+                    }
+                    return@launch
+                }
             }
 
             // Navigate away.
             onboardingNavigationRepository.navigate(
                 ResellOnboardingScreen.Venmo(
-                    username = stateValue().username,
-                    bio = stateValue().bio,
+                    username = stateValue().username.trim(),
+                    bio = stateValue().bio.trim(),
                     pfpUrl = photoUrl
                 )
             )

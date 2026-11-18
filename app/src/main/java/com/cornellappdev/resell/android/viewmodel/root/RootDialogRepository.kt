@@ -37,7 +37,4 @@ class RootDialogRepository @Inject constructor() {
         _primaryButtonStateEvent.value = UIEvent(state)
     }
 
-    fun setSecondaryButtonState(state: ResellTextButtonState) {
-        _secondaryButtonStateEvent.value = UIEvent(state)
-    }
 }

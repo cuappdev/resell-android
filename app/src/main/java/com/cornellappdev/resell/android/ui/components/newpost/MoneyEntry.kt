@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -16,7 +15,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -54,58 +52,6 @@ fun MoneyEntry(
             text = text,
             onPressed = onPressed
         )
-    }
-}
-
-@Composable
-fun MinMaxMoneyEntry(
-    minText: String,
-    maxText: String,
-    modifier: Modifier = Modifier,
-    label: String? = null,
-    onMinPressed: () -> Unit,
-    onMaxPressed: () -> Unit,
-) {
-    Column(modifier = modifier) {
-        if (label != null) {
-            Text(
-                text = label,
-                style = title1,
-                modifier = Modifier.padding(
-                    bottom = 8.dp
-                ),
-            )
-        }
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            MoneyBox(
-                text = minText,
-                modifier = Modifier.weight(1f),
-                onPressed = onMinPressed,
-                endText = "min"
-            )
-
-            Text(
-                text = "-",
-                modifier = Modifier.padding(horizontal = 10.dp),
-                style = TextStyle(
-                    fontSize = 18.sp,
-                    fontFamily = rubikFamily,
-                    fontWeight = FontWeight(500),
-                    color = Color.Black,
-                )
-            )
-
-            MoneyBox(
-                text = maxText,
-                modifier = Modifier.weight(1f),
-                onPressed = onMaxPressed,
-                endText = "max"
-            )
-        }
     }
 }
 
@@ -170,11 +116,4 @@ private fun MoneyBox(
 private fun MoneyEntryPreview() =
     ResellPreview {
         MoneyEntry(text = "123.00", onPressed = {}, label = "Price")
-        MinMaxMoneyEntry(
-            label = "Price",
-            minText = "120.00",
-            maxText = "123.00",
-            onMinPressed = {},
-            onMaxPressed = {},
-        )
     }

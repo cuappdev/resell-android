@@ -12,14 +12,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.ui.components.global.ResellListingsScroll
 import com.cornellappdev.resell.android.ui.components.global.ResellLoadingListingScroll
 import com.cornellappdev.resell.android.ui.components.profile.ProfileEmptyState
 import com.cornellappdev.resell.android.ui.components.profile.ProfileHeader
-import com.cornellappdev.resell.android.ui.components.profile.ResellRequestsScroll
 import com.cornellappdev.resell.android.ui.theme.ResellPreview
 import com.cornellappdev.resell.android.ui.theme.simpleFadeInOut
 import com.cornellappdev.resell.android.util.LocalInfiniteShimmer
@@ -107,41 +106,6 @@ fun ProfileScreen(
                                     ProfileEmptyState(
                                         title = "No listings archived",
                                         body = "When you archive a listing, it will be displayed here",
-                                        modifier = Modifier
-                                            .fillMaxHeight()
-                                            .padding(bottom = 60.dp)
-                                    )
-                                }
-                            )
-                        }
-                    }
-                }
-
-                ProfileViewModel.ProfileTab.WISHLIST -> {
-                    when (uiState.requests) {
-                        is ResellApiResponse.Pending -> {
-                        }
-
-                        is ResellApiResponse.Error -> {
-                        }
-
-                        is ResellApiResponse.Success -> {
-                            ResellRequestsScroll(
-                                requests = uiState.requests.data,
-                                onClick = {
-                                    profileViewModel.onRequestPressed(
-                                        uiState.requests.data[it]
-                                    )
-                                },
-                                onDelete = {
-                                    profileViewModel.onRequestDeletePressed(
-                                        uiState.requests.data[it]
-                                    )
-                                },
-                                emptyState = {
-                                    ProfileEmptyState(
-                                        title = "No active requests",
-                                        body = "Submit a request and get notified when someone lists something similar",
                                         modifier = Modifier
                                             .fillMaxHeight()
                                             .padding(bottom = 60.dp)

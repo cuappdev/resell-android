@@ -19,10 +19,11 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.milliseconds
 
 @HiltViewModel
 class FeedbackDetailsViewModel @Inject constructor(
-    private val savedStateHandle: SavedStateHandle,
+    savedStateHandle: SavedStateHandle,
     private val rootDialogRepository: RootDialogRepository,
     private val rootConfirmationRepository: RootConfirmationRepository,
     private val rootNavigationRepository: RootNavigationRepository,
@@ -120,7 +121,7 @@ class FeedbackDetailsViewModel @Inject constructor(
                 ResellRootRoute.MAIN
             )
 
-            delay(100)
+            delay(100.milliseconds)
 
             rootDialogRepository.showDialog(
                 RootDialogContent.ReviewSubmittedDialog(

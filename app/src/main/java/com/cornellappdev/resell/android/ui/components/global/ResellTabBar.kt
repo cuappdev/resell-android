@@ -25,7 +25,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -34,6 +33,7 @@ import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.ui.theme.IconInactive
 import com.cornellappdev.resell.android.ui.theme.Primary
 import com.cornellappdev.resell.android.ui.theme.ResellPreview
+import com.cornellappdev.resell.android.util.windowWidth
 
 /**
  * A tab bar with a list of images that can be selected. Assumes icons are 24.dp.
@@ -72,7 +72,7 @@ private fun BarSlider(
     selectedPainter: Int
 ) {
     // Screen width
-    val barWidth = (LocalConfiguration.current.screenWidthDp.toFloat() / size).dp
+    val barWidth = windowWidth() / size
 
     val numToRight = size - selectedPainter - 1
 

@@ -1,7 +1,7 @@
 package com.cornellappdev.resell.android.ui.screens.main
 
 import androidx.compose.runtime.Composable
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.cornellappdev.resell.android.ui.components.main.SearchScreen
 import com.cornellappdev.resell.android.viewmodel.AllSearchViewModel
 

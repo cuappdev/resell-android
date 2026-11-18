@@ -26,10 +26,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.model.classes.Listing
 import com.cornellappdev.resell.android.model.classes.ResellApiState
@@ -80,14 +79,15 @@ fun CategoryScreen(
             }
         },
         listings = uiState.listings,
+        bottomLoading = uiState.bottomLoading,
         onListingPressed = categoryViewModel::onListingPressed,
+        onScrollBottom = categoryViewModel::onScrollBottom,
         onDismissRequest = {
             coroutineScope.launch {
                 sheetState.hide()
             }
         },
         onExit = onExit,
-        navigateToSubmitRequest = categoryViewModel::navigateToSubmitRequest
     )
 }
 
@@ -102,9 +102,10 @@ private fun CategoryScreenContent(
     filter: ResellFilter,
     onFilterChanged: (ResellFilter) -> Unit,
     listings: List<Listing>,
+    bottomLoading: Boolean = false,
     onListingPressed: (Listing) -> Unit,
+    onScrollBottom: () -> Unit = {},
     onDismissRequest: () -> Unit,
-    navigateToSubmitRequest: () -> Unit,
     onExit: () -> Unit
 ) {
     Column(
@@ -131,16 +132,16 @@ private fun CategoryScreenContent(
         }
         Spacer(modifier = Modifier.height(24.dp))
         when (loadedState) {
-            ResellApiState.Loading -> ResellLoadingListingScroll(modifier = Modifier.defaultHorizontalPadding())
+            ResellApiState.Loading -> ResellLoadingListingScroll()
             ResellApiState.Success ->
                 if (listings.isEmpty()) {
-                    EmptyState(navigateToSubmitRequest)
+                    EmptyState()
                 } else {
                     ResellListingsScroll(
                         listings = listings,
                         onListingPressed = onListingPressed,
-                        modifier = Modifier
-                            .defaultHorizontalPadding()
+                        onScrollBottom = onScrollBottom,
+                        bottomLoading = bottomLoading,
                     )
                 }
 
@@ -162,7 +163,7 @@ private fun CategoryScreenContent(
 }
 
 @Composable
-private fun EmptyState(onClick: () -> Unit) {
+private fun EmptyState() {
     Column(
         modifier = Modifier
             .fillMaxSize(),
@@ -175,18 +176,8 @@ private fun EmptyState(onClick: () -> Unit) {
         )
         Spacer(modifier = Modifier.height(16.dp))
         Text(
-            text = "Try again or",
+            text = "Try again",
             style = Style.body1.copy(color = Color.Gray)
-        )
-        Text(
-            text = "submit a request",
-            style = Style.body1.copy(
-                color = Color.Gray,
-                textDecoration = TextDecoration.Underline
-            ),
-            modifier = Modifier.clickable {
-                onClick
-            },
         )
     }
 }
@@ -227,6 +218,5 @@ private fun CategoryScreenPreview() = ResellPreview {
         loadedState = ResellApiState.Success,
         onDismissRequest = {},
         onExit = {},
-        navigateToSubmitRequest = {}
     )
 }

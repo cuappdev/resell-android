@@ -27,8 +27,6 @@ class RetrofitInstance @Inject constructor(
     private val firebaseAuthRepository: FirebaseAuthRepository,
     private val userInfoRepository: UserInfoRepository,
 ) {
-    private var cachedToken: String? = null
-
     val logging = HttpLoggingInterceptor().apply {
         level = HttpLoggingInterceptor.Level.BODY // Logs JSON responses
     }
@@ -37,11 +35,8 @@ class RetrofitInstance @Inject constructor(
      * Provides the firebase access token to the interceptor.
      */
     private val authInterceptor = Interceptor { chain ->
-        // If the token is cached, use it. Otherwise, fetch it.
-        val token = cachedToken ?: runBlocking {
-            cachedToken = userInfoRepository.getAccessToken()
-            cachedToken
-        }
+        // UserInfoRepository holds the latest token, so account switches are picked up.
+        val token = runBlocking { userInfoRepository.getAccessToken() }
 
         val requestBuilder = chain.request().newBuilder()
 
@@ -89,7 +84,6 @@ class RetrofitInstance @Inject constructor(
     private val authenticator = Authenticator { _, response ->
         // Ping firebase for a refresh.
         val accessToken = runBlocking { firebaseAuthRepository.getFirebaseAccessToken() }
-        cachedToken = accessToken
         if (accessToken != null) {
             response.request.newBuilder()
                 .header("Authorization", "Bearer $accessToken")
@@ -135,15 +129,6 @@ class RetrofitInstance @Inject constructor(
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(SearchApiService::class.java)
-    }
-
-    val requestsApi: RequestsApiService by lazy {
-        Retrofit.Builder()
-            .baseUrl(BuildConfig.BASE_API_URL)
-            .client(okHttpClient)
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-            .create(RequestsApiService::class.java)
     }
 
     val userApi: UserApiService by lazy {
@@ -200,15 +185,6 @@ class RetrofitInstance @Inject constructor(
             .create(FeedbackApiService::class.java)
     }
 
-    val fcmApi: FcmApiService by lazy {
-        Retrofit.Builder()
-            .baseUrl(BuildConfig.FCM_URL)
-            .client(okHttpClient)
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-            .create(FcmApiService::class.java)
-    }
-
     /** The chat endpoints need a ISO-8601 string. */
     private val chatGson: Gson = GsonBuilder()
         .registerTypeAdapter(
@@ -224,14 +200,5 @@ class RetrofitInstance @Inject constructor(
             .addConverterFactory(GsonConverterFactory.create(chatGson))
             .build()
             .create(ChatApiService::class.java)
-    }
-
-    val notificationsApi: NotificationsApiService by lazy {
-        Retrofit.Builder()
-            .baseUrl(BuildConfig.BASE_API_URL)
-            .client(okHttpClient)
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-            .create(NotificationsApiService::class.java)
     }
 }

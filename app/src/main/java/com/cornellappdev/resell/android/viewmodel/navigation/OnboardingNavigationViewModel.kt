@@ -9,7 +9,7 @@ import javax.inject.Singleton
 
 @HiltViewModel
 class OnboardingNavigationViewModel @Inject constructor(
-    val onboardingNavigationRepository: OnboardingNavigationRepository,
+    onboardingNavigationRepository: OnboardingNavigationRepository,
 ) : ResellViewModel<OnboardingNavigationViewModel.OnboardingNavigationUiState>(
     initialUiState = OnboardingNavigationUiState()
 ) {

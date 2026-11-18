@@ -14,14 +14,6 @@ class SoldViewModel @Inject constructor(
         val showing: Boolean = false
     )
 
-    fun onShow() {
-        applyMutation { copy(showing = true) }
-    }
-
-    fun onUnShow() {
-        applyMutation { copy(showing = false) }
-    }
-
     init {
         asyncCollect(soldRepository.showSoldEvent) { event ->
             event?.consume {
