@@ -121,8 +121,8 @@ fun SwipeableNotificationCard(
                 detectHorizontalDragGestures(
                     onDragEnd = {
                         coroutineScope.launch {
-                            if (swipeOffset.value > maxSwipeOffset || swipeOffset.velocity > minSwipeVelocity) {
-                                swipeOffset.animateTo(1500f)
+                            if (swipeOffset.value < -maxSwipeOffset || swipeOffset.velocity < -minSwipeVelocity) {
+                                swipeOffset.animateTo(-1500f)
                                 heightAnimatable.animateTo(0f)
                                 launch {
                                     sizeAnimatable.animateTo(0f)
@@ -136,11 +136,11 @@ fun SwipeableNotificationCard(
                     onHorizontalDrag = { _, dragAmount ->
                         coroutineScope.launch {
                             val newOffset =
-                                (swipeOffset.value + dragAmount).coerceIn(0f, 1500f)
+                                (swipeOffset.value + dragAmount).coerceIn(-1500f, 0f)
                             swipeOffset.snapTo(newOffset)
 
                             launch {
-                                val targetSize = if (newOffset > maxSwipeOffset) 32f else 24f
+                                val targetSize = if (newOffset < -maxSwipeOffset) 32f else 24f
                                 if (sizeAnimatable.value != targetSize) {
                                     sizeAnimatable.animateTo(targetSize)
                                 }
@@ -153,7 +153,7 @@ fun SwipeableNotificationCard(
         Box(
             modifier = Modifier
                 .size(83.dp)
-                .align(Alignment.CenterStart)
+                .align(Alignment.CenterEnd)
         ) {
             Icon(
                 painter = painterResource(id = R.drawable.ic_messages),
