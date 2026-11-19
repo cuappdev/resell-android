@@ -122,11 +122,11 @@ fun SwipeableNotificationCard(
                     onDragEnd = {
                         coroutineScope.launch {
                             if (swipeOffset.value < -maxSwipeOffset || swipeOffset.velocity < -minSwipeVelocity) {
-                                swipeOffset.animateTo(-1500f)
-                                heightAnimatable.animateTo(0f)
                                 launch {
                                     sizeAnimatable.animateTo(0f)
                                 }
+                                swipeOffset.animateTo(-1500f)
+                                heightAnimatable.animateTo(0f)
                                 onArchive(notification)
                             } else {
                                 swipeOffset.animateTo(0f)
