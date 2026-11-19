@@ -115,7 +115,7 @@ fun SwipeableNotificationCard(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .background(ResellPurple)
+            .background(Warning)
             .height(heightAnimatable.value.dp)
             .pointerInput(Unit) {
                 detectHorizontalDragGestures(
@@ -156,7 +156,7 @@ fun SwipeableNotificationCard(
                 .align(Alignment.CenterEnd)
         ) {
             Icon(
-                painter = painterResource(id = R.drawable.ic_messages),
+                painter = painterResource(id = R.drawable.ic_trash),
                 contentDescription = "delete",
                 modifier = Modifier
                     .size((sizeAnimatable.value).dp)
