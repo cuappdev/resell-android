@@ -33,6 +33,7 @@ import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.model.classes.Listing
 import com.cornellappdev.resell.android.model.classes.ResellApiState
 import com.cornellappdev.resell.android.model.classes.ResellFilter
+import com.cornellappdev.resell.android.ui.components.global.ListingUi
 import com.cornellappdev.resell.android.ui.components.global.ResellListingsScroll
 import com.cornellappdev.resell.android.ui.components.global.ResellLoadingListingScroll
 import com.cornellappdev.resell.android.ui.components.main.FilterBottomSheet
@@ -101,7 +102,7 @@ private fun CategoryScreenContent(
     sheetState: SheetState,
     filter: ResellFilter,
     onFilterChanged: (ResellFilter) -> Unit,
-    listings: List<Listing>,
+    listings: List<ListingUi>,
     bottomLoading: Boolean = false,
     onListingPressed: (Listing) -> Unit,
     onScrollBottom: () -> Unit = {},

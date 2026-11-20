@@ -1,6 +1,5 @@
 package com.cornellappdev.resell.android.model
 
-import com.cornellappdev.resell.android.model.api.Post
 import com.cornellappdev.resell.android.model.chats.AvailabilityDocument
 import com.cornellappdev.resell.android.model.chats.MeetingInfo
 import com.cornellappdev.resell.android.model.chats.MeetingState
@@ -31,14 +30,13 @@ fun Chat.confirmedMeeting(): MeetingInfo? =
         ?.takeIf { it.state == MeetingState.CONFIRMED }
 
 enum class MessageType {
-    Image, Card, Message, Availability, State
+    Image, Message, Availability, State
 }
 
 /**
  * @param imageUrl Only used if [messageType] is [MessageType.Image].
  * @param availability Only used if [messageType] is [MessageType.Availability].
  * @param meetingInfo Only used if [messageType] is [MessageType.State].
- * @param post Currently unused.
  */
 data class ChatMessageData(
     val timestamp: Timestamp,
@@ -51,7 +49,6 @@ data class ChatMessageData(
     val meetingInfo: MeetingInfo? = null,
     val transactionInfo: TransactionInfo? = null,
     val transactionId: String? = null,
-    val post: Post? = null
 ) {
     /**
      * Timestamp in the form "(X)X:XX AM/PM"

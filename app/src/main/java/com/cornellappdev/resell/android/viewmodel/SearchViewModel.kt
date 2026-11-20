@@ -4,9 +4,11 @@ import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
+import com.cornellappdev.resell.android.domain.GetListingUisUseCase
 import com.cornellappdev.resell.android.model.classes.Listing
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.model.profile.SearchRepository
+import com.cornellappdev.resell.android.ui.components.global.ListingUi
 import com.cornellappdev.resell.android.ui.screens.externalprofile.ExternalProfileRoute
 import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
 import com.cornellappdev.resell.android.util.UIEvent
@@ -14,6 +16,8 @@ import com.cornellappdev.resell.android.viewmodel.externalprofile.ExternalNaviga
 import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import javax.inject.Inject
@@ -22,6 +26,7 @@ import kotlin.time.Duration.Companion.milliseconds
 abstract class SearchViewModel(
     private val searchRepository: SearchRepository,
     private val rootNavigationRepository: RootNavigationRepository,
+    getListingUis: GetListingUisUseCase,
 ) : ResellViewModel<
         SearchViewModel.SearchUiState>(
     initialUiState = SearchUiState(
@@ -34,37 +39,42 @@ abstract class SearchViewModel(
 
     data class SearchUiState(
         val query: String,
-        val listings: ResellApiResponse<List<Listing>>,
+        val listings: ResellApiResponse<List<ListingUi>>,
         val uid: String?,
         val username: String,
-        val focusKeyboard: UIEvent<Unit>? = null
+        val focusKeyboard: UIEvent<Unit>? = null,
     ) {
         val placeholderText
             get() = "Search ${username}..."
     }
 
+    private val results =
+        MutableStateFlow<ResellApiResponse<List<Listing>>>(ResellApiResponse.Success(emptyList()))
+
+    init {
+        asyncCollect(results.flatMapLatest { getListingUis(it) }) { listings ->
+            applyMutation { copy(listings = listings) }
+        }
+    }
+
     fun onQueryChanged(query: String) {
         applyMutation { copy(query = query) }
         if (query.isEmpty() || query.isBlank()) {
-            applyMutation { copy(listings = ResellApiResponse.Success(emptyList())) }
+            results.value = ResellApiResponse.Success(emptyList())
             return
         }
         // Try to fetch listings from backend
         viewModelScope.launch {
-            applyMutation {
-                copy(
-                    listings = ResellApiResponse.Pending
-                )
-            }
+            results.value = ResellApiResponse.Pending
             try {
                 val response = searchRepository.searchPostByUser(stateValue().uid, query)
                 // By this time, the query may have changed. If so, ignore.
                 if (stateValue().query == query) {
-                    applyMutation { copy(listings = ResellApiResponse.Success(response)) }
+                    results.value = ResellApiResponse.Success(response)
                 }
             } catch (e: Exception) {
                 Log.e("SearchViewModel", e.toString())
-                applyMutation { copy(listings = ResellApiResponse.Error) }
+                results.value = ResellApiResponse.Error
             }
         }
 
@@ -101,8 +111,9 @@ class ExternalProfileSearchViewModel @Inject constructor(
     private val externalNavigationRepository: ExternalNavigationRepository,
     searchRepository: SearchRepository,
     savedStateHandle: SavedStateHandle,
-    rootNavigationRepository: RootNavigationRepository
-) : SearchViewModel(searchRepository, rootNavigationRepository) {
+    rootNavigationRepository: RootNavigationRepository,
+    getListingUis: GetListingUisUseCase,
+) : SearchViewModel(searchRepository, rootNavigationRepository, getListingUis) {
     init {
         val navArgs = savedStateHandle.toRoute<ExternalProfileRoute.Search>()
 
@@ -118,7 +129,8 @@ class ExternalProfileSearchViewModel @Inject constructor(
 class AllSearchViewModel @Inject constructor(
     private val rootNavigationRepository: RootNavigationRepository,
     searchRepository: SearchRepository,
-) : SearchViewModel(searchRepository, rootNavigationRepository) {
+    getListingUis: GetListingUisUseCase,
+) : SearchViewModel(searchRepository, rootNavigationRepository, getListingUis) {
     init {
         applyMutation { copy(uid = null, username = "") }
     }

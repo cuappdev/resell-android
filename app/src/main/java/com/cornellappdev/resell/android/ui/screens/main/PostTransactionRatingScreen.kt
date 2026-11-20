@@ -110,6 +110,7 @@ private fun PostTransactionRatingScreenContent(
                 onTextChange = onReviewTextChanged,
                 inlineLabel = false,
                 singleLine = false,
+                maxLines = 20,
                 placeholder = "How was your transaction experience with ${uiState.sellerName}? (Optional)",
                 textFontStyle = Style.body2,
                 multiLineHeight = 117.dp
