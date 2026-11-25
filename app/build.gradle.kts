@@ -34,9 +34,9 @@ android {
     defaultConfig {
         applicationId = "com.cornellappdev.resell.android"
         minSdk = 28
-        targetSdk = 35
-        versionCode = 22
-        versionName = "2.0 - Refactor [Beta]"
+        targetSdk = 36
+        versionCode = 26
+        versionName = "2.2 - Refactor [Beta]"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -137,6 +137,8 @@ android {
 kotlin {
     compilerOptions {
         jvmTarget.set(JvmTarget.JVM_17)
+        // For flatMapLatest
+        optIn.add("kotlinx.coroutines.ExperimentalCoroutinesApi")
     }
 }
 

@@ -9,12 +9,14 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.cornellappdev.resell.android.model.Chat
+import com.cornellappdev.resell.android.model.MessageType
+import com.cornellappdev.resell.android.domain.GetImageStatesUseCase
 import com.cornellappdev.resell.android.model.api.ChatRepository
-import com.cornellappdev.resell.android.model.api.Post
 import com.cornellappdev.resell.android.model.classes.Listing
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.model.core.UserInfoRepository
 import com.cornellappdev.resell.android.model.login.FirebaseMessagingRepository
+import com.cornellappdev.resell.android.ui.components.global.ImageState
 import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
 import com.cornellappdev.resell.android.util.UIEvent
 import com.cornellappdev.resell.android.util.loadBitmapFromUri
@@ -28,6 +30,9 @@ import com.cornellappdev.resell.android.viewmodel.root.RootNavigationSheetReposi
 import com.cornellappdev.resell.android.viewmodel.root.RootSheet
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import javax.inject.Inject
@@ -43,7 +48,7 @@ class ChatViewModel @Inject constructor(
     private val rootConfirmationRepository: RootConfirmationRepository,
     firebaseMessagingRepository: FirebaseMessagingRepository,
     private val rootDialogRepository: RootDialogRepository,
-    private val rootNavigationRepository: RootNavigationRepository,
+    private val getImageStates: GetImageStatesUseCase,
     @ApplicationContext private val context: Context
 ) :
     ResellViewModel<ChatViewModel.MessagesUiState>(
@@ -62,6 +67,7 @@ class ChatViewModel @Inject constructor(
         val title: String = "Unknown",
         val typedMessage: String = "",
         val scrollBottom: UIEvent<Unit>? = null,
+        val messageImages: Map<String, ImageState> = emptyMap(),
     ) {
         val showNegotiate
             get() = true
@@ -105,12 +111,6 @@ class ChatViewModel @Inject constructor(
                 )
             }
         }
-    }
-
-    fun onPostClicked(post: Post) {
-        rootNavigationRepository.navigateToPdp(
-            post.toListing()
-        )
     }
 
     fun onTyped(message: String) = applyMutation { copy(typedMessage = message) }
@@ -231,6 +231,19 @@ class ChatViewModel @Inject constructor(
                     scrollBottom = UIEvent(Unit)
                 )
             }
+        }
+
+        // Loads the photos sent in the chat. Only restarts when a photo is sent.
+        val imageUrls = chatRepository.subscribedChatFlow(navArgs.chatId)
+            .map { response ->
+                response.asSuccessOrNull()?.data?.chatHistory.orEmpty()
+                    .flatMap { it.messages }
+                    .filter { it.messageType == MessageType.Image }
+                    .map { it.imageUrl }
+            }
+            .distinctUntilChanged()
+        asyncCollect(imageUrls.flatMapLatest { getImageStates(it) }) { images ->
+            applyMutation { copy(messageImages = images) }
         }
     }
 }

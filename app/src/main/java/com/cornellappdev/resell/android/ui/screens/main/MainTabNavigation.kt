@@ -84,8 +84,6 @@ fun MainTabNavigation(
             composable<ResellMainScreen.Home> {
                 HomeScreen(
                     onSavedPressed = { mainNav.navigate(ResellMainScreen.Bookmarks) },
-                    onFromSearchPressed = { mainNav.navigate(ResellMainScreen.FromSearch) },
-                    onFromPurchasePressed = { mainNav.navigate(ResellMainScreen.FromPurchases) },
                     setNavBarShown = {
                         navBarShown.value = it
                     },

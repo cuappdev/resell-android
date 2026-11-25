@@ -10,39 +10,33 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import com.cornellappdev.resell.android.model.CoilRepository
-import com.cornellappdev.resell.android.model.classes.ResellApiResponse
+import com.cornellappdev.resell.android.ui.components.global.ImageState
+import com.cornellappdev.resell.android.ui.theme.ResellPreview
 import com.cornellappdev.resell.android.ui.theme.Secondary
 import com.cornellappdev.resell.android.util.shimmer
-import com.cornellappdev.resell.android.viewmodel.ResellViewModel
-import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import com.cornellappdev.resell.android.util.windowWidth
 
+/**
+ * A photo sent in a chat.
+ */
 @Composable
-fun ChatImage(
-    imageUrl: String,
-    messageImageViewModel: MessageImageViewModel = hiltViewModel()
-) {
+fun ChatImage(image: ImageState) {
     // Screen Width
     val width = windowWidth()
-
-    val image by messageImageViewModel.getImageUrlState(imageUrl)
 
     Box(
         modifier = Modifier
             .heightIn(min = 130.dp, max = 220.dp)
             .widthIn(min = 130.dp, max = width / 2f)
     ) {
-        AnimatedContent(targetState = image, label = "image loading") { response ->
-            when (response) {
-                ResellApiResponse.Pending -> {
+        AnimatedContent(targetState = image, label = "image loading") { image ->
+            when (image) {
+                ImageState.Loading -> {
                     Box(
                         modifier = Modifier
                             .height(175.dp)
@@ -52,7 +46,7 @@ fun ChatImage(
                     )
                 }
 
-                ResellApiResponse.Error -> {
+                ImageState.Error -> {
                     Box(
                         modifier = Modifier
                             .height(175.dp)
@@ -62,9 +56,9 @@ fun ChatImage(
                     )
                 }
 
-                is ResellApiResponse.Success -> {
+                is ImageState.Loaded -> {
                     Image(
-                        bitmap = response.data,
+                        bitmap = image.bitmap,
                         contentDescription = null,
                         modifier = Modifier
                             .heightIn(220.dp)
@@ -78,12 +72,14 @@ fun ChatImage(
     }
 }
 
-@HiltViewModel
-class MessageImageViewModel @Inject constructor(
-    private val coilRepository: CoilRepository
-) : ResellViewModel<Unit>(
-    initialUiState = Unit
-) {
+@Preview
+@Composable
+private fun ChatImageLoadingPreview() = ResellPreview {
+    ChatImage(image = ImageState.Loading)
+}
 
-    fun getImageUrlState(imageUrl: String) = coilRepository.getUrlState(imageUrl)
+@Preview
+@Composable
+private fun ChatImageErrorPreview() = ResellPreview {
+    ChatImage(image = ImageState.Error)
 }

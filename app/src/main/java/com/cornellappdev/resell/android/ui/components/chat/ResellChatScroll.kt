@@ -12,17 +12,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.cornellappdev.resell.android.model.ChatMessageCluster
-import com.cornellappdev.resell.android.model.api.Post
 import com.cornellappdev.resell.android.model.chats.AvailabilityDocument
+import com.cornellappdev.resell.android.ui.components.global.ImageState
 import com.cornellappdev.resell.android.model.chats.MeetingInfo
 import com.cornellappdev.resell.android.model.chats.TransactionInfo
 
 @Composable
 fun ResellChatScroll(
     chatClusters: List<ChatMessageCluster>,
+    messageImages: Map<String, ImageState>,
     listState: LazyListState,
     modifier: Modifier = Modifier,
-    onPostClicked: (Post) -> Unit,
     onAvailabilityClicked: (AvailabilityDocument, isSelf: Boolean) -> Unit,
     onMeetingStateClicked: (MeetingInfo, isSelf: Boolean) -> Unit,
     onTransactionStateClicked: (TransactionInfo, isSelf: Boolean) -> Unit,
@@ -40,10 +40,10 @@ fun ResellChatScroll(
                 ChatMessageCluster(
                     imageUrl = if (cluster.fromUser) null else cluster.senderImage,
                     messages = cluster.messages,
+                    messageImages = messageImages,
                     messageSender = { str, func, i ->
                         if (cluster.fromUser) MyMessage(func) else OtherMessage(str, func, i ?: 0)
                     },
-                    onPostClicked = onPostClicked,
                     senderName = cluster.senderName ?: "",
                     onAvailabilityClicked = {
                         onAvailabilityClicked(

@@ -21,7 +21,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -29,23 +28,21 @@ import androidx.core.content.ContextCompat
 import androidx.core.graphics.createBitmap
 import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.model.classes.Listing
-import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.model.classes.UserInfo
+import com.cornellappdev.resell.android.ui.components.global.ImageState
+import com.cornellappdev.resell.android.ui.components.global.ListingUi
 import com.cornellappdev.resell.android.ui.components.global.ResellCard
-import com.cornellappdev.resell.android.ui.components.global.ResellCardContent
 import com.cornellappdev.resell.android.ui.theme.ResellPreview
 import com.cornellappdev.resell.android.ui.theme.Style
 
 @Composable
 fun FromHistoryBody(
     modifier: Modifier,
-    categories: List<Pair<String, List<Listing>>>,
+    categories: List<Pair<String, List<ListingUi>>>,
     onListingPressed: (Listing) -> Unit,
     onHidePressed: (String) -> Unit
 ) {
 
-
-    val isPreview = LocalInspectionMode.current
     LazyVerticalStaggeredGrid(
         columns = StaggeredGridCells.Fixed(2),
         contentPadding = PaddingValues(bottom = 100.dp, top = 12.dp),
@@ -76,24 +73,13 @@ fun FromHistoryBody(
                         horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         items(category.second) { item ->
-                            if (isPreview) {
-                                ResellCardContent(
-                                    onClick = { },
-                                    image = ResellApiResponse.Success(drawableResToImageBitmap(R.drawable.ic_appdev)),
-                                    title = "",
-                                    price = ""
-                                )
-                            } else {
-
-
-                                ResellCard(
-                                    imageUrl = item.image,
-                                    title = item.title,
-                                    price = item.price,
-                                    modifier = Modifier.padding(vertical = 8.dp)
-                                ) {
-                                    onListingPressed(item)
-                                }
+                            ResellCard(
+                                image = item.image,
+                                title = item.listing.title,
+                                price = item.listing.price,
+                                modifier = Modifier.padding(vertical = 8.dp)
+                            ) {
+                                onListingPressed(item.listing)
                             }
                         }
                     }
@@ -124,6 +110,7 @@ fun drawableResToImageBitmap(@DrawableRes resId: Int): ImageBitmap {
 @Preview
 @Composable
 private fun FromHistoryBodyPreview() = ResellPreview {
+    val image = ImageState.Loaded(drawableResToImageBitmap(R.drawable.ic_appdev))
     FromHistoryBody(
         Modifier, listOf(
             Pair(
@@ -303,7 +290,7 @@ private fun FromHistoryBodyPreview() = ResellPreview {
                     ),
                 )
             )
-        ), {}, { }
+        ).map { (search, listings) -> search to listings.map { ListingUi(it, image) } }, {}, { }
     )
 }
 

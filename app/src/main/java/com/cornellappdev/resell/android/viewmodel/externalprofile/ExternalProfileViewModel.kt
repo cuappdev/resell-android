@@ -3,12 +3,15 @@ package com.cornellappdev.resell.android.viewmodel.externalprofile
 import androidx.compose.ui.Alignment
 import androidx.lifecycle.SavedStateHandle
 import androidx.navigation.toRoute
+import com.cornellappdev.resell.android.domain.GetListingUisUseCase
 import com.cornellappdev.resell.android.model.classes.Listing
+import com.cornellappdev.resell.android.model.classes.ProfileReview
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.model.classes.ResellApiState
 import com.cornellappdev.resell.android.model.classes.toResellApiState
 import com.cornellappdev.resell.android.model.profile.ProfileRepository
 import com.cornellappdev.resell.android.model.settings.BlockedUsersRepository
+import com.cornellappdev.resell.android.ui.components.global.ListingUi
 import com.cornellappdev.resell.android.ui.screens.externalprofile.ExternalProfileRoute
 import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
@@ -18,6 +21,7 @@ import com.cornellappdev.resell.android.viewmodel.root.RootConfirmationRepositor
 import com.cornellappdev.resell.android.viewmodel.root.RootDialogRepository
 import com.cornellappdev.resell.android.viewmodel.root.RootOptionsMenuRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.serialization.json.Json
 import javax.inject.Inject
 
@@ -30,6 +34,7 @@ class ExternalProfileViewModel @Inject constructor(
     private val rootConfirmationRepository: RootConfirmationRepository,
     private val profileRepository: ProfileRepository,
     private val externalNavigationRepository: ExternalNavigationRepository,
+    private val getListingUis: GetListingUisUseCase,
     savedStateHandle: SavedStateHandle
 ) :
     ResellViewModel<ExternalProfileViewModel.ExternalProfileState>(
@@ -41,10 +46,15 @@ class ExternalProfileViewModel @Inject constructor(
             loadedState = ResellApiState.Loading,
             shopListings = ResellApiResponse.Pending,
             archiveListings = ResellApiResponse.Pending,
+            reviews = ResellApiResponse.Pending,
             uid = "",
             blockedUsers = listOf()
         )
     ) {
+
+    enum class ExternalProfileTab {
+        LISTINGS, REVIEWS
+    }
 
     data class ExternalProfileState(
         val isLoading: Boolean = false,
@@ -53,13 +63,48 @@ class ExternalProfileViewModel @Inject constructor(
         val bio: String,
         val imageUrl: String,
         val loadedState: ResellApiState,
-        val shopListings: ResellApiResponse<List<Listing>>,
-        val archiveListings: ResellApiResponse<List<Listing>>,
+        val shopListings: ResellApiResponse<List<ListingUi>>,
+        val archiveListings: ResellApiResponse<List<ListingUi>>,
+        val reviews: ResellApiResponse<List<ProfileReview>>,
+        val selectedTab: ExternalProfileTab = ExternalProfileTab.LISTINGS,
         val uid: String,
         private val blockedUsers: List<String>,
     ) {
         val isBlocked: Boolean
             get() = blockedUsers.contains(uid)
+
+        val firstName: String
+            get() = vendorName.substringBefore(" ").ifBlank { shopName }
+
+        val displayBio: String
+            get() = when {
+                bio.isNotBlank() -> bio
+                shopName.isBlank() && vendorName.isBlank() -> ""
+                else -> "Hi, I'm ${firstName.ifBlank { "a Cornell Student" }}! " +
+                        "Looking for great deals and selling even greater items."
+            }
+
+        private val loadedReviews: List<ProfileReview>
+            get() = reviews.asSuccessOrNull()?.data.orEmpty()
+
+        val reviewsLoaded: Boolean
+            get() = reviews is ResellApiResponse.Success
+
+        val listingCount: Int
+            get() = shopListings.asSuccessOrNull()?.data?.size ?: 0
+
+        val reviewCount: Int
+            get() = loadedReviews.size
+
+        val averageRating: Double
+            get() = loadedReviews.map { it.rating }.average().takeUnless { it.isNaN() } ?: 0.0
+
+        val ratingLabel: String
+            get() = if (reviewCount > 0) "%.1f".format(averageRating) else ""
+    }
+
+    fun onTabSelected(tab: ExternalProfileTab) {
+        applyMutation { copy(selectedTab = tab) }
     }
 
     fun onListingPressed(listing: Listing) {
@@ -152,6 +197,7 @@ class ExternalProfileViewModel @Inject constructor(
         // Fetch user info on first.
         profileRepository.fetchExternalProfile(navArgs.uid)
         onReloadListings(navArgs.uid)
+        profileRepository.fetchExternalReviews(navArgs.uid)
 
         asyncCollect(profileRepository.externalUser) { response ->
             applyMutation {
@@ -166,11 +212,20 @@ class ExternalProfileViewModel @Inject constructor(
         }
 
         asyncCollect(profileRepository.externalListings) { response ->
+            applyMutation { copy(loadedState = response.toResellApiState()) }
+        }
+
+        // Kept apart from the collector above so that each image that loads doesn't also reset
+        // loadedState, which the profile shares.
+        val shopListings = profileRepository.externalListings
+            .flatMapLatest { getListingUis(it) }
+        asyncCollect(shopListings) { listings ->
+            applyMutation { copy(shopListings = listings) }
+        }
+
+        asyncCollect(profileRepository.externalReviews) { response ->
             applyMutation {
-                copy(
-                    loadedState = response.toResellApiState(),
-                    shopListings = response
-                )
+                copy(reviews = response)
             }
         }
 
