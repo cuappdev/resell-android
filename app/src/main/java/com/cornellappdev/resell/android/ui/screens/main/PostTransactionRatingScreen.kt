@@ -79,7 +79,7 @@ private fun PostTransactionRatingScreenContent(
             ResellHeader(
                 title = "Completed Transaction",
                 leftPainter = R.drawable.ic_chevron_left,
-                leftContentDescription = stringResource(R.string.cd_back_capitalized),
+                leftContentDescription = stringResource(R.string.cd_back),
                 onLeftClick = onBackArrow
             )
             ItemInfo(

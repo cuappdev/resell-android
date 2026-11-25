@@ -126,16 +126,20 @@ fun ResellHeaderCore(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Box(
-                    modifier = Modifier.clickableNoIndication {
-                        onLeftClick?.invoke()
+                    modifier = if (onLeftClick != null) {
+                        Modifier.clickableNoIndication(onClick = onLeftClick)
+                    } else {
+                        Modifier
                     }
                 ) {
                     leftContent()
                 }
 
                 Box(
-                    modifier = Modifier.clickableNoIndication {
-                        onRightClick?.invoke()
+                    modifier = if (onRightClick != null) {
+                        Modifier.clickableNoIndication(onClick = onRightClick)
+                    } else {
+                        Modifier
                     }
                 ) {
                     rightContent()

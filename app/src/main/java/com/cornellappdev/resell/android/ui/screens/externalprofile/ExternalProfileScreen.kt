@@ -38,6 +38,7 @@ import com.cornellappdev.resell.android.model.classes.ProfileReview
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.model.classes.ResellApiState
 import com.cornellappdev.resell.android.model.classes.UserInfo
+import com.cornellappdev.resell.android.ui.components.global.ResellBackButton
 import com.cornellappdev.resell.android.ui.components.global.ImageState
 import com.cornellappdev.resell.android.ui.components.global.LabeledTab
 import com.cornellappdev.resell.android.ui.components.global.ListingUi
@@ -237,14 +238,12 @@ private fun ExternalProfileToolbar(
             .statusBarsPadding()
             .height(40.dp)
     ) {
-        Icon(
-            painter = painterResource(id = R.drawable.ic_chevron_left),
-            contentDescription = stringResource(R.string.cd_back_capitalized),
+        ResellBackButton(
+            onClick = onBackPressed,
             modifier = Modifier
                 .defaultHorizontalPadding()
                 .size(ToolbarIconSize)
-                .align(Alignment.CenterStart)
-                .clickableNoIndication { onBackPressed() }
+                .align(Alignment.CenterStart),
         )
 
         Text(
@@ -292,16 +291,14 @@ private fun BlockedView(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Box(modifier = Modifier.fillMaxWidth()) {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_chevron_left),
-                    contentDescription = stringResource(R.string.cd_back_capitalized),
+                ResellBackButton(
+                    onClick = onBackPressed,
                     modifier = Modifier
                         .defaultHorizontalPadding()
                         .padding(top = 8.dp)
                         .size(ToolbarIconSize)
-                        .align(Alignment.TopStart)
-                        .clickableNoIndication { onBackPressed() },
-                    tint = Color.White
+                        .align(Alignment.TopStart),
+                    tint = Color.White,
                 )
 
                 Icon(

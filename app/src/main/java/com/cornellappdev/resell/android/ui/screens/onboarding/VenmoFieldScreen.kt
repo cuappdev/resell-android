@@ -1,8 +1,5 @@
 package com.cornellappdev.resell.android.ui.screens.onboarding
 
-import com.cornellappdev.resell.android.util.clickableNoIndication
-import com.cornellappdev.resell.android.ui.theme.Primary
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,12 +18,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.cornellappdev.resell.android.R
+import com.cornellappdev.resell.android.ui.components.global.ResellBackButton
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButton
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonContainer
 import com.cornellappdev.resell.android.ui.components.global.ResellTextEntry
@@ -96,14 +93,9 @@ private fun ScreenHeader(onBackPressed: () -> Unit = {}) = ResellPreview {
         Spacer(Modifier.height(16.dp))
 
         Box(modifier = Modifier.fillMaxWidth()) {
-            Icon(
-                painter = painterResource(id = R.drawable.ic_chevron_left),
-                contentDescription = stringResource(R.string.cd_back_capitalized),
-                tint = Primary,
-                modifier = Modifier
-                    .size(24.dp)
-                    .align(Alignment.CenterStart)
-                    .clickableNoIndication { onBackPressed() }
+            ResellBackButton(
+                onClick = onBackPressed,
+                modifier = Modifier.align(Alignment.CenterStart),
             )
 
             Row(

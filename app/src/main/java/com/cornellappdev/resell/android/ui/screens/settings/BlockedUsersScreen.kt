@@ -67,7 +67,7 @@ private fun Content(
         ResellHeader(
             title = "Blocked Users",
             leftPainter = R.drawable.ic_chevron_left,
-            leftContentDescription = stringResource(R.string.cd_back_capitalized),
+            leftContentDescription = stringResource(R.string.cd_back),
             onLeftClick = onBackPressed,
         )
 

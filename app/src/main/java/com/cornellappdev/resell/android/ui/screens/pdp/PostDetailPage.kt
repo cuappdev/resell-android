@@ -48,7 +48,6 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
@@ -58,6 +57,7 @@ import androidx.compose.ui.unit.max
 import coil.compose.AsyncImage
 import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
+import com.cornellappdev.resell.android.ui.components.global.ResellBackButton
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButton
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonState
 import com.cornellappdev.resell.android.ui.components.main.ProfilePictureView
@@ -320,20 +320,10 @@ private fun Header(
             .defaultHorizontalPadding()
             .systemBarsPadding()
     ) {
-        Box(
-            modifier = Modifier
-                .size(24.dp)
-                .clickableNoIndication {
-                    onBackClick()
-                },
-        ) {
-            Icon(
-                painter = painterResource(id = R.drawable.ic_chevron_left),
-                contentDescription = stringResource(R.string.cd_back_capitalized),
-                modifier = Modifier.align(Alignment.Center),
-                tint = Color.White
-            )
-        }
+        ResellBackButton(
+            onClick = onBackClick,
+            tint = Color.White,
+        )
 
         Box(
             modifier = Modifier

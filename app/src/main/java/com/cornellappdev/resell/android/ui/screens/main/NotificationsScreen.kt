@@ -13,19 +13,17 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.model.classes.ResellApiState
+import com.cornellappdev.resell.android.ui.components.global.ResellBackButton
 import com.cornellappdev.resell.android.ui.components.global.ResellTag
 import com.cornellappdev.resell.android.ui.components.global.notifications.ResellNotificationsScroll
 import com.cornellappdev.resell.android.ui.theme.Padding
@@ -121,14 +119,11 @@ private fun NotificationsHubHeader(
         Box(
             modifier = Modifier.fillMaxWidth(),
         ) {
-            Icon(
-                painter = painterResource(id = R.drawable.ic_chevron_left),
-                contentDescription = "back",
+            ResellBackButton(
+                onClick = onBackPressed,
                 modifier = Modifier
                     .padding(top = 20.dp, start = 12.dp)
-                    .size(24.dp)
-                    .align(Alignment.CenterStart)
-                    .clickableNoIndication { onBackPressed() }
+                    .align(Alignment.CenterStart),
             )
             Column(
                 modifier = Modifier.align(Alignment.Center),

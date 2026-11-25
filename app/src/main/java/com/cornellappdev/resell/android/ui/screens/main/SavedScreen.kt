@@ -45,7 +45,7 @@ fun SavedScreen(
             ResellHeader(
                 title = "Saved",
                 leftPainter = R.drawable.ic_chevron_left,
-                leftContentDescription = stringResource(R.string.cd_back_capitalized),
+                leftContentDescription = stringResource(R.string.cd_back),
                 onLeftClick = onExit,
             )
         }

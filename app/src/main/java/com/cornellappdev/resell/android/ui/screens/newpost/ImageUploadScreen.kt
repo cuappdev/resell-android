@@ -80,7 +80,7 @@ fun ImageUploadScreen(
         ResellHeader(
             title = "New Listing",
             leftPainter = R.drawable.ic_chevron_left,
-            leftContentDescription = stringResource(R.string.cd_back_capitalized),
+            leftContentDescription = stringResource(R.string.cd_back),
             onLeftClick = imageUploadViewModel::onBackPressed,
             rightPainter = if (uiState.canAddImages) R.drawable.ic_plus else null,
             onRightClick = {

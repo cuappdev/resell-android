@@ -1,11 +1,5 @@
 package com.cornellappdev.resell.android.ui.screens.settings
 
-import com.cornellappdev.resell.android.ui.theme.Primary
-import androidx.compose.foundation.layout.size
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
-import androidx.compose.material3.Icon
-import com.cornellappdev.resell.android.R
 import android.graphics.Bitmap
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -24,6 +18,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.cornellappdev.resell.android.ui.components.global.ResellBackButton
 import com.cornellappdev.resell.android.ui.components.global.ResellHeaderCore
 import com.cornellappdev.resell.android.ui.components.global.ResellInfoRow
 import com.cornellappdev.resell.android.ui.components.global.ResellTextEntry
@@ -96,14 +91,8 @@ private fun Content(
         ResellHeaderCore(
             title = "Edit Profile",
             leftContent = {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_chevron_left),
-                    contentDescription = stringResource(R.string.cd_back_capitalized),
-                    modifier = Modifier.size(24.dp),
-                    tint = Primary,
-                )
+                ResellBackButton(onClick = onBackPressed)
             },
-            onLeftClick = onBackPressed,
             rightContent = {
                 Text(
                     text = "Save",
