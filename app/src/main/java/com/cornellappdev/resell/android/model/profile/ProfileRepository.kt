@@ -4,8 +4,10 @@ import android.util.Log
 import com.cornellappdev.resell.android.model.api.RetrofitInstance
 import com.cornellappdev.resell.android.model.api.UserResponse
 import com.cornellappdev.resell.android.model.classes.Listing
+import com.cornellappdev.resell.android.model.classes.ProfileReview
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.model.classes.UserInfo
+import com.cornellappdev.resell.android.model.classes.toProfileReview
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -38,6 +40,10 @@ class ProfileRepository @Inject constructor(
     private val _externalListings: MutableStateFlow<ResellApiResponse<List<Listing>>> =
         MutableStateFlow(ResellApiResponse.Pending)
     val externalListings = _externalListings.asStateFlow()
+
+    private val _externalReviews: MutableStateFlow<ResellApiResponse<List<ProfileReview>>> =
+        MutableStateFlow(ResellApiResponse.Pending)
+    val externalReviews = _externalReviews.asStateFlow()
 
     /**
      * Initiates a fetch of the user's internal profile from the API.
@@ -103,6 +109,29 @@ class ProfileRepository @Inject constructor(
             } catch (e: Exception) {
                 Log.e("ProfileRepository", "Error fetching listings: ", e)
                 _externalListings.value = ResellApiResponse.Error
+            }
+        }
+    }
+
+    private var latestExternalReviewsId: String? = null
+
+    fun fetchExternalReviews(id: String) {
+        latestExternalReviewsId = id
+        _externalReviews.value = ResellApiResponse.Pending
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val response = retrofitInstance.transactionReviewApi.getTransactionReviewsBySeller(id)
+                val reviews = response.reviews.mapIndexedNotNull { index, review ->
+                    review.toProfileReview(fallbackId = "review-$index")
+                }
+                if (latestExternalReviewsId == id) {
+                    _externalReviews.value = ResellApiResponse.Success(reviews)
+                }
+            } catch (e: Exception) {
+                Log.e("ProfileRepository", "Error fetching reviews: ", e)
+                if (latestExternalReviewsId == id) {
+                    _externalReviews.value = ResellApiResponse.Error
+                }
             }
         }
     }

@@ -111,6 +111,7 @@ private fun PostTransactionRatingScreenContent(
                 onTextChange = onReviewTextChanged,
                 inlineLabel = false,
                 singleLine = false,
+                maxLines = 20,
                 placeholder = stringResource(R.string.transaction_review_placeholder, uiState.sellerName),
                 textFontStyle = Style.body2,
                 multiLineHeight = 117.dp

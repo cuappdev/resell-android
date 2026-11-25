@@ -1,16 +1,19 @@
 package com.cornellappdev.resell.android.viewmodel.main
 
 import androidx.lifecycle.viewModelScope
+import com.cornellappdev.resell.android.domain.GetListingUisUseCase
 import com.cornellappdev.resell.android.model.classes.Listing
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.model.classes.ResellApiState
 import com.cornellappdev.resell.android.model.classes.toResellApiState
 import com.cornellappdev.resell.android.model.core.UserInfoRepository
 import com.cornellappdev.resell.android.model.profile.ProfileRepository
+import com.cornellappdev.resell.android.ui.components.global.ListingUi
 import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
 import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import javax.inject.Inject
@@ -20,6 +23,7 @@ class ProfileViewModel @Inject constructor(
     private val rootNavigationRepository: RootNavigationRepository,
     private val profileRepository: ProfileRepository,
     private val userInfoRepository: UserInfoRepository,
+    private val getListingUis: GetListingUisUseCase,
 ): ResellViewModel<ProfileViewModel.ProfileUiState>(
     initialUiState = ProfileUiState(
         profileTab = ProfileTab.SHOP,
@@ -36,8 +40,8 @@ class ProfileViewModel @Inject constructor(
     data class ProfileUiState(
         val profileTab: ProfileTab,
         val loadedState: ResellApiState,
-        val shopListings: ResellApiResponse<List<Listing>>,
-        val archiveListings: ResellApiResponse<List<Listing>>,
+        val shopListings: ResellApiResponse<List<ListingUi>>,
+        val archiveListings: ResellApiResponse<List<ListingUi>>,
         val shopName: String,
         val vendorName: String,
         val bio: String,
@@ -80,12 +84,6 @@ class ProfileViewModel @Inject constructor(
      * Reloads the listings made by the internal user.
      */
     fun onReloadListings() {
-        applyMutation {
-            copy(
-                shopListings = ResellApiResponse.Pending,
-                archiveListings = ResellApiResponse.Pending,
-            )
-        }
         viewModelScope.launch {
             profileRepository.fetchInternalListings(userInfoRepository.getUserId() ?: "lol")
             profileRepository.fetchArchivedListings(userInfoRepository.getUserId() ?: "lol")
@@ -111,20 +109,16 @@ class ProfileViewModel @Inject constructor(
             }
         }
 
-        asyncCollect(profileRepository.internalListings) { response ->
-            applyMutation {
-                copy(
-                    shopListings = response,
-                )
-            }
+        val shopListings = profileRepository.internalListings
+            .flatMapLatest { getListingUis(it) }
+        asyncCollect(shopListings) { listings ->
+            applyMutation { copy(shopListings = listings) }
         }
 
-        asyncCollect(profileRepository.internalArchivedListings) { response ->
-            applyMutation {
-                copy(
-                    archiveListings = response,
-                )
-            }
+        val archiveListings = profileRepository.internalArchivedListings
+            .flatMapLatest { getListingUis(it) }
+        asyncCollect(archiveListings) { listings ->
+            applyMutation { copy(archiveListings = listings) }
         }
     }
 }

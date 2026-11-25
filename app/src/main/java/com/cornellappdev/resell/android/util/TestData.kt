@@ -32,7 +32,8 @@ val richieMessages = { count: Int ->
                     timestamp = Timestamp(0, 0),
                     "https://media.licdn.com/dms/image/D4E03AQGOCNNbxGtcjw/profile-displayphoto-shrink_200_200/0/1704329714345?e=2147483647&v=beta&t=Kq7ex1pKyiifjOpuNIojeZ8f4dXjEAsNSpkJDXBwjxc",
                     "deajdaejk",
-                    messageType = MessageType.Card,
+                    messageType = MessageType.Image,
+                    imageUrl = richieUrl,
                     senderId = ""
                 )
             } else {

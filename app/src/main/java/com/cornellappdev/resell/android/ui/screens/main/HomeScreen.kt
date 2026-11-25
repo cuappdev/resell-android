@@ -37,16 +37,11 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.layout
@@ -63,11 +58,12 @@ import androidx.compose.ui.unit.offset
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.model.classes.Listing
-import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.model.classes.ResellApiState
 import com.cornellappdev.resell.android.model.classes.ResellFilter
 import com.cornellappdev.resell.android.model.classes.UserInfo
 import com.cornellappdev.resell.android.ui.components.global.DetectListEndReached
+import com.cornellappdev.resell.android.ui.components.global.ImageState
+import com.cornellappdev.resell.android.ui.components.global.ListingUi
 import com.cornellappdev.resell.android.ui.components.global.resellListingScroll
 import com.cornellappdev.resell.android.ui.components.global.resellLoadingListingScroll
 import com.cornellappdev.resell.android.ui.components.main.EmptySavedComponent
@@ -87,8 +83,6 @@ import kotlinx.coroutines.launch
 fun HomeScreen(
     homeViewModel: HomeViewModel = hiltViewModel(),
     onSavedPressed: () -> Unit,
-    onFromSearchPressed: () -> Unit,
-    onFromPurchasePressed: () -> Unit,
     setNavBarShown: (Boolean) -> Unit,
     onCategoryPressed: (ResellFilter.FilterCategory) -> Unit
 ) {
@@ -115,18 +109,13 @@ fun HomeScreen(
         onCategoryPressed = onCategoryPressed,
         onSearchPressed = homeViewModel::onSearchPressed,
         savedListings = homeUiState.savedListings,
-        fromSearchedListings = homeUiState.fromSearchListings,
         onNotifPressed = homeViewModel::onNotifPressed,
         onSavedPressed = onSavedPressed,
-        onFromSearchPressed = onFromSearchPressed,
-        onFromPurchasePressed = onFromPurchasePressed,
         loadedState = homeUiState.loadedState,
         filteredListings = homeUiState.listings,
         onListingPressed = homeViewModel::onListingPressed,
         bottomLoading = homeUiState.bottomLoading,
         onScrollBottom = homeViewModel::onScrollBottom,
-        savedImagesResponses = homeUiState.savedImageResponses,
-        searchedImageResponses = homeUiState.searchedImageResponses,
         onDismissRequest = {
             coroutineScope.launch {
                 sheetState.hide()
@@ -145,18 +134,13 @@ private fun HomeScreenHelper(
     onCategoryPressed: (ResellFilter.FilterCategory) -> Unit,
     onSearchPressed: () -> Unit,
     onNotifPressed: () -> Unit,
-    savedListings: List<Listing>,
-    fromSearchedListings: List<Listing>,
+    savedListings: List<ListingUi>,
     onSavedPressed: () -> Unit,
-    onFromSearchPressed: () -> Unit,
-    onFromPurchasePressed: () -> Unit,
     loadedState: ResellApiState,
-    filteredListings: List<Listing>,
+    filteredListings: List<ListingUi>,
     onListingPressed: (Listing) -> Unit,
     bottomLoading: Boolean = false,
     onScrollBottom: () -> Unit = {},
-    savedImagesResponses: List<MutableState<ResellApiResponse<ImageBitmap>>>,
-    searchedImageResponses: List<MutableState<ResellApiResponse<ImageBitmap>>>,
     onDismissRequest: () -> Unit
 ) {
     Column(
@@ -176,19 +160,14 @@ private fun HomeScreenHelper(
 
         MainContent(
             savedListings = savedListings,
-            fromSearchedListings = fromSearchedListings,
             onSavedPressed = onSavedPressed,
-            onFromSearchPressed = onFromSearchPressed,
-            onFromPurchasePressed = onFromPurchasePressed,
             onFilterPressed = onFilterPressed,
             onCategoryPressed = onCategoryPressed,
             loadedState = loadedState,
             filteredListings = filteredListings,
             onListingPressed = onListingPressed,
             bottomLoading = bottomLoading,
-            onScrollBottom = onScrollBottom,
-            savedImagesResponses = savedImagesResponses,
-            searchedImageResponses = searchedImageResponses
+            onScrollBottom = onScrollBottom
         )
     }
     if (sheetState.isVisible) {
@@ -242,20 +221,15 @@ private fun HomeHeader(
 
 @Composable
 private fun MainContent(
-    savedListings: List<Listing>,
-    fromSearchedListings: List<Listing>,
+    savedListings: List<ListingUi>,
     onSavedPressed: () -> Unit,
-    onFromSearchPressed: () -> Unit,
-    onFromPurchasePressed: () -> Unit,
     onFilterPressed: () -> Unit,
     loadedState: ResellApiState,
     onCategoryPressed: (ResellFilter.FilterCategory) -> Unit,
-    filteredListings: List<Listing>,
+    filteredListings: List<ListingUi>,
     onListingPressed: (Listing) -> Unit,
     bottomLoading: Boolean = false,
     onScrollBottom: () -> Unit = {},
-    savedImagesResponses: List<MutableState<ResellApiResponse<ImageBitmap>>>,
-    searchedImageResponses: List<MutableState<ResellApiResponse<ImageBitmap>>>,
 ) {
     val preview = LocalInspectionMode.current
     val listState = rememberLazyStaggeredGridState()
@@ -274,15 +248,7 @@ private fun MainContent(
         item(span = StaggeredGridItemSpan.FullLine) {
             Spacer(Modifier.height(24.dp))
         }
-        forYou(
-            savedListings,
-            fromSearchedListings,
-            savedImagesResponses,
-            searchedImageResponses,
-            onSavedPressed,
-            onFromSearchPressed,
-            onFromPurchasePressed
-        )
+        forYou(savedListings, onSavedPressed)
         item(span = StaggeredGridItemSpan.FullLine) {
             Spacer(Modifier.height(24.dp))
         }
@@ -381,13 +347,8 @@ private enum class CategoryItem(
 }
 
 private fun LazyStaggeredGridScope.forYou(
-    savedListings: List<Listing>,
-    fromSearchedListings: List<Listing>,
-    savedImagesResponses: List<MutableState<ResellApiResponse<ImageBitmap>>>,
-    searchedImageResponses: List<MutableState<ResellApiResponse<ImageBitmap>>>,
-    onSavedPressed: () -> Unit,
-    onFromSearchPressed: () -> Unit,
-    onFromPurchasePressed: () -> Unit
+    savedListings: List<ListingUi>,
+    onSavedPressed: () -> Unit
 ) {
     item(span = StaggeredGridItemSpan.FullLine) {
         Row(
@@ -403,16 +364,7 @@ private fun LazyStaggeredGridScope.forYou(
     }
     item(span = StaggeredGridItemSpan.FullLine) {
         ForceHorizontalOffset(offset = Padding.leftRight) { _ ->
-            ForYouRow(
-                Modifier,
-                savedListings,
-                fromSearchedListings,
-                savedImagesResponses,
-                searchedImageResponses,
-                onSavedPressed,
-                onFromSearchPressed,
-                onFromPurchasePressed
-            )
+            ForYouRow(Modifier, savedListings, onSavedPressed)
         }
     }
 }
@@ -440,25 +392,17 @@ private fun LazyStaggeredGridScope.shopByCategory(onCategoryPressed: (ResellFilt
 @Composable
 private fun ForYouRow(
     modifier: Modifier,
-    savedListings: List<Listing>,
-    searchedListings: List<Listing>,
-    savedImagesResponses: List<MutableState<ResellApiResponse<ImageBitmap>>>,
-    searchedImageResponses: List<MutableState<ResellApiResponse<ImageBitmap>>>,
-    onSavedPressed: () -> Unit,
-    onFromSearchPressed: () -> Unit,
-    onFromPurchasePressed: () -> Unit
+    savedListings: List<ListingUi>,
+    onSavedPressed: () -> Unit
 ) {
     val isPreview = LocalInspectionMode.current
     val placeholder = painterResource(R.drawable.ic_appdev)
 
-    val savedImages = List(savedListings.size) { index ->
+    val savedImages = savedListings.map { listing ->
         if (isPreview) {
             placeholder
         } else {
-            when (val response = savedImagesResponses[index].value) {
-                is ResellApiResponse.Success -> BitmapPainter(response.data)
-                else -> null
-            }
+            (listing.image as? ImageState.Loaded)?.let { BitmapPainter(it.bitmap) }
         }
     }
 
@@ -540,7 +484,7 @@ private fun CategoryRow(
 
 private fun LazyStaggeredGridScope.recentListings(
     loadedState: ResellApiState,
-    filteredListings: List<Listing>,
+    filteredListings: List<ListingUi>,
     onListingPressed: (Listing) -> Unit,
     bottomLoading: Boolean = false,
     onFilter: () -> Unit,
@@ -623,21 +567,14 @@ private fun HomeScreenPreview() = ResellPreview {
         onFilterChanged = {},
         sheetState = rememberModalBottomSheetState(),
         onSearchPressed = {},
-        savedListings = List(5) { dumbListing },
+        savedListings = List(5) { ListingUi(dumbListing, ImageState.Loading) },
         onSavedPressed = {},
         onNotifPressed = {},
-        onFromSearchPressed = {},
-        onFromPurchasePressed = {},
         loadedState = ResellApiState.Loading,
-        filteredListings = List(10) { dumbListing },
+        filteredListings = List(10) { ListingUi(dumbListing, ImageState.Loading) },
         onListingPressed = {},
-        savedImagesResponses = remember {
-            List(5) { mutableStateOf(ResellApiResponse.Pending) }
-        },
         onDismissRequest = {},
         onCategoryPressed = {},
-        fromSearchedListings = emptyList(),
-        searchedImageResponses = emptyList(),
     )
 }
 
@@ -655,15 +592,10 @@ private fun SavedEmptyStatePreview() = ResellPreview {
         savedListings = emptyList(),
         onNotifPressed = { },
         onSavedPressed = { },
-        onFromSearchPressed = {},
-        onFromPurchasePressed = {},
         loadedState = ResellApiState.Loading,
-        filteredListings = List(10) { dumbListing },
+        filteredListings = List(10) { ListingUi(dumbListing, ImageState.Loading) },
         onListingPressed = {},
-        savedImagesResponses = emptyList(),
         onDismissRequest = {},
         onCategoryPressed = {},
-        fromSearchedListings = emptyList(),
-        searchedImageResponses = emptyList()
     )
 }

@@ -28,6 +28,7 @@ import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.ui.components.global.ResellListingsScroll
 import com.cornellappdev.resell.android.ui.components.global.ResellLoadingListingScroll
 import com.cornellappdev.resell.android.ui.components.global.ResellTextEntry
+import com.cornellappdev.resell.android.ui.components.global.ListingUi
 import com.cornellappdev.resell.android.util.UIEvent
 import com.cornellappdev.resell.android.util.clickableNoIndication
 import com.cornellappdev.resell.android.util.defaultHorizontalPadding
@@ -38,7 +39,7 @@ fun SearchScreen(
     onQueryChanged: (String) -> Unit,
     onExit: () -> Unit,
     onListingPressed: (Listing) -> Unit,
-    listings: ResellApiResponse<List<Listing>>,
+    listings: ResellApiResponse<List<ListingUi>>,
     placeholder: String,
     focusKeyboard: UIEvent<Unit>?
 ) {

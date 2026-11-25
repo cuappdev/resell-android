@@ -43,7 +43,9 @@ class PostTransactionRatingViewModel @Inject constructor(
         val reviewText: String = "",
         val postId: String = "",
         val userId: String = "",
-        val transactionId: String = ""
+        val transactionId: String = "",
+        val buyerId: String = "",
+        val sellerId: String = ""
     ) {
         val canSubmit
             get() = rating != null && transactionId.isNotEmpty()
@@ -75,6 +77,8 @@ class PostTransactionRatingViewModel @Inject constructor(
                 applyMutation {
                     copy(
                         transactionId = transaction.id,
+                        buyerId = transaction.buyer?.id.orEmpty(),
+                        sellerId = transaction.seller?.id.orEmpty(),
                         itemName = transaction.post.title,
                         price = String.format(Locale.getDefault(), "%.2f", transaction.amount),
                         sellerName = sellerFullName,
@@ -119,6 +123,8 @@ class PostTransactionRatingViewModel @Inject constructor(
 
                 postTransactionRatingRepository.submitTransactionReview(
                     transactionId = currentUiState.transactionId,
+                    buyerId = currentUiState.buyerId,
+                    sellerId = currentUiState.sellerId,
                     stars = currentUiState.rating?.stars ?: return@launch,
                     reviewText = currentUiState.reviewText
                 )
