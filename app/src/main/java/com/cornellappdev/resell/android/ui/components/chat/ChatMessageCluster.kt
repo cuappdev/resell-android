@@ -17,10 +17,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.cornellappdev.resell.android.model.ChatMessageData
 import com.cornellappdev.resell.android.model.MessageType
-import com.cornellappdev.resell.android.model.api.Post
 import com.cornellappdev.resell.android.model.chats.AvailabilityDocument
 import com.cornellappdev.resell.android.model.chats.MeetingInfo
 import com.cornellappdev.resell.android.model.chats.TransactionInfo
+import com.cornellappdev.resell.android.ui.components.global.ImageState
 import com.cornellappdev.resell.android.ui.components.main.ProfilePictureView
 import com.cornellappdev.resell.android.ui.theme.ResellPreview
 
@@ -29,14 +29,14 @@ fun ChatMessageCluster(
     imageUrl: String? = null,
     messageSender: @Composable (String?, @Composable () -> Unit, Int?) -> Unit,
     messages: List<ChatMessageData>,
-    onPostClicked: (Post) -> Unit,
+    messageImages: Map<String, ImageState>,
     onAvailabilityClicked: (AvailabilityDocument) -> Unit,
     onMeetingStateClicked: (MeetingInfo) -> Unit,
     onTransactionStateClicked: (TransactionInfo) -> Unit,
     senderName: String
 ) {
     val lastBubbleIndex = messages.indexOfLast {
-        it.messageType != MessageType.State && (it.messageType != MessageType.Card || it.post != null)
+        it.messageType != MessageType.State
     }
 
     Row(
@@ -48,25 +48,9 @@ fun ChatMessageCluster(
                     MessageType.Image -> {
                         messageSender(
                             imageUrl,
-                            { ChatImage(it.imageUrl) },
+                            { ChatImage(messageImages[it.imageUrl] ?: ImageState.Loading) },
                             lastBubbleIndex - i
                         )
-                    }
-
-                    MessageType.Card -> {
-                        if (it.post != null) {
-                            messageSender(imageUrl, {
-                                ChatCard(
-                                    imageUrl = it.post.images.getOrNull(0) ?: "",
-                                    title = it.post.title,
-                                    price = it.post.toListing().price,
-                                    modifier = Modifier.width(200.dp),
-                                    onClick = {
-                                        onPostClicked(it.post)
-                                    }
-                                )
-                            }, lastBubbleIndex - i)
-                        }
                     }
 
                     MessageType.Message ->

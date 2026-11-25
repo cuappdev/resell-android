@@ -2,7 +2,6 @@ package com.cornellappdev.resell.android.ui.components.global
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridLayoutInfo
@@ -29,7 +28,7 @@ import kotlinx.coroutines.flow.map
 
 @Composable
 fun ResellListingsScroll(
-    listings: List<Listing>,
+    listings: List<ListingUi>,
     onListingPressed: (Listing) -> Unit,
     modifier: Modifier = Modifier,
     listState: LazyStaggeredGridState = rememberLazyStaggeredGridState(),
@@ -64,7 +63,12 @@ fun ResellListingsScroll(
         item(span = StaggeredGridItemSpan.FullLine) {
             header()
         }
-        resellListingScroll(listings, onListingPressed, footer, bottomLoading = bottomLoading)
+        resellListingScroll(
+            listings,
+            onListingPressed,
+            footer,
+            bottomLoading = bottomLoading,
+        )
     }
 }
 
@@ -77,7 +81,7 @@ fun LazyStaggeredGridLayoutInfo.isItemWithKeyVisible(key: Any?): Boolean =
 @Composable
 fun DetectListEndReached(
     listState: LazyStaggeredGridState,
-    listings: List<Listing>,
+    listings: List<ListingUi>,
     onScrollBottom: () -> Unit,
 ) {
     val currentListings by rememberUpdatedState(listings)
@@ -97,7 +101,7 @@ fun DetectListEndReached(
 }
 
 fun LazyStaggeredGridScope.resellListingScroll(
-    listings: List<Listing>,
+    listings: List<ListingUi>,
     onListingPressed: (Listing) -> Unit,
     footer: @Composable () -> Unit = {},
     addVerticalPadding: Boolean = false,
@@ -106,12 +110,12 @@ fun LazyStaggeredGridScope.resellListingScroll(
     itemsIndexed(items = listings.distinctBy { it.id }, key = { _, item -> item.id }) { _, item ->
         val padding = calculateItemPadding(addVerticalPadding)
         ResellCard(
-            imageUrl = item.image,
-            title = item.title,
-            price = item.price,
-            modifier = Modifier.padding(padding)
+            image = item.image,
+            title = item.listing.title,
+            price = item.listing.price,
+            modifier = Modifier.padding(padding),
         ) {
-            onListingPressed(item)
+            onListingPressed(item.listing)
         }
     }
     if (bottomLoading) {
