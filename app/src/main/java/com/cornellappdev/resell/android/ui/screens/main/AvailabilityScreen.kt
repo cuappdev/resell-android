@@ -36,6 +36,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -111,6 +112,7 @@ fun AvailabilityScreenContent(
             ResellHeader(
                 title = "Availability",
                 leftPainter = R.drawable.ic_chevron_left,
+                leftContentDescription = stringResource(R.string.cd_back_capitalized),
                 onLeftClick = onBackPressed,
             )
             Column(

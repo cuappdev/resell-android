@@ -26,6 +26,7 @@ import androidx.compose.ui.draw.blur
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -238,7 +239,7 @@ private fun ExternalProfileToolbar(
     ) {
         Icon(
             painter = painterResource(id = R.drawable.ic_chevron_left),
-            contentDescription = "Back",
+            contentDescription = stringResource(R.string.cd_back_capitalized),
             modifier = Modifier
                 .defaultHorizontalPadding()
                 .size(ToolbarIconSize)
@@ -293,7 +294,7 @@ private fun BlockedView(
             Box(modifier = Modifier.fillMaxWidth()) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_chevron_left),
-                    contentDescription = "Back",
+                    contentDescription = stringResource(R.string.cd_back_capitalized),
                     modifier = Modifier
                         .defaultHorizontalPadding()
                         .padding(top = 8.dp)
@@ -305,7 +306,7 @@ private fun BlockedView(
 
                 Icon(
                     painter = painterResource(id = R.drawable.ic_ellipse),
-                    contentDescription = "more options",
+                    contentDescription = stringResource(R.string.cd_more_options),
                     modifier = Modifier
                         .defaultHorizontalPadding()
                         .padding(top = 8.dp)

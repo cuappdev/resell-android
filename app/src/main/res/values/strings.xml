@@ -1,4 +1,8 @@
 <resources>
     <string name="app_name">Resell</string>
     <string name="empty_for_you">"You haven't saved any listing yet."</string>
+    <string name="cd_back_capitalized">Back</string>
+    <string name="cd_more_options">More options</string>
+    <string name="cd_settings">settings</string>
+    <string name="cd_availability">Availability</string>
 </resources>

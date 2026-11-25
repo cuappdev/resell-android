@@ -2,6 +2,7 @@ package com.cornellappdev.resell.android.ui.screens.settings
 
 import com.cornellappdev.resell.android.ui.theme.Primary
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.material3.Icon
 import com.cornellappdev.resell.android.R
 import android.net.Uri
@@ -99,7 +100,7 @@ private fun Content(
             leftContent = {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_chevron_left),
-                    contentDescription = "Back",
+                    contentDescription = stringResource(R.string.cd_back_capitalized),
                     modifier = Modifier.size(24.dp),
                     tint = Primary,
                 )

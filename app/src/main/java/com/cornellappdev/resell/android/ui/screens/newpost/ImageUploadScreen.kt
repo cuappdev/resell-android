@@ -31,6 +31,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -79,6 +80,7 @@ fun ImageUploadScreen(
         ResellHeader(
             title = "New Listing",
             leftPainter = R.drawable.ic_chevron_left,
+            leftContentDescription = stringResource(R.string.cd_back_capitalized),
             onLeftClick = imageUploadViewModel::onBackPressed,
             rightPainter = if (uiState.canAddImages) R.drawable.ic_plus else null,
             onRightClick = {

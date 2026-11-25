@@ -38,12 +38,13 @@ fun ResellHeader(
     onLeftClick: (() -> Unit)? = null,
     onRightClick: (() -> Unit)? = null,
     bottomBar: Boolean = false,
+    leftContentDescription: String? = null,
 ) {
     val left = @Composable {
         if (leftPainter != null) {
             Icon(
                 painter = painterResource(id = leftPainter),
-                contentDescription = null,
+                contentDescription = leftContentDescription,
                 modifier = modifier
                     .size(24.dp),
                 tint = Primary,

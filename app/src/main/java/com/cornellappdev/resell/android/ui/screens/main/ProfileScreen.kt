@@ -9,6 +9,7 @@ import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridS
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -43,6 +44,8 @@ fun ProfileScreen(
             selectedTab = uiState.profileTab,
             leftIcon = R.drawable.ic_settings,
             rightIcon = R.drawable.ic_calendar,
+            leftIconDescription = stringResource(R.string.cd_settings),
+            rightIconDescription = stringResource(R.string.cd_availability),
             onTabSelected = { profileViewModel.onTabSelected(it) },
             onLeftPressed = { profileViewModel.onSettingsPressed() },
             onRightPressed = { profileViewModel.onCalendarPressed() },

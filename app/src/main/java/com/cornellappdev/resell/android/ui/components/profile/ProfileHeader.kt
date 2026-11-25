@@ -17,11 +17,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.ui.components.global.ResellTabBar
 import com.cornellappdev.resell.android.ui.components.main.ProfilePictureView
 import com.cornellappdev.resell.android.ui.theme.IconInactive
+import com.cornellappdev.resell.android.ui.theme.ResellPreview
 import com.cornellappdev.resell.android.ui.theme.Secondary
 import com.cornellappdev.resell.android.ui.theme.Style
 import com.cornellappdev.resell.android.util.clickableNoIndication
@@ -38,11 +40,10 @@ fun ProfileHeader(
     onTabSelected: (ProfileViewModel.ProfileTab) -> Unit,
     leftIcon: Int? = null,
     rightIcon: Int? = null,
-    farRightIcon: Int? = null,
+    leftIconDescription: String? = null,
+    rightIconDescription: String? = null,
     onLeftPressed: () -> Unit = {},
     onRightPressed: () -> Unit = {},
-    onFarRightPressed: () -> Unit = {},
-    leftIconDescription: String = "settings",
 ) {
     Column(
         modifier = Modifier
@@ -73,33 +74,20 @@ fun ProfileHeader(
                 )
             }
 
-            if (rightIcon != null || farRightIcon != null) {
+            if (rightIcon != null) {
                 Row(
                     modifier = Modifier
                         .defaultHorizontalPadding()
                         .padding(top = 8.dp)
                         .align(Alignment.TopEnd)
                 ) {
-                    if (rightIcon != null) {
-                        Icon(
-                            painter = painterResource(id = rightIcon),
-                            contentDescription = "search",
-                            modifier = Modifier
-                                .size(25.dp)
-                                .clickableNoIndication { onRightPressed() }
-                        )
-                    }
-
-                    if (farRightIcon != null) {
-                        Icon(
-                            painter = painterResource(id = farRightIcon),
-                            contentDescription = "more options",
-                            modifier = Modifier
-                                .padding(start = 16.dp)
-                                .size(25.dp)
-                                .clickableNoIndication { onFarRightPressed() }
-                        )
-                    }
+                    Icon(
+                        painter = painterResource(id = rightIcon),
+                        contentDescription = rightIconDescription,
+                        modifier = Modifier
+                            .size(25.dp)
+                            .clickableNoIndication { onRightPressed() }
+                    )
                 }
             }
         }
@@ -149,4 +137,32 @@ fun ProfileHeader(
             }
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun ProfileHeaderPreview() = ResellPreview {
+    ProfileHeader(
+        imageUrl = "",
+        shopName = "ryan",
+        vendorName = "Ryan Cheung",
+        bio = "Hi, I'm Ryan! This is a test bio.",
+        selectedTab = ProfileViewModel.ProfileTab.SHOP,
+        onTabSelected = {},
+        leftIcon = R.drawable.ic_settings,
+        rightIcon = R.drawable.ic_calendar,
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun ProfileHeaderNoTabsPreview() = ResellPreview {
+    ProfileHeader(
+        imageUrl = "",
+        shopName = "ryan",
+        vendorName = "Ryan Cheung",
+        bio = "",
+        selectedTab = null,
+        onTabSelected = {},
+    )
 }
