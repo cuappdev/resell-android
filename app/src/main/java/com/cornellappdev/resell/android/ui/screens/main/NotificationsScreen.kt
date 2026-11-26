@@ -19,9 +19,11 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.model.classes.ResellApiState
 import com.cornellappdev.resell.android.ui.components.global.ResellBackButton
 import com.cornellappdev.resell.android.ui.components.global.ResellTag
@@ -67,13 +69,13 @@ fun NotificationsHubScreen(
                     if (notificationsHubUiState.categorizedNotifications.isEmpty()) {
                         Text(
                             modifier = Modifier.align(alignment = Alignment.CenterHorizontally),
-                            text = "You're all caught up",
+                            text = stringResource(R.string.notifications_empty_title),
                             style = Style.heading2
                         )
                         Spacer(modifier = Modifier.height(19.dp))
                         Text(
                             modifier = Modifier.align(alignment = Alignment.CenterHorizontally),
-                            text = "No new notifications right now",
+                            text = stringResource(R.string.notifications_empty_body),
                             color = Color.Gray,
                             textAlign = TextAlign.Center,
                             style = Style.body1
@@ -130,7 +132,7 @@ private fun NotificationsHubHeader(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = "Notifications",
+                    text = stringResource(R.string.notifications),
                     modifier = Modifier.padding(top = 12.dp),
                     style = Style.heading3
                 )
@@ -147,7 +149,7 @@ private fun NotificationsHubHeader(
             }
             item {
                 ResellTag(
-                    text = "All",
+                    text = stringResource(R.string.notifications_all),
                     active = notificationType == null,
                     onClick = { onFilterPressed(null) }
                 )

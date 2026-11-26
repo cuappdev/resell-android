@@ -35,10 +35,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.model.classes.ResellFilter
 import com.cornellappdev.resell.android.ui.components.global.Dropdown
 import com.cornellappdev.resell.android.ui.components.global.ResellSlider
@@ -73,7 +75,7 @@ fun FilterBottomSheet(
     ) {
         item {
             Text(
-                text = "Filters",
+                text = stringResource(R.string.filter_title),
                 style = Style.heading2,
                 modifier = Modifier.padding(bottom = 20.dp)
             )
@@ -176,7 +178,7 @@ private fun AllFilters(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "Reset",
+                text = stringResource(R.string.filter_reset),
                 style = Style.title1,
                 color = ResellPurple,
                 modifier = Modifier.clickable {
@@ -218,7 +220,7 @@ private fun AllFilters(
                     originalFilter
                 )
             ) {
-                Text(text = "Apply Filters", style = Style.title1, color = Color.White)
+                Text(text = stringResource(R.string.filter_apply), style = Style.title1, color = Color.White)
             }
         }
 
@@ -233,7 +235,7 @@ private fun SortBy(sortBy: ResellFilter.SortBy, onSelectSortBy: (ResellFilter.So
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text("Sort by", style = Style.heading3)
+        Text(stringResource(R.string.filter_sort_by), style = Style.heading3)
         Dropdown(selected = sortBy, onSelectSortBy = onSelectSortBy)
     }
     HorizontalDivider(
@@ -254,7 +256,7 @@ private fun PriceRangeFilter(
     onPriceRangeChanged: (ClosedFloatingPointRange<Float>) -> Unit
 ) {
     Text(
-        text = "Price Range",
+        text = stringResource(R.string.filter_price_range),
         style = Style.heading3,
         modifier = Modifier.padding(bottom = 16.dp)
     )
@@ -297,7 +299,7 @@ private fun Condition(
     toggleCondition: (ResellFilter.FilterCondition) -> Unit
 ) {
     Text(
-        text = "Condition",
+        text = stringResource(R.string.filter_condition),
         style = Style.heading3,
         modifier = Modifier.padding(bottom = 16.dp)
     )
@@ -325,7 +327,7 @@ private fun CategoryFilters(
     toggleCategory: (ResellFilter.FilterCategory) -> Unit
 ) {
     Text(
-        text = "Product Category",
+        text = stringResource(R.string.filter_product_category),
         style = Style.heading3,
         modifier = Modifier.padding(bottom = 16.dp)
     )

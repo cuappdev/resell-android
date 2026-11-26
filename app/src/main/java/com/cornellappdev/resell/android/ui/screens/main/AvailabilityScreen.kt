@@ -110,7 +110,7 @@ fun AvailabilityScreenContent(
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
             ResellHeader(
-                title = "Availability",
+                title = stringResource(R.string.availability_title),
                 leftPainter = R.drawable.ic_chevron_left,
                 leftContentDescription = stringResource(R.string.cd_back),
                 onLeftClick = onBackPressed,
@@ -223,7 +223,7 @@ fun AvailabilityScreenContent(
         )
 
         ResellTextButton(
-            text = "Save",
+            text = stringResource(R.string.save),
             onClick = onSave,
             state = if (uiState.isLoading) ResellTextButtonState.SPINNING else ResellTextButtonState.ENABLED,
             modifier = Modifier

@@ -21,6 +21,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -77,7 +78,7 @@ private fun PostTransactionRatingScreenContent(
     ) {
         Column {
             ResellHeader(
-                title = "Completed Transaction",
+                title = stringResource(R.string.transaction_completed),
                 leftPainter = R.drawable.ic_chevron_left,
                 leftContentDescription = stringResource(R.string.cd_back),
                 onLeftClick = onBackArrow
@@ -94,7 +95,7 @@ private fun PostTransactionRatingScreenContent(
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = "Transaction Review",
+                text = stringResource(R.string.transaction_review),
                 style = Style.heading3
             )
 
@@ -113,7 +114,7 @@ private fun PostTransactionRatingScreenContent(
                 inlineLabel = false,
                 singleLine = false,
                 maxLines = 20,
-                placeholder = "How was your transaction experience with ${uiState.sellerName}? (Optional)",
+                placeholder = stringResource(R.string.transaction_review_placeholder, uiState.sellerName),
                 textFontStyle = Style.body2,
                 multiLineHeight = 117.dp
             )
@@ -124,11 +125,11 @@ private fun PostTransactionRatingScreenContent(
                 modifier = Modifier.align(Alignment.CenterHorizontally)
             ) {
                 Text(
-                    text = "Had issues? Submit ",
+                    text = stringResource(R.string.transaction_had_issues_submit),
                     style = Style.body2
                 )
                 Text(
-                    text = "feedback",
+                    text = stringResource(R.string.transaction_feedback_link),
                     style = Style.body2.copy(
                         color = ResellPurple,
                         textDecoration = TextDecoration.Underline
@@ -141,7 +142,7 @@ private fun PostTransactionRatingScreenContent(
         }
 
         ResellTextButton(
-            text = "Submit Review",
+            text = stringResource(R.string.transaction_submit_review),
             onClick = onSubmitReview,
             state = if (uiState.canSubmit) ResellTextButtonState.ENABLED else ResellTextButtonState.DISABLED,
             modifier = Modifier.padding(bottom = 44.dp)
@@ -164,7 +165,7 @@ private fun ItemInfo(
     Column {
         Spacer(modifier = Modifier.height(36.dp))
         Text(
-            text = "Purchase Summary",
+            text = stringResource(R.string.transaction_purchase_summary),
             style = Style.heading3,
         )
         Row(
@@ -173,7 +174,7 @@ private fun ItemInfo(
         ) {
             AsyncImage(
                 model = imageUrl,
-                contentDescription = "Item image",
+                contentDescription = stringResource(R.string.transaction_cd_item_image),
                 modifier = Modifier
                     .size(75.dp)
                     .clip(RoundedCornerShape(8.dp)),
@@ -191,11 +192,11 @@ private fun ItemInfo(
                 }
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    "Sold by $sellerName",
+                    stringResource(R.string.transaction_sold_by, sellerName),
                     style = Style.body2,
                 )
                 Spacer(modifier = Modifier.height(4.dp))
-                Text("Purchased on $formattedDate", style = Style.body2)
+                Text(stringResource(R.string.transaction_purchased_on, formattedDate), style = Style.body2)
 
             }
         }

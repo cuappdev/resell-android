@@ -18,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -49,7 +50,7 @@ fun VenmoFieldScreen(
         ScreenHeader(onBackPressed = venmoFieldViewModel::onBackPressed)
 
         ResellTextEntry(
-            label = "Venmo Handle",
+            label = stringResource(R.string.venmo_handle),
             text = uiState.handle,
             onTextChange = { venmoFieldViewModel.onHandleChanged(it) },
             inlineLabel = false,
@@ -60,12 +61,12 @@ fun VenmoFieldScreen(
 
         Column {
             ResellTextButton(
-                text = "Continue",
+                text = stringResource(R.string.onboarding_continue),
                 state = uiState.continueButtonState,
                 onClick = venmoFieldViewModel::onContinueClick
             )
             ResellTextButton(
-                text = "Skip",
+                text = stringResource(R.string.onboarding_skip),
                 state = uiState.skipButtonState,
                 onClick = venmoFieldViewModel::onSkipClick,
                 containerType = ResellTextButtonContainer.NAKED
@@ -104,7 +105,7 @@ private fun ScreenHeader(onBackPressed: () -> Unit = {}) = ResellPreview {
             ) {
                 Text(
                     style = Style.heading3,
-                    text = "Link your",
+                    text = stringResource(R.string.onboarding_link_your),
                     modifier = Modifier.padding(end = 6.dp)
                 )
                 Icon(
@@ -118,8 +119,7 @@ private fun ScreenHeader(onBackPressed: () -> Unit = {}) = ResellPreview {
         Spacer(Modifier.height(26.dp))
 
         Text(
-            text = "Your Venmo handle will only be visible to people " +
-                    "interested in buying your listing.",
+            text = stringResource(R.string.onboarding_venmo_handle_visibility),
             style = Style.body1,
             color = Secondary,
             textAlign = TextAlign.Center

@@ -78,7 +78,7 @@ fun ImageUploadScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         ResellHeader(
-            title = "New Listing",
+            title = stringResource(R.string.new_listing_header),
             leftPainter = R.drawable.ic_chevron_left,
             leftContentDescription = stringResource(R.string.cd_back),
             onLeftClick = imageUploadViewModel::onBackPressed,
@@ -121,7 +121,7 @@ private fun SelectionBody(
     if (bitmaps.isNotEmpty()) {
         Column {
             Text(
-                text = "Image Upload",
+                text = stringResource(R.string.image_upload),
                 style = Style.title1,
                 modifier = Modifier.defaultHorizontalPadding(),
             )
@@ -155,7 +155,7 @@ private fun SelectionBody(
     } else {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
-                text = "Image Upload",
+                text = stringResource(R.string.image_upload),
                 style = Style.heading2,
                 textAlign = TextAlign.Center,
             )
@@ -163,7 +163,7 @@ private fun SelectionBody(
             Spacer(modifier = Modifier.height(19.dp))
 
             Text(
-                text = "Add images of your item to get started with a new listing",
+                text = stringResource(R.string.new_listing_image_upload_body),
                 style = Style.body1,
                 color = Secondary,
                 textAlign = TextAlign.Center,
@@ -203,7 +203,7 @@ private fun ImageDisplay(
                 .padding(start = 46.dp, bottom = 22.dp)
                 .size(30.dp)
                 .clickableNoIndication { onDelete() },
-            contentDescription = "trash",
+            contentDescription = stringResource(R.string.new_listing_cd_trash),
             // This... kinda works... sometimes.
             tint = if (isBottomLeftMoreBlack(bitmap)) Color.White else Color.Black
         )
@@ -221,7 +221,7 @@ private fun AddPage(
         contentAlignment = Alignment.Center
     ) {
         PostFloatingActionButton(
-            contentDescription = "Add image",
+            contentDescription = stringResource(R.string.new_listing_cd_add_image),
             onClick = {
                 onAddPressed()
             },

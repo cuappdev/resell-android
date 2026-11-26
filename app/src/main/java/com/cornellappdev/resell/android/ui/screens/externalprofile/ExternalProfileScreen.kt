@@ -121,15 +121,19 @@ private fun ExternalProfileContent(
                     LabeledTab(
                         count = uiState.listingCount,
                         iconRes = R.drawable.ic_shop,
-                        contentDescription = "Listings, ${uiState.listingCount}",
+                        contentDescription = stringResource(R.string.external_profile_cd_listings_tab, uiState.listingCount),
                     ),
                     LabeledTab(
                         count = uiState.reviewCount,
                         iconRes = R.drawable.ic_selected_star,
                         contentDescription = if (uiState.ratingLabel.isNotEmpty()) {
-                            "Reviews, ${uiState.ratingLabel} average rating, ${uiState.reviewCount} reviews"
+                            stringResource(
+                                R.string.external_profile_cd_reviews_tab_with_rating,
+                                uiState.ratingLabel,
+                                uiState.reviewCount
+                            )
                         } else {
-                            "Reviews, ${uiState.reviewCount}"
+                            stringResource(R.string.external_profile_cd_reviews_tab, uiState.reviewCount)
                         },
                         iconSize = 20.dp,
                         title = uiState.ratingLabel,
@@ -181,8 +185,8 @@ private fun ListingsTab(
         is ResellApiResponse.Pending -> ResellLoadingListingScroll()
 
         is ResellApiResponse.Error -> ProfileMessage(
-            title = "Something went wrong",
-            body = "We couldn't load this user's listings. Please try again later."
+            title = stringResource(R.string.something_went_wrong),
+            body = stringResource(R.string.external_profile_listings_error)
         )
 
         is ResellApiResponse.Success -> ResellListingsScroll(
@@ -192,8 +196,8 @@ private fun ListingsTab(
             paddedTop = 16.dp,
             emptyState = {
                 ProfileMessage(
-                    title = "No listings posted",
-                    body = "This user hasn't posted any listings yet"
+                    title = stringResource(R.string.profile_no_listings_posted),
+                    body = stringResource(R.string.external_profile_no_listings_body)
                 )
             }
         )
@@ -206,8 +210,8 @@ private fun ReviewsTab(reviews: ResellApiResponse<List<ProfileReview>>) {
         is ResellApiResponse.Pending -> ResellLoadingReviewsScroll()
 
         is ResellApiResponse.Error -> ProfileMessage(
-            title = "Something went wrong",
-            body = "We couldn't load this user's reviews. Please try again later."
+            title = stringResource(R.string.something_went_wrong),
+            body = stringResource(R.string.external_profile_reviews_error)
         )
 
         is ResellApiResponse.Success -> ResellReviewsScroll(reviews = reviews.data)
@@ -260,7 +264,7 @@ private fun ExternalProfileToolbar(
 
         Icon(
             painter = painterResource(id = R.drawable.ic_ellipse),
-            contentDescription = "options",
+            contentDescription = stringResource(R.string.external_profile_cd_options),
             modifier = Modifier
                 .defaultHorizontalPadding()
                 .size(ToolbarIconSize)
@@ -316,7 +320,7 @@ private fun BlockedView(
         }
 
         Text(
-            text = "This profile is blocked",
+            text = stringResource(R.string.external_profile_blocked),
             style = title1,
             modifier = Modifier.align(Alignment.Center),
             color = Color.White

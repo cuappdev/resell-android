@@ -14,6 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -58,7 +59,7 @@ private fun NotificationsSettingsContent(
         verticalArrangement = Arrangement.spacedBy(20.dp)
     ) {
         ResellHeader(
-            title = "Notification Preferences",
+            title = stringResource(R.string.settings_notification_preferences),
             leftPainter = R.drawable.ic_chevron_left,
             leftContentDescription = stringResource(R.string.cd_back),
             onLeftClick = onBackPressed,
@@ -67,21 +68,21 @@ private fun NotificationsSettingsContent(
         Spacer(Modifier.height(24.dp))
 
         ResellSwitchRow(
-            title = "Pause All Notifications",
+            title = stringResource(R.string.settings_pause_all_notifications),
             checked = pause,
             enabled = true,
             onCheckedChange = onPauseChange,
         )
 
         ResellSwitchRow(
-            title = "Chat Notifications",
+            title = stringResource(R.string.settings_chat_notifications),
             checked = chat,
             enabled = !pause,
             onCheckedChange = onChatChange,
         )
 
         ResellSwitchRow(
-            title = "Listings Notifications",
+            title = stringResource(R.string.settings_listings_notifications),
             checked = listings,
             enabled = !pause,
             onCheckedChange = onListingsChange,
