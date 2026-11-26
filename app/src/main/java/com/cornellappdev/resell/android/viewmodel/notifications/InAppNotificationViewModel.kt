@@ -1,21 +1,28 @@
 package com.cornellappdev.resell.android.viewmodel.notifications
 
+import android.util.Log
+import androidx.lifecycle.viewModelScope
 import com.cornellappdev.resell.android.model.classes.InAppNotification
+import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.model.classes.ResellApiState
+import com.cornellappdev.resell.android.model.notifications.NotificationRepository
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
 import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import java.time.Instant
+import java.time.temporal.ChronoUnit
 import javax.inject.Inject
 
 @HiltViewModel
 class InAppNotificationViewModel @Inject constructor(
     private val navController: RootNavigationRepository,
+    private val notificationRepository: NotificationRepository,
 ) : ResellViewModel<InAppNotificationViewModel.UiState>(
     initialUiState = UiState(
         loadedState = ResellApiState.Loading,
         notifType = null,
-        notifs = listOf()
+        notifs = emptyList()
     )
 ) {
     data class UiState(
@@ -23,53 +30,139 @@ class InAppNotificationViewModel @Inject constructor(
         val notifType: NotificationType?,
         val notifs: List<InAppNotification>,
     ) {
+        val filteredNotifications: List<InAppNotification>
+            get() = if (notifType == null) {
+                notifs
+            } else {
+                notifs.filter { it.notificationType == notifType }
+            }
 
+        val categorizedNotifications: Map<String, List<InAppNotification>>
+            get() = filteredNotifications.groupBy { notification ->
+                val now = Instant.now()
+                val days = ChronoUnit.DAYS.between(notification.createdInstant, now)
+                when {
+                    notification.unread -> "new"
+                    days in 0..6 -> "week"
+                    days in 7..29 -> "month"
+                    else -> "other"
+                }
+            }
 
-        private fun dayDifferenceFromIso(iso: String): Int {
-            val instant = Instant.parse(iso)
-            return ((Instant.now().toEpochMilli() - instant.toEpochMilli()) / 86_400_000).toInt()
-        }
+        val unreadNotifications: List<InAppNotification>
+            get() = categorizedNotifications["new"].orEmpty()
 
-        val categorizedNotifications
-            get() = notifs
-                .filter { it.notificationType == notifType || notifType == null }
-                .groupBy { notification ->
-                    when {
-                        notification.unread -> "new"
-                        dayDifferenceFromIso(notification.timeState) <= 7 -> "week"
-                        dayDifferenceFromIso(notification.timeState) in 8..30 -> "month"
-                        else -> "other"
-                    }
+        val weekNotifications: List<InAppNotification>
+            get() = categorizedNotifications["week"].orEmpty()
+
+        val monthNotifications: List<InAppNotification>
+            get() = categorizedNotifications["month"].orEmpty()
+
+        val otherNotifications: List<InAppNotification>
+            get() = categorizedNotifications["other"].orEmpty()
+    }
+
+    init {
+        fetchNotifications()
+    }
+
+    fun fetchNotifications() {
+        viewModelScope.launch {
+            applyMutation { copy(loadedState = ResellApiState.Loading) }
+            val newResponse = notificationRepository.getNewNotifications()
+            val thirtyDaysResponse = notificationRepository.getLast30DaysNotifications()
+
+            val newNotifs = when (newResponse) {
+                is ResellApiResponse.Success -> newResponse.data
+                else -> emptyList()
+            }
+            val thirtyDaysNotifs = when (thirtyDaysResponse) {
+                is ResellApiResponse.Success -> thirtyDaysResponse.data
+                else -> emptyList()
+            }
+
+            // TODO: Fix this issue in the backend instead of this workaround
+            // Union duplicateIds so deleting the merged card still removes every backend copy
+            val combined = (newNotifs + thirtyDaysNotifs)
+                .groupBy { if (it.id.isNotBlank()) it.id else "${it.title}_${it.body}" }
+                .map { (_, group) ->
+                    group.first().copy(duplicateIds = group.flatMap { it.duplicateIds }.distinct())
                 }
 
-        val unreadNotifications
-            get() = categorizedNotifications["new"].orEmpty()
-        val weekNotifications
-            get() = categorizedNotifications["week"].orEmpty()
-        val monthNotifications
-            get() = categorizedNotifications["month"].orEmpty()
-        val otherNotifications
-            get() = categorizedNotifications["other"].orEmpty()
-
+            applyMutation {
+                copy(
+                    loadedState = ResellApiState.Success,
+                    notifs = combined
+                )
+            }
+        }
     }
 
     fun onToggleFilter(filter: NotificationType?) {
-        //TODO: Implement networking
+        applyMutation {
+            copy(notifType = if (notifType == filter) null else filter)
+        }
     }
 
     fun onBackPressed() {
         navController.popBackStack()
     }
 
-    fun onNotificationPressed() {
-        //TODO: Implement navigation
+    fun onNotificationPressed(notif: InAppNotification) {
+        applyMutation {
+            copy(
+                notifs = notifs.map {
+                    if (it.id == notif.id) it.copy(read = true) else it
+                }
+            )
+        }
+        viewModelScope.launch {
+            notif.allIds.forEach { id ->
+                try {
+                    notificationRepository.markAsRead(id)
+                } catch (e: Exception) {
+                }
+            }
+        }
     }
 
     fun onNotificationArchived(notif: InAppNotification) {
-        //TODO: Implement networking
+        Log.d("InAppNotificationViewModel", "Archiving notification id: '${notif.id}', title: '${notif.title}'")
+        applyMutation {
+            copy(
+                notifs = notifs.filter {
+                    if (notif.id.isNotBlank()) it.id != notif.id
+                    else it.title != notif.title || it.body != notif.body
+                }
+            )
+        }
+        viewModelScope.launch {
+            if (notif.allIds.isEmpty()) {
+                Log.e("InAppNotificationViewModel", "Notification id is blank, cannot delete on backend.")
+            }
+            notif.allIds.forEach { id ->
+                try {
+                    if (!notif.read) {
+                        try {
+                            notificationRepository.markAsRead(id)
+                        } catch (e: Exception) {
+                            Log.e("InAppNotificationViewModel", "Failed to mark unread notification as read before deleting", e)
+                        }
+                    }
+                    val result = notificationRepository.deleteNotification(id)
+                    if (result is ResellApiResponse.Error) {
+                        Log.e("InAppNotificationViewModel", "Failed to delete notification $id on backend")
+                    } else {
+                        Log.d("InAppNotificationViewModel", "Successfully deleted notification $id on backend")
+                    }
+                } catch (e: Exception) {
+                    Log.e("InAppNotificationViewModel", "Exception deleting notification $id", e)
+                }
+            }
+        }
     }
 }
 
 enum class NotificationType {
-    MESSAGE, DISCOUNT, BOOKMARKS, OFFER, SOLD, OTHER
+    MESSAGE, BOOKMARKS, OFFER, SOLD, OTHER
 }

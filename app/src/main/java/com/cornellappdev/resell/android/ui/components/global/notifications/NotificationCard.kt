@@ -39,7 +39,7 @@ import com.cornellappdev.resell.android.model.classes.InAppNotification
 import com.cornellappdev.resell.android.ui.theme.ResellPurple
 import com.cornellappdev.resell.android.ui.theme.ResellPurpleWash
 import com.cornellappdev.resell.android.ui.theme.Style
-import com.cornellappdev.resell.android.util.getRelativeTimeSpan
+import com.cornellappdev.resell.android.ui.theme.Warning
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
@@ -86,7 +86,7 @@ fun NotificationCard(
             )
             Text(
                 style = Style.title4,
-                text = getRelativeTimeSpan(timestamp),
+                text = timestamp,
                 color = Color.Gray
             )
 
@@ -108,45 +108,44 @@ fun SwipeableNotificationCard(
     val swipeOffset = remember { Animatable(0f) }
     val heightAnimatable = remember { Animatable(83f) }
     val sizeAnimatable = remember { Animatable(24f) }
-    val maxSwipeOffset = 250.dp.value // Maximum swipe distance for revealing the archive option
-    val minSwipeVelocity = 1000f
+    val maxSwipeOffset = 80.dp.value // Sensitive threshold for easy swiping
+    val minSwipeVelocity = 500f
     val coroutineScope = rememberCoroutineScope()
 
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .background(ResellPurple)
-            .height(heightAnimatable.value.dp) // Keep consistent with NotificationCard height
+            .background(Warning)
+            .height(heightAnimatable.value.dp)
             .pointerInput(Unit) {
                 detectHorizontalDragGestures(
                     onDragEnd = {
                         coroutineScope.launch {
-                            if (swipeOffset.value > maxSwipeOffset * 0.9f || swipeOffset.velocity > minSwipeVelocity) {
-                                swipeOffset.animateTo(1500f)
-                                heightAnimatable.animateTo(0f)
+                            if (swipeOffset.value < -maxSwipeOffset || swipeOffset.velocity < -minSwipeVelocity) {
                                 launch {
                                     sizeAnimatable.animateTo(0f)
                                 }
+                                swipeOffset.animateTo(-1500f)
+                                heightAnimatable.animateTo(0f)
                                 onArchive(notification)
                             } else {
-                                swipeOffset.animateTo(0f) // Animate back if not far enough
+                                swipeOffset.animateTo(0f)
                             }
                         }
                     },
                     onHorizontalDrag = { _, dragAmount ->
                         coroutineScope.launch {
                             val newOffset =
-                                (swipeOffset.value + dragAmount).coerceIn(0f, 1500f)
+                                (swipeOffset.value + dragAmount).coerceIn(-1500f, 0f)
                             swipeOffset.snapTo(newOffset)
 
                             launch {
-                                val targetSize = if (newOffset > maxSwipeOffset * 0.9f) 32f else 24f
+                                val targetSize = if (newOffset < -maxSwipeOffset) 32f else 24f
                                 if (sizeAnimatable.value != targetSize) {
                                     sizeAnimatable.animateTo(targetSize)
                                 }
                             }
                         }
-
                     }
                 )
             }
@@ -154,10 +153,11 @@ fun SwipeableNotificationCard(
         Box(
             modifier = Modifier
                 .size(83.dp)
+                .align(Alignment.CenterEnd)
         ) {
             Icon(
-                painter = painterResource(id = R.drawable.ic_unread_message),
-                contentDescription = "read",
+                painter = painterResource(id = R.drawable.ic_trash),
+                contentDescription = "delete",
                 modifier = Modifier
                     .size((sizeAnimatable.value).dp)
                     .align(Alignment.Center),
