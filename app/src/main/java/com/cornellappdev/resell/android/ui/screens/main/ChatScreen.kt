@@ -44,6 +44,7 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -199,11 +200,11 @@ private fun ChatLoadedContent(
                             ChatMessageData(
                                 messageType = MessageType.State,
                                 content = if (transactionInfo.state == TransactionState.COMPLETED) {
-                                    "This transaction has been completed"
+                                    stringResource(R.string.chat_transaction_completed_banner)
                                 } else if (isBuyer) {
-                                    "Got your item? Mark this sale as complete."
+                                    stringResource(R.string.chat_mark_sale_complete_buyer_banner)
                                 } else {
-                                    "Met up and got paid? Mark this sale as complete."
+                                    stringResource(R.string.chat_mark_sale_complete_seller_banner)
                                 },
                                 transactionInfo = transactionInfo,
                                 timestamp = transactionInfo.completeTime,
@@ -278,7 +279,7 @@ private fun ChatHeader(
         ) {
             Icon(
                 painter = painterResource(id = R.drawable.ic_chevron_left),
-                contentDescription = "back",
+                contentDescription = stringResource(R.string.cd_back),
                 modifier = Modifier
                     .padding(top = 20.dp, start = 12.dp)
                     .size(24.dp)
@@ -315,7 +316,7 @@ private fun ChatHeader(
             ) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_calendar),
-                    contentDescription = "image",
+                    contentDescription = stringResource(R.string.cd_image),
                     tint = Color.White,
                     modifier = Modifier
                         .size(24.dp)
@@ -323,7 +324,7 @@ private fun ChatHeader(
                 Spacer(modifier = Modifier.width(16.dp))
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = "Meeting Confirmed",
+                        text = stringResource(R.string.chat_meeting_confirmed),
                         style = Style.title2.copy(color = Color.White)
                     )
                     Text(
@@ -332,7 +333,7 @@ private fun ChatHeader(
                     )
                 }
                 Text(
-                    text = "View",
+                    text = stringResource(R.string.chat_view),
                     style = Style.title2.copy(color = Color.White),
                     modifier = Modifier
                         .clickableNoIndication { onViewPressed() }
@@ -385,7 +386,7 @@ private fun ChatFooter(
             Spacer(modifier = Modifier.width(12.dp))
             if (showViewAvailability) {
                 ChatTag(
-                    text = "View ${otherName}'s Availability",
+                    text = stringResource(R.string.chat_view_availability, otherName),
                     active = true,
                     onClick = { onViewAvailabilityPressed() }
                 )
@@ -394,14 +395,14 @@ private fun ChatFooter(
 
             if (showNegotiate) {
                 ChatTag(
-                    text = "Negotiate",
+                    text = stringResource(R.string.chat_negotiate),
                     active = true,
                     onClick = { onNegotiatePressed() }
                 )
                 Spacer(modifier = Modifier.width(12.dp))
             }
             ChatTag(
-                text = "Send Availability",
+                text = stringResource(R.string.chat_send_availability),
                 active = true,
                 onClick = {
                     onSendAvailability()
@@ -411,7 +412,7 @@ private fun ChatFooter(
 
             if (showPayWithVenmo) {
                 ChatTag(
-                    text = "Pay with",
+                    text = stringResource(R.string.chat_pay_with),
                     active = false,
                     onClick = { onVenmoPressed() },
                     venmo = true
@@ -428,7 +429,7 @@ private fun ChatFooter(
         ) {
             Icon(
                 painter = painterResource(id = R.drawable.ic_image),
-                contentDescription = "image",
+                contentDescription = stringResource(R.string.cd_image),
                 tint = Color.Gray,
                 modifier = Modifier
                     .size(32.dp)
@@ -484,7 +485,7 @@ private fun ChatFooter(
                     ) {}
                     Icon(
                         painter = painterResource(id = R.drawable.ic_arrow_up),
-                        contentDescription = "send",
+                        contentDescription = stringResource(R.string.chat_cd_send),
                         tint = Color.White,
                         modifier = Modifier
                             .size(20.dp)

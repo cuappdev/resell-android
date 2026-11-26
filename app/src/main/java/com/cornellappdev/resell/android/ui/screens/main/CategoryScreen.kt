@@ -26,6 +26,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -127,7 +128,7 @@ private fun CategoryScreenContent(
             ResellSearchBar(onClick = onSearchPressed, modifier = Modifier.weight(1f))
             Icon(
                 painter = painterResource(R.drawable.ic_filter),
-                contentDescription = "Filter",
+                contentDescription = stringResource(R.string.cd_filter),
                 modifier = Modifier.clickable(onClick = onFilter)
             )
         }
@@ -172,12 +173,12 @@ private fun EmptyState() {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "No results",
+            text = stringResource(R.string.search_no_results),
             style = Style.heading2
         )
         Spacer(modifier = Modifier.height(16.dp))
         Text(
-            text = "Try again",
+            text = stringResource(R.string.search_try_again),
             style = Style.body1.copy(color = Color.Gray)
         )
     }
@@ -198,7 +199,7 @@ private fun Header(category: ResellFilter.FilterCategory, onExit: () -> Unit) {
             )
         }
         Icon(
-            Icons.AutoMirrored.Filled.KeyboardArrowLeft, contentDescription = "Back",
+            Icons.AutoMirrored.Filled.KeyboardArrowLeft, contentDescription = stringResource(R.string.cd_back_capitalized),
             modifier = Modifier.clickable { onExit() })
     }
 }

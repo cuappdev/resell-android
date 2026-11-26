@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
@@ -34,7 +35,7 @@ fun ResellRatingBar(
         for (star in StarRating.entries) {
             Image(
                 painter = if (rating != null && star <= rating) painterResource(id = R.drawable.ic_selected_star) else painterResource(id = R.drawable.ic_unselected_star),
-                contentDescription = "Star ${star.stars}",
+                contentDescription = stringResource(R.string.cd_star, star.stars),
                 modifier = Modifier
                     .clickable {
                         onRatingChanged(star)
@@ -51,8 +52,9 @@ fun ResellStarRating(
     starSize: Dp = 12.dp,
 ) {
     val ratingText = if (rating % 1.0 == 0.0) rating.toInt().toString() else "%.1f".format(rating)
+    val ratingDescription = stringResource(R.string.cd_star_rating, ratingText)
     Row(
-        modifier = modifier.semantics { contentDescription = "$ratingText out of 5 stars" },
+        modifier = modifier.semantics { contentDescription = ratingDescription },
         horizontalArrangement = Arrangement.spacedBy(2.dp)
     ) {
         repeat(5) { index ->

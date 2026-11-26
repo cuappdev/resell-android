@@ -18,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.cornellappdev.resell.android.R
@@ -73,9 +74,9 @@ private fun ReviewsEmptyState(modifier: Modifier = Modifier) {
             contentDescription = null,
             tint = IconInactive
         )
-        Text(text = "No Reviews Yet", style = Style.body1, color = Secondary)
+        Text(text = stringResource(R.string.reviews_empty_title), style = Style.body1, color = Secondary)
         Text(
-            text = "Reviews from buyers will appear here",
+            text = stringResource(R.string.reviews_empty_body),
             style = Style.body2,
             color = IconInactive
         )

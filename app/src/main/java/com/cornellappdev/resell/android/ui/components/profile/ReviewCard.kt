@@ -21,9 +21,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.model.classes.ProfileReview
 import com.cornellappdev.resell.android.ui.components.global.ResellStarRating
 import com.cornellappdev.resell.android.ui.theme.IconInactive
@@ -50,7 +52,9 @@ fun ReviewCard(
             .clip(shape)
             .clickable(
                 enabled = isTruncated,
-                onClickLabel = if (expanded) "Collapse review" else "Expand review"
+                onClickLabel = stringResource(
+                    if (expanded) R.string.reviews_collapse else R.string.reviews_expand
+                )
             ) { expanded = !expanded }
             .background(Color.White, shape)
             .border(BorderStroke(1.dp, Stroke), shape)
