@@ -91,7 +91,7 @@ private fun Content(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         ResellHeaderCore(
-            title = stringResource(R.string.send_feedback),
+            title = stringResource(R.string.settings_send_feedback),
             rightContent = {
                 Text(
                     text = stringResource(R.string.submit),
@@ -111,7 +111,7 @@ private fun Content(
         Spacer(Modifier.height(40.dp))
 
         Text(
-            text = stringResource(R.string.send_feedback_body),
+            text = stringResource(R.string.settings_send_feedback_body),
             style = body1,
             textAlign = TextAlign.Center,
             modifier = Modifier.defaultHorizontalPadding()

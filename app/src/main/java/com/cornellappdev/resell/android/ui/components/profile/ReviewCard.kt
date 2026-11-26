@@ -53,7 +53,7 @@ fun ReviewCard(
             .clickable(
                 enabled = isTruncated,
                 onClickLabel = stringResource(
-                    if (expanded) R.string.collapse_review else R.string.expand_review
+                    if (expanded) R.string.reviews_collapse else R.string.reviews_expand
                 )
             ) { expanded = !expanded }
             .background(Color.White, shape)

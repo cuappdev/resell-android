@@ -31,7 +31,7 @@ fun FromPurchasesScreen(
             .fillMaxSize()
     ) {
         FromHistoryHeader(
-            text = stringResource(R.string.from_your_purchases),
+            text = stringResource(R.string.home_from_your_purchases),
             onBack = { fromPurchasesViewModel.onBackPressed() },
             onTopPressed = {
                 coroutineScope.launch {

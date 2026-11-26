@@ -166,7 +166,7 @@ private fun LandingContent(
 
             if (showButton) {
                 ResellTextButton(
-                    text = stringResource(R.string.login_with_net_id),
+                    text = stringResource(R.string.onboarding_login_with_net_id),
                     onClick = { onSignInPressed() },
                     modifier = Modifier
                         .alpha(buttonAlpha.value)

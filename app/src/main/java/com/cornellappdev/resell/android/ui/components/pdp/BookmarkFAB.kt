@@ -44,7 +44,7 @@ fun BookmarkFAB(
         Box(modifier = Modifier.size(72.dp)) {
             Icon(
                 painter = painterResource(id = R.drawable.ic_save_fill),
-                contentDescription = stringResource(R.string.cd_save),
+                contentDescription = stringResource(R.string.pdp_cd_save),
                 modifier = Modifier
                     .size(width = 21.dp, height = 27.dp)
                     .alpha(progress)
@@ -54,7 +54,7 @@ fun BookmarkFAB(
 
             Icon(
                 painter = painterResource(id = R.drawable.ic_save_nofill),
-                contentDescription = stringResource(R.string.cd_save),
+                contentDescription = stringResource(R.string.pdp_cd_save),
                 modifier = Modifier
                     .size(width = 21.dp, height = 27.dp)
                     .alpha(1f - progress)

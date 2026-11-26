@@ -173,12 +173,12 @@ private fun EmptyState() {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = stringResource(R.string.no_results),
+            text = stringResource(R.string.search_no_results),
             style = Style.heading2
         )
         Spacer(modifier = Modifier.height(16.dp))
         Text(
-            text = stringResource(R.string.try_again_lowercase),
+            text = stringResource(R.string.search_try_again),
             style = Style.body1.copy(color = Color.Gray)
         )
     }

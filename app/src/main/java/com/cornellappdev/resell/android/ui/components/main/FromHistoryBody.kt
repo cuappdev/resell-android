@@ -62,7 +62,7 @@ fun FromHistoryBody(
                     ) {
                         Text(text = category.first, style = Style.heading3)
                         Text(
-                            text = stringResource(R.string.hide),
+                            text = stringResource(R.string.home_hide),
                             fontSize = 14.sp,
                             modifier = Modifier.clickable {
                                 onHidePressed(category.first)

@@ -78,7 +78,7 @@ fun ImageUploadScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         ResellHeader(
-            title = stringResource(R.string.new_listing),
+            title = stringResource(R.string.new_listing_header),
             rightPainter = if (uiState.canAddImages) R.drawable.ic_plus else null,
             onRightClick = {
                 imageUploadViewModel.onAddPressed()
@@ -160,7 +160,7 @@ private fun SelectionBody(
             Spacer(modifier = Modifier.height(19.dp))
 
             Text(
-                text = stringResource(R.string.image_upload_body),
+                text = stringResource(R.string.new_listing_image_upload_body),
                 style = Style.body1,
                 color = Secondary,
                 textAlign = TextAlign.Center,
@@ -200,7 +200,7 @@ private fun ImageDisplay(
                 .padding(start = 46.dp, bottom = 22.dp)
                 .size(30.dp)
                 .clickableNoIndication { onDelete() },
-            contentDescription = stringResource(R.string.cd_trash),
+            contentDescription = stringResource(R.string.new_listing_cd_trash),
             // This... kinda works... sometimes.
             tint = if (isBottomLeftMoreBlack(bitmap)) Color.White else Color.Black
         )
@@ -218,7 +218,7 @@ private fun AddPage(
         contentAlignment = Alignment.Center
     ) {
         PostFloatingActionButton(
-            contentDescription = stringResource(R.string.cd_add_image),
+            contentDescription = stringResource(R.string.new_listing_cd_add_image),
             onClick = {
                 onAddPressed()
             },

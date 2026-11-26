@@ -75,7 +75,7 @@ fun AvailabilityPagerContainer(
         ) {
             Icon(
                 painter = painterResource(R.drawable.ic_chevron_left),
-                contentDescription = stringResource(R.string.cd_scroll_left),
+                contentDescription = stringResource(R.string.availability_cd_scroll_left),
                 modifier = Modifier
                     .clickableNoIndication {
                         coroutineScope.launch {
@@ -103,7 +103,7 @@ fun AvailabilityPagerContainer(
                             color = Secondary
                         )
                         Text(
-                            text = stringResource(R.string.edit_availability),
+                            text = stringResource(R.string.availability_edit),
                             style = Style.body2,
                             color = ResellPurple,
                             modifier = Modifier.clickableNoIndication { onEditAvailabilityClicked() }
@@ -113,7 +113,7 @@ fun AvailabilityPagerContainer(
             }
             Icon(
                 painter = painterResource(R.drawable.ic_chevron_right),
-                contentDescription = stringResource(R.string.cd_scroll_right),
+                contentDescription = stringResource(R.string.availability_cd_scroll_right),
                 modifier = Modifier
                     .clickableNoIndication {
                         coroutineScope.launch {

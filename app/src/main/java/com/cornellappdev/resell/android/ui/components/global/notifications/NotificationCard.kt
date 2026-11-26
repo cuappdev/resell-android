@@ -158,7 +158,7 @@ fun SwipeableNotificationCard(
         ) {
             Icon(
                 painter = painterResource(id = R.drawable.ic_unread_message),
-                contentDescription = stringResource(R.string.cd_read),
+                contentDescription = stringResource(R.string.notifications_cd_read),
                 modifier = Modifier
                     .size((sizeAnimatable.value).dp)
                     .align(Alignment.Center),

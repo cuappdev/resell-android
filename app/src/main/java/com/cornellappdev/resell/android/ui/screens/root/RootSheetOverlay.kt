@@ -53,7 +53,7 @@ fun RootSheetOverlay(
                 RootSheet.LoginFailed -> {
                     LoginErrorSheet(
                         onTryAgainClicked = onDismissRequest,
-                        text = stringResource(R.string.login_failed)
+                        text = stringResource(R.string.onboarding_login_failed)
                     )
                 }
 

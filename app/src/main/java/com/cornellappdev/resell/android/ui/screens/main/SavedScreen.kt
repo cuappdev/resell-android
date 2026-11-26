@@ -98,7 +98,7 @@ private fun Header(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
-                text = stringResource(R.string.saved),
+                text = stringResource(R.string.saved_title),
                 style = Style.heading1
             )
         }

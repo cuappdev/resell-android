@@ -33,7 +33,7 @@ fun WelcomeSheetContent(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = stringResource(R.string.welcome_title),
+            text = stringResource(R.string.onboarding_welcome_title),
             style = Style.heading3,
             color = ResellPurple
         )
@@ -49,7 +49,7 @@ fun WelcomeSheetContent(
         Spacer(modifier = Modifier.height(30.dp))
 
         Text(
-            text = stringResource(R.string.welcome_body),
+            text = stringResource(R.string.onboarding_welcome_body),
             style = Style.body1,
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(horizontal = 36.dp)
@@ -58,7 +58,7 @@ fun WelcomeSheetContent(
         Spacer(modifier = Modifier.height(33.dp))
 
         ResellTextButton(
-            text = stringResource(R.string.get_started),
+            text = stringResource(R.string.onboarding_get_started),
             onClick = onDismiss,
             containerType = ResellTextButtonContainer.PRIMARY
         )

@@ -71,7 +71,7 @@ fun ChatTag(
                     fontWeight = FontWeight.ExtraBold,
                     fontStyle = FontStyle.Italic
                 ),
-                text = stringResource(R.string.venmo_tag)
+                text = stringResource(R.string.chat_venmo_tag)
             )
         }
     }

@@ -200,11 +200,11 @@ private fun ChatLoadedContent(
                             ChatMessageData(
                                 messageType = MessageType.State,
                                 content = if (transactionInfo.state == TransactionState.COMPLETED) {
-                                    stringResource(R.string.transaction_completed_banner)
+                                    stringResource(R.string.chat_transaction_completed_banner)
                                 } else if (isBuyer) {
-                                    stringResource(R.string.mark_sale_complete_buyer_banner)
+                                    stringResource(R.string.chat_mark_sale_complete_buyer_banner)
                                 } else {
-                                    stringResource(R.string.mark_sale_complete_seller_banner)
+                                    stringResource(R.string.chat_mark_sale_complete_seller_banner)
                                 },
                                 transactionInfo = transactionInfo,
                                 timestamp = transactionInfo.completeTime,
@@ -324,7 +324,7 @@ private fun ChatHeader(
                 Spacer(modifier = Modifier.width(16.dp))
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = stringResource(R.string.meeting_confirmed),
+                        text = stringResource(R.string.chat_meeting_confirmed),
                         style = Style.title2.copy(color = Color.White)
                     )
                     Text(
@@ -333,7 +333,7 @@ private fun ChatHeader(
                     )
                 }
                 Text(
-                    text = stringResource(R.string.view),
+                    text = stringResource(R.string.chat_view),
                     style = Style.title2.copy(color = Color.White),
                     modifier = Modifier
                         .clickableNoIndication { onViewPressed() }
@@ -386,7 +386,7 @@ private fun ChatFooter(
             Spacer(modifier = Modifier.width(12.dp))
             if (showViewAvailability) {
                 ChatTag(
-                    text = stringResource(R.string.view_availability, otherName),
+                    text = stringResource(R.string.chat_view_availability, otherName),
                     active = true,
                     onClick = { onViewAvailabilityPressed() }
                 )
@@ -395,14 +395,14 @@ private fun ChatFooter(
 
             if (showNegotiate) {
                 ChatTag(
-                    text = stringResource(R.string.negotiate),
+                    text = stringResource(R.string.chat_negotiate),
                     active = true,
                     onClick = { onNegotiatePressed() }
                 )
                 Spacer(modifier = Modifier.width(12.dp))
             }
             ChatTag(
-                text = stringResource(R.string.send_availability),
+                text = stringResource(R.string.chat_send_availability),
                 active = true,
                 onClick = {
                     onSendAvailability()
@@ -412,7 +412,7 @@ private fun ChatFooter(
 
             if (showPayWithVenmo) {
                 ChatTag(
-                    text = stringResource(R.string.pay_with),
+                    text = stringResource(R.string.chat_pay_with),
                     active = false,
                     onClick = { onVenmoPressed() },
                     venmo = true
@@ -485,7 +485,7 @@ private fun ChatFooter(
                     ) {}
                     Icon(
                         painter = painterResource(id = R.drawable.ic_arrow_up),
-                        contentDescription = stringResource(R.string.cd_send),
+                        contentDescription = stringResource(R.string.chat_cd_send),
                         tint = Color.White,
                         modifier = Modifier
                             .size(20.dp)

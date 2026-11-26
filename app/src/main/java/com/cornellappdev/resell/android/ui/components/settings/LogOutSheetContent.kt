@@ -39,14 +39,14 @@ fun LogOutSheetContent(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = stringResource(R.string.log_out_confirmation),
+            text = stringResource(R.string.settings_log_out_confirmation),
             style = Style.heading3
         )
 
         Spacer(modifier = Modifier.height(24.dp))
 
         ResellTextButton(
-            text = stringResource(R.string.log_out),
+            text = stringResource(R.string.settings_log_out),
             onClick = viewModel::onLogOut,
             containerType = ResellTextButtonContainer.PRIMARY_RED
         )

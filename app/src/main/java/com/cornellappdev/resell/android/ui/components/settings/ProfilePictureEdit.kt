@@ -38,7 +38,7 @@ fun ProfilePictureEdit(
             if (bitmap != null) {
                 AsyncImage(
                     model = bitmap,
-                    contentDescription = stringResource(R.string.cd_profile_picture),
+                    contentDescription = stringResource(R.string.edit_profile_cd_profile_picture),
                     modifier = Modifier
                         .size(132.dp)
                         .clip(CircleShape),
@@ -47,7 +47,7 @@ fun ProfilePictureEdit(
             } else {
                 Image(
                     painter = painterResource(id = R.drawable.ic_empty_pfp),
-                    contentDescription = stringResource(R.string.cd_profile_picture),
+                    contentDescription = stringResource(R.string.edit_profile_cd_profile_picture),
                     modifier = Modifier
                         .size(132.dp)
                         .clip(CircleShape)
@@ -64,7 +64,7 @@ fun ProfilePictureEdit(
 
         Image(
             painter = painterResource(id = R.drawable.ic_edit_pfp),
-            contentDescription = stringResource(R.string.cd_camera),
+            contentDescription = stringResource(R.string.edit_profile_cd_camera),
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .clickable(

@@ -63,7 +63,7 @@ private fun Content(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         ResellHeader(
-            title = stringResource(R.string.blocked_users),
+            title = stringResource(R.string.settings_blocked_users),
         )
 
         if (blockedUsers.isEmpty()) {
@@ -97,14 +97,14 @@ private fun EmptyState() {
         Spacer(modifier = Modifier.weight(1f))
 
         Text(
-            text = stringResource(R.string.blocked_users_empty_title),
+            text = stringResource(R.string.settings_blocked_users_empty_title),
             style = heading2,
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            text = stringResource(R.string.blocked_users_empty_body),
+            text = stringResource(R.string.settings_blocked_users_empty_body),
             style = body1,
             color = AppDev,
             textAlign = TextAlign.Center,
@@ -156,7 +156,7 @@ private fun UserPfpRow(
             contentPadding = PaddingValues(vertical = 6.dp, horizontal = 10.dp)
         ) {
             Text(
-                text = stringResource(R.string.unblock),
+                text = stringResource(R.string.settings_unblock),
                 color = Color.White,
                 style = body1
             )

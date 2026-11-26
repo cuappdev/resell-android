@@ -15,7 +15,7 @@ import com.cornellappdev.resell.android.ui.theme.Style
 
 @Composable
 fun LoginErrorSheet(
-    text: String = stringResource(R.string.login_error_cornell_email),
+    text: String = stringResource(R.string.onboarding_login_error_cornell_email),
     onTryAgainClicked: () -> Unit,
 ) {
     Column(

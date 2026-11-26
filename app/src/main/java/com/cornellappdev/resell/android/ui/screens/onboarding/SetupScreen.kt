@@ -132,7 +132,7 @@ private fun PhotoHeader(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = stringResource(R.string.set_up_your_profile),
+            text = stringResource(R.string.onboarding_set_up_your_profile),
             style = Style.heading3,
             modifier = Modifier.padding(bottom = 40.dp)
         )
@@ -162,7 +162,7 @@ private fun TextEntry(
     ) {
 
         ResellTextEntry(
-            label = stringResource(R.string.username_required),
+            label = stringResource(R.string.onboarding_username_required),
             text = username,
             onTextChange = onUsernameChanged,
             inlineLabel = false,
@@ -211,8 +211,8 @@ private fun EULARadio(
         label = "radio animate"
     )
 
-    val agreePrefix = stringResource(R.string.eula_agree_prefix)
-    val eulaName = stringResource(R.string.eula_name)
+    val agreePrefix = stringResource(R.string.onboarding_eula_agree_prefix)
+    val eulaName = stringResource(R.string.onboarding_eula_name)
     val annotatedText = buildAnnotatedString {
         append(agreePrefix)
 

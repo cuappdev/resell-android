@@ -110,7 +110,7 @@ fun AvailabilityScreenContent(
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
             ResellHeader(
-                title = stringResource(R.string.availability),
+                title = stringResource(R.string.availability_title),
                 leftPainter = R.drawable.ic_chevron_left,
                 onLeftClick = onBackPressed,
             )

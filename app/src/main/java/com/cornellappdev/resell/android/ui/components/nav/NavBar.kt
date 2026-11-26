@@ -99,7 +99,7 @@ private fun NavBarContent(
         ) {
             BrushIcon(
                 painter = painterResource(id = R.drawable.ic_home),
-                contentDescription = stringResource(R.string.cd_home),
+                contentDescription = stringResource(R.string.nav_cd_home),
                 modifier = Modifier
                     .clickable(
                         indication = null,
@@ -110,7 +110,7 @@ private fun NavBarContent(
             )
             BrushIcon(
                 painter = painterResource(id = R.drawable.ic_messages),
-                contentDescription = stringResource(R.string.cd_messages),
+                contentDescription = stringResource(R.string.nav_cd_messages),
                 modifier = Modifier
                     .clickable(
                         indication = null,
@@ -121,7 +121,7 @@ private fun NavBarContent(
             )
             BrushIcon(
                 painter = painterResource(id = R.drawable.ic_user),
-                contentDescription = stringResource(R.string.cd_profile),
+                contentDescription = stringResource(R.string.nav_cd_profile),
                 modifier = Modifier
                     .clickable(
                         indication = null,

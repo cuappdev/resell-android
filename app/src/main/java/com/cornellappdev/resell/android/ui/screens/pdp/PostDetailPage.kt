@@ -246,7 +246,7 @@ private fun Content(
 
         if (showContact) {
             ResellTextButton(
-                text = stringResource(R.string.contact_seller),
+                text = stringResource(R.string.pdp_contact_seller),
                 onClick = onContactClick,
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
@@ -327,7 +327,7 @@ private fun Header(
         ) {
             Icon(
                 painter = painterResource(id = R.drawable.ic_ellipse),
-                contentDescription = stringResource(R.string.cd_ellipsis),
+                contentDescription = stringResource(R.string.pdp_cd_ellipsis),
                 modifier = Modifier.align(Alignment.Center),
                 tint = Color.White
             )
@@ -428,7 +428,7 @@ private fun BottomSheetContent(
 
             if (it.isNotEmpty()) {
                 Text(
-                    text = stringResource(R.string.similar_items),
+                    text = stringResource(R.string.pdp_similar_items),
                     style = Style.body2,
                     modifier = Modifier.defaultHorizontalPadding()
                 )

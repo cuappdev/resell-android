@@ -38,7 +38,7 @@ fun ChatAvailability(sender: String, onClick: () -> Unit) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = stringResource(R.string.user_availability, sender),
+                text = stringResource(R.string.chat_user_availability, sender),
                 style = Style.title3.copy(color = ResellPurple),
                 modifier = Modifier
                     .weight(1f)
@@ -46,7 +46,7 @@ fun ChatAvailability(sender: String, onClick: () -> Unit) {
             )
             Icon(
                 painter = painterResource(id = R.drawable.ic_chevron_right),
-                contentDescription = stringResource(R.string.cd_chevron),
+                contentDescription = stringResource(R.string.chat_cd_chevron),
                 tint = ResellPurple,
                 modifier = Modifier
                     .size(16.dp)

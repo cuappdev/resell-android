@@ -153,7 +153,7 @@ private fun NotificationsHubHeader(
             }
             item {
                 ResellTag(
-                    text = stringResource(R.string.all),
+                    text = stringResource(R.string.notifications_all),
                     active = notificationType == null,
                     onClick = { onFilterPressed(null) }
                 )

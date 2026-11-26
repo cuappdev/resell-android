@@ -43,7 +43,7 @@ fun ChatMeetingState(
             if (icon != null) {
                 Icon(
                     painter = icon,
-                    contentDescription = stringResource(R.string.cd_chat_state_icon),
+                    contentDescription = stringResource(R.string.chat_cd_state_icon),
                     modifier = Modifier
                         .size(16.dp)
                 )

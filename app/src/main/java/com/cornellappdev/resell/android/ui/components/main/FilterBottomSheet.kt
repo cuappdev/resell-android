@@ -75,7 +75,7 @@ fun FilterBottomSheet(
     ) {
         item {
             Text(
-                text = stringResource(R.string.filters),
+                text = stringResource(R.string.filter_title),
                 style = Style.heading2,
                 modifier = Modifier.padding(bottom = 20.dp)
             )
@@ -178,7 +178,7 @@ private fun AllFilters(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = stringResource(R.string.reset),
+                text = stringResource(R.string.filter_reset),
                 style = Style.title1,
                 color = ResellPurple,
                 modifier = Modifier.clickable {
@@ -220,7 +220,7 @@ private fun AllFilters(
                     originalFilter
                 )
             ) {
-                Text(text = stringResource(R.string.apply_filters), style = Style.title1, color = Color.White)
+                Text(text = stringResource(R.string.filter_apply), style = Style.title1, color = Color.White)
             }
         }
 
@@ -235,7 +235,7 @@ private fun SortBy(sortBy: ResellFilter.SortBy, onSelectSortBy: (ResellFilter.So
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(stringResource(R.string.sort_by), style = Style.heading3)
+        Text(stringResource(R.string.filter_sort_by), style = Style.heading3)
         Row(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically
@@ -267,7 +267,7 @@ private fun PriceRangeFilter(
     onPriceRangeChanged: (ClosedFloatingPointRange<Float>) -> Unit
 ) {
     Text(
-        text = stringResource(R.string.price_range),
+        text = stringResource(R.string.filter_price_range),
         style = Style.heading3,
         modifier = Modifier.padding(bottom = 16.dp)
     )
@@ -310,7 +310,7 @@ private fun Condition(
     toggleCondition: (ResellFilter.FilterCondition) -> Unit
 ) {
     Text(
-        text = stringResource(R.string.condition),
+        text = stringResource(R.string.filter_condition),
         style = Style.heading3,
         modifier = Modifier.padding(bottom = 16.dp)
     )
@@ -338,7 +338,7 @@ private fun CategoryFilters(
     toggleCategory: (ResellFilter.FilterCategory) -> Unit
 ) {
     Text(
-        text = stringResource(R.string.product_category),
+        text = stringResource(R.string.filter_product_category),
         style = Style.heading3,
         modifier = Modifier.padding(bottom = 16.dp)
     )

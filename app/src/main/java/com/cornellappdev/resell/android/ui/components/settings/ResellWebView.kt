@@ -77,7 +77,7 @@ fun ResellWebView(
             colors = ButtonDefaults.buttonColors(containerColor = AppDev)
         ) {
             Text(
-                text = stringResource(R.string.open_in_browser),
+                text = stringResource(R.string.settings_open_in_browser),
                 color = Color.White,
                 style = Style.body1
             )

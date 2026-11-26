@@ -88,7 +88,7 @@ private fun Content(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         ResellHeaderCore(
-            title = stringResource(R.string.edit_profile),
+            title = stringResource(R.string.settings_edit_profile),
             rightContent = {
                 Text(
                     text = stringResource(R.string.save),
@@ -116,14 +116,14 @@ private fun Content(
 
         Column(modifier = Modifier.defaultHorizontalPadding()) {
             ResellInfoRow(
-                title = stringResource(R.string.name),
+                title = stringResource(R.string.edit_profile_name),
                 content = name
             )
 
             Spacer(modifier = Modifier.height(40.dp))
 
             ResellInfoRow(
-                title = stringResource(R.string.net_id),
+                title = stringResource(R.string.edit_profile_net_id),
                 content = netId
             )
 
@@ -131,7 +131,7 @@ private fun Content(
 
             ResellTextEntry(
                 inlineLabel = true,
-                label = stringResource(R.string.username),
+                label = stringResource(R.string.edit_profile_username),
                 text = username,
                 onTextChange = onUsernameChanged
             )

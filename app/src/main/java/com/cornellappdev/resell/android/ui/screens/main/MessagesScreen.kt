@@ -150,7 +150,7 @@ private fun MessagesHeader(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
-                text = stringResource(R.string.messages),
+                text = stringResource(R.string.messages_title),
                 style = Style.heading1
             )
         }
@@ -162,13 +162,13 @@ private fun MessagesHeader(
         ) {
             Spacer(modifier = Modifier.size(Padding.medium))
             MessageTag(
-                text = stringResource(R.string.purchases),
+                text = stringResource(R.string.messages_purchases),
                 active = activeChat == ChatViewModel.ChatType.Purchases,
                 unreads = purchasesUnreads,
                 onClick = { onChatTypePressed(ChatViewModel.ChatType.Purchases) }
             )
             MessageTag(
-                text = stringResource(R.string.offers),
+                text = stringResource(R.string.messages_offers),
                 active = activeChat == ChatViewModel.ChatType.Offers,
                 unreads = offersUnreads,
                 onClick = { onChatTypePressed(ChatViewModel.ChatType.Offers) }

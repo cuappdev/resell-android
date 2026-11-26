@@ -75,8 +75,8 @@ fun ProfileScreen(
                                 paddedTop = 12.dp,
                                 emptyState = {
                                     ProfileEmptyState(
-                                        title = stringResource(R.string.no_listings_posted),
-                                        body = stringResource(R.string.no_listings_posted_body),
+                                        title = stringResource(R.string.profile_no_listings_posted),
+                                        body = stringResource(R.string.profile_no_listings_posted_body),
                                         modifier = Modifier
                                             .fillMaxHeight()
                                             .padding(bottom = 60.dp)
@@ -105,8 +105,8 @@ fun ProfileScreen(
                                 paddedTop = 12.dp,
                                 emptyState = {
                                     ProfileEmptyState(
-                                        title = stringResource(R.string.no_listings_archived),
-                                        body = stringResource(R.string.no_listings_archived_body),
+                                        title = stringResource(R.string.profile_no_listings_archived),
+                                        body = stringResource(R.string.profile_no_listings_archived_body),
                                         modifier = Modifier
                                             .fillMaxHeight()
                                             .padding(bottom = 60.dp)

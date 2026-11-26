@@ -83,13 +83,13 @@ private fun PostDetailsContent(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         ResellHeader(
-            title = stringResource(R.string.new_listing),
+            title = stringResource(R.string.new_listing_header),
         )
 
         Spacer(Modifier.height(24.dp))
 
         ResellTextEntry(
-            label = stringResource(R.string.listing_title),
+            label = stringResource(R.string.new_listing_title),
             text = uiState.title,
             onTextChange = onTitleChanged,
             inlineLabel = false,
@@ -100,7 +100,7 @@ private fun PostDetailsContent(
 
         MoneyEntry(
             text = uiState.price,
-            label = stringResource(R.string.price),
+            label = stringResource(R.string.new_listing_price),
             onPressed = onPricePressed,
             modifier = Modifier
                 .defaultHorizontalPadding()
@@ -110,7 +110,7 @@ private fun PostDetailsContent(
         Spacer(Modifier.height(32.dp))
 
         ResellTextEntry(
-            label = stringResource(R.string.item_description),
+            label = stringResource(R.string.new_listing_item_description),
             text = uiState.description,
             onTextChange = onDescriptionChanged,
             inlineLabel = false,
@@ -119,13 +119,13 @@ private fun PostDetailsContent(
             // TODO: probably wrong max lines
             maxLines = 20,
             modifier = Modifier.defaultHorizontalPadding(),
-            placeholder = stringResource(R.string.item_details_placeholder)
+            placeholder = stringResource(R.string.new_listing_item_details_placeholder)
         )
 
         Spacer(Modifier.height(32.dp))
 
         Text(
-            text = stringResource(R.string.select_categories),
+            text = stringResource(R.string.new_listing_select_categories),
             style = Style.title1,
             modifier = Modifier
                 .padding(start = 24.dp, bottom = 8.dp)
@@ -161,7 +161,7 @@ private fun PostDetailsContent(
         Spacer(Modifier.height(32.dp))
 
         Text(
-            text = stringResource(R.string.select_condition),
+            text = stringResource(R.string.new_listing_select_condition),
             style = Style.title1,
             modifier = Modifier
                 .padding(start = 24.dp, bottom = 8.dp)

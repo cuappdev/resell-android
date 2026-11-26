@@ -60,12 +60,12 @@ fun VenmoFieldScreen(
 
         Column {
             ResellTextButton(
-                text = stringResource(R.string.continue_label),
+                text = stringResource(R.string.onboarding_continue),
                 state = uiState.continueButtonState,
                 onClick = venmoFieldViewModel::onContinueClick
             )
             ResellTextButton(
-                text = stringResource(R.string.skip),
+                text = stringResource(R.string.onboarding_skip),
                 state = uiState.skipButtonState,
                 onClick = venmoFieldViewModel::onSkipClick,
                 containerType = ResellTextButtonContainer.NAKED
@@ -99,7 +99,7 @@ private fun ScreenHeader() = ResellPreview {
             ) {
                 Text(
                     style = Style.heading3,
-                    text = stringResource(R.string.link_your),
+                    text = stringResource(R.string.onboarding_link_your),
                     modifier = Modifier.padding(end = 6.dp)
                 )
                 Icon(
@@ -113,7 +113,7 @@ private fun ScreenHeader() = ResellPreview {
         Spacer(Modifier.height(26.dp))
 
         Text(
-            text = stringResource(R.string.venmo_handle_visibility),
+            text = stringResource(R.string.onboarding_venmo_handle_visibility),
             style = Style.body1,
             color = Secondary,
             textAlign = TextAlign.Center

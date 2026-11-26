@@ -356,7 +356,7 @@ private fun LazyStaggeredGridScope.forYou(
                 .fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text(text = stringResource(R.string.for_you), style = Style.heading3)
+            Text(text = stringResource(R.string.home_for_you), style = Style.heading3)
         }
     }
     item(span = StaggeredGridItemSpan.FullLine) {
@@ -376,7 +376,7 @@ private fun LazyStaggeredGridScope.shopByCategory(onCategoryPressed: (ResellFilt
                 .fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text(text = stringResource(R.string.shop_by_category), style = Style.heading3)
+            Text(text = stringResource(R.string.home_shop_by_category), style = Style.heading3)
         }
     }
     item(span = StaggeredGridItemSpan.FullLine) {
@@ -422,7 +422,7 @@ private fun ForYouRow(
 
             item {
                 ForYouComponent(
-                    text = stringResource(R.string.your_saved_items),
+                    text = stringResource(R.string.home_your_saved_items),
                     amount = savedListings.size,
                     images = savedImages,
                     onClick = onSavedPressed,
@@ -495,7 +495,7 @@ private fun LazyStaggeredGridScope.recentListings(
             horizontalArrangement = Arrangement.SpaceBetween,
             modifier = Modifier.fillMaxWidth(),
         ) {
-            Text(text = stringResource(R.string.recent_listings), style = Style.heading3)
+            Text(text = stringResource(R.string.home_recent_listings), style = Style.heading3)
             Icon(
                 painter = painterResource(R.drawable.ic_filter),
                 contentDescription = stringResource(R.string.cd_filter),

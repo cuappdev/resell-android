@@ -37,7 +37,7 @@ fun FromSearchScreen(
             .fillMaxSize()
     ) {
         FromHistoryHeader(
-            text = stringResource(R.string.from_your_searches),
+            text = stringResource(R.string.home_from_your_searches),
             onBack = { fromSearchViewModel.onBackPressed() },
             onTopPressed = {
                 coroutineScope.launch {

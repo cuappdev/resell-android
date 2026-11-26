@@ -65,27 +65,27 @@ private fun NotificationsSettingsContent(
         verticalArrangement = Arrangement.spacedBy(20.dp)
     ) {
         ResellHeader(
-            title = stringResource(R.string.notification_preferences),
+            title = stringResource(R.string.settings_notification_preferences),
         )
 
         Spacer(Modifier.height(24.dp))
 
         ResellSwitchRow(
-            title = stringResource(R.string.pause_all_notifications),
+            title = stringResource(R.string.settings_pause_all_notifications),
             checked = pause,
             enabled = true,
             onCheckedChange = onPauseChange,
         )
 
         ResellSwitchRow(
-            title = stringResource(R.string.chat_notifications),
+            title = stringResource(R.string.settings_chat_notifications),
             checked = chat,
             enabled = !pause,
             onCheckedChange = onChatChange,
         )
 
         ResellSwitchRow(
-            title = stringResource(R.string.listings_notifications),
+            title = stringResource(R.string.settings_listings_notifications),
             checked = listings,
             enabled = !pause,
             onCheckedChange = onListingsChange,

@@ -120,19 +120,19 @@ private fun ExternalProfileContent(
                     LabeledTab(
                         count = uiState.listingCount,
                         iconRes = R.drawable.ic_shop,
-                        contentDescription = stringResource(R.string.cd_listings_tab, uiState.listingCount),
+                        contentDescription = stringResource(R.string.external_profile_cd_listings_tab, uiState.listingCount),
                     ),
                     LabeledTab(
                         count = uiState.reviewCount,
                         iconRes = R.drawable.ic_selected_star,
                         contentDescription = if (uiState.ratingLabel.isNotEmpty()) {
                             stringResource(
-                                R.string.cd_reviews_tab_with_rating,
+                                R.string.external_profile_cd_reviews_tab_with_rating,
                                 uiState.ratingLabel,
                                 uiState.reviewCount
                             )
                         } else {
-                            stringResource(R.string.cd_reviews_tab, uiState.reviewCount)
+                            stringResource(R.string.external_profile_cd_reviews_tab, uiState.reviewCount)
                         },
                         iconSize = 20.dp,
                         title = uiState.ratingLabel,
@@ -194,7 +194,7 @@ private fun ListingsTab(
             paddedTop = 16.dp,
             emptyState = {
                 ProfileMessage(
-                    title = stringResource(R.string.no_listings_posted),
+                    title = stringResource(R.string.profile_no_listings_posted),
                     body = stringResource(R.string.external_profile_no_listings_body)
                 )
             }
@@ -242,7 +242,7 @@ private fun ExternalProfileToolbar(
     ) {
         Icon(
             painter = painterResource(id = R.drawable.ic_ellipse),
-            contentDescription = stringResource(R.string.cd_options),
+            contentDescription = stringResource(R.string.external_profile_cd_options),
             modifier = Modifier
                 .defaultHorizontalPadding()
                 .size(ToolbarIconSize)
@@ -309,7 +309,7 @@ private fun BlockedView(
         }
 
         Text(
-            text = stringResource(R.string.profile_blocked),
+            text = stringResource(R.string.external_profile_blocked),
             style = title1,
             modifier = Modifier.align(Alignment.Center),
             color = Color.White

@@ -18,7 +18,7 @@ import com.cornellappdev.resell.android.ui.theme.Style
 @Composable
 fun SoldOverlay(
     modifier: Modifier = Modifier,
-    text: String = stringResource(R.string.item_sold),
+    text: String = stringResource(R.string.pdp_item_sold),
     backgroundColor: Color = Color.White.copy(alpha = 0.4f),
     textColor: Color = Color.Black,
 ) {

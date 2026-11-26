@@ -70,14 +70,14 @@ private fun Content(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         ResellHeader(
-            title = stringResource(R.string.settings),
+            title = stringResource(R.string.settings_title),
         )
 
         Spacer(Modifier.height(24.dp))
 
         EntryRow(
             painter = painterResource(id = R.drawable.ic_edit),
-            text = stringResource(R.string.edit_profile),
+            text = stringResource(R.string.settings_edit_profile),
             onClick = onEditProfile,
         )
 
@@ -89,36 +89,36 @@ private fun Content(
 
         EntryRow(
             painter = painterResource(id = R.drawable.ic_feedback),
-            text = stringResource(R.string.send_feedback),
+            text = stringResource(R.string.settings_send_feedback),
             onClick = onFeedback
         )
 
         EntryRow(
             painter = painterResource(id = R.drawable.ic_slash),
-            text = stringResource(R.string.blocked_users),
+            text = stringResource(R.string.settings_blocked_users),
             onClick = onBlockedUsers,
         )
 
         EntryRow(
             painter = painterResource(id = R.drawable.ic_terms),
-            text = stringResource(R.string.terms_and_conditions),
+            text = stringResource(R.string.settings_terms_and_conditions),
             onClick = onTermsAndConditions
         )
 
         EntryRow(
             painter = painterResource(id = R.drawable.ic_privacy),
-            text = stringResource(R.string.privacy_policy),
+            text = stringResource(R.string.settings_privacy_policy),
             onClick = onPrivacyPolicy
         )
 
         EntryRow(
             painter = painterResource(id = R.drawable.ic_logout),
-            text = stringResource(R.string.log_out),
+            text = stringResource(R.string.settings_log_out),
             onClick = onLogout
         )
 
         EntryRow(
-            text = stringResource(R.string.delete_account),
+            text = stringResource(R.string.settings_delete_account),
             onClick = onDeleteAccount,
             color = Warning
         )

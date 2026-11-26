@@ -37,7 +37,7 @@ fun EmptySavedComponent(
         verticalArrangement = Arrangement.Center
     ) {
         Text(
-            text = stringResource(id = R.string.empty_for_you),
+            text = stringResource(id = R.string.saved_empty),
             style = Style.body2,
             color = Secondary,
             textAlign = TextAlign.Center
@@ -47,7 +47,7 @@ fun EmptySavedComponent(
             horizontalArrangement = Arrangement.Center
         ) {
             Text(
-                text = stringResource(R.string.empty_saved_tap),
+                text = stringResource(R.string.saved_empty_tap),
                 style = Style.body2,
                 color = Secondary
             )
@@ -58,7 +58,7 @@ fun EmptySavedComponent(
                 tint = Secondary
             )
             Text(
-                text = stringResource(R.string.empty_saved_on_listing),
+                text = stringResource(R.string.saved_empty_on_listing),
                 style = Style.body2,
                 color = Secondary
             )

@@ -159,7 +159,7 @@ fun MessageCard(
 
         Icon(
             painter = painterResource(id = R.drawable.ic_chevron_left),
-            contentDescription = stringResource(R.string.cd_chat),
+            contentDescription = stringResource(R.string.messages_cd_chat),
             tint = Color.Gray,
             modifier = Modifier
                 .size(12.dp)
