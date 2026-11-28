@@ -3,16 +3,11 @@ package com.cornellappdev.resell.android.ui.screens.settings
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -24,10 +19,6 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.ui.components.global.ResellHeader
 import com.cornellappdev.resell.android.ui.components.global.ResellSwitchRow
-import com.cornellappdev.resell.android.ui.theme.IconInactive
-import com.cornellappdev.resell.android.ui.theme.ResellPurple
-import com.cornellappdev.resell.android.ui.theme.Style
-import com.cornellappdev.resell.android.util.defaultHorizontalPadding
 import com.cornellappdev.resell.android.viewmodel.settings.NotificationsViewModel
 
 @Composable
@@ -37,6 +28,7 @@ fun NotificationSettings(
     val uiState = notificationsViewModel.collectUiStateValue()
 
     NotificationsSettingsContent(
+        onBackPressed = notificationsViewModel::onBackPressed,
         pause = uiState.pauseAllNotifications,
         onPauseChange = notificationsViewModel::onTogglePauseAllNotifications,
         chat = uiState.chatRoot,
@@ -49,6 +41,7 @@ fun NotificationSettings(
 @Preview
 @Composable
 private fun NotificationsSettingsContent(
+    onBackPressed: () -> Unit = {},
     pause: Boolean = false,
     onPauseChange: (Boolean) -> Unit = {},
     chat: Boolean = false,
@@ -66,6 +59,7 @@ private fun NotificationsSettingsContent(
     ) {
         ResellHeader(
             title = stringResource(R.string.settings_notification_preferences),
+            onBackClick = onBackPressed,
         )
 
         Spacer(Modifier.height(24.dp))

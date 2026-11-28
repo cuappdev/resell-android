@@ -16,13 +16,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.ui.components.global.ResellTabBar
 import com.cornellappdev.resell.android.ui.components.main.ProfilePictureView
 import com.cornellappdev.resell.android.ui.theme.IconInactive
+import com.cornellappdev.resell.android.ui.theme.ResellPreview
 import com.cornellappdev.resell.android.ui.theme.Secondary
 import com.cornellappdev.resell.android.ui.theme.Style
 import com.cornellappdev.resell.android.util.clickableNoIndication
@@ -39,6 +40,8 @@ fun ProfileHeader(
     onTabSelected: (ProfileViewModel.ProfileTab) -> Unit,
     leftIcon: Int? = null,
     rightIcon: Int? = null,
+    leftIconDescription: String? = null,
+    rightIconDescription: String? = null,
     onLeftPressed: () -> Unit = {},
     onRightPressed: () -> Unit = {},
 ) {
@@ -61,7 +64,7 @@ fun ProfileHeader(
             if (leftIcon != null) {
                 Icon(
                     painter = painterResource(id = leftIcon),
-                    contentDescription = stringResource(R.string.cd_settings),
+                    contentDescription = leftIconDescription,
                     modifier = Modifier
                         .defaultHorizontalPadding()
                         .padding(top = 8.dp)
@@ -80,7 +83,7 @@ fun ProfileHeader(
                 ) {
                     Icon(
                         painter = painterResource(id = rightIcon),
-                        contentDescription = stringResource(R.string.cd_search),
+                        contentDescription = rightIconDescription,
                         modifier = Modifier
                             .size(25.dp)
                             .clickableNoIndication { onRightPressed() }
@@ -134,4 +137,32 @@ fun ProfileHeader(
             }
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun ProfileHeaderPreview() = ResellPreview {
+    ProfileHeader(
+        imageUrl = "",
+        shopName = "ryan",
+        vendorName = "Ryan Cheung",
+        bio = "Hi, I'm Ryan! This is a test bio.",
+        selectedTab = ProfileViewModel.ProfileTab.SHOP,
+        onTabSelected = {},
+        leftIcon = R.drawable.ic_settings,
+        rightIcon = R.drawable.ic_calendar,
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun ProfileHeaderNoTabsPreview() = ResellPreview {
+    ProfileHeader(
+        imageUrl = "",
+        shopName = "ryan",
+        vendorName = "Ryan Cheung",
+        bio = "",
+        selectedTab = null,
+        onTabSelected = {},
+    )
 }

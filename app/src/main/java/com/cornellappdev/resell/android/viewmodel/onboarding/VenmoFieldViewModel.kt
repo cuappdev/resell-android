@@ -15,6 +15,7 @@ import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
 import com.cornellappdev.resell.android.util.UIEvent
 import com.cornellappdev.resell.android.util.isUsernameTakenError
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
+import com.cornellappdev.resell.android.viewmodel.navigation.OnboardingNavigationRepository
 import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepository
 import com.cornellappdev.resell.android.viewmodel.root.RootConfirmationRepository
 import com.cornellappdev.resell.android.viewmodel.root.RootNavigationSheetRepository
@@ -28,6 +29,7 @@ import kotlin.time.Duration.Companion.milliseconds
 @HiltViewModel
 class VenmoFieldViewModel @Inject constructor(
     private val rootNavigationRepository: RootNavigationRepository,
+    private val onboardingNavigationRepository: OnboardingNavigationRepository,
     private val rootNavigationSheetRepository: RootNavigationSheetRepository,
     private val resellAuthRepository: ResellAuthRepository,
     private val googleAuthRepository: GoogleAuthRepository,
@@ -149,6 +151,10 @@ class VenmoFieldViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    fun onBackPressed() {
+        onboardingNavigationRepository.popBackStack()
     }
 
     fun onHandleChanged(handle: String) {

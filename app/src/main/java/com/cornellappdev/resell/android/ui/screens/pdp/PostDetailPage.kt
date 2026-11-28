@@ -54,10 +54,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.compose.ui.unit.max
 import coil.compose.AsyncImage
 import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
+import com.cornellappdev.resell.android.ui.components.global.ResellBackButton
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButton
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonState
 import com.cornellappdev.resell.android.ui.components.main.ProfilePictureView
@@ -69,8 +69,8 @@ import com.cornellappdev.resell.android.ui.theme.Secondary
 import com.cornellappdev.resell.android.ui.theme.Style
 import com.cornellappdev.resell.android.util.clickableNoIndication
 import com.cornellappdev.resell.android.util.defaultHorizontalPadding
-import com.cornellappdev.resell.android.viewmodel.pdp.PostDetailViewModel
 import com.cornellappdev.resell.android.util.windowHeight
+import com.cornellappdev.resell.android.viewmodel.pdp.PostDetailViewModel
 
 private val MinSheetPeekHeight = 200.dp
 private val OverlayAboveSheetGap = 24.dp
@@ -79,7 +79,6 @@ private val ContactSellerBottomPadding = 45.dp
 // 14.dp vertical padding + 24.dp (18.sp text with font padding) + 14.dp = 52.dp
 private val ContactSellerButtonHeight = 52.dp
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PostDetailPage(
     postDetailViewModel: PostDetailViewModel = hiltViewModel(),
@@ -99,6 +98,7 @@ fun PostDetailPage(
 
     Content(
         onContactClick = postDetailViewModel::onContactClick,
+        onBackClick = postDetailViewModel::onBackPressed,
         onEllipseClick = postDetailViewModel::onEllipseClick,
         images = uiState.images,
         maxImageHeight = maxImageHeight,
@@ -119,7 +119,6 @@ fun PostDetailPage(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Composable
 private fun PostDetailPagePreview() = ResellPreview {
@@ -140,6 +139,7 @@ private fun Content(
     images: List<ImageBitmap> = emptyList(),
     similarImageUrls: ResellApiResponse<List<String>> = ResellApiResponse.Pending,
     onContactClick: () -> Unit = {},
+    onBackClick: () -> Unit = {},
     onEllipseClick: () -> Unit = {},
     contactButtonState: ResellTextButtonState = ResellTextButtonState.ENABLED,
     userPfp: String = "",
@@ -153,7 +153,7 @@ private fun Content(
     onUserClick: () -> Unit = {},
     showContact: Boolean = false,
 ) {
-    val pagerState = rememberPagerState(pageCount = { images.size })
+    val pagerState = rememberPagerState { images.size }
     val density = LocalDensity.current
     val screenHeight = windowHeight()
     val sheetBackground = Color.White
@@ -232,9 +232,10 @@ private fun Content(
             }
         }
 
-        Header {
-            onEllipseClick()
-        }
+        Header(
+            onBackClick = onBackClick,
+            onEllipseClick = onEllipseClick,
+        )
 
         Spacer(
             modifier = Modifier
@@ -306,6 +307,7 @@ private fun PdpImageBlurredBackground(
 
 @Composable
 private fun Header(
+    onBackClick: () -> Unit,
     onEllipseClick: () -> Unit,
 ) {
     Row(
@@ -316,7 +318,10 @@ private fun Header(
             .defaultHorizontalPadding()
             .systemBarsPadding()
     ) {
-        Box {}
+        ResellBackButton(
+            onClick = onBackClick,
+            tint = Color.White,
+        )
 
         Box(
             modifier = Modifier
@@ -435,12 +440,9 @@ private fun BottomSheetContent(
 
                 Spacer(Modifier.height(8.dp))
 
-                SimilarItemsRow(
-                    images = it,
-                    onListingClick = { ind ->
-                        onSimilarClick(ind)
-                    }
-                )
+                SimilarItemsRow(images = it) { ind ->
+                    onSimilarClick(ind)
+                }
             }
         }
 

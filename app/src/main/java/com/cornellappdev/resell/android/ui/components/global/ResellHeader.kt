@@ -33,9 +33,10 @@ fun ResellHeader(
     title: String,
     modifier: Modifier = Modifier,
     subtitle: String? = null,
+    onBackClick: (() -> Unit)? = null,
     leftPainter: Int? = null,
-    rightPainter: Int? = null,
     onLeftClick: (() -> Unit)? = null,
+    rightPainter: Int? = null,
     onRightClick: (() -> Unit)? = null,
     bottomBar: Boolean = false,
 ) {
@@ -44,7 +45,7 @@ fun ResellHeader(
             Icon(
                 painter = painterResource(id = leftPainter),
                 contentDescription = null,
-                modifier = modifier
+                modifier = Modifier
                     .size(24.dp),
                 tint = Primary,
             )
@@ -70,11 +71,12 @@ fun ResellHeader(
         title = title,
         modifier = modifier,
         subtitle = subtitle,
+        onBackClick = onBackClick,
         leftContent = left,
-        rightContent = right,
         onLeftClick = onLeftClick,
+        rightContent = right,
         onRightClick = onRightClick,
-        bottomBar = bottomBar
+        bottomBar = bottomBar,
     )
 }
 
@@ -86,9 +88,10 @@ fun ResellHeaderCore(
     title: String,
     modifier: Modifier = Modifier,
     subtitle: String? = null,
+    onBackClick: (() -> Unit)? = null,
     leftContent: @Composable () -> Unit = {},
-    rightContent: @Composable () -> Unit = {},
     onLeftClick: (() -> Unit)? = null,
+    rightContent: @Composable () -> Unit = {},
     onRightClick: (() -> Unit)? = null,
     bottomBar: Boolean = false,
 ) {
@@ -124,17 +127,25 @@ fun ResellHeaderCore(
                     .defaultHorizontalPadding(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Box(
-                    modifier = Modifier.clickableNoIndication {
-                        onLeftClick?.invoke()
+                if (onBackClick != null) {
+                    ResellBackButton(onClick = onBackClick)
+                } else {
+                    Box(
+                        modifier = if (onLeftClick != null) {
+                            Modifier.clickableNoIndication(onClick = onLeftClick)
+                        } else {
+                            Modifier
+                        }
+                    ) {
+                        leftContent()
                     }
-                ) {
-                    leftContent()
                 }
 
                 Box(
-                    modifier = Modifier.clickableNoIndication {
-                        onRightClick?.invoke()
+                    modifier = if (onRightClick != null) {
+                        Modifier.clickableNoIndication(onClick = onRightClick)
+                    } else {
+                        Modifier
                     }
                 ) {
                     rightContent()
@@ -182,6 +193,11 @@ private fun ResellHeaderPreview() = ResellPreview {
     ResellHeader(
         title = "Title",
         rightPainter = R.drawable.ic_settings,
+    )
+
+    ResellHeader(
+        title = "Title",
+        onBackClick = {},
     )
 
     ResellHeaderCore(

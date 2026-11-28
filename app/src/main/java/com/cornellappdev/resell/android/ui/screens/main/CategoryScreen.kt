@@ -2,7 +2,6 @@ package com.cornellappdev.resell.android.ui.screens.main
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -11,9 +10,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.statusBars
-import androidx.compose.foundation.layout.windowInsetsPadding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
@@ -35,13 +31,13 @@ import com.cornellappdev.resell.android.model.classes.Listing
 import com.cornellappdev.resell.android.model.classes.ResellApiState
 import com.cornellappdev.resell.android.model.classes.ResellFilter
 import com.cornellappdev.resell.android.ui.components.global.ListingUi
+import com.cornellappdev.resell.android.ui.components.global.ResellHeader
 import com.cornellappdev.resell.android.ui.components.global.ResellListingsScroll
 import com.cornellappdev.resell.android.ui.components.global.ResellLoadingListingScroll
 import com.cornellappdev.resell.android.ui.components.main.FilterBottomSheet
 import com.cornellappdev.resell.android.ui.components.main.ResellSearchBar
 import com.cornellappdev.resell.android.ui.theme.ResellPreview
 import com.cornellappdev.resell.android.ui.theme.Style
-import com.cornellappdev.resell.android.ui.theme.Style.heading3
 import com.cornellappdev.resell.android.util.defaultHorizontalPadding
 import com.cornellappdev.resell.android.viewmodel.main.CategoryViewModel
 import kotlinx.coroutines.launch
@@ -111,13 +107,13 @@ private fun CategoryScreenContent(
     onExit: () -> Unit
 ) {
     Column(
-        modifier = Modifier
-            .windowInsetsPadding(WindowInsets.statusBars)
-            .fillMaxSize()
+        modifier = Modifier.fillMaxSize()
     ) {
-        Spacer(modifier = Modifier.height(16.dp))
-        Header(category, onExit)
-        Spacer(modifier = Modifier.height(32.dp))
+        ResellHeader(
+            title = category.label,
+            onBackClick = onExit,
+        )
+        Spacer(modifier = Modifier.height(20.dp))
         Row(
             modifier = Modifier
                 .defaultHorizontalPadding()
@@ -181,26 +177,6 @@ private fun EmptyState() {
             text = stringResource(R.string.search_try_again),
             style = Style.body1.copy(color = Color.Gray)
         )
-    }
-}
-
-@Composable
-private fun Header(category: ResellFilter.FilterCategory, onExit: () -> Unit) {
-    Box(
-        modifier = Modifier
-            .defaultHorizontalPadding()
-            .fillMaxWidth(),
-        contentAlignment = Alignment.CenterStart
-    ) {
-        Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-            Text(
-                text = category.label,
-                style = heading3
-            )
-        }
-        Icon(
-            Icons.AutoMirrored.Filled.KeyboardArrowLeft, contentDescription = stringResource(R.string.cd_back_capitalized),
-            modifier = Modifier.clickable { onExit() })
     }
 }
 

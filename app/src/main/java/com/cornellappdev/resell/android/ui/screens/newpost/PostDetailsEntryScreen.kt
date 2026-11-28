@@ -46,6 +46,7 @@ fun PostDetailsEntryScreen(
     ) {
         PostDetailsContent(
             uiState = uiState,
+            onBackPressed = postDetailsEntryViewModel::onBackPressed,
             onPricePressed = postDetailsEntryViewModel::onPricePressed,
             onDescriptionChanged = postDetailsEntryViewModel::onDescriptionChanged,
             onTitleChanged = postDetailsEntryViewModel::onTitleChanged,
@@ -69,6 +70,7 @@ fun PostDetailsEntryScreen(
 private fun PostDetailsContent(
     uiState: PostDetailsEntryViewModel.PostEntryUiState =
         PostDetailsEntryViewModel.PostEntryUiState(),
+    onBackPressed: () -> Unit = {},
     onPricePressed: () -> Unit = {},
     onHomeFilterPressed: (ResellFilter.FilterCategory) -> Unit = {},
     onConditionPressed: (ResellFilter.FilterCondition) -> Unit = {},
@@ -84,6 +86,7 @@ private fun PostDetailsContent(
     ) {
         ResellHeader(
             title = stringResource(R.string.new_listing_header),
+            onBackClick = onBackPressed,
         )
 
         Spacer(Modifier.height(24.dp))

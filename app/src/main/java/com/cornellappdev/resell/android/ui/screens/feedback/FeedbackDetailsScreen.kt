@@ -69,10 +69,7 @@ private fun Content(
         ) {
             ResellHeader(
                 title = title,
-                leftPainter = R.drawable.ic_chevron_left,
-                onLeftClick = {
-                    onBackArrow()
-                }
+                onBackClick = onBackArrow,
             )
 
             Spacer(Modifier.height(36.dp))

@@ -60,6 +60,7 @@ import com.cornellappdev.resell.android.model.chats.TransactionState
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.ui.components.chat.ChatTag
 import com.cornellappdev.resell.android.ui.components.chat.ResellChatScroll
+import com.cornellappdev.resell.android.ui.components.global.ResellBackButton
 import com.cornellappdev.resell.android.ui.theme.ResellPurple
 import com.cornellappdev.resell.android.ui.theme.Secondary
 import com.cornellappdev.resell.android.ui.theme.Style
@@ -277,14 +278,11 @@ private fun ChatHeader(
         Box(
             modifier = Modifier.fillMaxWidth(),
         ) {
-            Icon(
-                painter = painterResource(id = R.drawable.ic_chevron_left),
-                contentDescription = stringResource(R.string.cd_back),
+            ResellBackButton(
+                onClick = onBackPressed,
                 modifier = Modifier
                     .padding(top = 20.dp, start = 12.dp)
-                    .size(24.dp)
-                    .align(Alignment.CenterStart)
-                    .clickableNoIndication { onBackPressed() }
+                    .align(Alignment.CenterStart),
             )
             Column(
                 modifier = Modifier.align(Alignment.Center),

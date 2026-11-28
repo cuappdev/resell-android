@@ -24,6 +24,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.cornellappdev.resell.android.R
+import com.cornellappdev.resell.android.ui.components.global.ResellBackButton
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButton
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonContainer
 import com.cornellappdev.resell.android.ui.components.global.ResellTextEntry
@@ -46,7 +47,7 @@ fun VenmoFieldScreen(
             .background(Color.White),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        ScreenHeader()
+        ScreenHeader(onBackPressed = venmoFieldViewModel::onBackPressed)
 
         ResellTextEntry(
             label = stringResource(R.string.venmo_handle),
@@ -82,7 +83,7 @@ fun VenmoFieldScreen(
 
 @Preview
 @Composable
-private fun ScreenHeader() = ResellPreview {
+private fun ScreenHeader(onBackPressed: () -> Unit = {}) = ResellPreview {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -93,6 +94,11 @@ private fun ScreenHeader() = ResellPreview {
         Spacer(Modifier.height(16.dp))
 
         Box(modifier = Modifier.fillMaxWidth()) {
+            ResellBackButton(
+                onClick = onBackPressed,
+                modifier = Modifier.align(Alignment.CenterStart),
+            )
+
             Row(
                 verticalAlignment = Alignment.Bottom,
                 modifier = Modifier.align(Alignment.Center)

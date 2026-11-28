@@ -38,6 +38,7 @@ fun ReportDetailsScreen(
         modifier = Modifier.fillMaxSize()
     ) {
         Content(
+            onBackPressed = reportDetailsViewModel::onBackPressed,
             title = uiState.title,
             subtitle = uiState.reason,
             body = uiState.body,
@@ -61,6 +62,7 @@ fun ReportDetailsScreen(
 @Preview
 @Composable
 private fun Content(
+    onBackPressed: () -> Unit = {},
     title: String = "title",
     subtitle: String = "subtitle",
     body: String = "body",
@@ -76,6 +78,7 @@ private fun Content(
     ) {
         ResellHeader(
             title = title,
+            onBackClick = onBackPressed,
         )
 
         Spacer(Modifier.height(24.dp))

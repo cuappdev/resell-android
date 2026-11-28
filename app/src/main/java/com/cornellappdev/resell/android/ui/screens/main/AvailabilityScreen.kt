@@ -44,8 +44,8 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.ui.components.availability.helper.GridSelectionType
 import com.cornellappdev.resell.android.ui.components.availability.helper.MonthCalendar
-import com.cornellappdev.resell.android.ui.components.availability.helper.dayWindowStartingAt
 import com.cornellappdev.resell.android.ui.components.availability.helper.SelectableAvailabilityGrid
+import com.cornellappdev.resell.android.ui.components.availability.helper.dayWindowStartingAt
 import com.cornellappdev.resell.android.ui.components.global.ResellHeader
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButton
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonState
@@ -111,8 +111,7 @@ fun AvailabilityScreenContent(
         Column(modifier = Modifier.fillMaxSize()) {
             ResellHeader(
                 title = stringResource(R.string.availability_title),
-                leftPainter = R.drawable.ic_chevron_left,
-                onLeftClick = onBackPressed,
+                onBackClick = onBackPressed,
             )
             Column(
                 modifier = Modifier

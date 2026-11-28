@@ -33,7 +33,6 @@ class ExternalProfileViewModel @Inject constructor(
     private val blockedUsersRepository: BlockedUsersRepository,
     private val rootConfirmationRepository: RootConfirmationRepository,
     private val profileRepository: ProfileRepository,
-    private val externalNavigationRepository: ExternalNavigationRepository,
     private val getListingUis: GetListingUisUseCase,
     savedStateHandle: SavedStateHandle
 ) :
@@ -119,13 +118,17 @@ class ExternalProfileViewModel @Inject constructor(
         )
     }
 
+    fun onBackPressed() {
+        rootNavigationRepository.popBackStack()
+    }
+
     fun onEllipsisPressed() {
         rootOptionsMenuRepository.showOptionsMenu(
             options = listOf(
                 OptionType.REPORT,
                 if (stateValue().isBlocked) OptionType.UNBLOCK else OptionType.BLOCK,
             ),
-            alignment = Alignment.TopStart,
+            alignment = Alignment.TopEnd,
         ) {
             when (it) {
                 OptionType.REPORT -> {
@@ -163,15 +166,6 @@ class ExternalProfileViewModel @Inject constructor(
                 else -> {}
             }
         }
-    }
-
-    fun onSearchPressed() {
-        externalNavigationRepository.navigate(
-            ExternalProfileRoute.Search(
-                uid = stateValue().uid,
-                username = stateValue().shopName
-            )
-        )
     }
 
     /**

@@ -1,5 +1,7 @@
 package com.cornellappdev.resell.android.util
 
+import androidx.lifecycle.Lifecycle
+import androidx.navigation.NavController
 import com.google.firebase.Timestamp
 import retrofit2.HttpException
 import java.text.SimpleDateFormat
@@ -38,3 +40,15 @@ fun LocalDateTime.convertToFirestoreTimestamp(): Timestamp {
 fun Throwable.isUsernameTakenError(): Boolean =
     this is HttpException && code() == 409 &&
         response()?.errorBody()?.string()?.contains("username", ignoreCase = true) == true
+
+/**
+ * Pops the back stack but ignores taps during a transition and never pops last destination.
+ */
+fun NavController.popBackStackSafely(): Boolean =
+    if (previousBackStackEntry != null &&
+        currentBackStackEntry?.lifecycle?.currentState == Lifecycle.State.RESUMED
+    ) {
+        popBackStack()
+    } else {
+        false
+    }

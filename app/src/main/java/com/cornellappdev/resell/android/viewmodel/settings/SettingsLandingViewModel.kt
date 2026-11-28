@@ -36,6 +36,10 @@ class SettingsLandingViewModel @Inject constructor(
     initialUiState = Unit
 ) {
 
+    fun onBackPressed() {
+        rootNavigationRepository.popBackStack()
+    }
+
     fun onEditProfileClick() {
         settingsNavigationRepository.navigate(SettingsRoute.EditProfile)
     }

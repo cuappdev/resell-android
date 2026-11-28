@@ -46,8 +46,8 @@ import com.cornellappdev.resell.android.util.clickableNoIndication
 import com.cornellappdev.resell.android.util.defaultHorizontalPadding
 import com.cornellappdev.resell.android.util.isBottomLeftMoreBlack
 import com.cornellappdev.resell.android.util.singlePhotoPicker
-import com.cornellappdev.resell.android.viewmodel.newpost.ImageUploadViewModel
 import com.cornellappdev.resell.android.util.windowWidth
+import com.cornellappdev.resell.android.viewmodel.newpost.ImageUploadViewModel
 
 @Composable
 fun ImageUploadScreen(
@@ -79,6 +79,7 @@ fun ImageUploadScreen(
     ) {
         ResellHeader(
             title = stringResource(R.string.new_listing_header),
+            onBackClick = imageUploadViewModel::onBackPressed,
             rightPainter = if (uiState.canAddImages) R.drawable.ic_plus else null,
             onRightClick = {
                 imageUploadViewModel.onAddPressed()

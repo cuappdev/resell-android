@@ -3,6 +3,7 @@ package com.cornellappdev.resell.android.viewmodel.settings
 import androidx.lifecycle.viewModelScope
 import com.cornellappdev.resell.android.model.settings.NotificationsRepository
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
+import com.cornellappdev.resell.android.viewmodel.navigation.SettingsNavigationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -10,6 +11,7 @@ import javax.inject.Inject
 @HiltViewModel
 class NotificationsViewModel @Inject constructor(
     private val notificationsRepository: NotificationsRepository,
+    private val settingsNavigationRepository: SettingsNavigationRepository,
 ) :
     ResellViewModel<NotificationsViewModel.NotificationsState>
         (
@@ -45,6 +47,10 @@ class NotificationsViewModel @Inject constructor(
         val chat
             get() = chatRoot && !pauseAllNotifications
 
+    }
+
+    fun onBackPressed() {
+        settingsNavigationRepository.popBackStack()
     }
 
     fun onTogglePauseAllNotifications(checked: Boolean) {

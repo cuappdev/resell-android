@@ -39,6 +39,7 @@ fun SettingsLandingScreen(
     settingsLandingViewModel: SettingsLandingViewModel = hiltViewModel()
 ) {
     Content(
+        onBackPressed = settingsLandingViewModel::onBackPressed,
         onEditProfile = settingsLandingViewModel::onEditProfileClick,
         onNotifications = settingsLandingViewModel::onNotificationsClick,
         onFeedback = settingsLandingViewModel::onFeedbackClick,
@@ -53,6 +54,7 @@ fun SettingsLandingScreen(
 @Preview
 @Composable
 private fun Content(
+    onBackPressed: () -> Unit = {},
     onEditProfile: () -> Unit = {},
     onNotifications: () -> Unit = {},
     onFeedback: () -> Unit = {},
@@ -71,6 +73,7 @@ private fun Content(
     ) {
         ResellHeader(
             title = stringResource(R.string.settings_title),
+            onBackClick = onBackPressed,
         )
 
         Spacer(Modifier.height(24.dp))

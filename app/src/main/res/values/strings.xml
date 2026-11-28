@@ -168,6 +168,7 @@
     <string name="profile_no_listings_posted_body">When you post a listing, it will be displayed here</string>
     <string name="profile_no_listings_archived">No listings archived</string>
     <string name="profile_no_listings_archived_body">When you archive a listing, it will be displayed here</string>
+    <string name="profile_cd_availability">Availability</string>
 
     <!-- External Profile -->
     <string name="external_profile_blocked">This profile is blocked</string>

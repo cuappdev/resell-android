@@ -41,6 +41,7 @@ import com.cornellappdev.resell.android.model.classes.UserInfo
 import com.cornellappdev.resell.android.ui.components.global.ImageState
 import com.cornellappdev.resell.android.ui.components.global.LabeledTab
 import com.cornellappdev.resell.android.ui.components.global.ListingUi
+import com.cornellappdev.resell.android.ui.components.global.ResellBackButton
 import com.cornellappdev.resell.android.ui.components.global.ResellLabeledTabBar
 import com.cornellappdev.resell.android.ui.components.global.ResellListingsScroll
 import com.cornellappdev.resell.android.ui.components.global.ResellLoadingListingScroll
@@ -72,8 +73,8 @@ fun ExternalProfileScreen(
         uiState = profileViewModel.collectUiStateValue(),
         onTabSelected = { profileViewModel.onTabSelected(it) },
         onListingPressed = { profileViewModel.onListingPressed(it) },
+        onBackPressed = { profileViewModel.onBackPressed() },
         onEllipsisPressed = { profileViewModel.onEllipsisPressed() },
-        onSearchPressed = { profileViewModel.onSearchPressed() },
     )
 }
 
@@ -82,8 +83,8 @@ private fun ExternalProfileContent(
     uiState: ExternalProfileState,
     onTabSelected: (ExternalProfileTab) -> Unit,
     onListingPressed: (Listing) -> Unit,
+    onBackPressed: () -> Unit,
     onEllipsisPressed: () -> Unit,
-    onSearchPressed: () -> Unit,
 ) {
     val staggeredState = rememberLazyStaggeredGridState()
     val headerState = rememberCollapsingHeaderState()
@@ -101,8 +102,8 @@ private fun ExternalProfileContent(
         ) {
             ExternalProfileToolbar(
                 username = uiState.shopName,
+                onBackPressed = onBackPressed,
                 onEllipsisPressed = onEllipsisPressed,
-                onSearchPressed = onSearchPressed,
             )
 
             ExternalProfileHeader(
@@ -167,6 +168,7 @@ private fun ExternalProfileContent(
 
         if (uiState.isBlocked) {
             BlockedView(
+                onBackPressed = onBackPressed,
                 onEllipsisPressed = onEllipsisPressed,
             )
         }
@@ -230,8 +232,8 @@ private fun ProfileMessage(title: String, body: String) {
 @Composable
 private fun ExternalProfileToolbar(
     username: String,
+    onBackPressed: () -> Unit,
     onEllipsisPressed: () -> Unit,
-    onSearchPressed: () -> Unit,
 ) {
     Box(
         modifier = Modifier
@@ -240,14 +242,12 @@ private fun ExternalProfileToolbar(
             .statusBarsPadding()
             .height(40.dp)
     ) {
-        Icon(
-            painter = painterResource(id = R.drawable.ic_ellipse),
-            contentDescription = stringResource(R.string.external_profile_cd_options),
+        ResellBackButton(
+            onClick = onBackPressed,
             modifier = Modifier
                 .defaultHorizontalPadding()
                 .size(ToolbarIconSize)
-                .align(Alignment.CenterStart)
-                .clickableNoIndication { onEllipsisPressed() }
+                .align(Alignment.CenterStart),
         )
 
         Text(
@@ -263,13 +263,13 @@ private fun ExternalProfileToolbar(
         )
 
         Icon(
-            painter = painterResource(id = R.drawable.ic_search),
-            contentDescription = stringResource(R.string.cd_search),
+            painter = painterResource(id = R.drawable.ic_ellipse),
+            contentDescription = stringResource(R.string.external_profile_cd_options),
             modifier = Modifier
                 .defaultHorizontalPadding()
                 .size(ToolbarIconSize)
                 .align(Alignment.CenterEnd)
-                .clickableNoIndication { onSearchPressed() }
+                .clickableNoIndication { onEllipsisPressed() }
         )
     }
 }
@@ -277,6 +277,7 @@ private fun ExternalProfileToolbar(
 @Preview
 @Composable
 private fun BlockedView(
+    onBackPressed: () -> Unit = {},
     onEllipsisPressed: () -> Unit = {},
 ) {
     Box(
@@ -294,14 +295,24 @@ private fun BlockedView(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Box(modifier = Modifier.fillMaxWidth()) {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_ellipse),
-                    contentDescription = stringResource(R.string.cd_settings),
+                ResellBackButton(
+                    onClick = onBackPressed,
                     modifier = Modifier
                         .defaultHorizontalPadding()
                         .padding(top = 8.dp)
                         .size(ToolbarIconSize)
-                        .align(Alignment.TopStart)
+                        .align(Alignment.TopStart),
+                    tint = Color.White,
+                )
+
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_ellipse),
+                    contentDescription = stringResource(R.string.cd_more_options),
+                    modifier = Modifier
+                        .defaultHorizontalPadding()
+                        .padding(top = 8.dp)
+                        .size(ToolbarIconSize)
+                        .align(Alignment.TopEnd)
                         .clickableNoIndication { onEllipsisPressed() },
                     tint = Color.White
                 )
@@ -376,8 +387,8 @@ private fun ExternalProfileContentPreview() = ResellPreview {
         ),
         onTabSelected = { selectedTab = it },
         onListingPressed = {},
+        onBackPressed = {},
         onEllipsisPressed = {},
-        onSearchPressed = {},
     )
 }
 
@@ -399,7 +410,7 @@ private fun ExternalProfileLoadingPreview() = ResellPreview {
         ),
         onTabSelected = {},
         onListingPressed = {},
+        onBackPressed = {},
         onEllipsisPressed = {},
-        onSearchPressed = {},
     )
 }

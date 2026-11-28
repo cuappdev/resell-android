@@ -52,6 +52,7 @@ fun SendFeedbackScreen(
     val uiState = sendFeedbackViewModel.collectUiStateValue()
 
     Content(
+        onBackPressed = sendFeedbackViewModel::onBackPressed,
         description = uiState.feedback,
         onDescriptionChanged = sendFeedbackViewModel::onDescriptionChanged,
         onImageUploaded = sendFeedbackViewModel::onImageAdded,
@@ -66,6 +67,7 @@ fun SendFeedbackScreen(
 @Preview
 @Composable
 private fun Content(
+    onBackPressed: () -> Unit = {},
     description: String = "",
     canSubmit: Boolean = false,
     onDescriptionChanged: (String) -> Unit = {},
@@ -92,6 +94,7 @@ private fun Content(
     ) {
         ResellHeaderCore(
             title = stringResource(R.string.settings_send_feedback),
+            onBackClick = onBackPressed,
             rightContent = {
                 Text(
                     text = stringResource(R.string.submit),

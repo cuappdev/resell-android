@@ -1,8 +1,9 @@
 package com.cornellappdev.resell.android.ui.components.global
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -14,26 +15,45 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.model.classes.ResellFilter
+import com.cornellappdev.resell.android.ui.theme.ResellPreview
 import com.cornellappdev.resell.android.ui.theme.Secondary
+import com.cornellappdev.resell.android.util.clickableNoIndication
 
 @Composable
-fun Dropdown(onSelectSortBy: (ResellFilter.SortBy) -> Unit) {
-    var expanded by remember { mutableStateOf(false) }
+fun Dropdown(
+    selected: ResellFilter.SortBy,
+    onSelectSortBy: (ResellFilter.SortBy) -> Unit,
+    initiallyExpanded: Boolean = false,
+) {
+    var expanded by remember { mutableStateOf(initiallyExpanded) }
     Box {
-        Icon(
-            painter = painterResource(R.drawable.baseline_keyboard_arrow_down_24),
-            contentDescription = stringResource(R.string.cd_more_options),
-            tint = Secondary,
-            modifier = Modifier.clickable { expanded = !expanded }
-        )
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.clickableNoIndication { expanded = !expanded }
+        ) {
+            Text(
+                text = selected.label,
+                color = Secondary,
+                fontWeight = FontWeight.Normal,
+                fontSize = 20.sp
+            )
+            Icon(
+                painter = painterResource(R.drawable.baseline_keyboard_arrow_down_24),
+                contentDescription = stringResource(R.string.cd_more_options),
+                tint = Secondary,
+            )
+        }
         DropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false },
@@ -60,5 +80,14 @@ fun Dropdown(onSelectSortBy: (ResellFilter.SortBy) -> Unit) {
             }
         }
     }
+}
 
+@Preview(showBackground = true, widthDp = 180, heightDp = 260)
+@Composable
+private fun DropdownPreview() = ResellPreview {
+    Dropdown(
+        selected = ResellFilter.SortBy.ANY,
+        onSelectSortBy = {},
+        initiallyExpanded = true,
+    )
 }

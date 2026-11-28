@@ -46,6 +46,7 @@ fun BlockedUsersScreen(
 
     Content(
         blockedUsers = uiState.blockedUsers,
+        onBackPressed = blockedUsersViewModel::onBackPressed,
         onUnblockUser = blockedUsersViewModel::onUnblock
     )
 }
@@ -55,6 +56,7 @@ fun BlockedUsersScreen(
 private fun Content(
     blockedUsers: List<BlockedUsersViewModel.UiBlockedUser> = emptyList(),
     onUnblockUser: (id: String) -> Unit = {},
+    onBackPressed: () -> Unit = {},
 ) {
     Column(
         modifier = Modifier
@@ -64,6 +66,7 @@ private fun Content(
     ) {
         ResellHeader(
             title = stringResource(R.string.settings_blocked_users),
+            onBackClick = onBackPressed,
         )
 
         if (blockedUsers.isEmpty()) {

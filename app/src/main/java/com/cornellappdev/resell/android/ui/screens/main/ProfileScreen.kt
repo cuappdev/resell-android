@@ -44,6 +44,8 @@ fun ProfileScreen(
             selectedTab = uiState.profileTab,
             leftIcon = R.drawable.ic_settings,
             rightIcon = R.drawable.ic_calendar,
+            leftIconDescription = stringResource(R.string.cd_settings),
+            rightIconDescription = stringResource(R.string.profile_cd_availability),
             onTabSelected = { profileViewModel.onTabSelected(it) },
             onLeftPressed = { profileViewModel.onSettingsPressed() },
             onRightPressed = { profileViewModel.onCalendarPressed() },

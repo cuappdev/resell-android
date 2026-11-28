@@ -45,6 +45,7 @@ fun EditProfileScreen(
     }
 
     Content(
+        onBackPressed = editProfileViewModel::onBackPressed,
         canSubmit = uiState.canSubmit,
         onSubmit = editProfileViewModel::onSubmit,
         onImageTapped = {
@@ -67,6 +68,7 @@ fun EditProfileScreen(
 @Preview
 @Composable
 private fun Content(
+    onBackPressed: () -> Unit = {},
     canSubmit: Boolean = true,
     onSubmit: () -> Unit = {},
     imageBitmap: Bitmap? = null,
@@ -89,6 +91,7 @@ private fun Content(
     ) {
         ResellHeaderCore(
             title = stringResource(R.string.settings_edit_profile),
+            onBackClick = onBackPressed,
             rightContent = {
                 Text(
                     text = stringResource(R.string.save),

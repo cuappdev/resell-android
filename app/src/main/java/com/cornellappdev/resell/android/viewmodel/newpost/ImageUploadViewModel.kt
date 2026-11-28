@@ -11,6 +11,7 @@ import com.cornellappdev.resell.android.util.UIEvent
 import com.cornellappdev.resell.android.util.loadBitmapFromUri
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
 import com.cornellappdev.resell.android.viewmodel.navigation.NewPostNavigationRepository
+import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepository
 import com.cornellappdev.resell.android.viewmodel.root.RootConfirmationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -21,6 +22,7 @@ import javax.inject.Inject
 class ImageUploadViewModel @Inject constructor(
     @ApplicationContext private val appContext: Context,
     val navigationRepository: NewPostNavigationRepository,
+    private val rootNavigationRepository: RootNavigationRepository,
     private val postRepository: ResellPostRepository,
     private val rootConfirmationRepository: RootConfirmationRepository
 ) : ResellViewModel<ImageUploadViewModel.ImageUploadUiState>(
@@ -49,6 +51,10 @@ class ImageUploadViewModel @Inject constructor(
                 onImageLoadFail()
             }
         }
+    }
+
+    fun onBackPressed() {
+        rootNavigationRepository.popBackStack()
     }
 
     fun onAddPressed() {
