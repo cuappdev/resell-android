@@ -95,7 +95,7 @@ fun MainTabNavigation(
                 )
             }
 
-            composable<ResellMainScreen.ByCategory> { backStackEntry ->
+            composable<ResellMainScreen.ByCategory> {
                 CategoryScreen(onExit = { mainNav.popBackStackSafely() })
             }
 

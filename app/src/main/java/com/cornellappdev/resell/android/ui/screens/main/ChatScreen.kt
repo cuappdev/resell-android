@@ -58,9 +58,9 @@ import com.cornellappdev.resell.android.model.chats.MeetingInfo
 import com.cornellappdev.resell.android.model.chats.TransactionInfo
 import com.cornellappdev.resell.android.model.chats.TransactionState
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
-import com.cornellappdev.resell.android.ui.components.global.ResellBackButton
 import com.cornellappdev.resell.android.ui.components.chat.ChatTag
 import com.cornellappdev.resell.android.ui.components.chat.ResellChatScroll
+import com.cornellappdev.resell.android.ui.components.global.ResellBackButton
 import com.cornellappdev.resell.android.ui.theme.ResellPurple
 import com.cornellappdev.resell.android.ui.theme.Secondary
 import com.cornellappdev.resell.android.ui.theme.Style

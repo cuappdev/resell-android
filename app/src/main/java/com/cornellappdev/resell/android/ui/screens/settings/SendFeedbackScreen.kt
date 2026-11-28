@@ -33,7 +33,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import com.cornellappdev.resell.android.ui.components.global.ResellBackButton
 import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.ui.components.global.ResellHeaderCore
 import com.cornellappdev.resell.android.ui.components.global.ResellTextEntry
@@ -95,9 +94,7 @@ private fun Content(
     ) {
         ResellHeaderCore(
             title = stringResource(R.string.settings_send_feedback),
-            leftContent = {
-                ResellBackButton(onClick = onBackPressed)
-            },
+            onBackClick = onBackPressed,
             rightContent = {
                 Text(
                     text = stringResource(R.string.submit),

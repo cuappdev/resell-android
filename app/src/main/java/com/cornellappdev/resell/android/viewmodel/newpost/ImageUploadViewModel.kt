@@ -1,6 +1,5 @@
 package com.cornellappdev.resell.android.viewmodel.newpost
 
-import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepository
 import android.content.Context
 import android.net.Uri
 import androidx.compose.ui.graphics.ImageBitmap
@@ -12,6 +11,7 @@ import com.cornellappdev.resell.android.util.UIEvent
 import com.cornellappdev.resell.android.util.loadBitmapFromUri
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
 import com.cornellappdev.resell.android.viewmodel.navigation.NewPostNavigationRepository
+import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepository
 import com.cornellappdev.resell.android.viewmodel.root.RootConfirmationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext

@@ -38,10 +38,10 @@ import com.cornellappdev.resell.android.model.classes.ProfileReview
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
 import com.cornellappdev.resell.android.model.classes.ResellApiState
 import com.cornellappdev.resell.android.model.classes.UserInfo
-import com.cornellappdev.resell.android.ui.components.global.ResellBackButton
 import com.cornellappdev.resell.android.ui.components.global.ImageState
 import com.cornellappdev.resell.android.ui.components.global.LabeledTab
 import com.cornellappdev.resell.android.ui.components.global.ListingUi
+import com.cornellappdev.resell.android.ui.components.global.ResellBackButton
 import com.cornellappdev.resell.android.ui.components.global.ResellLabeledTabBar
 import com.cornellappdev.resell.android.ui.components.global.ResellListingsScroll
 import com.cornellappdev.resell.android.ui.components.global.ResellLoadingListingScroll

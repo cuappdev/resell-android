@@ -1,6 +1,5 @@
 package com.cornellappdev.resell.android.viewmodel.onboarding
 
-import com.cornellappdev.resell.android.viewmodel.navigation.OnboardingNavigationRepository
 import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
@@ -16,6 +15,7 @@ import com.cornellappdev.resell.android.ui.screens.root.ResellRootRoute
 import com.cornellappdev.resell.android.util.UIEvent
 import com.cornellappdev.resell.android.util.isUsernameTakenError
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
+import com.cornellappdev.resell.android.viewmodel.navigation.OnboardingNavigationRepository
 import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepository
 import com.cornellappdev.resell.android.viewmodel.root.RootConfirmationRepository
 import com.cornellappdev.resell.android.viewmodel.root.RootNavigationSheetRepository

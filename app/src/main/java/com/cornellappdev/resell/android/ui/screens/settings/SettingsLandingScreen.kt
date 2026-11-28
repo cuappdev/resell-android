@@ -73,9 +73,7 @@ private fun Content(
     ) {
         ResellHeader(
             title = stringResource(R.string.settings_title),
-            leftPainter = R.drawable.ic_chevron_left,
-            leftContentDescription = stringResource(R.string.cd_back),
-            onLeftClick = onBackPressed,
+            onBackClick = onBackPressed,
         )
 
         Spacer(Modifier.height(24.dp))

@@ -19,7 +19,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import com.cornellappdev.resell.android.ui.components.global.ResellBackButton
 import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.ui.components.global.ResellHeaderCore
 import com.cornellappdev.resell.android.ui.components.global.ResellInfoRow
@@ -92,9 +91,7 @@ private fun Content(
     ) {
         ResellHeaderCore(
             title = stringResource(R.string.settings_edit_profile),
-            leftContent = {
-                ResellBackButton(onClick = onBackPressed)
-            },
+            onBackClick = onBackPressed,
             rightContent = {
                 Text(
                     text = stringResource(R.string.save),

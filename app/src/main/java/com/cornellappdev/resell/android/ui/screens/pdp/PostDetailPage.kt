@@ -69,8 +69,8 @@ import com.cornellappdev.resell.android.ui.theme.Secondary
 import com.cornellappdev.resell.android.ui.theme.Style
 import com.cornellappdev.resell.android.util.clickableNoIndication
 import com.cornellappdev.resell.android.util.defaultHorizontalPadding
-import com.cornellappdev.resell.android.viewmodel.pdp.PostDetailViewModel
 import com.cornellappdev.resell.android.util.windowHeight
+import com.cornellappdev.resell.android.viewmodel.pdp.PostDetailViewModel
 
 private val MinSheetPeekHeight = 200.dp
 private val OverlayAboveSheetGap = 24.dp

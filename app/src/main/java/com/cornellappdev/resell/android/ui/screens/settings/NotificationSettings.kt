@@ -1,6 +1,5 @@
 package com.cornellappdev.resell.android.ui.screens.settings
 
-import com.cornellappdev.resell.android.R
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -12,12 +11,12 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.ui.components.global.ResellHeader
 import com.cornellappdev.resell.android.ui.components.global.ResellSwitchRow
 import com.cornellappdev.resell.android.viewmodel.settings.NotificationsViewModel
@@ -60,9 +59,7 @@ private fun NotificationsSettingsContent(
     ) {
         ResellHeader(
             title = stringResource(R.string.settings_notification_preferences),
-            leftPainter = R.drawable.ic_chevron_left,
-            leftContentDescription = stringResource(R.string.cd_back),
-            onLeftClick = onBackPressed,
+            onBackClick = onBackPressed,
         )
 
         Spacer(Modifier.height(24.dp))

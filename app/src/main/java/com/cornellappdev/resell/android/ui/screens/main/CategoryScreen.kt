@@ -111,9 +111,7 @@ private fun CategoryScreenContent(
     ) {
         ResellHeader(
             title = category.label,
-            leftPainter = R.drawable.ic_chevron_left,
-            leftContentDescription = stringResource(R.string.cd_back),
-            onLeftClick = onExit,
+            onBackClick = onExit,
         )
         Spacer(modifier = Modifier.height(20.dp))
         Row(

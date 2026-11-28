@@ -17,7 +17,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -28,8 +27,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.cornellappdev.resell.android.R
-import com.cornellappdev.resell.android.ui.components.global.ResellHeader
 import com.cornellappdev.resell.android.model.ptf.StarRating
+import com.cornellappdev.resell.android.ui.components.global.ResellHeader
 import com.cornellappdev.resell.android.ui.components.global.ResellRatingBar
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButton
 import com.cornellappdev.resell.android.ui.components.global.ResellTextButtonState
@@ -79,9 +78,7 @@ private fun PostTransactionRatingScreenContent(
         Column {
             ResellHeader(
                 title = stringResource(R.string.transaction_completed),
-                leftPainter = R.drawable.ic_chevron_left,
-                leftContentDescription = stringResource(R.string.cd_back),
-                onLeftClick = onBackArrow
+                onBackClick = onBackArrow,
             )
             ItemInfo(
                 itemName = uiState.itemName,

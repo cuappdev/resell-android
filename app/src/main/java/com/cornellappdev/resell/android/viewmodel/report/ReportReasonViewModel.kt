@@ -1,11 +1,11 @@
 package com.cornellappdev.resell.android.viewmodel.report
 
-import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepository
 import androidx.lifecycle.SavedStateHandle
 import androidx.navigation.toRoute
 import com.cornellappdev.resell.android.ui.screens.reporting.ReportScreen
 import com.cornellappdev.resell.android.viewmodel.ResellViewModel
 import com.cornellappdev.resell.android.viewmodel.navigation.ReportNavigationRepository
+import com.cornellappdev.resell.android.viewmodel.navigation.RootNavigationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
