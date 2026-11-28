@@ -4,6 +4,13 @@ on:
   push:
     branches: [ prod-beta ]
 
+permissions:
+  contents: read
+
+concurrency:
+  group: play-store-com.cornellappdev.resell.android
+  cancel-in-progress: false
+
 jobs:
   build:
     runs-on: ubuntu-latest
