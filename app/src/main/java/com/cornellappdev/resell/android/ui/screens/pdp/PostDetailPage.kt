@@ -54,7 +54,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.compose.ui.unit.max
 import coil.compose.AsyncImage
 import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.model.classes.ResellApiResponse
@@ -80,7 +79,6 @@ private val ContactSellerBottomPadding = 45.dp
 // 14.dp vertical padding + 24.dp (18.sp text with font padding) + 14.dp = 52.dp
 private val ContactSellerButtonHeight = 52.dp
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PostDetailPage(
     postDetailViewModel: PostDetailViewModel = hiltViewModel(),
@@ -121,7 +119,6 @@ fun PostDetailPage(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Composable
 private fun PostDetailPagePreview() = ResellPreview {
@@ -156,7 +153,7 @@ private fun Content(
     onUserClick: () -> Unit = {},
     showContact: Boolean = false,
 ) {
-    val pagerState = rememberPagerState(pageCount = { images.size })
+    val pagerState = rememberPagerState { images.size }
     val density = LocalDensity.current
     val screenHeight = windowHeight()
     val sheetBackground = Color.White
@@ -443,12 +440,9 @@ private fun BottomSheetContent(
 
                 Spacer(Modifier.height(8.dp))
 
-                SimilarItemsRow(
-                    images = it,
-                    onListingClick = { ind ->
-                        onSimilarClick(ind)
-                    }
-                )
+                SimilarItemsRow(images = it) { ind ->
+                    onSimilarClick(ind)
+                }
             }
         }
 

@@ -1,7 +1,6 @@
 package com.cornellappdev.resell.android.ui.components.global
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -21,23 +20,27 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cornellappdev.resell.android.R
 import com.cornellappdev.resell.android.model.classes.ResellFilter
+import com.cornellappdev.resell.android.ui.theme.ResellPreview
 import com.cornellappdev.resell.android.ui.theme.Secondary
+import com.cornellappdev.resell.android.util.clickableNoIndication
 
 @Composable
 fun Dropdown(
     selected: ResellFilter.SortBy,
     onSelectSortBy: (ResellFilter.SortBy) -> Unit,
+    initiallyExpanded: Boolean = false,
 ) {
-    var expanded by remember { mutableStateOf(false) }
+    var expanded by remember { mutableStateOf(initiallyExpanded) }
     Box {
         Row(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.clickable { expanded = !expanded }
+            modifier = Modifier.clickableNoIndication { expanded = !expanded }
         ) {
             Text(
                 text = selected.label,
@@ -77,4 +80,14 @@ fun Dropdown(
             }
         }
     }
+}
+
+@Preview(showBackground = true, widthDp = 180, heightDp = 260)
+@Composable
+private fun DropdownPreview() = ResellPreview {
+    Dropdown(
+        selected = ResellFilter.SortBy.ANY,
+        onSelectSortBy = {},
+        initiallyExpanded = true,
+    )
 }

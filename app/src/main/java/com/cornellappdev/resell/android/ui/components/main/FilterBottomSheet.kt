@@ -1,14 +1,17 @@
 package com.cornellappdev.resell.android.ui.components.main
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -17,15 +20,15 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -134,7 +137,6 @@ fun FilterBottomSheet(
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
 @Composable
 private fun AllFilters(
     originalFilter: ResellFilter,
@@ -227,7 +229,6 @@ private fun AllFilters(
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
 @Composable
 private fun SortBy(sortBy: ResellFilter.SortBy, onSelectSortBy: (ResellFilter.SortBy) -> Unit) {
     Row(
@@ -247,7 +248,6 @@ private fun SortBy(sortBy: ResellFilter.SortBy, onSelectSortBy: (ResellFilter.So
     )
 }
 
-@OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
 @Composable
 private fun PriceRangeFilter(
     priceRange: IntRange,
@@ -292,7 +292,6 @@ private fun PriceRangeFilter(
     )
 }
 
-@OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
 @Composable
 private fun Condition(
     conditionSelected: ResellFilter.FilterCondition?,
@@ -321,7 +320,6 @@ private fun Condition(
 
 
 @Composable
-@OptIn(ExperimentalLayoutApi::class)
 private fun CategoryFilters(
     categoriesSelected: List<ResellFilter.FilterCategory>,
     toggleCategory: (ResellFilter.FilterCategory) -> Unit
@@ -410,23 +408,40 @@ private fun ResellChip(selected: Boolean, onClick: () -> Unit, labelText: String
     )
 }
 
+@Preview(showBackground = true)
+@Composable
+private fun PreviewFilterBottomSheet() = ResellPreview {
+    FilterBottomSheet(
+        filter = ResellFilter(),
+        onFilterChanged = {},
+    )
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Preview
+@Preview(heightDp = 800)
 @Composable
-private fun PreviewFilterBottomSheet() {
-    // Use interactive mode to see the bottom sheet in both its expanded and half-expanded states.
-    ResellPreview {
-        val sheetState = rememberModalBottomSheetState()
-        val coroutineScope = rememberCoroutineScope()
-        ModalBottomSheet(
-            onDismissRequest = { coroutineScope.launch { sheetState.hide() } },
-            sheetState = sheetState
+private fun PreviewFilterBottomSheetPartiallyExpanded() = ResellPreview {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(BottomSheetDefaults.ScrimColor)
+    ) {
+        Surface(
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight(0.5f)
+                .align(Alignment.BottomCenter),
+            shape = BottomSheetDefaults.ExpandedShape,
+            color = BottomSheetDefaults.ContainerColor,
+            tonalElevation = BottomSheetDefaults.Elevation,
         ) {
-            FilterBottomSheet(
-                ResellFilter(),
-                onFilterChanged = {}
-            )
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                BottomSheetDefaults.DragHandle()
+                FilterBottomSheet(
+                    filter = ResellFilter(),
+                    onFilterChanged = {},
+                )
+            }
         }
     }
 }

@@ -42,10 +42,12 @@ fun Throwable.isUsernameTakenError(): Boolean =
         response()?.errorBody()?.string()?.contains("username", ignoreCase = true) == true
 
 /**
- * Handles duplicate taps on a back button.
+ * Pops the back stack but ignores taps during a transition and never pops last destination.
  */
 fun NavController.popBackStackSafely(): Boolean =
-    if (currentBackStackEntry?.lifecycle?.currentState == Lifecycle.State.RESUMED) {
+    if (previousBackStackEntry != null &&
+        currentBackStackEntry?.lifecycle?.currentState == Lifecycle.State.RESUMED
+    ) {
         popBackStack()
     } else {
         false

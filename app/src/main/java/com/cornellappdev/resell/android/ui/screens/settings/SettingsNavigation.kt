@@ -25,9 +25,7 @@ fun SettingsNavigation(
 
     LaunchedEffect(uiState.popBackStack) {
         uiState.popBackStack?.consumeSuspend {
-            if (navController.previousBackStackEntry != null) {
-                navController.popBackStackSafely()
-            }
+            navController.popBackStackSafely()
         }
     }
 
